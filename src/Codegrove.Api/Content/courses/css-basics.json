@@ -1,0 +1,1915 @@
+{
+  "slug": "css-basics",
+  "title": "CSS: Style and Layout",
+  "summary": "Color, fonts, the box model, Flexbox, Grid and pages that work on any screen.",
+  "ageBand": "Both",
+  "estimatedMinutes": 75,
+  "isPublished": true,
+  "objectives": [
+    "Style elements with selectors, properties and values",
+    "Target elements with classes and IDs, and resolve conflicts with specificity",
+    "Explain and use the box model",
+    "Lay out pages with Flexbox and Grid",
+    "Make a page work on phone and desktop widths"
+  ],
+  "lessons": [
+    {
+      "slug": "css-paint-explorer",
+      "title": "CSS is paint and clothes",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 4,
+      "isPublished": true,
+      "learnMarkdown": "## HTML builds it, CSS styles it\n\nHTML is like the walls of a house. **CSS** is the paint, the furniture and the decorations. CSS stands for *Cascading Style Sheets*.\n\nCSS lives in its own file, `style.css`. The HTML page connects to it with a `<link>` tag in the `<head>`:\n\n```html\n<link rel=\"stylesheet\" href=\"style.css\">\n```\n\n### A CSS rule\n\n```css\nh1 {\n  color: purple;\n}\n```\n\n- `h1` is the **selector**: *which* elements to style.\n- `color` is the **property**: *what* to change.\n- `purple` is the **value**: *how* to change it.\n- Every line ends with a semicolon `;` and the rule sits inside curly braces `{ }`.\n\nThis rule makes **every** `<h1>` on the page purple.\n\n### New words\n\n- **CSS** (*Cascading Style Sheets*): the language that styles web pages.\n- **Selector**: picks which elements a rule styles.\n- **Property**: the thing you change, like `color` or `font-size`.\n- **Value**: what you change it to, like `purple` or `24px`.\n",
+      "exampleMarkdown": "Two rules: one paints the heading orange, the other makes paragraphs bigger. `px` means *pixels*, the tiny dots on your screen.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>My Pet Dragon</title>\n    <style>\n      h1 {\n        color: orangered;\n      }\n\n      p {\n        font-size: 22px;\n      }\n    </style>\n  </head>\n  <body>\n    <h1>Volcanoes</h1>\n    <p>Lava can be hotter than 1,000 °C.</p>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Open the **style.css** tab (at the top of the editor).\n\n1. Make every `h1` **purple**.\n2. Make every `p` **20px** big (`font-size: 20px;`).\n\nIf nothing changes in the preview, check that `index.html` still has `<link rel=\"stylesheet\" href=\"style.css\">` in its `<head>`.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>My Pet Dragon</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>My Pet Dragon</h1>\n    <p>Her name is Ember and she loves marshmallows.</p>\n    <p>She can fly faster than a plane!</p>\n  </body>\n</html>\n",
+          "style.css": "/* Write your CSS rules below */\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>My Pet Dragon</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>My Pet Dragon</h1>\n    <p>Her name is Ember and she loves marshmallows.</p>\n    <p>She can fly faster than a plane!</p>\n  </body>\n</html>\n",
+          "style.css": "/* Write your CSS rules below */\nh1 {\n  color: purple;\n}\n\np {\n  font-size: 20px;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The heading is purple",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": "h1",
+              "property": "color",
+              "equals": "purple"
+            },
+            "failMessage": "Write a rule for h1 with color: purple; in style.css."
+          },
+          {
+            "label": "Paragraphs are 20px big",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": "p",
+              "property": "font-size",
+              "equals": "20px"
+            },
+            "failMessage": "Write a rule for p with font-size: 20px;"
+          },
+          {
+            "label": "Every paragraph got the style",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": "p:last-of-type",
+              "property": "font-size",
+              "equals": "20px"
+            },
+            "failMessage": "Use the p selector so every paragraph is styled, not just one."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Click the **style.css** tab at the top of the editor. A rule is: selector, `{`, property: value;, `}`."
+          },
+          {
+            "level": 2,
+            "markdown": "Here's the shape of a rule:\n\n```css\nh1 {\n  color: purple;\n}\n```\n\nWrite another one for `p` using `font-size`."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished style.css."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "In the rule h1 { color: purple; }, which part is the selector?",
+            "explanation": "The selector picks which elements get styled.",
+            "options": [
+              {
+                "text": "purple",
+                "correct": false
+              },
+              {
+                "text": "h1",
+                "correct": true
+              },
+              {
+                "text": "color",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Where does a CSS file connect to the page?",
+            "explanation": "A <link> tag in the <head> loads style.css.",
+            "options": [
+              {
+                "text": "A <link> tag in the <head>",
+                "correct": true
+              },
+              {
+                "text": "A <p> tag",
+                "correct": false
+              },
+              {
+                "text": "It connects by magic",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does px stand for?",
+            "explanation": "px means pixels, the tiny dots on a screen.",
+            "options": [
+              {
+                "text": "Purple",
+                "correct": false
+              },
+              {
+                "text": "Pixels",
+                "correct": true
+              },
+              {
+                "text": "Pictures",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "selectors-properties",
+      "title": "Selectors, properties and values",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 10,
+      "isPublished": true,
+      "learnMarkdown": "## CSS fundamentals\n\n**CSS** (Cascading Style Sheets) controls presentation: color, type, spacing, layout. Keeping it in a separate file separates *structure* (HTML) from *presentation* (CSS), so one stylesheet can restyle a whole site.\n\n### Anatomy of a rule\n\n```css\n/* comment */\nh1 {                    /* selector */\n  color: darkslateblue; /* declaration = property: value; */\n  font-size: 2.5rem;\n}\n```\n\nSeveral declarations make a **declaration block**. A missing `;` or `}` silently breaks the rules after it, so check those first when something doesn't apply.\n\n### Values and units\n\n| Kind | Examples | Notes |\n| --- | --- | --- |\n| Colors | `navy`, `#1d4ed8`, `rgb(29 78 216)` | Names are easy; hex and rgb are precise |\n| Absolute length | `16px` | Fixed size |\n| Relative to root font | `1.25rem` | Scales with the user's font-size setting, so prefer it for text |\n| Relative to element font | `1.5em` | Compounds when nested |\n| Percent | `50%` | Relative to the parent |\n\n### Inheritance and the cascade\n\nSome properties, like `color` and `font-family`, **inherit**: set them on `body` and every element below gets them. When two rules set the same property on the same element, the **cascade** decides: more specific selectors win, and among equals the later rule wins.\n\n### New words\n\n- **Declaration**: one `property: value;` pair.\n- **Inherit**: when a child element takes a parent's value automatically.\n- **rem** (*root em*): a length relative to the root (`<html>`) font size.\n",
+      "exampleMarkdown": "Styles set on `body` (font and color) are inherited by everything inside it. The `h1` rule then overrides the inherited color.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>The Static Sparks</title>\n    <style>\n      body {\n        font-family: Georgia, serif;\n        color: #333333;\n        background-color: aliceblue;\n      }\n\n      h1 {\n        color: steelblue;\n        font-size: 2.5rem;\n      }\n    </style>\n  </head>\n  <body>\n    <h1>Weather Station</h1>\n    <p>Today: sunny, 24 °C, light breeze.</p>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 15,
+        "instructionsMarkdown": "Style the band page in **style.css**:\n\n1. Give `body` a `background-color` of **linen** and a `font-family` of **Verdana, sans-serif**.\n2. Make `h1` **darkslateblue**.\n3. Set paragraph text to **1.125rem** (that's 18px at the default font size).\n\nIf nothing changes in the preview, check that `index.html` still has `<link rel=\"stylesheet\" href=\"style.css\">` in its `<head>`.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>The Static Sparks</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>The Static Sparks</h1>\n    <p>A garage band that plays songs about robots.</p>\n    <p>Next show: the school talent night.</p>\n  </body>\n</html>\n",
+          "style.css": "/* The Static Sparks stylesheet */\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>The Static Sparks</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>The Static Sparks</h1>\n    <p>A garage band that plays songs about robots.</p>\n    <p>Next show: the school talent night.</p>\n  </body>\n</html>\n",
+          "style.css": "/* The Static Sparks stylesheet */\nbody {\n  background-color: linen;\n  font-family: Verdana, sans-serif;\n}\n\nh1 {\n  color: darkslateblue;\n}\n\np {\n  font-size: 1.125rem;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The page background is linen",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": "body",
+              "property": "background-color",
+              "equals": "linen"
+            },
+            "failMessage": "Add background-color: linen; to a body rule."
+          },
+          {
+            "label": "The body font is Verdana",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": "p",
+              "property": "font-family",
+              "equals": "Verdana, sans-serif"
+            },
+            "failMessage": "Set font-family: Verdana, sans-serif; on body (paragraphs inherit it)."
+          },
+          {
+            "label": "The heading is darkslateblue",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": "h1",
+              "property": "color",
+              "equals": "darkslateblue"
+            },
+            "failMessage": "Add color: darkslateblue; to an h1 rule."
+          },
+          {
+            "label": "Paragraph text is 1.125rem",
+            "kind": "cssRule",
+            "spec": {
+              "selector": "p",
+              "property": "font-size",
+              "equals": "1.125rem"
+            },
+            "failMessage": "Use the rem unit: font-size: 1.125rem; on p."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "You need three rules: `body`, `h1` and `p`. The font goes on `body` so everything inherits it."
+          },
+          {
+            "level": 2,
+            "markdown": "```css\nbody {\n  background-color: …;\n  font-family: …;\n}\nh1 { color: …; }\np { font-size: …rem; }\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "The finished stylesheet."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What's one `property: value;` pair called?",
+            "explanation": "A declaration; several form a declaration block.",
+            "options": [
+              {
+                "text": "A declaration",
+                "correct": true
+              },
+              {
+                "text": "A selector",
+                "correct": false
+              },
+              {
+                "text": "A tag",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why prefer rem for font sizes?",
+            "explanation": "rem scales with the user's browser font setting.",
+            "options": [
+              {
+                "text": "It respects the user's font-size setting",
+                "correct": true
+              },
+              {
+                "text": "It's always exactly 16px",
+                "correct": false
+              },
+              {
+                "text": "Browsers require it",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "You set color on body. Why do paragraphs change color too?",
+            "explanation": "color is an inherited property.",
+            "options": [
+              {
+                "text": "Paragraphs copy the last rule",
+                "correct": false
+              },
+              {
+                "text": "It's a browser bug",
+                "correct": false
+              },
+              {
+                "text": "color is inherited by child elements",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Two equally specific rules set h1's color. Which wins?",
+            "explanation": "The cascade picks the later rule when specificity is equal.",
+            "options": [
+              {
+                "text": "The one that comes later",
+                "correct": true
+              },
+              {
+                "text": "The one that comes first",
+                "correct": false
+              },
+              {
+                "text": "Neither applies",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "classes-explorer",
+      "title": "Classes are team jerseys",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Styling some things, not all things\n\n`p { }` styles **every** paragraph. But what if you only want to style a few things?\n\nGive them a **class**, like giving players a team jersey:\n\n```html\n<div class=\"card\">...</div>\n<div class=\"card\">...</div>\n```\n\nThen style the class in CSS with a **dot** in front:\n\n```css\n.card {\n  background-color: lightyellow;\n}\n```\n\nOnly elements wearing the `card` jersey get styled. Lots of elements can share one class.\n\n### Rounded corners\n\n`border-radius` rounds the corners of a box. Bigger number, rounder corners: `border-radius: 12px;`\n\n### New words\n\n- **Class**: a name you give elements so you can style them together.\n- **Class selector**: a dot plus the class name, like `.card`.\n",
+      "exampleMarkdown": "Two boxes wear the `fact` class, so both get the green background and round corners. The plain paragraph doesn't.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Trading Cards</title>\n    <style>\n      .fact {\n        background-color: palegreen;\n        border-radius: 12px;\n      }\n    </style>\n  </head>\n  <body>\n    <p class=\"fact\">Sharks are older than trees.</p>\n    <p class=\"fact\">Octopuses have blue blood.</p>\n    <p>This paragraph has no class.</p>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Style the trading cards in **style.css**:\n\n1. Write a rule for the `card` class (don't forget the dot!).\n2. Give cards a `background-color` of **lightyellow**.\n3. Give cards `border-radius: 12px;`.\n\nThe note at the bottom has a different class, so it should stay plain. If nothing changes in the preview, check that `index.html` still has `<link rel=\"stylesheet\" href=\"style.css\">` in its `<head>`.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Trading Cards</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Trading Cards</h1>\n    <div class=\"card\">\n      <h2>Thunder Turtle</h2>\n      <p>Power: 7</p>\n    </div>\n    <div class=\"card\">\n      <h2>Pixel Panda</h2>\n      <p>Power: 9</p>\n    </div>\n    <p class=\"note\">Collect all 50 cards!</p>\n  </body>\n</html>\n",
+          "style.css": "/* Style the cards here */\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Trading Cards</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Trading Cards</h1>\n    <div class=\"card\">\n      <h2>Thunder Turtle</h2>\n      <p>Power: 7</p>\n    </div>\n    <div class=\"card\">\n      <h2>Pixel Panda</h2>\n      <p>Power: 9</p>\n    </div>\n    <p class=\"note\">Collect all 50 cards!</p>\n  </body>\n</html>\n",
+          "style.css": "/* Style the cards here */\n.card {\n  background-color: lightyellow;\n  border-radius: 12px;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "Cards are lightyellow",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".card",
+              "property": "background-color",
+              "equals": "lightyellow"
+            },
+            "failMessage": "Write .card { background-color: lightyellow; } (with the dot!)."
+          },
+          {
+            "label": "Every card is styled",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".card:last-of-type",
+              "property": "background-color",
+              "equals": "lightyellow"
+            },
+            "failMessage": "Use the .card class selector so both cards are styled."
+          },
+          {
+            "label": "Cards have round corners",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".card",
+              "property": "border-top-left-radius",
+              "equals": "12px"
+            },
+            "failMessage": "Add border-radius: 12px; inside your .card rule."
+          },
+          {
+            "label": "The note stayed plain",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "getComputedStyle(document.querySelector('.note')).backgroundColor === getComputedStyle(document.body).backgroundColor",
+              "equals": true
+            },
+            "failMessage": "Only .card should be yellow. Did you style all <p> or <div> elements instead?"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "A class selector starts with a dot. Which class do the cards wear in the HTML?"
+          },
+          {
+            "level": 2,
+            "markdown": "```css\n.card {\n  background-color: lightyellow;\n  border-radius: 12px;\n}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished rule."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "How do you select class=\"card\" in CSS?",
+            "explanation": "Class selectors start with a dot.",
+            "options": [
+              {
+                "text": "card",
+                "correct": false
+              },
+              {
+                "text": ".card",
+                "correct": true
+              },
+              {
+                "text": "#card",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Can many elements share one class?",
+            "explanation": "Yes, that's what classes are for.",
+            "options": [
+              {
+                "text": "No, only one",
+                "correct": false
+              },
+              {
+                "text": "Only two",
+                "correct": false
+              },
+              {
+                "text": "Yes",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "What does border-radius change?",
+            "explanation": "It rounds a box's corners.",
+            "options": [
+              {
+                "text": "The text color",
+                "correct": false
+              },
+              {
+                "text": "The font",
+                "correct": false
+              },
+              {
+                "text": "How round the corners are",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "classes-and-ids",
+      "title": "Classes, IDs and specificity",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 12,
+      "isPublished": true,
+      "learnMarkdown": "## Targeting elements precisely\n\n| Selector | Matches | Example |\n| --- | --- | --- |\n| Type | Every element of that type | `p` |\n| Class | Elements with `class=\"badge\"` | `.badge` |\n| ID | The one element with `id=\"featured\"` | `#featured` |\n| Descendant | `.highlight` anywhere inside `#intro` | `#intro .highlight` |\n| Compound | Elements with **both** | `p.badge` |\n| Group | Either selector | `h1, h2` |\n\nAn element can have several classes (`class=\"badge new\"`). An ID must be unique on the page. Most teams style with classes and keep IDs for anchors and scripts.\n\n### Specificity\n\nWhen rules conflict, the more **specific** selector wins, regardless of order. Count it like a score of (IDs, classes, types):\n\n| Selector | Score |\n| --- | --- |\n| `p` | (0, 0, 1) |\n| `.highlight` | (0, 1, 0) |\n| `#intro p` | (1, 0, 1) |\n| `#intro .highlight` | (1, 1, 0) |\n\nCompare left to right: one ID beats any number of classes. That's why `.highlight` loses to `#intro p` even though it's written later. Only when scores tie does the later rule win.\n\nAvoid `!important` to force a win: it makes the next conflict harder to fix. Raise specificity just enough instead.\n\n### New words\n\n- **Specificity**: the weight that decides which conflicting rule applies.\n- **Descendant selector**: two selectors separated by a space, matching elements nested inside others.\n",
+      "exampleMarkdown": "The `#tips p` rule (one ID + one type) beats `.warning` (one class), so the warning paragraph stays gray. The last rule fixes it with `#tips .warning`, which scores higher.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Space Camp</title>\n    <style>\n      #tips p {\n        color: gray;\n      }\n\n      .warning {\n        color: crimson; /* loses: (0,1,0) < (1,0,1) */\n      }\n\n      #tips .warning {\n        color: crimson; /* wins: (1,1,0) > (1,0,1) */\n      }\n    </style>\n  </head>\n  <body>\n    <section id=\"tips\">\n      <p>Wear sunscreen.</p>\n      <p class=\"warning\">Never look directly at the sun!</p>\n    </section>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 15,
+        "instructionsMarkdown": "Fix and finish the Space Camp styles in **style.css**:\n\n1. **Bug:** the \"Sign-ups close Friday!\" paragraph should be **crimson**, but it's stuck gray. Fix it without `!important`.\n2. Give every `.badge` a `background-color` of **gold** and `padding` of **4px**.\n3. Give `#featured` a **2px** solid **darkorange** border.\n\nThe other intro paragraph must stay gray.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Space Camp</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <section id=\"intro\">\n      <h1>Space Camp</h1>\n      <p>Five days of rockets, robots and stars.</p>\n      <p class=\"highlight\">Sign-ups close Friday!</p>\n    </section>\n    <p class=\"badge\">New</p>\n    <p class=\"badge\" id=\"featured\">Most popular</p>\n  </body>\n</html>\n",
+          "style.css": "#intro p {\n  color: gray;\n}\n\n.highlight {\n  color: crimson;\n}\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Space Camp</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <section id=\"intro\">\n      <h1>Space Camp</h1>\n      <p>Five days of rockets, robots and stars.</p>\n      <p class=\"highlight\">Sign-ups close Friday!</p>\n    </section>\n    <p class=\"badge\">New</p>\n    <p class=\"badge\" id=\"featured\">Most popular</p>\n  </body>\n</html>\n",
+          "style.css": "#intro p {\n  color: gray;\n}\n\n#intro .highlight {\n  color: crimson;\n}\n\n.badge {\n  background-color: gold;\n  padding: 4px;\n}\n\n#featured {\n  border: 2px solid darkorange;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The sign-up reminder is crimson",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": "#intro .highlight",
+              "property": "color",
+              "equals": "crimson"
+            },
+            "failMessage": "#intro p is more specific than .highlight. Write a selector that scores higher, like #intro .highlight."
+          },
+          {
+            "label": "The other intro text is still gray",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": "#intro p:not(.highlight)",
+              "property": "color",
+              "equals": "gray"
+            },
+            "failMessage": "Keep the #intro p rule so normal intro text stays gray."
+          },
+          {
+            "label": "No !important was used",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.styleSheets].every(s => [...s.cssRules].every(r => !(r.cssText || '').includes('!important')))",
+              "equals": true
+            },
+            "failMessage": "Fix the conflict with specificity instead of !important."
+          },
+          {
+            "label": "Badges are gold",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".badge",
+              "property": "background-color",
+              "equals": "gold"
+            },
+            "failMessage": "Add background-color: gold; to .badge."
+          },
+          {
+            "label": "Badges have 4px padding",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".badge",
+              "property": "padding-left",
+              "equals": "4px"
+            },
+            "failMessage": "Add padding: 4px; to .badge."
+          },
+          {
+            "label": "The featured badge has a 2px border",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": "#featured",
+              "property": "border-top-width",
+              "equals": "2px"
+            },
+            "failMessage": "Add border: 2px solid darkorange; to #featured."
+          },
+          {
+            "label": "That border is darkorange",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": "#featured",
+              "property": "border-top-color",
+              "equals": "darkorange"
+            },
+            "failMessage": "The border color should be darkorange."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Work out the specificity of `#intro p` and `.highlight`. Which one wins, and what selector would beat it?"
+          },
+          {
+            "level": 2,
+            "markdown": "```css\n#intro .highlight { color: crimson; }   /* (1,1,0) beats (1,0,1) */\n.badge { background-color: gold; padding: 4px; }\n#featured { border: 2px solid darkorange; }\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "The complete stylesheet."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which selector is most specific?",
+            "explanation": "One ID outweighs any number of classes.",
+            "options": [
+              {
+                "text": "ul li a",
+                "correct": false
+              },
+              {
+                "text": "#nav a",
+                "correct": true
+              },
+              {
+                "text": ".menu .item a",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Two rules have equal specificity. Which applies?",
+            "explanation": "The later rule wins on a tie.",
+            "options": [
+              {
+                "text": "The later one",
+                "correct": true
+              },
+              {
+                "text": "The earlier one",
+                "correct": false
+              },
+              {
+                "text": "The shorter one",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How many elements can share one id?",
+            "explanation": "IDs must be unique on a page.",
+            "options": [
+              {
+                "text": "Two",
+                "correct": false
+              },
+              {
+                "text": "Only one",
+                "correct": true
+              },
+              {
+                "text": "Any number",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why avoid !important?",
+            "explanation": "It overrides normal specificity, making future conflicts harder to fix.",
+            "options": [
+              {
+                "text": "It makes the next conflict harder to fix",
+                "correct": true
+              },
+              {
+                "text": "Browsers ignore it",
+                "correct": false
+              },
+              {
+                "text": "It's slower",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does p.badge match?",
+            "explanation": "A compound selector needs both: a <p> with class badge.",
+            "options": [
+              {
+                "text": "<p> elements that have class badge",
+                "correct": true
+              },
+              {
+                "text": "Any element with class badge",
+                "correct": false
+              },
+              {
+                "text": "Every <p> and every .badge",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "box-explorer",
+      "title": "Boxes inside boxes",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Every element is a box\n\nTo a browser, every element is a rectangle with layers, like a framed picture on a wall:\n\n1. **Content**: the words or picture.\n2. **Padding**: space *inside* the frame, around the content.\n3. **Border**: the frame itself.\n4. **Margin**: space *outside* the frame, between this box and its neighbors.\n\n```css\n.card {\n  padding: 16px;          /* space inside */\n  border: 3px solid black; /* the frame */\n  margin: 24px;           /* space outside */\n}\n```\n\nThe border needs three things: thickness (`3px`), style (`solid`) and color (`black`).\n\n> Tip: if text is squished against its border, add padding. If boxes bump into each other, add margin.\n\n### New words\n\n- **Padding**: space inside a box, around its content.\n- **Border**: the line around a box.\n- **Margin**: space outside a box.\n",
+      "exampleMarkdown": "Same content, two boxes. The second one has padding, a border and margin, so it's easier to read and doesn't touch its neighbors.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Recipe Cards</title>\n    <style>\n      .plain {\n        border: 3px solid tomato;\n      }\n\n      .comfy {\n        padding: 16px;\n        border: 3px solid seagreen;\n        margin: 24px;\n      }\n    </style>\n  </head>\n  <body>\n    <p class=\"plain\">I'm squished!</p>\n    <p class=\"comfy\">I have room to breathe.</p>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The recipe cards are squished. In **style.css**, give `.card`:\n\n1. `padding` of **16px**\n2. a `border` of **3px solid** (any color you like!)\n3. `margin` of **24px**\n\nIf nothing changes in the preview, check that `index.html` still has `<link rel=\"stylesheet\" href=\"style.css\">` in its `<head>`.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Recipe Cards</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Recipe Cards</h1>\n    <div class=\"card\">\n      <h2>Banana Smoothie</h2>\n      <p>Blend a banana, milk and honey.</p>\n    </div>\n    <div class=\"card\">\n      <h2>Ants on a Log</h2>\n      <p>Celery, peanut butter and raisins.</p>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".card {\n  background-color: white;\n}\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Recipe Cards</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Recipe Cards</h1>\n    <div class=\"card\">\n      <h2>Banana Smoothie</h2>\n      <p>Blend a banana, milk and honey.</p>\n    </div>\n    <div class=\"card\">\n      <h2>Ants on a Log</h2>\n      <p>Celery, peanut butter and raisins.</p>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".card {\n  background-color: white;\n  padding: 16px;\n  border: 3px solid teal;\n  margin: 24px;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "Cards have 16px padding",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".card",
+              "property": "padding-top",
+              "equals": "16px"
+            },
+            "failMessage": "Add padding: 16px; to .card."
+          },
+          {
+            "label": "Cards have a 3px border",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".card",
+              "property": "border-top-width",
+              "equals": "3px"
+            },
+            "failMessage": "Add border: 3px solid teal; (or your favorite color) to .card."
+          },
+          {
+            "label": "The border is solid",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".card",
+              "property": "border-top-style",
+              "equals": "solid"
+            },
+            "failMessage": "Use the word solid in your border."
+          },
+          {
+            "label": "Cards have 24px margin",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".card",
+              "property": "margin-top",
+              "equals": "24px"
+            },
+            "failMessage": "Add margin: 24px; to .card."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "All three go inside the `.card` rule that's already there, each on its own line ending with `;`."
+          },
+          {
+            "level": 2,
+            "markdown": "```css\n.card {\n  background-color: white;\n  padding: 16px;\n  border: 3px solid teal;\n  margin: 24px;\n}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished rule."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which is space INSIDE the border?",
+            "explanation": "Padding is inside the border, around the content.",
+            "options": [
+              {
+                "text": "Padding",
+                "correct": true
+              },
+              {
+                "text": "Margin",
+                "correct": false
+              },
+              {
+                "text": "Content",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Boxes are bumping into each other. What should you add?",
+            "explanation": "Margin adds space outside a box.",
+            "options": [
+              {
+                "text": "Padding",
+                "correct": false
+              },
+              {
+                "text": "A bigger font",
+                "correct": false
+              },
+              {
+                "text": "Margin",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "What three things does a border need?",
+            "explanation": "Thickness, style and color, like 3px solid black.",
+            "options": [
+              {
+                "text": "Only a color",
+                "correct": false
+              },
+              {
+                "text": "A width and a height",
+                "correct": false
+              },
+              {
+                "text": "Thickness, style and color",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "box-model",
+      "title": "The box model",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 12,
+      "isPublished": true,
+      "learnMarkdown": "## The box model\n\nEvery element generates a box with four areas, from the inside out: **content**, **padding**, **border**, **margin**.\n\n### Shorthand\n\n```css\npadding: 20px;              /* all four sides */\npadding: 10px 20px;         /* vertical | horizontal */\npadding: 10px 20px 30px 40px; /* top | right | bottom | left (clockwise) */\nborder: 2px solid #334155;  /* width | style | color */\n```\n\n### How wide is a box?\n\nBy default (`box-sizing: content-box`), `width` sets only the **content** width. Padding and border are added on top:\n\n> `width: 300px` + `padding: 20px` + `border: 2px` → **344px** on screen.\n\nThat surprises everyone. With `box-sizing: border-box`, `width` includes padding and border, so `width: 300px` means 300px on screen. Most teams set it everywhere:\n\n```css\n*, *::before, *::after {\n  box-sizing: border-box;\n}\n```\n\n### Margin collapse\n\nWhen two block elements' vertical margins touch, they **collapse** into the larger of the two, not the sum. A 24px bottom margin above a 16px top margin gives a 24px gap. Padding and borders never collapse.\n\n### Centering a block\n\nA block with a set width can be centered with `margin: 0 auto;`: zero top/bottom, automatic (equal) left/right.\n\n### New words\n\n- **box-sizing**: whether `width` includes padding and border.\n- **Margin collapse**: adjacent vertical margins merging into the larger one.\n",
+      "exampleMarkdown": "Both boxes have `width: 200px`, but the content-box one is wider on screen because its padding and border are added on top. The border-box one stays exactly 200px.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Profile Card</title>\n    <style>\n      div {\n        width: 200px;\n        padding: 20px;\n        border: 4px solid slategray;\n        margin-bottom: 12px;\n      }\n\n      .a { box-sizing: content-box; }\n      .b { box-sizing: border-box; }\n    </style>\n  </head>\n  <body>\n    <div class=\"a\">content-box</div>\n    <div class=\"b\">border-box</div>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 15,
+        "instructionsMarkdown": "Make the profile card exactly **300px** wide on screen and center it:\n\n1. Apply `box-sizing: border-box` to every element using the universal selector (`*`).\n2. Give `.profile` a `width` of **300px**, `padding` of **20px**, and a **2px solid** border.\n3. Center `.profile` horizontally with `margin: 0 auto;`.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Profile Card</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <div class=\"profile\">\n      <h1>@NovaCoder</h1>\n      <p>Builds websites about space. Favorite tag: &lt;main&gt;.</p>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".profile {\n  background-color: whitesmoke;\n}\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Profile Card</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <div class=\"profile\">\n      <h1>@NovaCoder</h1>\n      <p>Builds websites about space. Favorite tag: &lt;main&gt;.</p>\n    </div>\n  </body>\n</html>\n",
+          "style.css": "*, *::before, *::after {\n  box-sizing: border-box;\n}\n\n.profile {\n  background-color: whitesmoke;\n  width: 300px;\n  padding: 20px;\n  border: 2px solid #334155;\n  margin: 0 auto;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "Every element uses border-box",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": "h1",
+              "property": "box-sizing",
+              "equals": "border-box"
+            },
+            "failMessage": "Add * { box-sizing: border-box; } so it applies to every element."
+          },
+          {
+            "label": "The card is 300px wide",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".profile",
+              "property": "width",
+              "equals": "300px"
+            },
+            "failMessage": "Add width: 300px; to .profile."
+          },
+          {
+            "label": "The card has 20px padding",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".profile",
+              "property": "padding-left",
+              "equals": "20px"
+            },
+            "failMessage": "Add padding: 20px; to .profile."
+          },
+          {
+            "label": "The card has a 2px solid border",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".profile",
+              "property": "border-left-width",
+              "equals": "2px"
+            },
+            "failMessage": "Add border: 2px solid <color>;"
+          },
+          {
+            "label": "The card is centered with auto side margins",
+            "kind": "cssRule",
+            "spec": {
+              "selector": ".profile",
+              "property": "margin",
+              "matches": "^0(px)?\\s+auto$"
+            },
+            "failMessage": "Add margin: 0 auto; to .profile."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Two rules: one using the universal selector `*` for box-sizing, and the `.profile` rule for size, spacing, border and centering."
+          },
+          {
+            "level": 2,
+            "markdown": "```css\n* { box-sizing: border-box; }\n.profile {\n  width: 300px;\n  padding: 20px;\n  border: 2px solid …;\n  margin: 0 auto;\n}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "The complete stylesheet."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "With content-box, width 300px, padding 20px and a 2px border, how wide is the box on screen?",
+            "explanation": "300 + 2×20 + 2×2 = 344px.",
+            "options": [
+              {
+                "text": "320px",
+                "correct": false
+              },
+              {
+                "text": "344px",
+                "correct": true
+              },
+              {
+                "text": "300px",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does box-sizing: border-box change?",
+            "explanation": "width then includes padding and border.",
+            "options": [
+              {
+                "text": "Borders become thicker",
+                "correct": false
+              },
+              {
+                "text": "Margins collapse",
+                "correct": false
+              },
+              {
+                "text": "width includes padding and border",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Two stacked paragraphs have margins of 24px and 16px between them. How big is the gap?",
+            "explanation": "Vertical margins collapse to the larger one.",
+            "options": [
+              {
+                "text": "16px",
+                "correct": false
+              },
+              {
+                "text": "24px",
+                "correct": true
+              },
+              {
+                "text": "40px",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does padding: 10px 20px; set?",
+            "explanation": "Two values: vertical, then horizontal.",
+            "options": [
+              {
+                "text": "10px left, 20px right",
+                "correct": false
+              },
+              {
+                "text": "10px everywhere",
+                "correct": false
+              },
+              {
+                "text": "10px top and bottom, 20px left and right",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "How do you center a fixed-width block?",
+            "explanation": "margin: 0 auto splits leftover space evenly.",
+            "options": [
+              {
+                "text": "padding: auto;",
+                "correct": false
+              },
+              {
+                "text": "margin: 0 auto;",
+                "correct": true
+              },
+              {
+                "text": "text-align: center;",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "flexbox-explorer",
+      "title": "Lining things up with Flexbox",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Lining up toys on a shelf\n\nNormally, boxes stack on top of each other like a tower. **Flexbox** lines them up in a row, like toys on a shelf.\n\nYou turn it on for the **parent** box (the shelf), and its children line up:\n\n```css\n.shelf {\n  display: flex;\n}\n```\n\n### Moving things around\n\n- `justify-content: center;` moves the children to the middle, left to right.\n- `align-items: center;` moves them to the middle, top to bottom.\n- `gap: 16px;` puts space between the children.\n\nUse both `center`s and you can put something right in the middle of a box. Lots of grown-up developers search the web for how to do that!\n\n### New words\n\n- **Flexbox**: a CSS tool for lining things up in a row (or a column).\n- **Parent / children**: a box and the boxes directly inside it.\n",
+      "exampleMarkdown": "The `.row` box is the parent. With `display: flex` its three children sit side by side, spread out by `gap`.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Launch Pad</title>\n    <style>\n      .row {\n        display: flex;\n        gap: 16px;\n      }\n\n      .tile {\n        font-size: 40px;\n        padding: 12px;\n        background-color: lavender;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"row\">\n      <div class=\"tile\">🍎</div>\n      <div class=\"tile\">🍌</div>\n      <div class=\"tile\">🍇</div>\n    </div>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Put the **Launch!** button right in the middle of the big box. In `.launch-pad`:\n\n1. Turn on Flexbox with `display: flex;`.\n2. Center it left to right with `justify-content: center;`.\n3. Center it top to bottom with `align-items: center;`.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Launch Pad</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Mission Control</h1>\n    <div class=\"launch-pad\">\n      <button>Launch!</button>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".launch-pad {\n  height: 200px;\n  background-color: midnightblue;\n}\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Launch Pad</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Mission Control</h1>\n    <div class=\"launch-pad\">\n      <button>Launch!</button>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".launch-pad {\n  height: 200px;\n  background-color: midnightblue;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "Flexbox is on",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".launch-pad",
+              "property": "display",
+              "equals": "flex"
+            },
+            "failMessage": "Add display: flex; to .launch-pad."
+          },
+          {
+            "label": "Centered left to right",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".launch-pad",
+              "property": "justify-content",
+              "equals": "center"
+            },
+            "failMessage": "Add justify-content: center;"
+          },
+          {
+            "label": "Centered top to bottom",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".launch-pad",
+              "property": "align-items",
+              "equals": "center"
+            },
+            "failMessage": "Add align-items: center;"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "All three lines go on the **parent** box, `.launch-pad`, not on the button."
+          },
+          {
+            "level": 2,
+            "markdown": "```css\n.launch-pad {\n  height: 200px;\n  background-color: midnightblue;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished rule."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Where do you put display: flex?",
+            "explanation": "Flexbox goes on the parent; its children get lined up.",
+            "options": [
+              {
+                "text": "On each child",
+                "correct": false
+              },
+              {
+                "text": "On the <html> tag",
+                "correct": false
+              },
+              {
+                "text": "On the parent box",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Which property adds space between flex children?",
+            "explanation": "gap sets the space between items.",
+            "options": [
+              {
+                "text": "gap",
+                "correct": true
+              },
+              {
+                "text": "color",
+                "correct": false
+              },
+              {
+                "text": "border",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does align-items: center do in a row?",
+            "explanation": "In a row, align-items centers top to bottom.",
+            "options": [
+              {
+                "text": "Centers things top to bottom",
+                "correct": true
+              },
+              {
+                "text": "Makes text bold",
+                "correct": false
+              },
+              {
+                "text": "Hides the items",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "flexbox",
+      "title": "Flexbox",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 14,
+      "isPublished": true,
+      "learnMarkdown": "## Flexbox: one-dimensional layout\n\n`display: flex` makes an element a **flex container** and its direct children **flex items**, laid out along a **main axis**.\n\n### Container properties\n\n| Property | Common values | Controls |\n| --- | --- | --- |\n| `flex-direction` | `row` (default), `column` | The main axis |\n| `justify-content` | `flex-start`, `center`, `space-between`, `space-around` | Spacing **along** the main axis |\n| `align-items` | `stretch` (default), `center`, `flex-start` | Alignment **across** the main axis |\n| `gap` | `16px` | Space between items |\n| `flex-wrap` | `nowrap` (default), `wrap` | Whether items move to a new line when out of room |\n\n`justify-content` and `align-items` swap visual directions when `flex-direction` is `column`: they always follow the axes, not left/right.\n\n### Item properties\n\n`flex: 1` makes an item grow to share leftover space. `flex: 1 1 200px` means \"start at 200px, grow and shrink as needed\".\n\n### When to use it\n\nFlexbox shines for **one-dimensional** layouts: a nav bar, a row of buttons, centering, a row of cards that wraps. For two-dimensional layouts (rows *and* columns that line up), use Grid (next lesson).\n\n### New words\n\n- **Main axis / cross axis**: the direction items flow, and the one perpendicular to it.\n- **Flex container / flex item**: the element with `display: flex`, and its direct children.\n",
+      "exampleMarkdown": "A nav bar: the logo and the links are pushed to opposite ends with `space-between` and vertically centered with `align-items`. The inner `.links` group is its own small flex container.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pixel Forge Studio</title>\n    <style>\n      .bar {\n        display: flex;\n        justify-content: space-between;\n        align-items: center;\n        padding: 12px;\n        background-color: #0f172a;\n        color: white;\n      }\n\n      .links {\n        display: flex;\n        gap: 16px;\n      }\n\n      .links a { color: #5eead4; }\n    </style>\n  </head>\n  <body>\n    <nav class=\"bar\">\n      <strong>Codegrove</strong>\n      <div class=\"links\">\n        <a href=\"#\">Learn</a>\n        <a href=\"#\">Badges</a>\n      </div>\n    </nav>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 15,
+        "instructionsMarkdown": "Lay out the game studio page:\n\n1. `.nav`: a flex container with the title and menu at **opposite ends** (`space-between`), **vertically centered**.\n2. `.menu`: a flex container with a **16px** gap between links.\n3. `.cards`: a flex container whose cards **wrap** onto new lines, with a **20px** gap.\n4. `.card`: give each card `flex: 1 1 200px` so cards share the row but never get narrower than about 200px.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pixel Forge Studio</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <nav class=\"nav\">\n      <h1>Pixel Forge</h1>\n      <div class=\"menu\">\n        <a href=\"#games\">Games</a>\n        <a href=\"#team\">Team</a>\n        <a href=\"#jobs\">Jobs</a>\n      </div>\n    </nav>\n    <div class=\"cards\">\n      <div class=\"card\"><h2>Star Hopper</h2><p>A space platformer.</p></div>\n      <div class=\"card\"><h2>Mole Patrol</h2><p>Dig, dodge, repeat.</p></div>\n      <div class=\"card\"><h2>Cloud Kingdom</h2><p>Build a sky city.</p></div>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".card {\n  padding: 16px;\n  background-color: #e0f2fe;\n}\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pixel Forge Studio</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <nav class=\"nav\">\n      <h1>Pixel Forge</h1>\n      <div class=\"menu\">\n        <a href=\"#games\">Games</a>\n        <a href=\"#team\">Team</a>\n        <a href=\"#jobs\">Jobs</a>\n      </div>\n    </nav>\n    <div class=\"cards\">\n      <div class=\"card\"><h2>Star Hopper</h2><p>A space platformer.</p></div>\n      <div class=\"card\"><h2>Mole Patrol</h2><p>Dig, dodge, repeat.</p></div>\n      <div class=\"card\"><h2>Cloud Kingdom</h2><p>Build a sky city.</p></div>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".nav {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n\n.menu {\n  display: flex;\n  gap: 16px;\n}\n\n.cards {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 20px;\n}\n\n.card {\n  padding: 16px;\n  background-color: #e0f2fe;\n  flex: 1 1 200px;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The nav is a flex container",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".nav",
+              "property": "display",
+              "equals": "flex"
+            },
+            "failMessage": "Add display: flex; to .nav."
+          },
+          {
+            "label": "Title and menu sit at opposite ends",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".nav",
+              "property": "justify-content",
+              "equals": "space-between"
+            },
+            "failMessage": "Use justify-content: space-between;"
+          },
+          {
+            "label": "Nav items are vertically centered",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".nav",
+              "property": "align-items",
+              "equals": "center"
+            },
+            "failMessage": "Add align-items: center; to .nav."
+          },
+          {
+            "label": "Menu links have a 16px gap",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".menu",
+              "property": "column-gap",
+              "equals": "16px"
+            },
+            "failMessage": "Make .menu a flex container with gap: 16px;"
+          },
+          {
+            "label": "Cards wrap onto new lines",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".cards",
+              "property": "flex-wrap",
+              "equals": "wrap"
+            },
+            "failMessage": "Add flex-wrap: wrap; to .cards."
+          },
+          {
+            "label": "Cards have a 20px gap",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".cards",
+              "property": "row-gap",
+              "equals": "20px"
+            },
+            "failMessage": "Add gap: 20px; to .cards."
+          },
+          {
+            "label": "Each card starts at 200px",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".card",
+              "property": "flex-basis",
+              "equals": "200px"
+            },
+            "failMessage": "Add flex: 1 1 200px; to .card."
+          },
+          {
+            "label": "Each card can grow",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".card",
+              "property": "flex-grow",
+              "equals": "1"
+            },
+            "failMessage": "The first number in flex: 1 1 200px lets cards grow."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Containers get `display: flex` plus the layout properties; the only item-level property is `flex` on `.card`."
+          },
+          {
+            "level": 2,
+            "markdown": "```css\n.nav { display: flex; justify-content: space-between; align-items: center; }\n.menu { display: flex; gap: 16px; }\n.cards { display: flex; flex-wrap: wrap; gap: 20px; }\n.card { flex: 1 1 200px; }\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "The complete stylesheet."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which property spaces items along the main axis?",
+            "explanation": "justify-content works along the main axis.",
+            "options": [
+              {
+                "text": "justify-content",
+                "correct": true
+              },
+              {
+                "text": "align-items",
+                "correct": false
+              },
+              {
+                "text": "flex-wrap",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "With flex-direction: column, what does justify-content control?",
+            "explanation": "It follows the main axis, which is now vertical.",
+            "options": [
+              {
+                "text": "Vertical spacing",
+                "correct": true
+              },
+              {
+                "text": "Horizontal spacing",
+                "correct": false
+              },
+              {
+                "text": "Nothing",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does flex: 1 1 200px mean?",
+            "explanation": "grow 1, shrink 1, basis 200px.",
+            "options": [
+              {
+                "text": "Exactly 200px, always",
+                "correct": false
+              },
+              {
+                "text": "1px wide",
+                "correct": false
+              },
+              {
+                "text": "Start at 200px, and grow or shrink as needed",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Which layout suits Flexbox best?",
+            "explanation": "Flexbox is one-dimensional: a single row or column.",
+            "options": [
+              {
+                "text": "A table of data",
+                "correct": false
+              },
+              {
+                "text": "A single row of buttons",
+                "correct": true
+              },
+              {
+                "text": "A full page of aligned rows and columns",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "grid-explorer",
+      "title": "Grids: a tic-tac-toe board",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## A board for your page\n\nFlexbox lines things up in **one** row. **Grid** makes rows *and* columns, like a tic-tac-toe board or a photo album.\n\n```css\n.board {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 10px;\n}\n```\n\n- `display: grid;` turns the grid on (on the parent, like Flexbox).\n- `grid-template-columns` says how many columns. Each `1fr` is one equal share of the space, so `1fr 1fr 1fr` means **3 equal columns**.\n- `gap` adds space between the squares.\n\nThe children fill the board in order: left to right, then the next row.\n\n### New words\n\n- **Grid**: a CSS tool for laying things out in rows and columns.\n- **fr** (*fraction*): one equal share of the free space.\n",
+      "exampleMarkdown": "Nine squares with `1fr 1fr 1fr` make a 3 by 3 tic-tac-toe board.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Bug Collection</title>\n    <style>\n      .board {\n        display: grid;\n        grid-template-columns: 1fr 1fr 1fr;\n        gap: 10px;\n        width: 200px;\n      }\n\n      .board div {\n        font-size: 32px;\n        text-align: center;\n        background-color: bisque;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"board\">\n      <div>X</div><div>O</div><div>X</div>\n      <div>O</div><div>X</div><div>O</div>\n      <div>O</div><div>X</div><div>X</div>\n    </div>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Turn the bug collection into a grid. In `.gallery`:\n\n1. Turn on Grid with `display: grid;`.\n2. Make **3 equal columns**.\n3. Add a `gap` of **10px**.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Bug Collection</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Bug Collection</h1>\n    <div class=\"gallery\">\n      <div class=\"item\">🐞</div>\n      <div class=\"item\">🦋</div>\n      <div class=\"item\">🐝</div>\n      <div class=\"item\">🐛</div>\n      <div class=\"item\">🐜</div>\n      <div class=\"item\">🦗</div>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".item {\n  font-size: 40px;\n  text-align: center;\n  background-color: honeydew;\n}\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Bug Collection</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Bug Collection</h1>\n    <div class=\"gallery\">\n      <div class=\"item\">🐞</div>\n      <div class=\"item\">🦋</div>\n      <div class=\"item\">🐝</div>\n      <div class=\"item\">🐛</div>\n      <div class=\"item\">🐜</div>\n      <div class=\"item\">🦗</div>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".gallery {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 10px;\n}\n\n.item {\n  font-size: 40px;\n  text-align: center;\n  background-color: honeydew;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "Grid is on",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".gallery",
+              "property": "display",
+              "equals": "grid"
+            },
+            "failMessage": "Add a .gallery rule with display: grid;"
+          },
+          {
+            "label": "The grid has 3 columns",
+            "kind": "cssRule",
+            "spec": {
+              "selector": ".gallery",
+              "property": "grid-template-columns",
+              "matches": "^(repeat\\(\\s*3\\s*,.+\\)|\\S+\\s+\\S+\\s+\\S+)$"
+            },
+            "failMessage": "Use grid-template-columns: 1fr 1fr 1fr; for three equal columns."
+          },
+          {
+            "label": "Squares have a 10px gap",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".gallery",
+              "property": "row-gap",
+              "equals": "10px"
+            },
+            "failMessage": "Add gap: 10px; to .gallery."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "You need a new rule for the parent: `.gallery`. How many `1fr`s make 3 columns?"
+          },
+          {
+            "level": 2,
+            "markdown": "```css\n.gallery {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 10px;\n}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished stylesheet."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does grid-template-columns: 1fr 1fr 1fr; make?",
+            "explanation": "Three 1fr shares make three equal columns.",
+            "options": [
+              {
+                "text": "3 equal columns",
+                "correct": true
+              },
+              {
+                "text": "3 rows",
+                "correct": false
+              },
+              {
+                "text": "1 big column",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How is Grid different from Flexbox?",
+            "explanation": "Grid does rows and columns together; Flexbox does one line.",
+            "options": [
+              {
+                "text": "They're exactly the same",
+                "correct": false
+              },
+              {
+                "text": "Grid does rows and columns",
+                "correct": true
+              },
+              {
+                "text": "Grid only does colors",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does fr mean?",
+            "explanation": "fr is a fraction: one equal share of the space.",
+            "options": [
+              {
+                "text": "One equal share of the space",
+                "correct": true
+              },
+              {
+                "text": "Font range",
+                "correct": false
+              },
+              {
+                "text": "Frame",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "grid",
+      "title": "CSS Grid",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 14,
+      "isPublished": true,
+      "learnMarkdown": "## CSS Grid: two-dimensional layout\n\nGrid lays items out in rows **and** columns at once, so things line up both ways.\n\n```css\n.layout {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 16px;\n}\n```\n\n### Defining tracks\n\n| Value | Meaning |\n| --- | --- |\n| `200px 1fr` | A fixed 200px column, then one taking the rest |\n| `repeat(3, 1fr)` | Three equal columns (same as `1fr 1fr 1fr`) |\n| `repeat(auto-fill, minmax(150px, 1fr))` | As many ≥150px columns as fit: responsive without media queries |\n\nThe `fr` unit divides **free space** after fixed tracks and gaps are taken out.\n\n### Placing and spanning items\n\nItems fill cells in order by default. An item can span tracks:\n\n```css\n.hero { grid-column: span 2; }   /* two columns wide */\n.tall { grid-row: span 2; }      /* two rows tall */\n```\n\nOr place it by **grid lines** (numbered from 1 at the start edge): `grid-column: 1 / 3` runs from line 1 to line 3, which is also two columns.\n\n### Grid or Flexbox?\n\nUse **Grid** when the layout is a 2D structure (page regions, galleries, dashboards). Use **Flexbox** when content flows in one direction (nav items, button groups). They nest happily: a grid cell can be a flex container.\n\n### New words\n\n- **Track**: a row or column of a grid.\n- **Grid line**: the numbered boundaries between tracks.\n- **Span**: how many tracks an item covers.\n",
+      "exampleMarkdown": "A sidebar layout: a fixed 160px column plus a flexible one. The header spans both columns with `grid-column: 1 / 3`.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Photo Wall</title>\n    <style>\n      .page {\n        display: grid;\n        grid-template-columns: 160px 1fr;\n        gap: 12px;\n      }\n\n      .top {\n        grid-column: 1 / 3;\n        background-color: #fde68a;\n      }\n\n      aside { background-color: #bfdbfe; }\n      main { background-color: #bbf7d0; }\n\n      .page > * { padding: 12px; }\n    </style>\n  </head>\n  <body>\n    <div class=\"page\">\n      <header class=\"top\">Header</header>\n      <aside>Sidebar</aside>\n      <main>Main content</main>\n    </div>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 15,
+        "instructionsMarkdown": "Build the photo wall:\n\n1. Make `.wall` a grid with **3 equal columns** (use `repeat`) and a **16px** gap.\n2. Make the `.featured` photo **span 2 columns**.\n3. Make the `.tall` photo **span 2 rows**.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Photo Wall</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Field Trip Photos</h1>\n    <div class=\"wall\">\n      <div class=\"photo featured\">Aquarium (featured)</div>\n      <div class=\"photo\">Sea turtle</div>\n      <div class=\"photo tall\">Kelp forest</div>\n      <div class=\"photo\">Jellyfish</div>\n      <div class=\"photo\">Gift shop</div>\n      <div class=\"photo\">Bus ride home</div>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".photo {\n  min-height: 80px;\n  padding: 12px;\n  background-color: #cffafe;\n}\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Photo Wall</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Field Trip Photos</h1>\n    <div class=\"wall\">\n      <div class=\"photo featured\">Aquarium (featured)</div>\n      <div class=\"photo\">Sea turtle</div>\n      <div class=\"photo tall\">Kelp forest</div>\n      <div class=\"photo\">Jellyfish</div>\n      <div class=\"photo\">Gift shop</div>\n      <div class=\"photo\">Bus ride home</div>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".wall {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 16px;\n}\n\n.featured {\n  grid-column: span 2;\n}\n\n.tall {\n  grid-row: span 2;\n}\n\n.photo {\n  min-height: 80px;\n  padding: 12px;\n  background-color: #cffafe;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The wall is a grid",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".wall",
+              "property": "display",
+              "equals": "grid"
+            },
+            "failMessage": "Add display: grid; to .wall."
+          },
+          {
+            "label": "The wall uses repeat() for 3 columns",
+            "kind": "cssRule",
+            "spec": {
+              "selector": ".wall",
+              "property": "grid-template-columns",
+              "matches": "^repeat\\(\\s*3\\s*,"
+            },
+            "failMessage": "Use grid-template-columns: repeat(3, 1fr);"
+          },
+          {
+            "label": "Photos have a 16px gap",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".wall",
+              "property": "column-gap",
+              "equals": "16px"
+            },
+            "failMessage": "Add gap: 16px; to .wall."
+          },
+          {
+            "label": "The featured photo spans 2 columns",
+            "kind": "cssRule",
+            "spec": {
+              "selector": ".featured",
+              "property": "grid-column",
+              "matches": "span\\s*2|^1\\s*/\\s*3$|^1\\s*/\\s*span\\s*2$"
+            },
+            "failMessage": "Add grid-column: span 2; to .featured."
+          },
+          {
+            "label": "The tall photo spans 2 rows",
+            "kind": "cssRule",
+            "spec": {
+              "selector": ".tall",
+              "property": "grid-row",
+              "matches": "span\\s*2"
+            },
+            "failMessage": "Add grid-row: span 2; to .tall."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "One rule makes the grid (`.wall`); two small rules make individual items span."
+          },
+          {
+            "level": 2,
+            "markdown": "```css\n.wall { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }\n.featured { grid-column: span 2; }\n.tall { grid-row: span 2; }\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "The complete stylesheet."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does repeat(3, 1fr) produce?",
+            "explanation": "Three equal-width columns.",
+            "options": [
+              {
+                "text": "Three equal columns",
+                "correct": true
+              },
+              {
+                "text": "One column repeated three times as tall",
+                "correct": false
+              },
+              {
+                "text": "Three rows",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "grid-column: 1 / 3 covers how many columns?",
+            "explanation": "From line 1 to line 3 is two columns.",
+            "options": [
+              {
+                "text": "Three",
+                "correct": false
+              },
+              {
+                "text": "One",
+                "correct": false
+              },
+              {
+                "text": "Two",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Which layout fits Grid better than Flexbox?",
+            "explanation": "Grid suits 2D structures where rows and columns align.",
+            "options": [
+              {
+                "text": "A row of three buttons",
+                "correct": false
+              },
+              {
+                "text": "Centering one icon",
+                "correct": false
+              },
+              {
+                "text": "A photo gallery with aligned rows and columns",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "What does the fr unit divide?",
+            "explanation": "fr shares the free space left after fixed tracks and gaps.",
+            "options": [
+              {
+                "text": "The font size",
+                "correct": false
+              },
+              {
+                "text": "The free space left over",
+                "correct": true
+              },
+              {
+                "text": "The screen's total width",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does repeat(auto-fill, minmax(150px, 1fr)) do?",
+            "explanation": "It fits as many ≥150px columns as the width allows.",
+            "options": [
+              {
+                "text": "Fits as many columns of at least 150px as there's room for",
+                "correct": true
+              },
+              {
+                "text": "Makes exactly 150 columns",
+                "correct": false
+              },
+              {
+                "text": "Makes one 150px column",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "responsive-explorer",
+      "title": "Pages that stretch and shrink",
+      "sortOrder": 6,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Phones, tablets and laptops\n\nPeople visit websites on all kinds of screens. A page that looks great on a laptop can be squished on a phone. **Responsive design** means your page changes shape to fit the screen.\n\n### Media queries\n\nA **media query** is a CSS rule that only works on some screens:\n\n```css\n@media (max-width: 600px) {\n  .cards {\n    flex-direction: column;\n  }\n}\n```\n\nThat says: *\"When the screen is 600px wide or less, stack the cards in a column instead of a row.\"*\n\nOn big screens, the cards sit side by side. On small screens, they stack, so nothing gets squished.\n\n### Stretchy pictures\n\n`max-width: 100%;` on images stops them from poking out of small screens.\n\n### New words\n\n- **Responsive design**: pages that fit any screen size.\n- **Media query**: CSS that only applies when a condition is true, like a small screen.\n",
+      "exampleMarkdown": "On a wide screen the boxes sit in a row. Inside the media query, they switch to a column when the screen is 500px or narrower. (Make your browser window narrow to watch it happen!)",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Planet Cards</title>\n    <style>\n      .row {\n        display: flex;\n        gap: 10px;\n      }\n\n      .box {\n        flex: 1;\n        padding: 20px;\n        background-color: lightpink;\n      }\n\n      @media (max-width: 500px) {\n        .row {\n          flex-direction: column;\n        }\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"row\">\n      <div class=\"box\">One</div>\n      <div class=\"box\">Two</div>\n    </div>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** On phones, the three planet cards are too squished.\n\n1. Add a media query for screens of **max-width: 600px**.\n2. Inside it, give `.cards` `flex-direction: column;` so they stack.\n3. Outside the media query, give `img` a `max-width` of **100%**.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Planet Cards</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Planets</h1>\n    <img src=\"planets.png\" alt=\"The eight planets in a row from Mercury to Neptune\">\n    <div class=\"cards\">\n      <div class=\"card\">Mars</div>\n      <div class=\"card\">Jupiter</div>\n      <div class=\"card\">Saturn</div>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".cards {\n  display: flex;\n  gap: 12px;\n}\n\n.card {\n  flex: 1;\n  padding: 20px;\n  background-color: lightsteelblue;\n}\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Planet Cards</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Planets</h1>\n    <img src=\"planets.png\" alt=\"The eight planets in a row from Mercury to Neptune\">\n    <div class=\"cards\">\n      <div class=\"card\">Mars</div>\n      <div class=\"card\">Jupiter</div>\n      <div class=\"card\">Saturn</div>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".cards {\n  display: flex;\n  gap: 12px;\n}\n\n.card {\n  flex: 1;\n  padding: 20px;\n  background-color: lightsteelblue;\n}\n\nimg {\n  max-width: 100%;\n}\n\n@media (max-width: 600px) {\n  .cards {\n    flex-direction: column;\n  }\n}\n"
+        },
+        "tests": [
+          {
+            "label": "Cards stack on screens 600px or smaller",
+            "kind": "cssRule",
+            "spec": {
+              "selector": ".cards",
+              "property": "flex-direction",
+              "equals": "column",
+              "media": "max-width: 600px"
+            },
+            "failMessage": "Inside @media (max-width: 600px) { }, write .cards { flex-direction: column; }"
+          },
+          {
+            "label": "Cards still sit in a row on big screens",
+            "kind": "cssRule",
+            "spec": {
+              "selector": ".cards",
+              "property": "display",
+              "equals": "flex"
+            },
+            "failMessage": "Keep the original .cards rule with display: flex; outside the media query."
+          },
+          {
+            "label": "Pictures can't poke out of small screens",
+            "kind": "cssRule",
+            "spec": {
+              "selector": "img",
+              "property": "max-width",
+              "equals": "100%"
+            },
+            "failMessage": "Add img { max-width: 100%; } outside the media query."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "A media query wraps normal CSS rules: `@media (...) { .cards { ... } }`. Count your curly braces!"
+          },
+          {
+            "level": 2,
+            "markdown": "```css\nimg {\n  max-width: 100%;\n}\n\n@media (max-width: 600px) {\n  .cards {\n    flex-direction: column;\n  }\n}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished stylesheet."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does responsive design mean?",
+            "explanation": "Responsive pages change shape to fit the screen.",
+            "options": [
+              {
+                "text": "Pages that fit any screen size",
+                "correct": true
+              },
+              {
+                "text": "Pages that load fast",
+                "correct": false
+              },
+              {
+                "text": "Pages with sound",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When does @media (max-width: 600px) apply?",
+            "explanation": "On screens 600px wide or narrower.",
+            "options": [
+              {
+                "text": "On screens 600px wide or smaller",
+                "correct": true
+              },
+              {
+                "text": "On every screen",
+                "correct": false
+              },
+              {
+                "text": "Only on screens bigger than 600px",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why put max-width: 100% on images?",
+            "explanation": "It keeps images from being wider than their container.",
+            "options": [
+              {
+                "text": "To make images bigger",
+                "correct": false
+              },
+              {
+                "text": "To hide images",
+                "correct": false
+              },
+              {
+                "text": "So images don't poke out of small screens",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "responsive-design",
+      "title": "Responsive design",
+      "sortOrder": 6,
+      "ageBand": "Builder",
+      "estimatedMinutes": 14,
+      "isPublished": true,
+      "learnMarkdown": "## Responsive design\n\nA **responsive** page adapts to its viewport, from a 360px phone to a 2560px monitor. Most kids and teens browse primarily on phones, so many teams design **mobile-first**: write the small-screen layout as the default, then add media queries that enhance it for wider screens.\n\n### 1. The viewport meta tag\n\nWithout it, phones pretend to be about 980px wide and shrink the page, so your media queries never fire:\n\n```html\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n```\n\n### 2. Fluid sizing\n\n- `max-width: 100%; height: auto;` on images keeps them inside their container.\n- Prefer `%`, `fr`, `rem` and `minmax()` over fixed pixel widths.\n\n### 3. Media queries\n\n```css\n/* mobile-first: one column by default */\n.tracks { display: grid; grid-template-columns: 1fr; }\n\n/* tablet and up */\n@media (min-width: 700px) {\n  .tracks { grid-template-columns: repeat(3, 1fr); }\n}\n```\n\n`min-width` queries (mobile-first) layer enhancements on; `max-width` queries (desktop-first) strip them away. Pick one direction per project for predictable cascades.\n\n### Breakpoints\n\nChoose breakpoints where **your content** breaks, not by device names. Shrink the window until the layout looks wrong; that width is a breakpoint.\n\n### Testing\n\nUse your browser's device toolbar (DevTools → toggle device mode) to try common widths, and test on a real phone before shipping.\n\n### New words\n\n- **Viewport**: the visible area of the page in the browser.\n- **Breakpoint**: a width where the layout changes.\n- **Mobile-first**: writing small-screen styles as the default and enhancing for larger screens.\n",
+      "exampleMarkdown": "Mobile-first: by default the stats stack in one column. At 640px and wider, the media query switches them to two columns.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Hackathon 2027</title>\n    <style>\n      .stats {\n        display: grid;\n        grid-template-columns: 1fr;\n        gap: 8px;\n      }\n\n      .stats div {\n        padding: 16px;\n        background-color: #ede9fe;\n      }\n\n      @media (min-width: 640px) {\n        .stats {\n          grid-template-columns: 1fr 1fr;\n        }\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"stats\">\n      <div>Players: 1,204</div>\n      <div>Levels: 48</div>\n    </div>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Css",
+        "xpReward": 15,
+        "instructionsMarkdown": "Make the hackathon page responsive, **mobile-first**:\n\n1. In `index.html`, add the viewport `<meta>` tag to the `<head>`.\n2. Make `img` fluid: `max-width: 100%` and `height: auto`.\n3. By default, `.tracks` is a grid with **one** column (`1fr`) and a **12px** gap.\n4. Add a `min-width: 700px` media query that switches `.tracks` to **3 equal columns**.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Hackathon 2027</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Hackathon 2027</h1>\n    <img src=\"banner.jpg\" alt=\"Students coding together at long tables\" width=\"1200\" height=\"400\">\n    <div class=\"tracks\">\n      <div class=\"track\">Games</div>\n      <div class=\"track\">Robots</div>\n      <div class=\"track\">Art + Code</div>\n    </div>\n  </body>\n</html>\n",
+          "style.css": ".track {\n  padding: 24px;\n  background-color: #fef3c7;\n}\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Hackathon 2027</title>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"stylesheet\" href=\"style.css\">\n  </head>\n  <body>\n    <h1>Hackathon 2027</h1>\n    <img src=\"banner.jpg\" alt=\"Students coding together at long tables\" width=\"1200\" height=\"400\">\n    <div class=\"tracks\">\n      <div class=\"track\">Games</div>\n      <div class=\"track\">Robots</div>\n      <div class=\"track\">Art + Code</div>\n    </div>\n  </body>\n</html>\n",
+          "style.css": "img {\n  max-width: 100%;\n  height: auto;\n}\n\n.tracks {\n  display: grid;\n  grid-template-columns: 1fr;\n  gap: 12px;\n}\n\n.track {\n  padding: 24px;\n  background-color: #fef3c7;\n}\n\n@media (min-width: 700px) {\n  .tracks {\n    grid-template-columns: repeat(3, 1fr);\n  }\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The page has a viewport meta tag",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "meta[name='viewport'][content*='width=device-width']"
+            },
+            "failMessage": "Add <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> inside <head>."
+          },
+          {
+            "label": "Images are fluid",
+            "kind": "cssRule",
+            "spec": {
+              "selector": "img",
+              "property": "max-width",
+              "equals": "100%"
+            },
+            "failMessage": "Add img { max-width: 100%; height: auto; }"
+          },
+          {
+            "label": "Image height scales with width",
+            "kind": "cssRule",
+            "spec": {
+              "selector": "img",
+              "property": "height",
+              "equals": "auto"
+            },
+            "failMessage": "Add height: auto; to the img rule."
+          },
+          {
+            "label": "Tracks are one column by default",
+            "kind": "cssRule",
+            "spec": {
+              "selector": ".tracks",
+              "property": "grid-template-columns",
+              "equals": "1fr"
+            },
+            "failMessage": "Outside any media query: .tracks { display: grid; grid-template-columns: 1fr; }"
+          },
+          {
+            "label": "Tracks have a 12px gap",
+            "kind": "cssRule",
+            "spec": {
+              "selector": ".tracks",
+              "property": "gap",
+              "equals": "12px"
+            },
+            "failMessage": "Add gap: 12px; to the default .tracks rule."
+          },
+          {
+            "label": "At 700px and wider, tracks use 3 columns",
+            "kind": "cssRule",
+            "spec": {
+              "selector": ".tracks",
+              "property": "grid-template-columns",
+              "media": "min-width: 700px",
+              "matches": "^(repeat\\(\\s*3\\s*,.+\\)|\\S+\\s+\\S+\\s+\\S+)$"
+            },
+            "failMessage": "Add @media (min-width: 700px) { .tracks { grid-template-columns: repeat(3, 1fr); } }"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Start in `index.html` (the meta tag goes in `<head>`), then in `style.css` write the default (mobile) rules first and the media query last."
+          },
+          {
+            "level": 2,
+            "markdown": "```html\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n```\n\n```css\nimg { max-width: 100%; height: auto; }\n.tracks { display: grid; grid-template-columns: 1fr; gap: 12px; }\n@media (min-width: 700px) {\n  .tracks { grid-template-columns: repeat(3, 1fr); }\n}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "The complete solution (both files)."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What happens on phones without the viewport meta tag?",
+            "explanation": "Phones assume a ~980px layout and shrink it, so media queries don't fire as intended.",
+            "options": [
+              {
+                "text": "The page won't load",
+                "correct": false
+              },
+              {
+                "text": "The page is shrunk as if it were a desktop page",
+                "correct": true
+              },
+              {
+                "text": "Nothing changes",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In mobile-first CSS, which media queries do you mostly write?",
+            "explanation": "Mobile-first adds enhancements with min-width queries.",
+            "options": [
+              {
+                "text": "max-width",
+                "correct": false
+              },
+              {
+                "text": "print",
+                "correct": false
+              },
+              {
+                "text": "min-width",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "How should you choose breakpoints?",
+            "explanation": "Pick widths where your own content starts to look wrong.",
+            "options": [
+              {
+                "text": "By popular phone models",
+                "correct": false
+              },
+              {
+                "text": "Every 100px",
+                "correct": false
+              },
+              {
+                "text": "Where your content starts to break",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Why add height: auto to fluid images?",
+            "explanation": "It keeps the aspect ratio when max-width shrinks the width.",
+            "options": [
+              {
+                "text": "To make images taller",
+                "correct": false
+              },
+              {
+                "text": "To hide images on phones",
+                "correct": false
+              },
+              {
+                "text": "To keep the image's proportions",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

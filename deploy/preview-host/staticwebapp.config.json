@@ -1,0 +1,13 @@
+{
+  "$comment": "Azure Static Web Apps config for the preview origin. Deploy ONLY runner.html here, never the app. The header CSP intersects with the meta CSP inside runner.html, so this one can only tighten it: set img-src to your media CDN.",
+  "routes": [
+    { "route": "/runner.html", "headers": { "Cache-Control": "no-cache" } },
+    { "route": "/*", "statusCode": 404 }
+  ],
+  "globalHeaders": {
+    "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline'; img-src data: blob: https://media.codegrove.example; font-src data:; media-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-ancestors https://app.codegrove.example",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+  }
+}

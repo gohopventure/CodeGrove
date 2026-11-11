@@ -1,0 +1,1547 @@
+{
+  "slug": "how-the-web-works",
+  "title": "How the Web Works",
+  "summary": "Follow a web page from the server to your screen: browsers, servers, URLs, HTTP and files.",
+  "ageBand": "Both",
+  "estimatedMinutes": 50,
+  "isPublished": true,
+  "objectives": [
+    "Explain what a browser and a server each do",
+    "Trace one request from typing a URL to seeing a page",
+    "Read the parts of a URL",
+    "Recognize common HTTP status codes and what they mean",
+    "Organize files and folders and write relative paths",
+    "Build a complete web page from a blank file"
+  ],
+  "lessons": [
+    {
+      "slug": "pizza-order-explorer",
+      "title": "What happens when you visit a website",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 4,
+      "isPublished": true,
+      "learnMarkdown": "## Ordering a web page, like a pizza\n\nWhen you visit a website, it feels instant. But behind the scenes, two computers have a quick conversation, a lot like ordering a pizza:\n\n| Pizza | Website |\n| --- | --- |\n| You decide what you want | You type a web address, like `pbskids.org` |\n| You look up the pizza shop's phone number | The browser asks a **DNS server** where that website lives |\n| You call and place your order | The browser sends a **request** to the website's **server** |\n| The shop delivers your pizza | The server sends back the page's files |\n| You eat! | The browser reads the files and shows you the page |\n\nAll of that usually happens in less than a second!\n\n### Who's who\n\n- The **browser** (Chrome, Safari, Edge) is the app on *your* device that asks for pages and shows them.\n- A **server** is a computer somewhere else that stores websites and sends them out when asked.\n- **DNS** is like the internet's phone book: it turns a name like `pbskids.org` into the server's number.\n\n### New words\n\n- **Browser**: the app that shows you web pages.\n- **Server**: a computer that sends out websites.\n- **Request**: a message asking a server for something.\n- **DNS** (*Domain Name System*): the internet's phone book.\n",
+      "exampleMarkdown": "This page lists the pizza-ordering steps in order using `<ol>`, the numbered list you learned in HTML.",
+      "exampleCode": "<ol>\n  <li>Decide what pizza you want.</li>\n  <li>Look up the shop's phone number.</li>\n  <li>Call and order.</li>\n  <li>The pizza is delivered.</li>\n  <li>Eat!</li>\n</ol>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The steps for loading a web page got mixed up. Put the `<li>` lines back in the right order, from typing the address to seeing the page.\n\nTip: you can cut a whole line and paste it somewhere else. Don't change the words!",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Visiting a website</title>\n  </head>\n  <body>\n    <h1>How a web page gets to you</h1>\n    <ol>\n      <li>The server sends back the page's files.</li>\n      <li>You type a web address into the browser.</li>\n      <li>The browser reads the files and shows you the page.</li>\n      <li>The browser sends a request to the website's server.</li>\n      <li>The browser asks a DNS server where that website lives.</li>\n    </ol>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Visiting a website</title>\n  </head>\n  <body>\n    <h1>How a web page gets to you</h1>\n    <ol>\n      <li>You type a web address into the browser.</li>\n      <li>The browser asks a DNS server where that website lives.</li>\n      <li>The browser sends a request to the website's server.</li>\n      <li>The server sends back the page's files.</li>\n      <li>The browser reads the files and shows you the page.</li>\n    </ol>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "There are still 5 steps",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "ol > li",
+              "min": 5,
+              "max": 5
+            },
+            "failMessage": "Keep all 5 <li> steps: move them, don't delete or add any."
+          },
+          {
+            "label": "Step 1 is typing the address",
+            "kind": "elementText",
+            "spec": {
+              "selector": "ol > li:first-child",
+              "contains": "type a web address"
+            },
+            "failMessage": "What do you do first? You type something into the browser."
+          },
+          {
+            "label": "The last step is seeing the page",
+            "kind": "elementText",
+            "spec": {
+              "selector": "ol > li:last-child",
+              "contains": "shows you the page"
+            },
+            "failMessage": "The very last thing that happens is you see the page."
+          },
+          {
+            "label": "The steps are in the right order",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('ol > li')].map(li => li.textContent.replace(/\\s+/g, ' ').trim().toLowerCase())",
+              "equals": [
+                "you type a web address into the browser.",
+                "the browser asks a dns server where that website lives.",
+                "the browser sends a request to the website's server.",
+                "the server sends back the page's files.",
+                "the browser reads the files and shows you the page."
+              ]
+            },
+            "failMessage": "Almost! Some steps in the middle are still mixed up. Think: phone book, then call, then delivery."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Think about the pizza table in the lesson. Which website step matches each pizza step?"
+          },
+          {
+            "level": 2,
+            "markdown": "The first two steps are:\n\n1. You type a web address into the browser.\n2. The browser asks a DNS server where that website lives.\n\nNext comes the request, then the server answering."
+          },
+          {
+            "level": 3,
+            "markdown": "Here are all five steps in order."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is a browser?",
+            "explanation": "The browser is the app on your device that asks for pages and shows them.",
+            "options": [
+              {
+                "text": "The app that shows you web pages",
+                "correct": true
+              },
+              {
+                "text": "A computer that stores websites",
+                "correct": false
+              },
+              {
+                "text": "A kind of cable",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does DNS do?",
+            "explanation": "DNS turns a website's name into the server's number, like a phone book.",
+            "options": [
+              {
+                "text": "Stores your photos",
+                "correct": false
+              },
+              {
+                "text": "Finds where a website lives, like a phone book",
+                "correct": true
+              },
+              {
+                "text": "Draws the page",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Who sends the web page's files to you?",
+            "explanation": "The server sends the files back after your browser asks.",
+            "options": [
+              {
+                "text": "Your keyboard",
+                "correct": false
+              },
+              {
+                "text": "The server",
+                "correct": true
+              },
+              {
+                "text": "The DNS server",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "visiting-a-website",
+      "title": "What happens when you visit a website",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 10,
+      "isPublished": true,
+      "learnMarkdown": "## From URL to pixels\n\nTyping `https://example.com` and pressing Enter starts a chain of steps that usually finishes in under a second.\n\n1. **Parse the URL.** The browser splits it into the protocol (`https`), the domain (`example.com`) and the path (`/`).\n2. **DNS lookup.** Computers find each other by **IP address** (like `93.184.215.14`), not by name. The browser asks a **DNS** (Domain Name System) resolver to translate the domain into an IP address. Answers are cached, so repeat visits skip most of this.\n3. **Connect.** The browser opens a connection to that IP address. With `https`, it also negotiates **TLS** encryption, so nobody in between can read or alter the traffic.\n4. **Request.** The browser sends an **HTTP request**, a short text message like `GET / HTTP/1.1` plus headers.\n5. **Response.** The **server** answers with a **status code** (`200 OK`), headers, and a body: the HTML.\n6. **More requests.** The HTML links to CSS, JavaScript and images, and the browser requests each one. A typical page makes dozens of requests.\n7. **Render.** The browser builds the DOM from the HTML, applies the CSS, runs the JavaScript and paints pixels.\n\n### Client and server\n\nThe browser is the **client**: it asks. The **server** is a program (and the machine running it) that answers. The same pattern holds when an app talks to an API; you'll build both sides in the C# and React courses.\n\n### New words\n\n- **IP address** (*Internet Protocol address*): the numeric address of a device on a network.\n- **DNS** (*Domain Name System*): the system that maps domain names to IP addresses.\n- **TLS** (*Transport Layer Security*): the encryption behind the lock icon and `https`.\n- **Client**: the side that makes requests.\n- **Render**: turn HTML, CSS and JavaScript into what you see.\n",
+      "exampleMarkdown": "An ordered list is the natural way to document a sequence. Here's the same idea for sending an email.",
+      "exampleCode": "<ol>\n  <li>You press Send.</li>\n  <li>Your email app hands the message to your provider's mail server.</li>\n  <li>That server looks up the recipient's mail server in DNS.</li>\n  <li>The message is delivered to the recipient's server.</li>\n  <li>The recipient's app downloads it.</li>\n</ol>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 15,
+        "instructionsMarkdown": "The seven steps of loading a page are scrambled. Reorder the `<li>` elements so they run from entering the URL to rendering. Move lines; don't edit their text.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>From URL to pixels</title>\n  </head>\n  <body>\n    <h1>From URL to pixels</h1>\n    <ol>\n      <li>The server responds with a status code and the HTML.</li>\n      <li>The browser asks DNS to turn the domain name into an IP address.</li>\n      <li>The browser renders the page on screen.</li>\n      <li>The user enters a URL in the browser.</li>\n      <li>The browser sends an HTTP GET request for the page.</li>\n      <li>The browser reads the HTML and requests the CSS, JavaScript and images it links to.</li>\n      <li>The browser opens a secure connection to the server at that IP address.</li>\n    </ol>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>From URL to pixels</title>\n  </head>\n  <body>\n    <h1>From URL to pixels</h1>\n    <ol>\n      <li>The user enters a URL in the browser.</li>\n      <li>The browser asks DNS to turn the domain name into an IP address.</li>\n      <li>The browser opens a secure connection to the server at that IP address.</li>\n      <li>The browser sends an HTTP GET request for the page.</li>\n      <li>The server responds with a status code and the HTML.</li>\n      <li>The browser reads the HTML and requests the CSS, JavaScript and images it links to.</li>\n      <li>The browser renders the page on screen.</li>\n    </ol>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "All 7 steps are still there",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "ol > li",
+              "min": 7,
+              "max": 7
+            },
+            "failMessage": "Keep exactly the 7 <li> steps: reorder them without adding or deleting."
+          },
+          {
+            "label": "It starts with the URL",
+            "kind": "elementText",
+            "spec": {
+              "selector": "ol > li:first-child",
+              "contains": "enters a URL"
+            },
+            "failMessage": "Everything starts when the user enters a URL."
+          },
+          {
+            "label": "DNS comes before connecting",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "(() => { const t = [...document.querySelectorAll('ol > li')].map(li => li.textContent); return t.findIndex(x => /DNS/.test(x)) < t.findIndex(x => /connection/.test(x)); })()",
+              "equals": true
+            },
+            "failMessage": "The browser can't connect until DNS has given it an IP address."
+          },
+          {
+            "label": "It ends with rendering",
+            "kind": "elementText",
+            "spec": {
+              "selector": "ol > li:last-child",
+              "contains": "renders the page"
+            },
+            "failMessage": "Rendering is the final step, after every file has arrived."
+          },
+          {
+            "label": "The steps are in the right order",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('ol > li')].map(li => li.textContent.replace(/\\s+/g, ' ').trim().toLowerCase())",
+              "equals": [
+                "the user enters a url in the browser.",
+                "the browser asks dns to turn the domain name into an ip address.",
+                "the browser opens a secure connection to the server at that ip address.",
+                "the browser sends an http get request for the page.",
+                "the server responds with a status code and the html.",
+                "the browser reads the html and requests the css, javascript and images it links to.",
+                "the browser renders the page on screen."
+              ]
+            },
+            "failMessage": "Close. Check the middle: connect, then request, then response, then the extra files."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Anchor the ends first: what must happen first, and what can only happen last? Then ask, for each middle step, what it depends on."
+          },
+          {
+            "level": 2,
+            "markdown": "Dependencies: DNS gives the IP address → you need the IP address to connect → you need a connection to send a request → the response contains the HTML → the HTML names the extra files."
+          },
+          {
+            "level": 3,
+            "markdown": "The steps in order."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why does the browser need DNS?",
+            "explanation": "Computers connect by IP address; DNS translates the domain name.",
+            "options": [
+              {
+                "text": "To turn a domain name into an IP address",
+                "correct": true
+              },
+              {
+                "text": "To encrypt the page",
+                "correct": false
+              },
+              {
+                "text": "To draw the page",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does TLS add to an https connection?",
+            "explanation": "TLS encrypts traffic so it can't be read or altered in transit.",
+            "options": [
+              {
+                "text": "Images",
+                "correct": false
+              },
+              {
+                "text": "Encryption",
+                "correct": true
+              },
+              {
+                "text": "Faster downloads",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does loading one page usually make many requests?",
+            "explanation": "The HTML links to CSS, JavaScript and images, each fetched separately.",
+            "options": [
+              {
+                "text": "Browsers request every page twice",
+                "correct": false
+              },
+              {
+                "text": "The HTML links to CSS, JavaScript and images",
+                "correct": true
+              },
+              {
+                "text": "Servers send pages in pieces of 1 KB",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In a browser and server conversation, which one is the client?",
+            "explanation": "The client is the side that makes requests.",
+            "options": [
+              {
+                "text": "The DNS resolver",
+                "correct": false
+              },
+              {
+                "text": "The browser",
+                "correct": true
+              },
+              {
+                "text": "The server",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "web-address-explorer",
+      "title": "Web addresses",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 4,
+      "isPublished": true,
+      "learnMarkdown": "## A web address is like a home address\n\nA home address has parts: a street, a city, a country. A web address, called a **URL**, has parts too:\n\n```\nhttps://www.pbskids.org/games/dino\n```\n\n| Part | In our example | What it means |\n| --- | --- | --- |\n| **Protocol** | `https` | *How* to talk to the server. The **s** means **secure**: nobody can snoop. |\n| **Domain** | `www.pbskids.org` | *Which* website. It's the website's name. |\n| **Path** | `/games/dino` | *Which page* on that website, like a room number. |\n\nThe `://` after the protocol is just punctuation that separates it from the domain.\n\n> Look for `https` and a lock icon in your browser's address bar before typing anything into a website.\n\n### New words\n\n- **URL** (*Uniform Resource Locator*): a web address.\n- **Protocol**: the rules for how the browser and server talk.\n- **Domain**: the website's name.\n- **Path**: which page on the website.\n",
+      "exampleMarkdown": "This page takes apart one web address and labels each part using a **description list** (`<dl>`): `<dt>` is the term and `<dd>` is its description.",
+      "exampleCode": "<h1>Take apart a web address</h1>\n<p class=\"url\">https://www.nasa.gov/missions</p>\n<dl>\n  <dt>Protocol</dt>\n  <dd class=\"protocol\">https</dd>\n  <dt>Domain</dt>\n  <dd class=\"domain\">www.nasa.gov</dd>\n  <dt>Path</dt>\n  <dd class=\"path\">/missions</dd>\n</dl>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Take apart this web address:\n\n`https://games.example.com/puzzles/sudoku`\n\nReplace each `???` with the right part: the **protocol**, the **domain** and the **path**. Leave out the `://`.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Web addresses</title>\n  </head>\n  <body>\n    <h1>Take apart a web address</h1>\n    <p class=\"url\">https://games.example.com/puzzles/sudoku</p>\n    <dl>\n      <dt>Protocol</dt>\n      <dd class=\"protocol\">???</dd>\n      <dt>Domain</dt>\n      <dd class=\"domain\">???</dd>\n      <dt>Path</dt>\n      <dd class=\"path\">???</dd>\n    </dl>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Web addresses</title>\n  </head>\n  <body>\n    <h1>Take apart a web address</h1>\n    <p class=\"url\">https://games.example.com/puzzles/sudoku</p>\n    <dl>\n      <dt>Protocol</dt>\n      <dd class=\"protocol\">https</dd>\n      <dt>Domain</dt>\n      <dd class=\"domain\">games.example.com</dd>\n      <dt>Path</dt>\n      <dd class=\"path\">/puzzles/sudoku</dd>\n    </dl>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The protocol is right",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".protocol",
+              "equals": "https"
+            },
+            "failMessage": "The protocol is the part before ://"
+          },
+          {
+            "label": "The domain is right",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".domain",
+              "equals": "games.example.com"
+            },
+            "failMessage": "The domain is the website's name, between :// and the next /"
+          },
+          {
+            "label": "The path is right",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".path",
+              "equals": "/puzzles/sudoku"
+            },
+            "failMessage": "The path starts with / and comes after the domain."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Find the `://` and the first `/` after it. Those are the dividers between the three parts."
+          },
+          {
+            "level": 2,
+            "markdown": "Protocol: everything before `://`. Domain: from after `://` up to the next `/`. Path: from that `/` to the end."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the address taken apart."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "In https://www.nasa.gov/missions, what is the domain?",
+            "explanation": "The domain is the website's name, after :// and before the path.",
+            "options": [
+              {
+                "text": "/missions",
+                "correct": false
+              },
+              {
+                "text": "www.nasa.gov",
+                "correct": true
+              },
+              {
+                "text": "https",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the s in https stand for?",
+            "explanation": "It means secure: the connection is protected from snooping.",
+            "options": [
+              {
+                "text": "Search",
+                "correct": false
+              },
+              {
+                "text": "Secure",
+                "correct": true
+              },
+              {
+                "text": "Super",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the path tell the server?",
+            "explanation": "The path says which page on the website you want.",
+            "options": [
+              {
+                "text": "How fast to go",
+                "correct": false
+              },
+              {
+                "text": "Which page you want",
+                "correct": true
+              },
+              {
+                "text": "Your name",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "urls-and-domains",
+      "title": "URLs and domain names",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 10,
+      "isPublished": true,
+      "learnMarkdown": "## Anatomy of a URL\n\nA **URL** (Uniform Resource Locator) identifies a resource and how to reach it:\n\n```\nhttps://shop.example.com:443/games/puzzles?sort=new&page=2#reviews\n└─┬─┘   └┬─┘ └────┬────┘ └┬┘└─────┬─────┘ └──────┬──────┘ └──┬──┘\nscheme  sub    domain    port    path         query       fragment\n```\n\n| Part | Purpose |\n| --- | --- |\n| **Scheme** (`https`) | The protocol. `https` is HTTP over TLS (encrypted). |\n| **Host** (`shop.example.com`) | The server. `example.com` is the registered **domain**; `shop` is a **subdomain** the owner controls; `.com` is the **top-level domain** (TLD). |\n| **Port** (`:443`) | Which \"door\" on the server. Usually omitted: `https` defaults to 443 and `http` to 80. |\n| **Path** (`/games/puzzles`) | Which resource on that server. |\n| **Query string** (`?sort=new&page=2`) | Parameters as `key=value` pairs, separated by `&`. Servers use them for search, filters and pagination. |\n| **Fragment** (`#reviews`) | A spot within the page. It's never sent to the server; the browser uses it to scroll. |\n\n### Domains and DNS\n\nOwners register a domain through a **registrar**. DNS records then point names at servers: an **A record** maps a name to an IPv4 address, and a **CNAME** points a name at another name.\n\n### Escaping\n\nSome characters are special in URLs (`?`, `&`, `#`, spaces), so values are **percent-encoded**: a space becomes `%20`. In HTML, a literal `&` should be written `&amp;`.\n\n### New words\n\n- **Subdomain**: a name to the left of the domain, like `shop` in `shop.example.com`.\n- **Port**: a number that selects a service on a server.\n- **Query string**: `key=value` parameters after `?`.\n- **Fragment**: the part after `#`, used only by the browser.\n",
+      "exampleMarkdown": "A URL broken down into labelled parts with a description list.",
+      "exampleCode": "<h1>Take apart a web address</h1>\n<p class=\"url\">https://maps.example.org/search?q=volcano</p>\n<dl>\n  <dt>Scheme</dt>\n  <dd class=\"protocol\">https</dd>\n  <dt>Subdomain</dt>\n  <dd class=\"subdomain\">maps</dd>\n  <dt>Domain</dt>\n  <dd class=\"domain\">example.org</dd>\n  <dt>Path</dt>\n  <dd class=\"path\">/search</dd>\n  <dt>Query string</dt>\n  <dd class=\"query\">q=volcano</dd>\n</dl>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 15,
+        "instructionsMarkdown": "Break down this URL into its seven parts, replacing every `???`:\n\n`https://shop.example.com:8443/games/puzzles?sort=new&page=2#reviews`\n\n- Leave out the separators (`://`, `:`, `?`, `#`), but keep the path's leading `/`.\n- The **domain** is the registered name without the subdomain.\n- In HTML, write the `&` in the query string as `&amp;`.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>URL anatomy</title>\n  </head>\n  <body>\n    <h1>Take apart a web address</h1>\n    <p class=\"url\">https://shop.example.com:8443/games/puzzles?sort=new&amp;page=2#reviews</p>\n    <dl>\n      <dt>Protocol (scheme)</dt>\n      <dd class=\"protocol\">???</dd>\n      <dt>Subdomain</dt>\n      <dd class=\"subdomain\">???</dd>\n      <dt>Domain</dt>\n      <dd class=\"domain\">???</dd>\n      <dt>Port</dt>\n      <dd class=\"port\">???</dd>\n      <dt>Path</dt>\n      <dd class=\"path\">???</dd>\n      <dt>Query string</dt>\n      <dd class=\"query\">???</dd>\n      <dt>Fragment</dt>\n      <dd class=\"fragment\">???</dd>\n    </dl>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>URL anatomy</title>\n  </head>\n  <body>\n    <h1>Take apart a web address</h1>\n    <p class=\"url\">https://shop.example.com:8443/games/puzzles?sort=new&amp;page=2#reviews</p>\n    <dl>\n      <dt>Protocol (scheme)</dt>\n      <dd class=\"protocol\">https</dd>\n      <dt>Subdomain</dt>\n      <dd class=\"subdomain\">shop</dd>\n      <dt>Domain</dt>\n      <dd class=\"domain\">example.com</dd>\n      <dt>Port</dt>\n      <dd class=\"port\">8443</dd>\n      <dt>Path</dt>\n      <dd class=\"path\">/games/puzzles</dd>\n      <dt>Query string</dt>\n      <dd class=\"query\">sort=new&amp;page=2</dd>\n      <dt>Fragment</dt>\n      <dd class=\"fragment\">reviews</dd>\n    </dl>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Scheme",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".protocol",
+              "equals": "https"
+            },
+            "failMessage": "The scheme comes before ://"
+          },
+          {
+            "label": "Subdomain",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".subdomain",
+              "equals": "shop"
+            },
+            "failMessage": "The subdomain is the leftmost part of the host."
+          },
+          {
+            "label": "Domain",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".domain",
+              "equals": "example.com"
+            },
+            "failMessage": "The registered domain is the last two parts of the host."
+          },
+          {
+            "label": "Port",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".port",
+              "equals": "8443"
+            },
+            "failMessage": "The port is the number after the host's colon."
+          },
+          {
+            "label": "Path",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".path",
+              "equals": "/games/puzzles"
+            },
+            "failMessage": "The path runs from the first / after the host to the ?"
+          },
+          {
+            "label": "Query string",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".query",
+              "equals": "sort=new&page=2"
+            },
+            "failMessage": "The query string is everything between ? and #."
+          },
+          {
+            "label": "Fragment",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".fragment",
+              "equals": "reviews"
+            },
+            "failMessage": "The fragment comes after #."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Split on the separators in order: `://`, then `:`, then the first `/`, then `?`, then `#`."
+          },
+          {
+            "level": 2,
+            "markdown": "Host `shop.example.com` splits into subdomain `shop` and domain `example.com`. The port is `8443`. Query: `sort=new&amp;page=2` (escaped in HTML)."
+          },
+          {
+            "level": 3,
+            "markdown": "The full breakdown."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which part of a URL is never sent to the server?",
+            "explanation": "The fragment is handled only by the browser.",
+            "options": [
+              {
+                "text": "The fragment (#…)",
+                "correct": true
+              },
+              {
+                "text": "The path",
+                "correct": false
+              },
+              {
+                "text": "The query string",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's the default port for https?",
+            "explanation": "https defaults to 443; http defaults to 80.",
+            "options": [
+              {
+                "text": "80",
+                "correct": false
+              },
+              {
+                "text": "8080",
+                "correct": false
+              },
+              {
+                "text": "443",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "In ?color=red&size=4, what separates the parameters?",
+            "explanation": "Query parameters are separated by &.",
+            "options": [
+              {
+                "text": "=",
+                "correct": false
+              },
+              {
+                "text": "?",
+                "correct": false
+              },
+              {
+                "text": "&",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "What does a space become when percent-encoded?",
+            "explanation": "A space is encoded as %20.",
+            "options": [
+              {
+                "text": "+20",
+                "correct": false
+              },
+              {
+                "text": "_",
+                "correct": false
+              },
+              {
+                "text": "%20",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "In blog.example.com, what is blog?",
+            "explanation": "blog is a subdomain of example.com.",
+            "options": [
+              {
+                "text": "The top-level domain",
+                "correct": false
+              },
+              {
+                "text": "The path",
+                "correct": false
+              },
+              {
+                "text": "A subdomain",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "server-reply-explorer",
+      "title": "The server's reply card",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Requests and replies\n\nWhen your browser asks a server for a page, that message is called a **request**. The server always answers with a **response**, and every response comes with a number called a **status code**: a quick way of saying how things went.\n\nThe language they use to talk is called **HTTP**.\n\n### The three codes you'll see most\n\n| Code | Means | Pizza version |\n| --- | --- | --- |\n| **200** | OK! Here's your page. | Here's your pizza! |\n| **404** | Not found. That page doesn't exist. | We don't have that pizza. |\n| **500** | The server had a problem. | Our oven broke! |\n\nYou've probably seen a \"404 Not Found\" page when a link was broken. Now you know it's the server saying \"I looked, but there's nothing there!\"\n\n### New words\n\n- **HTTP** (*HyperText Transfer Protocol*): the language browsers and servers use to talk.\n- **Response**: the server's answer to a request.\n- **Status code**: a number in the response that says how it went.\n",
+      "exampleMarkdown": "A table with a row for each situation. `<tr>` is a table row, `<th>` is a heading cell and `<td>` is a normal cell.",
+      "exampleCode": "<h1>Status code detective</h1>\n<p>Here's one already solved:</p>\n<table>\n  <tr><th>What happened</th><th>Status code</th></tr>\n  <tr id=\"found\"><td>The page was found and sent.</td><td class=\"code\">200</td></tr>\n</table>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Be a status code detective. Replace each `???` with the right code: **200**, **404** or **500**.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Status codes</title>\n  </head>\n  <body>\n    <h1>Status code detective</h1>\n    <p>Which code goes with each situation?</p>\n    <table>\n      <tr><th>What happened</th><th>Status code</th></tr>\n      <tr id=\"found\"><td>The page was found and sent.</td><td class=\"code\">???</td></tr>\n      <tr id=\"missing\"><td>The page doesn't exist.</td><td class=\"code\">???</td></tr>\n      <tr id=\"broken\"><td>The server had a problem.</td><td class=\"code\">???</td></tr>\n    </table>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Status codes</title>\n  </head>\n  <body>\n    <h1>Status code detective</h1>\n    <p>Which code goes with each situation?</p>\n    <table>\n      <tr><th>What happened</th><th>Status code</th></tr>\n      <tr id=\"found\"><td>The page was found and sent.</td><td class=\"code\">200</td></tr>\n      <tr id=\"missing\"><td>The page doesn't exist.</td><td class=\"code\">404</td></tr>\n      <tr id=\"broken\"><td>The server had a problem.</td><td class=\"code\">500</td></tr>\n    </table>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "\"The page was found and sent.\" has the right code",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#found .code",
+              "equals": "200"
+            },
+            "failMessage": "Which code means: the page was found and sent."
+          },
+          {
+            "label": "\"The page doesn't exist.\" has the right code",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#missing .code",
+              "equals": "404"
+            },
+            "failMessage": "Which code means: the page doesn't exist."
+          },
+          {
+            "label": "\"The server had a problem.\" has the right code",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#broken .code",
+              "equals": "500"
+            },
+            "failMessage": "Which code means: the server had a problem."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at the table in the lesson. Which code means everything is OK? Which one is \"not found\"?"
+          },
+          {
+            "level": 2,
+            "markdown": "200 = OK, 404 = not found, 500 = the server had a problem."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the solved table."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does a 404 status code mean?",
+            "explanation": "404 means the server couldn't find that page.",
+            "options": [
+              {
+                "text": "Not found",
+                "correct": true
+              },
+              {
+                "text": "Everything is OK",
+                "correct": false
+              },
+              {
+                "text": "The server is broken",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does 200 mean?",
+            "explanation": "200 means OK: here's your page.",
+            "options": [
+              {
+                "text": "Not found",
+                "correct": false
+              },
+              {
+                "text": "Too many visitors",
+                "correct": false
+              },
+              {
+                "text": "OK, here's your page",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "What is HTTP?",
+            "explanation": "HTTP is the language browsers and servers use to talk.",
+            "options": [
+              {
+                "text": "A type of computer",
+                "correct": false
+              },
+              {
+                "text": "A video game",
+                "correct": false
+              },
+              {
+                "text": "The language browsers and servers use to talk",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "http-and-status-codes",
+      "title": "HTTP requests, responses and status codes",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 12,
+      "isPublished": true,
+      "learnMarkdown": "## HTTP: requests and responses\n\n**HTTP** (HyperText Transfer Protocol) is a text-based, request/response protocol. Every exchange is one request and one response.\n\n### A request\n\n```http\nGET /games/chess HTTP/1.1\nHost: example.com\nAccept: text/html\n```\n\n- The **method** says what you want to do. `GET` reads, `POST` creates, `PUT` replaces, `DELETE` removes.\n- The **path** is the resource.\n- **Headers** add metadata (`Host`, `Accept`, cookies…).\n- `POST` and `PUT` usually carry a **body**, such as form data or JSON.\n\n### A response\n\n```http\nHTTP/1.1 200 OK\nContent-Type: text/html\n\n<!DOCTYPE html>...\n```\n\n### Status code families\n\n| Range | Family | Common codes |\n| --- | --- | --- |\n| 2xx | Success | `200 OK`, `201 Created`, `204 No Content` |\n| 3xx | Redirection | `301 Moved Permanently`, `304 Not Modified` |\n| 4xx | **Client** error (fix your request) | `400 Bad Request`, `401 Unauthorized` (not signed in), `403 Forbidden` (signed in, not allowed), `404 Not Found` |\n| 5xx | **Server** error (the server broke) | `500 Internal Server Error`, `503 Service Unavailable` |\n\nThe first digit tells you who to blame: 4xx means the request was wrong; 5xx means the server failed. When you build the C# API later in the course, choosing the right status code is part of designing each endpoint.\n\n### Stateless\n\nHTTP is **stateless**: each request stands alone. Sites remember you between requests with **cookies**, small values the browser sends back on every request. (That's how this site keeps you signed in.)\n\n### New words\n\n- **Method**: the action a request asks for (GET, POST…).\n- **Header**: a `Name: value` line of metadata.\n- **Stateless**: each request is independent of the ones before it.\n- **Cookie**: a small value the browser stores and sends back to a site.\n",
+      "exampleMarkdown": "A status table with the first row solved. Each row has an `id`, so each answer cell can be targeted precisely.",
+      "exampleCode": "<h1>Status code detective</h1>\n<p>Example:</p>\n<table>\n  <tr><th>What happened</th><th>Status code</th></tr>\n  <tr id=\"ok\"><td>The page exists and was sent.</td><td class=\"code\">200</td></tr>\n</table>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 15,
+        "instructionsMarkdown": "Fill in the status code for each situation (replace every `???`). Use: **200, 201, 301, 401, 404, 500**. Each is used once.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>HTTP status codes</title>\n  </head>\n  <body>\n    <h1>Status code detective</h1>\n    <p>Pick the most specific code for each situation.</p>\n    <table>\n      <tr><th>What happened</th><th>Status code</th></tr>\n      <tr id=\"ok\"><td>The page exists and was sent.</td><td class=\"code\">???</td></tr>\n      <tr id=\"created\"><td>A new account was created by a POST request.</td><td class=\"code\">???</td></tr>\n      <tr id=\"moved\"><td>The page has permanently moved to a new URL.</td><td class=\"code\">???</td></tr>\n      <tr id=\"login\"><td>You must sign in to see this.</td><td class=\"code\">???</td></tr>\n      <tr id=\"missing\"><td>No page exists at this path.</td><td class=\"code\">???</td></tr>\n      <tr id=\"crash\"><td>The server hit a bug while handling the request.</td><td class=\"code\">???</td></tr>\n    </table>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>HTTP status codes</title>\n  </head>\n  <body>\n    <h1>Status code detective</h1>\n    <p>Pick the most specific code for each situation.</p>\n    <table>\n      <tr><th>What happened</th><th>Status code</th></tr>\n      <tr id=\"ok\"><td>The page exists and was sent.</td><td class=\"code\">200</td></tr>\n      <tr id=\"created\"><td>A new account was created by a POST request.</td><td class=\"code\">201</td></tr>\n      <tr id=\"moved\"><td>The page has permanently moved to a new URL.</td><td class=\"code\">301</td></tr>\n      <tr id=\"login\"><td>You must sign in to see this.</td><td class=\"code\">401</td></tr>\n      <tr id=\"missing\"><td>No page exists at this path.</td><td class=\"code\">404</td></tr>\n      <tr id=\"crash\"><td>The server hit a bug while handling the request.</td><td class=\"code\">500</td></tr>\n    </table>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The page exists and was sent.",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#ok .code",
+              "equals": "200"
+            },
+            "failMessage": "Wrong code for: The page exists and was sent. Think about which family (2xx–5xx) it belongs to."
+          },
+          {
+            "label": "A new account was created by a POST request.",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#created .code",
+              "equals": "201"
+            },
+            "failMessage": "Wrong code for: A new account was created by a POST request. Think about which family (2xx–5xx) it belongs to."
+          },
+          {
+            "label": "The page has permanently moved to a new URL.",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#moved .code",
+              "equals": "301"
+            },
+            "failMessage": "Wrong code for: The page has permanently moved to a new URL. Think about which family (2xx–5xx) it belongs to."
+          },
+          {
+            "label": "You must sign in to see this.",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#login .code",
+              "equals": "401"
+            },
+            "failMessage": "Wrong code for: You must sign in to see this. Think about which family (2xx–5xx) it belongs to."
+          },
+          {
+            "label": "No page exists at this path.",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#missing .code",
+              "equals": "404"
+            },
+            "failMessage": "Wrong code for: No page exists at this path. Think about which family (2xx–5xx) it belongs to."
+          },
+          {
+            "label": "The server hit a bug while handling the request.",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#crash .code",
+              "equals": "500"
+            },
+            "failMessage": "Wrong code for: The server hit a bug while handling the request. Think about which family (2xx–5xx) it belongs to."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Sort each situation into a family first: success (2xx), redirect (3xx), the request's fault (4xx) or the server's fault (5xx)."
+          },
+          {
+            "level": 2,
+            "markdown": "Success: 200 for a normal read, 201 when something new was created. Redirect: 301. Client errors: 401 (not signed in), 404 (not there). Server error: 500."
+          },
+          {
+            "level": 3,
+            "markdown": "The completed table."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which family means the client made a mistake?",
+            "explanation": "4xx codes mean the request was wrong.",
+            "options": [
+              {
+                "text": "4xx",
+                "correct": true
+              },
+              {
+                "text": "5xx",
+                "correct": false
+              },
+              {
+                "text": "2xx",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which method should a request use to create something new?",
+            "explanation": "POST creates new resources.",
+            "options": [
+              {
+                "text": "GET",
+                "correct": false
+              },
+              {
+                "text": "DELETE",
+                "correct": false
+              },
+              {
+                "text": "POST",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "A signed-in user tries an admin-only page. Which code fits best?",
+            "explanation": "403: authenticated, but not allowed. 401 means not signed in.",
+            "options": [
+              {
+                "text": "401 Unauthorized",
+                "correct": false
+              },
+              {
+                "text": "404 Not Found",
+                "correct": false
+              },
+              {
+                "text": "403 Forbidden",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "What does stateless mean for HTTP?",
+            "explanation": "Each request stands alone; cookies carry state between them.",
+            "options": [
+              {
+                "text": "The server never stores data",
+                "correct": false
+              },
+              {
+                "text": "Pages can't change",
+                "correct": false
+              },
+              {
+                "text": "Each request is independent",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Your API saved a new record. Which code is most specific?",
+            "explanation": "201 Created signals a new resource was made.",
+            "options": [
+              {
+                "text": "201",
+                "correct": true
+              },
+              {
+                "text": "200",
+                "correct": false
+              },
+              {
+                "text": "302",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "folders-explorer",
+      "title": "Files and folders are drawers",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Websites are made of files\n\nA website is a bunch of **files** kept in **folders** on a server, just like files on a computer.\n\n```\nmy-site/\n├── index.html\n├── images/\n│   └── cat.png\n└── pages/\n    └── about.html\n```\n\nFolders are like drawers. `cat.png` is in the `images` drawer. `about.html` is in the `pages` drawer.\n\n### Paths: directions to a file\n\nTo show a picture or link to a page, you give the browser **directions** from where your page is. These directions are called a **path**.\n\n`index.html` sits in the main folder, so from there:\n\n- the cat picture is in the `images` folder: `images/cat.png`\n- the about page is in the `pages` folder: `pages/about.html`\n\nThe `/` means \"go inside this folder\".\n\n### File names\n\n- The part after the dot is the **file extension**: `.html` for pages, `.png` or `.jpg` for pictures, `.css` for styles.\n- `index.html` is special: it's the page a server sends when you visit a folder.\n\n### New words\n\n- **Folder**: a place that holds files (and other folders).\n- **Path**: directions to a file.\n- **File extension**: the end of a file's name that says what kind of file it is.\n",
+      "exampleMarkdown": "The picture lives in the `images` folder, so its path starts with `images/`. (The file isn't really here, so you'll see the alt text.)",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Example</title>\n  </head>\n  <body>\n    <h1>Dog Page</h1>\n    <img src=\"images/dog.png\" alt=\"A happy dog with its tongue out\">\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** This page is `index.html` in the main folder. It has two broken paths. Using the folder map from the lesson:\n\n1. Fix the picture: `cat.png` is inside the **images** folder.\n2. Fix the link: `about.html` is inside the **pages** folder.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Page</title>\n  </head>\n  <body>\n    <h1>My Pet Page</h1>\n    <img src=\"cat.png\" alt=\"An orange cat asleep in a sunbeam\">\n    <p><a href=\"about.html\">About my pets</a></p>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Page</title>\n  </head>\n  <body>\n    <h1>My Pet Page</h1>\n    <img src=\"images/cat.png\" alt=\"An orange cat asleep in a sunbeam\">\n    <p><a href=\"pages/about.html\">About my pets</a></p>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The picture points into the images folder",
+            "kind": "attribute",
+            "spec": {
+              "selector": "img",
+              "name": "src",
+              "equals": "images/cat.png"
+            },
+            "failMessage": "The picture is in the images folder, so its path is images/cat.png"
+          },
+          {
+            "label": "The link points into the pages folder",
+            "kind": "attribute",
+            "spec": {
+              "selector": "a",
+              "name": "href",
+              "equals": "pages/about.html"
+            },
+            "failMessage": "about.html is in the pages folder, so the path is pages/about.html"
+          },
+          {
+            "label": "The picture still has its alt text",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "img:not([alt]), img[alt='']",
+              "max": 0
+            },
+            "failMessage": "Keep the alt text on the picture."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at the folder map. Which folder is `cat.png` in? Put that folder's name and a `/` in front of the file name."
+          },
+          {
+            "level": 2,
+            "markdown": "The paths should be:\n\n- `images/cat.png`\n- `pages/about.html`"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the page with both paths fixed."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does the / in images/cat.png mean?",
+            "explanation": "The slash means go inside the folder.",
+            "options": [
+              {
+                "text": "Go inside the images folder",
+                "correct": true
+              },
+              {
+                "text": "Divide by",
+                "correct": false
+              },
+              {
+                "text": "Nothing",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which file does a server send when you visit a folder?",
+            "explanation": "index.html is the default page for a folder.",
+            "options": [
+              {
+                "text": "index.html",
+                "correct": true
+              },
+              {
+                "text": "cat.png",
+                "correct": false
+              },
+              {
+                "text": "style.css",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the .png at the end of cat.png tell you?",
+            "explanation": "The extension tells you the file type: .png is a picture.",
+            "options": [
+              {
+                "text": "It's a folder",
+                "correct": false
+              },
+              {
+                "text": "It's a picture",
+                "correct": true
+              },
+              {
+                "text": "It's a web page",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "files-and-folders",
+      "title": "Files, folders and relative paths",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 12,
+      "isPublished": true,
+      "learnMarkdown": "## Files, folders and paths\n\nA static website is a folder tree that a web server exposes over HTTP. URL paths map onto it:\n\n```\nsite/\n├── index.html          → https://example.com/\n├── css/site.css        → https://example.com/css/site.css\n├── images/logo.png     → https://example.com/images/logo.png\n└── pages/\n    ├── team.html       → https://example.com/pages/team.html\n    └── jobs.html       → https://example.com/pages/jobs.html\n```\n\n### Relative paths\n\nA **relative path** is resolved from the folder of the current file.\n\n| Path | From `pages/team.html`, resolves to |\n| --- | --- |\n| `jobs.html` | `pages/jobs.html` (same folder) |\n| `./jobs.html` | `pages/jobs.html` (`.` = this folder) |\n| `../index.html` | `index.html` (`..` = up one folder) |\n| `../images/logo.png` | `images/logo.png` |\n\n### Root-relative and absolute paths\n\n- **Root-relative**: `/images/logo.png` starts at the site root, wherever the current page is. Convenient, but it breaks if the site is moved into a subfolder.\n- **Absolute**: `https://example.com/images/logo.png` includes everything, so use it for other sites.\n\n### Conventions that prevent pain\n\n- Lowercase names with hyphens, no spaces: `team-photo.jpg`. Servers are often **case-sensitive**: `Logo.png` and `logo.png` are different files.\n- `index.html` is the default document for a folder, so `/pages/` serves `pages/index.html`.\n\n### New words\n\n- **Relative path**: a path resolved from the current file's folder.\n- **Root-relative path**: a path starting with `/`, resolved from the site root.\n- **`..`**: the parent folder.\n",
+      "exampleMarkdown": "From a page inside `pages/`, `..` climbs back to the site root before going into `images/`.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Example</title>\n  </head>\n  <body>\n    <p>This file is pages/history.html</p>\n    <a href=\"../index.html\">Back to home</a>\n    <img src=\"../images/old-logo.png\" alt=\"Our first logo, drawn with crayons\">\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 15,
+        "instructionsMarkdown": "This file is **`pages/team.html`** in the folder tree from the lesson. Its links were written as if it lived at the root. Fix the relative paths so they work from inside `pages/`:\n\n1. The stylesheet at `css/site.css`\n2. The logo at `images/logo.png`\n3. The Home link to `index.html`\n4. Leave the Jobs link alone: `jobs.html` is in the same folder.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Our Team</title>\n    <link rel=\"stylesheet\" href=\"css/site.css\">\n  </head>\n  <body>\n    <h1>Our Team</h1>\n    <img src=\"logo.png\" alt=\"Pixel Forge logo\">\n    <nav>\n      <a href=\"index.html\">Home</a>\n      <a href=\"jobs.html\">Jobs</a>\n    </nav>\n    <p>Meet the people behind our games.</p>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Our Team</title>\n    <link rel=\"stylesheet\" href=\"../css/site.css\">\n  </head>\n  <body>\n    <h1>Our Team</h1>\n    <img src=\"../images/logo.png\" alt=\"Pixel Forge logo\">\n    <nav>\n      <a href=\"../index.html\">Home</a>\n      <a href=\"jobs.html\">Jobs</a>\n    </nav>\n    <p>Meet the people behind our games.</p>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The stylesheet path climbs out of pages/",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "link[rel='stylesheet'][href='../css/site.css']"
+            },
+            "failMessage": "From pages/, the stylesheet is at ../css/site.css"
+          },
+          {
+            "label": "The logo path is correct",
+            "kind": "attribute",
+            "spec": {
+              "selector": "img",
+              "name": "src",
+              "equals": "../images/logo.png"
+            },
+            "failMessage": "From pages/, the logo is at ../images/logo.png"
+          },
+          {
+            "label": "Home links back to the root index",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "nav a[href='../index.html']"
+            },
+            "failMessage": "The Home link needs ../index.html"
+          },
+          {
+            "label": "The Jobs link still points to the same folder",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "nav a[href='jobs.html']"
+            },
+            "failMessage": "jobs.html is next to team.html, so keep href=\"jobs.html\"."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "For each path, ask: is the target inside `pages/`, or do I need to climb up first with `..`?"
+          },
+          {
+            "level": 2,
+            "markdown": "Three of the four need `../` in front: `../css/site.css`, `../images/logo.png`, `../index.html`."
+          },
+          {
+            "level": 3,
+            "markdown": "The corrected page."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "From pages/team.html, where does ../images/a.png point?",
+            "explanation": ".. climbs to the root, then into images/.",
+            "options": [
+              {
+                "text": "pages/images/a.png",
+                "correct": false
+              },
+              {
+                "text": "Nowhere, it's invalid",
+                "correct": false
+              },
+              {
+                "text": "images/a.png at the site root",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "What does a path starting with / resolve from?",
+            "explanation": "A leading slash means the site root.",
+            "options": [
+              {
+                "text": "The current folder",
+                "correct": false
+              },
+              {
+                "text": "The parent folder",
+                "correct": false
+              },
+              {
+                "text": "The site root",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Why avoid capital letters in file names?",
+            "explanation": "Many servers are case-sensitive, so Logo.png ≠ logo.png.",
+            "options": [
+              {
+                "text": "Browsers can't show capitals",
+                "correct": false
+              },
+              {
+                "text": "It makes files bigger",
+                "correct": false
+              },
+              {
+                "text": "Servers are often case-sensitive",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Visiting https://example.com/blog/ usually serves which file?",
+            "explanation": "index.html is the default document for a folder.",
+            "options": [
+              {
+                "text": "blog.html",
+                "correct": false
+              },
+              {
+                "text": "index.html at the root",
+                "correct": false
+              },
+              {
+                "text": "blog/index.html",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "first-page-explorer",
+      "title": "Your first page from scratch",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Starting with a blank file\n\nEvery web page you've made so far started with some code already there. Now you'll build one from **nothing**, like a real web developer!\n\nEvery HTML page has the same skeleton:\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>My Page</title>\n  </head>\n  <body>\n    <h1>Hello!</h1>\n  </body>\n</html>\n```\n\n| Line | Job |\n| --- | --- |\n| `<!DOCTYPE html>` | Says \"this is a modern web page\". |\n| `<html lang=\"en\">` | Wraps everything and says it's in English. |\n| `<head>` | Info *about* the page, like the title on the browser tab. |\n| `<body>` | Everything people see. |\n\nThe file is called `index.html`, so a server sends it first when someone visits your site.\n\n> Tip: type it yourself instead of copying. Your fingers will remember it!\n\n### New words\n\n- **Skeleton**: the basic structure every page needs.\n",
+      "exampleMarkdown": "A complete page skeleton with a heading and a paragraph.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Narwhals</title>\n  </head>\n  <body>\n    <h1>Narwhals</h1>\n    <p>A narwhal's tusk is actually a very long tooth.</p>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The file is empty. Build a whole page about your favorite animal:\n\n1. Start with `<!DOCTYPE html>`.\n2. Add `<html lang=\"en\">` with a `<head>` and a `<body>`.\n3. In the head, add a `<title>`.\n4. In the body, add an `<h1>` and a `<p>` with a fact.",
+        "starterFiles": {
+          "index.html": ""
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>All About Axolotls</title>\n  </head>\n  <body>\n    <h1>All About Axolotls</h1>\n    <p>Axolotls can regrow their legs, their tails and even parts of their hearts.</p>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The page says what language it's in",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "html[lang]:not([lang=''])"
+            },
+            "failMessage": "Use <html lang=\"en\"> around everything."
+          },
+          {
+            "label": "The tab has a title",
+            "kind": "elementText",
+            "spec": {
+              "selector": "head > title",
+              "minLength": 2
+            },
+            "failMessage": "Put <title>...</title> inside <head>."
+          },
+          {
+            "label": "There's a big heading",
+            "kind": "elementText",
+            "spec": {
+              "selector": "body h1",
+              "minLength": 2
+            },
+            "failMessage": "Add an <h1> with words inside the <body>."
+          },
+          {
+            "label": "There's a paragraph with a fact",
+            "kind": "elementText",
+            "spec": {
+              "selector": "body p",
+              "minLength": 10
+            },
+            "failMessage": "Add a <p> with a fact inside the <body>."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at the skeleton in the lesson. Type it line by line, then fill in your animal's title, heading and fact."
+          },
+          {
+            "level": 2,
+            "markdown": "```html\n<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>…</title>\n  </head>\n  <body>\n    <h1>…</h1>\n    <p>…</p>\n  </body>\n</html>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's a complete page. Make yours about your own favorite animal!"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which part of a page holds what people see?",
+            "explanation": "The <body> holds everything visible.",
+            "options": [
+              {
+                "text": "<head>",
+                "correct": false
+              },
+              {
+                "text": "<title>",
+                "correct": false
+              },
+              {
+                "text": "<body>",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Where does the <title> go?",
+            "explanation": "The title is info about the page, so it goes in <head>.",
+            "options": [
+              {
+                "text": "At the very end",
+                "correct": false
+              },
+              {
+                "text": "Inside <head>",
+                "correct": true
+              },
+              {
+                "text": "Inside <h1>",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does <!DOCTYPE html> say?",
+            "explanation": "It tells the browser this is a modern web page.",
+            "options": [
+              {
+                "text": "This is a modern web page",
+                "correct": true
+              },
+              {
+                "text": "This page is secret",
+                "correct": false
+              },
+              {
+                "text": "Make the text big",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "first-web-page",
+      "title": "Your first web page from scratch",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 12,
+      "isPublished": true,
+      "learnMarkdown": "## A production-ready page skeleton\n\nHere's what a well-formed `index.html` contains before any content:\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <meta name=\"description\" content=\"One sentence for search results.\">\n    <title>Page title | Site name</title>\n    <link rel=\"stylesheet\" href=\"css/site.css\">\n  </head>\n  <body>\n    <header>…</header>\n    <main>…</main>\n    <footer>…</footer>\n  </body>\n</html>\n```\n\n| Element | Why it's there |\n| --- | --- |\n| `<!DOCTYPE html>` | Standards mode. Without it, browsers emulate 1990s quirks. |\n| `lang` | Pronunciation for screen readers, translation, spell-check. |\n| `<meta charset=\"utf-8\">` | Text encoding, so `é`, `ñ` and emoji display correctly. Put it first in `<head>`. |\n| viewport `<meta>` | Responsive layout on phones (from the CSS course). |\n| `description` `<meta>` | The snippet search engines usually show under your title. |\n| `<title>` | Tab text, bookmarks, search results. Unique per page. |\n| `<link rel=\"stylesheet\">` | Your CSS. |\n| Landmarks | `header`, `main`, `footer` for structure and accessibility. |\n\n### Validating\n\nThe W3C Markup Validation Service (validator.w3.org) checks HTML against the standard. Browsers silently \"fix\" broken HTML, but they don't all fix it the same way, so valid markup behaves more predictably.\n\n### New words\n\n- **Standards mode**: the browser rendering mode triggered by the doctype.\n- **Character encoding**: how bytes map to characters; UTF-8 (*Unicode Transformation Format, 8-bit*) covers every language and emoji.\n- **Metadata**: data about the page, in `<head>`.\n",
+      "exampleMarkdown": "A minimal page with every `<head>` element from the lesson.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <meta name=\"description\" content=\"Weekly chess puzzles for beginners.\">\n    <title>Chess Puzzles</title>\n  </head>\n  <body>\n    <main>\n      <h1>Chess Puzzles</h1>\n      <p>A new puzzle every Monday.</p>\n    </main>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 15,
+        "instructionsMarkdown": "Starting from an empty file, build the home page for the **Riverside Robotics Club**:\n\n1. Doctype, `<html>` with `lang`, `<head>` and `<body>`.\n2. In the head: UTF-8 `charset`, the viewport tag, a `description` (at least 20 characters), a `<title>`, and a stylesheet link to `css/site.css`.\n3. In the body: `header` (with the `h1`), `main` (with at least one `p`) and `footer`.",
+        "starterFiles": {
+          "index.html": ""
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <meta name=\"description\" content=\"The Riverside Robotics Club builds and races robots every Tuesday.\">\n    <title>Riverside Robotics Club</title>\n    <link rel=\"stylesheet\" href=\"css/site.css\">\n  </head>\n  <body>\n    <header>\n      <h1>Riverside Robotics Club</h1>\n    </header>\n    <main>\n      <p>We build, program and race robots every Tuesday after school.</p>\n    </main>\n    <footer>\n      <p>Riverside Robotics Club</p>\n    </footer>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The page declares its language",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "html[lang]:not([lang=''])"
+            },
+            "failMessage": "Add lang to <html>."
+          },
+          {
+            "label": "UTF-8 charset is declared",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "head meta[charset='utf-8' i]"
+            },
+            "failMessage": "Add <meta charset=\"utf-8\"> as the first thing in <head>."
+          },
+          {
+            "label": "The viewport is set for phones",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "head meta[name='viewport'][content*='width=device-width']"
+            },
+            "failMessage": "Add the viewport <meta> tag."
+          },
+          {
+            "label": "There's a useful description",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "(document.querySelector('meta[name=description]')?.getAttribute('content') || '').trim().length >= 20",
+              "equals": true
+            },
+            "failMessage": "Add <meta name=\"description\" content=\"...\"> with at least 20 characters."
+          },
+          {
+            "label": "The page has a title",
+            "kind": "elementText",
+            "spec": {
+              "selector": "head > title",
+              "minLength": 3
+            },
+            "failMessage": "Add a <title> in <head>."
+          },
+          {
+            "label": "The stylesheet is linked",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "head link[rel='stylesheet'][href='css/site.css']"
+            },
+            "failMessage": "Link css/site.css with <link rel=\"stylesheet\" href=\"css/site.css\">."
+          },
+          {
+            "label": "The body has header, main and footer landmarks",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "body > header ~ main ~ footer"
+            },
+            "failMessage": "Inside <body>, add <header>, then <main>, then <footer>."
+          },
+          {
+            "label": "The h1 is in the header and main has content",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "!!document.querySelector('header h1') && (document.querySelector('main p')?.textContent.trim().length || 0) > 0",
+              "equals": true
+            },
+            "failMessage": "Put the <h1> inside <header>, and at least one <p> with text inside <main>."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Write the skeleton first (doctype, html, head, body), then fill the head top to bottom in the order from the lesson's table, then the three landmarks."
+          },
+          {
+            "level": 2,
+            "markdown": "The head, in order:\n\n```html\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"…\">\n<title>…</title>\n<link rel=\"stylesheet\" href=\"css/site.css\">\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "A complete page."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What happens if you leave out <!DOCTYPE html>?",
+            "explanation": "Browsers switch to quirks mode, emulating old, inconsistent behavior.",
+            "options": [
+              {
+                "text": "The page won't load",
+                "correct": false
+              },
+              {
+                "text": "Nothing at all",
+                "correct": false
+              },
+              {
+                "text": "The browser uses old quirks mode",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Why put <meta charset=\"utf-8\"> first in <head>?",
+            "explanation": "The browser needs the encoding before reading the rest of the text.",
+            "options": [
+              {
+                "text": "It must be last",
+                "correct": false
+              },
+              {
+                "text": "So the browser knows the encoding before reading text",
+                "correct": true
+              },
+              {
+                "text": "So it shows in search results",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Where do search engines often get the snippet under a result's title?",
+            "explanation": "The description meta tag usually supplies the snippet.",
+            "options": [
+              {
+                "text": "The description <meta> tag",
+                "correct": true
+              },
+              {
+                "text": "The <h1>",
+                "correct": false
+              },
+              {
+                "text": "The footer",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Browsers fix broken HTML. Why validate anyway?",
+            "explanation": "Different browsers repair errors differently, so valid HTML is more predictable.",
+            "options": [
+              {
+                "text": "Validation makes pages download faster",
+                "correct": false
+              },
+              {
+                "text": "Search engines ban invalid pages",
+                "correct": false
+              },
+              {
+                "text": "Browsers don't all fix it the same way",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

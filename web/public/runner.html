@@ -1,0 +1,40 @@
+<!doctype html>
+<!--
+  Codegrove preview runner. Deployed on its own origin and always loaded in
+  <iframe sandbox="allow-scripts">, so it has an opaque origin: it can't read the app's
+  cookies or storage, open popups, submit forms or navigate the top window.
+
+  It waits for one "cg:run" message from its parent, then replaces itself with the document the
+  parent composed (learner code + test harness). The CSP below stays in force after
+  document.open(), so learner code can never make network requests.
+
+  This file is deliberately tiny, static and dependency-free: no external scripts means nothing
+  for the CSP or CORS to get in the way of, and nothing to keep in sync between dev and prod.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline'; img-src data: blob: https:; font-src data:; media-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'"
+    />
+    <title>Preview</title>
+  </head>
+  <body>
+    <script>
+      (function () {
+        var started = false;
+        window.addEventListener('message', function (event) {
+          if (event.source !== window.parent || started) return;
+          var msg = event.data;
+          if (!msg || msg.type !== 'cg:run' || typeof msg.html !== 'string') return;
+          started = true;
+          document.open();
+          document.write(msg.html);
+          document.close();
+        });
+        window.parent.postMessage({ type: 'cg:ready' }, '*');
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,90 @@
+{
+  "slug": "javascript-basics",
+  "title": "JavaScript: Make It Move",
+  "summary": "Variables, decisions, loops, functions, arrays, objects, the DOM, events and APIs.",
+  "ageBand": "Both",
+  "estimatedMinutes": 120,
+  "isPublished": false,
+  "objectives": [
+    "Store and change data in variables",
+    "Make decisions with if/else and repeat with loops",
+    "Write and call functions",
+    "Work with arrays and objects",
+    "Change a page through the DOM and respond to events",
+    "Load JSON data from an API"
+  ],
+  "lessons": [
+    {
+      "slug": "variables",
+      "title": "Variables, values and types",
+      "sortOrder": 1,
+      "ageBand": "Both",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "if-else",
+      "title": "Comparisons and if/else",
+      "sortOrder": 2,
+      "ageBand": "Both",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "loops",
+      "title": "Loops",
+      "sortOrder": 3,
+      "ageBand": "Both",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "functions",
+      "title": "Functions",
+      "sortOrder": 4,
+      "ageBand": "Both",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "arrays",
+      "title": "Arrays",
+      "sortOrder": 5,
+      "ageBand": "Both",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "objects",
+      "title": "Objects",
+      "sortOrder": 6,
+      "ageBand": "Both",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "the-dom",
+      "title": "The DOM",
+      "sortOrder": 7,
+      "ageBand": "Both",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "events",
+      "title": "Events",
+      "sortOrder": 8,
+      "ageBand": "Both",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "fetch-and-apis",
+      "title": "fetch, JSON and APIs",
+      "sortOrder": 9,
+      "ageBand": "Both",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    }
+  ]
+}

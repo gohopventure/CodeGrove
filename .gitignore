@@ -1,0 +1,15 @@
+bin/
+obj/
+*.user
+.vs/
+.vscode/
+.idea/
+*.db
+*.db-shm
+*.db-wal
+node_modules/
+web/dist/
+src/Codegrove.Api/wwwroot/
+TestResults/
+.env
+.env.local

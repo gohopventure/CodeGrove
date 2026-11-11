@@ -1,0 +1,66 @@
+{
+  // Tracks list their courses in order. Course slugs must match files in Content/courses.
+  "tracks": [
+    {
+      "slug": "web-foundations",
+      "title": "Web Foundations",
+      "description": "Learn how the web works, then build and style your own pages with HTML and CSS.",
+      "ageBand": "Both",
+      "sortOrder": 1,
+      "isPublished": true,
+      "courses": ["how-the-web-works", "html-basics", "css-basics"]
+    },
+    {
+      "slug": "javascript",
+      "title": "JavaScript",
+      "description": "Make your pages interactive: variables, decisions, loops, functions, the DOM and events.",
+      "ageBand": "Both",
+      "sortOrder": 2,
+      "isPublished": true,
+      "courses": ["javascript-basics"],
+      "prerequisites": ["web-foundations"]
+    }
+  ],
+  "badges": [
+    {
+      "code": "first-steps",
+      "name": "First Steps",
+      "description": "You finished your very first lesson.",
+      "iconUrl": "/badges/first-steps.svg",
+      "ruleType": "LessonsCompleted",
+      "ruleValue": 1
+    },
+    {
+      "code": "on-a-roll",
+      "name": "On a Roll",
+      "description": "You finished 5 lessons.",
+      "iconUrl": "/badges/on-a-roll.svg",
+      "ruleType": "LessonsCompleted",
+      "ruleValue": 5
+    },
+    {
+      "code": "bullseye",
+      "name": "Bullseye",
+      "description": "You passed 3 challenges on your first try.",
+      "iconUrl": "/badges/bullseye.svg",
+      "ruleType": "FirstTryPass",
+      "ruleValue": 3
+    },
+    {
+      "code": "html-hero",
+      "name": "HTML Hero",
+      "description": "You finished the HTML course.",
+      "iconUrl": "/badges/html-hero.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "html-basics"
+    },
+    {
+      "code": "steady-builder",
+      "name": "Steady Builder",
+      "description": "You met your weekly goal 3 weeks in a row.",
+      "iconUrl": "/badges/steady-builder.svg",
+      "ruleType": "WeeklyGoalStreak",
+      "ruleValue": 3
+    }
+  ]
+}

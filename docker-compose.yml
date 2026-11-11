@@ -1,0 +1,18 @@
+# Local SQL Server for development. The API's appsettings.Development.json points here.
+# On Apple Silicon, SQL Server 2022 runs under Rosetta (enable it in Docker Desktop), or use the
+# SQLite option in the README instead.
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Codegrove!Dev123" # local development only
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+
+volumes:
+  sqldata:

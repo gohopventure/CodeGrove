@@ -1,0 +1,1931 @@
+{
+  "slug": "html-basics",
+  "title": "HTML: Building Blocks of the Web",
+  "summary": "Write real web pages with headings, lists, links, images, forms and accessible structure.",
+  "ageBand": "Both",
+  "estimatedMinutes": 60,
+  "isPublished": true,
+  "objectives": [
+    "Write elements with correct opening and closing tags",
+    "Structure a page with headings, paragraphs, lists, links and images",
+    "Use semantic tags like <header>, <main> and <footer>",
+    "Build a form where every input has a label",
+    "Find and fix basic accessibility problems"
+  ],
+  "lessons": [
+    {
+      "slug": "tags-are-labels",
+      "title": "Tags are labels on boxes",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 4,
+      "isPublished": true,
+      "learnMarkdown": "## Web pages are made of labeled boxes\n\nEvery web page you have ever visited is written in **HTML**. That stands for *HyperText Markup Language*. It's a long name for a simple idea: you put **labels** around your words, so the browser knows what each part is.\n\nA label in HTML is called a **tag**. Tags live inside angle brackets: `<` and `>`.\n\nHere's a heading:\n\n```html\n<h1>Welcome to my page</h1>\n```\n\n- `<h1>` is the **opening tag**. It says \"a big heading starts here.\"\n- `</h1>` is the **closing tag**. See the slash `/`? It says \"the heading ends here.\"\n- The words in the middle are the **content**. That's what people see.\n\nThe opening tag, the content and the closing tag together make an **element**.\n\n> The browser never shows the tags. It reads them like secret instructions, then shows only the content.\n\n### New words\n\n- **HTML** (*HyperText Markup Language*): the language web pages are written in.\n- **Browser**: the app that shows web pages, like Chrome, Safari or Edge.\n- **Tag**: a label in angle brackets, like `<h1>`.\n- **Element**: an opening tag + content + closing tag.\n",
+      "exampleMarkdown": "Here's a tiny page about otters. It has two elements:\n\n- an `<h1>` heading (the **h** stands for *heading*), and\n- a `<p>` paragraph (the **p** stands for *paragraph*: a block of normal text).\n\nLook at the preview: the tags are gone, and only the words show up.",
+      "exampleCode": "<h1>All About Otters</h1>\n<p>Otters hold hands when they sleep so they don't float away from each other.</p>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** This page has words, but no tags yet.\n\n1. Put `<h1>` before **Welcome to my page** and `</h1>` after it.\n2. Under your heading, add a paragraph with `<p>` and `</p>`. Inside it, write one fun fact about your favorite animal.\n\nWhen you're ready, press **Check my code**.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>My first page</title>\n  </head>\n  <body>\n    Welcome to my page\n\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>My first page</title>\n  </head>\n  <body>\n    <h1>Welcome to my page</h1>\n    <p>Octopuses have three hearts and blue blood.</p>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Your page has an <h1> heading",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "h1"
+            },
+            "failMessage": "I can't find an <h1> yet. Did you type <h1> before the words?"
+          },
+          {
+            "label": "The heading says \"Welcome to my page\"",
+            "kind": "elementText",
+            "spec": {
+              "selector": "h1",
+              "contains": "Welcome to my page"
+            },
+            "failMessage": "Your heading should hold the words Welcome to my page. Check that </h1> comes after the words."
+          },
+          {
+            "label": "There's just one <h1> on the page",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "h1",
+              "max": 1
+            },
+            "failMessage": "A page usually has only one <h1>. Remove the extra one."
+          },
+          {
+            "label": "You added a <p> paragraph under the heading",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "h1 ~ p"
+            },
+            "failMessage": "Add <p> and </p> below your heading, with your fun fact in between."
+          },
+          {
+            "label": "Your paragraph has a fun fact in it",
+            "kind": "elementText",
+            "spec": {
+              "selector": "h1 ~ p",
+              "minLength": 10
+            },
+            "failMessage": "Write a few more words inside your <p> tags."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look back at the otter example. Does `<h1>` go **before** or **after** the words? Where does `</h1>` go?"
+          },
+          {
+            "level": 2,
+            "markdown": "A heading looks like this:\n\n```html\n<h1>Your words here</h1>\n```\n\nA paragraph looks the same, but with `p` instead of `h1`:\n\n```html\n<p>Your fun fact here</p>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's one way to do it. Compare it with yours, then type it in yourself. Typing it helps your brain remember!"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which one is a closing tag?",
+            "explanation": "A closing tag has a slash / right after the <, like </h1>.",
+            "options": [
+              {
+                "text": "<h1>",
+                "correct": false
+              },
+              {
+                "text": "</h1>",
+                "correct": true
+              },
+              {
+                "text": "h1",
+                "correct": false
+              },
+              {
+                "text": "<\\h1>",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the browser show on the page?",
+            "explanation": "Tags are instructions for the browser. People only see the content between them.",
+            "options": [
+              {
+                "text": "The tags and the words",
+                "correct": false
+              },
+              {
+                "text": "Only the words between the tags",
+                "correct": true
+              },
+              {
+                "text": "Only the tags",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does <p> stand for?",
+            "explanation": "<p> means paragraph: a block of normal text.",
+            "options": [
+              {
+                "text": "Picture",
+                "correct": false
+              },
+              {
+                "text": "Paragraph",
+                "correct": true
+              },
+              {
+                "text": "Page",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "An opening tag, its content and its closing tag together make an…",
+            "explanation": "All three parts together are called an element.",
+            "options": [
+              {
+                "text": "element",
+                "correct": true
+              },
+              {
+                "text": "browser",
+                "correct": false
+              },
+              {
+                "text": "attribute",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "tags-and-elements",
+      "title": "Tags and elements",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 10,
+      "isPublished": true,
+      "learnMarkdown": "## Tags, elements and the shape of a page\n\n**HTML** (HyperText Markup Language) describes the *structure* of a web page. It isn't a programming language: it has no logic or loops. It's a **markup language**, meaning you mark up plain text with tags that say what each piece is.\n\n### Tags and elements\n\nA **tag** is a keyword in angle brackets. Most come in pairs:\n\n```html\n<h1>Welcome to my page</h1>\n```\n\n- `<h1>` is the **opening tag**; `</h1>` is the **closing tag** (note the `/`).\n- Everything between them is the element's **content**.\n- Opening tag + content + closing tag = an **element**.\n\nA few elements can't hold content, so they have no closing tag. These are **void elements**, like `<br>` (line break) and `<img>` (image).\n\n### Nesting\n\nElements can contain other elements. This is called **nesting**, and tags must close in the reverse order they opened:\n\n```html\n<p>This is <strong>very</strong> important.</p>   <!-- correct -->\n<p>This is <strong>very</p></strong>             <!-- wrong: closes in the wrong order -->\n```\n\nIndenting nested elements by two spaces isn't required, but it makes the structure easy to read, and every professional team does it.\n\n### The document skeleton\n\nEvery HTML page has the same outer structure:\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Shown in the browser tab</title>\n  </head>\n  <body>\n    Everything the visitor sees goes here.\n  </body>\n</html>\n```\n\n- `<!DOCTYPE html>` tells the browser to use modern HTML rules.\n- `<html lang=\"en\">` wraps the whole page. `lang` tells screen readers which language to speak.\n- `<head>` holds information *about* the page, like the `<title>`.\n- `<body>` holds everything visible.\n- `<main>` (inside `body`) marks the page's main content. Screen-reader users can jump straight to it.\n\n### Whitespace\n\nBrowsers collapse runs of spaces and line breaks into a single space. To start a new block of text, use a new element, not extra blank lines.\n\n### New words\n\n- **Markup language**: a language that labels the parts of a document.\n- **Void element**: an element with no content and no closing tag, like `<br>`.\n- **Nesting**: putting elements inside other elements.\n- **Screen reader**: software that reads pages aloud for people who are blind or have low vision.\n",
+      "exampleMarkdown": "A small, well-formed page. Notice the nesting: `<main>` sits inside `<body>`, and the `<h1>` and `<p>` sit inside `<main>`. The `<strong>` element nests inside the paragraph and closes before `</p>`.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Deep-Sea Creatures</title>\n  </head>\n  <body>\n    <main>\n      <h1>Deep-Sea Creatures</h1>\n      <p>The anglerfish uses a <strong>glowing lure</strong> to attract prey in total darkness.</p>\n    </main>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 15,
+        "instructionsMarkdown": "Turn the starter file into a well-structured page:\n\n1. Wrap **Welcome to my page** in an `<h1>`.\n2. Add a `<p>` after the heading with one interesting fact (at least 20 characters).\n3. Wrap the heading and the paragraph in a `<main>` element.\n4. Change the `<title>` to something that describes your page.\n\nPress **Check my code** to run the tests.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>My first page</title>\n  </head>\n  <body>\n    Welcome to my page\n\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Ocean Facts</title>\n  </head>\n  <body>\n    <main>\n      <h1>Welcome to my page</h1>\n      <p>Octopuses have three hearts, and their blood is blue because it uses copper to carry oxygen.</p>\n    </main>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The page has a <main> element",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "body > main"
+            },
+            "failMessage": "Add <main> ... </main> inside <body>, around your heading and paragraph."
+          },
+          {
+            "label": "The <h1> inside <main> says \"Welcome to my page\"",
+            "kind": "elementText",
+            "spec": {
+              "selector": "main > h1",
+              "contains": "Welcome to my page"
+            },
+            "failMessage": "Put an <h1> containing Welcome to my page directly inside <main>."
+          },
+          {
+            "label": "There's exactly one <h1>",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "h1",
+              "min": 1,
+              "max": 1
+            },
+            "failMessage": "A page should have exactly one <h1>."
+          },
+          {
+            "label": "A <p> follows the heading inside <main>",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "main > h1 ~ p"
+            },
+            "failMessage": "Add a <p> after the <h1>, still inside <main>."
+          },
+          {
+            "label": "The paragraph has at least 20 characters",
+            "kind": "elementText",
+            "spec": {
+              "selector": "main > h1 ~ p",
+              "minLength": 20
+            },
+            "failMessage": "Your fact is a bit short. Aim for a full sentence."
+          },
+          {
+            "label": "The <title> describes your page",
+            "kind": "elementText",
+            "spec": {
+              "selector": "title",
+              "notEquals": "My first page",
+              "minLength": 3
+            },
+            "failMessage": "Change the text inside <title> in the <head>. It's what shows in the browser tab."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Work from the outside in. Everything visible lives in `<body>`; your new `<main>` goes inside it, and the heading and paragraph go inside `<main>`. The `<title>` lives in `<head>`."
+          },
+          {
+            "level": 2,
+            "markdown": "Here's the shape to aim for (fill in the blanks):\n\n```html\n<head>\n  <title>____</title>\n</head>\n<body>\n  <main>\n    <h1>Welcome to my page</h1>\n    <p>____</p>\n  </main>\n</body>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's a complete solution. Read it line by line and compare it with yours before you copy anything."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which of these is a closing tag?",
+            "explanation": "Closing tags start with </, like </h1>.",
+            "options": [
+              {
+                "text": "<h1>",
+                "correct": false
+              },
+              {
+                "text": "</h1>",
+                "correct": true
+              },
+              {
+                "text": "<h1/>",
+                "correct": false
+              },
+              {
+                "text": "<\\h1>",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which part of the document holds what visitors see?",
+            "explanation": "<head> is information about the page; <body> holds the visible content.",
+            "options": [
+              {
+                "text": "<head>",
+                "correct": false
+              },
+              {
+                "text": "<body>",
+                "correct": true
+              },
+              {
+                "text": "<title>",
+                "correct": false
+              },
+              {
+                "text": "<!DOCTYPE html>",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which of these is a void element (no closing tag)?",
+            "explanation": "<br> can't hold content, so it has no closing tag.",
+            "options": [
+              {
+                "text": "<p>",
+                "correct": false
+              },
+              {
+                "text": "<br>",
+                "correct": true
+              },
+              {
+                "text": "<main>",
+                "correct": false
+              },
+              {
+                "text": "<h1>",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Is this nested correctly? <p><strong>Hi</p></strong>",
+            "explanation": "Tags must close in reverse order: </strong> has to come before </p>.",
+            "options": [
+              {
+                "text": "Yes",
+                "correct": false
+              },
+              {
+                "text": "No: tags must close in the reverse order they opened",
+                "correct": true
+              },
+              {
+                "text": "Only in some browsers",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the browser do with five spaces in a row inside a <p>?",
+            "explanation": "Browsers collapse runs of whitespace into a single space.",
+            "options": [
+              {
+                "text": "Shows all five",
+                "correct": false
+              },
+              {
+                "text": "Collapses them into one space",
+                "correct": true
+              },
+              {
+                "text": "Shows an error",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "lists-explorer",
+      "title": "Headings and lists",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 4,
+      "isPublished": true,
+      "learnMarkdown": "## Making a list\n\nLots of things on the web are lists: menus, top-10s, steps in a game guide. HTML has a tag for that.\n\nA **bulleted list** starts with `<ul>`. That stands for *unordered list*, which means the order doesn't matter. Each thing in the list goes inside `<li>`, which means *list item*:\n\n```html\n<ul>\n  <li>Pizza</li>\n  <li>Tacos</li>\n  <li>Noodles</li>\n</ul>\n```\n\nThe browser puts a bullet (•) in front of each `<li>`.\n\nWant numbers instead of bullets? Use `<ol>`, an *ordered list*. The browser counts 1, 2, 3 for you!\n\n### Headings come in sizes\n\n`<h1>` is the biggest heading. `<h2>` is a little smaller, and is perfect for the parts of your page, like chapters in a book.\n\n### New words\n\n- **List item** (`<li>`): one thing in a list.\n- **Unordered list** (`<ul>`): a list with bullets.\n- **Ordered list** (`<ol>`): a list with numbers.\n",
+      "exampleMarkdown": "Here's a page with a big heading, a smaller heading, and a numbered list. Notice how `<li>` tags sit **inside** the `<ol>`, like toys inside a box.",
+      "exampleCode": "<h1>Building a Snow Fort</h1>\n<h2>What to do</h2>\n<ol>\n  <li>Find a big pile of snow.</li>\n  <li>Pack the snow into blocks.</li>\n  <li>Stack the blocks into walls.</li>\n</ol>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Make a list of your top games.\n\n1. Under the heading, add a `<ul>` list.\n2. Put **at least 3** `<li>` items inside it, one game in each.\n\nPress **Check my code** when you're done.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>My Top Games</title>\n  </head>\n  <body>\n    <h1>My Top Games</h1>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>My Top Games</title>\n  </head>\n  <body>\n    <h1>My Top Games</h1>\n    <ul>\n      <li>Minecraft</li>\n      <li>Mario Kart</li>\n      <li>Chess</li>\n    </ul>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Your heading is still there",
+            "kind": "elementText",
+            "spec": {
+              "selector": "h1",
+              "contains": "My Top Games"
+            },
+            "failMessage": "Keep the <h1>My Top Games</h1> heading at the top."
+          },
+          {
+            "label": "You made a <ul> list",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "ul"
+            },
+            "failMessage": "Add <ul> and </ul> below your heading."
+          },
+          {
+            "label": "Your list has at least 3 items",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "ul > li",
+              "min": 3
+            },
+            "failMessage": "Put at least 3 <li> items inside your <ul>."
+          },
+          {
+            "label": "Every item has a game in it",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "ul > li:empty",
+              "max": 0
+            },
+            "failMessage": "One of your <li> items is empty. Type a game between <li> and </li>."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at the example. The list starts with an opening tag and ends with a closing tag, and every item has its own `<li>` tag pair."
+          },
+          {
+            "level": 2,
+            "markdown": "Your list should look like this, with your own games:\n\n```html\n<ul>\n  <li>First game</li>\n  <li>Second game</li>\n  <li>Third game</li>\n</ul>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's one way to do it. Swap in your own favorite games!"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which tag makes a bulleted list?",
+            "explanation": "<ul> means unordered list, which shows bullets.",
+            "options": [
+              {
+                "text": "<li>",
+                "correct": false
+              },
+              {
+                "text": "<ul>",
+                "correct": true
+              },
+              {
+                "text": "<ol>",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What goes inside a list?",
+            "explanation": "Every thing in a list is a list item, written with <li>.",
+            "options": [
+              {
+                "text": "<li> items",
+                "correct": true
+              },
+              {
+                "text": "<p> paragraphs only",
+                "correct": false
+              },
+              {
+                "text": "Nothing, lists are empty",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which list shows numbers 1, 2, 3?",
+            "explanation": "<ol> is an ordered list, so the browser numbers it.",
+            "options": [
+              {
+                "text": "<ol>",
+                "correct": true
+              },
+              {
+                "text": "<ul>",
+                "correct": false
+              },
+              {
+                "text": "<h2>",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "headings-paragraphs-lists",
+      "title": "Headings, paragraphs and lists",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 10,
+      "isPublished": true,
+      "learnMarkdown": "## Structure with headings and lists\n\n### Heading levels\n\nHTML has six heading levels, `<h1>` through `<h6>`. They aren't about size (CSS controls size); they describe the **outline** of your page:\n\n- `<h1>`: the page's main title. Use one per page.\n- `<h2>`: major sections.\n- `<h3>`: subsections inside an `<h2>` section, and so on.\n\nDon't skip levels (an `<h4>` straight after an `<h2>`). Screen-reader users often jump between headings to skim a page, and a skipped level makes it look like something is missing.\n\n### Paragraphs\n\n`<p>` wraps a block of text. Remember that browsers collapse whitespace, so blank lines in your code don't create space on the page; separate paragraphs do.\n\n### Lists\n\n| Tag | Meaning | Use it for |\n| --- | --- | --- |\n| `<ul>` | Unordered list | Items where order doesn't matter (ingredients, features) |\n| `<ol>` | Ordered list | Steps or rankings, where order matters |\n| `<li>` | List item | Each item, inside a `<ul>` or `<ol>` |\n\nOnly `<li>` elements may be direct children of a `<ul>` or `<ol>`. To **nest** a list, put the inner list *inside* an `<li>`:\n\n```html\n<ul>\n  <li>Fruit\n    <ul>\n      <li>Apples</li>\n      <li>Kiwis</li>\n    </ul>\n  </li>\n</ul>\n```\n\n### New words\n\n- **Outline**: the hierarchy of sections a page's headings create.\n- **Direct child**: an element placed immediately inside another, with nothing in between.\n",
+      "exampleMarkdown": "A short guide with a correct outline: one `<h1>`, two `<h2>` sections, an unordered list where order doesn't matter, and an ordered list where it does.",
+      "exampleCode": "<h1>Setting Up a Fish Tank</h1>\n<h2>What you need</h2>\n<ul>\n  <li>A tank and a lid</li>\n  <li>A filter</li>\n  <li>Water conditioner</li>\n</ul>\n<h2>Steps</h2>\n<ol>\n  <li>Rinse the gravel.</li>\n  <li>Fill the tank and add conditioner.</li>\n  <li>Run the filter for a week before adding fish.</li>\n</ol>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 15,
+        "instructionsMarkdown": "Build a recipe page for **Galaxy Pancakes**:\n\n1. Under the `<h1>`, add an `<h2>` that says **Ingredients**, followed by a `<ul>` with at least 4 ingredients.\n2. Then add an `<h2>` that says **Steps**, followed by an `<ol>` with at least 3 steps.\n3. Keep the heading outline clean: no `<h3>`–`<h6>` needed.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Galaxy Pancakes</title>\n  </head>\n  <body>\n    <h1>Galaxy Pancakes</h1>\n    <p>Purple, sparkly and out of this world.</p>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Galaxy Pancakes</title>\n  </head>\n  <body>\n    <h1>Galaxy Pancakes</h1>\n    <p>Purple, sparkly and out of this world.</p>\n\n    <h2>Ingredients</h2>\n    <ul>\n      <li>1 cup flour</li>\n      <li>1 cup milk</li>\n      <li>1 egg</li>\n      <li>A few drops of purple food coloring</li>\n    </ul>\n\n    <h2>Steps</h2>\n    <ol>\n      <li>Mix everything in a bowl.</li>\n      <li>Pour small circles into a hot pan (ask an adult).</li>\n      <li>Flip when bubbles appear.</li>\n    </ol>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "There are two <h2> sections",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "h2",
+              "min": 2
+            },
+            "failMessage": "Add an <h2> for Ingredients and another for Steps."
+          },
+          {
+            "label": "The first <h2> says \"Ingredients\"",
+            "kind": "elementText",
+            "spec": {
+              "selector": "h2",
+              "contains": "Ingredients"
+            },
+            "failMessage": "Your first <h2> should say Ingredients."
+          },
+          {
+            "label": "An unordered list of 4+ ingredients follows it",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "h2 + ul > li",
+              "min": 4
+            },
+            "failMessage": "Put a <ul> right after the Ingredients heading, with at least 4 <li> items."
+          },
+          {
+            "label": "An ordered list of 3+ steps follows a heading",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "h2 + ol > li",
+              "min": 3
+            },
+            "failMessage": "Put an <ol> right after the Steps heading, with at least 3 <li> items."
+          },
+          {
+            "label": "Lists only contain <li> elements",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "ul > :not(li), ol > :not(li)",
+              "max": 0
+            },
+            "failMessage": "Something other than <li> is directly inside a list. Wrap it in an <li>."
+          },
+          {
+            "label": "The outline doesn't skip levels",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "h3, h4, h5, h6",
+              "max": 0
+            },
+            "failMessage": "This page only needs <h1> and <h2>. Remove any <h3>–<h6>."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Each section is a heading immediately followed by its list. Which list type fits ingredients (order doesn't matter) and which fits steps (order matters)?"
+          },
+          {
+            "level": 2,
+            "markdown": "Skeleton to fill in:\n\n```html\n<h2>Ingredients</h2>\n<ul>\n  <li>…</li>  <!-- 4 or more -->\n</ul>\n\n<h2>Steps</h2>\n<ol>\n  <li>…</li>  <!-- 3 or more -->\n</ol>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "A complete solution. Compare the structure with yours before copying anything."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "How many <h1> elements should a page usually have?",
+            "explanation": "The <h1> is the page's main title, so use one.",
+            "options": [
+              {
+                "text": "None",
+                "correct": false
+              },
+              {
+                "text": "One",
+                "correct": true
+              },
+              {
+                "text": "As many as you like",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which list fits the steps of a recipe?",
+            "explanation": "Order matters for steps, so use an ordered list.",
+            "options": [
+              {
+                "text": "<dl>",
+                "correct": false
+              },
+              {
+                "text": "<ol>",
+                "correct": true
+              },
+              {
+                "text": "<ul>",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What may be a direct child of a <ul>?",
+            "explanation": "Only <li> elements belong directly inside <ul> or <ol>.",
+            "options": [
+              {
+                "text": "Any element",
+                "correct": false
+              },
+              {
+                "text": "<p> and <li>",
+                "correct": false
+              },
+              {
+                "text": "<li> only",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Why avoid jumping from <h2> straight to <h4>?",
+            "explanation": "Skipped levels make the outline confusing for people navigating by headings.",
+            "options": [
+              {
+                "text": "It breaks the page outline for screen-reader users",
+                "correct": true
+              },
+              {
+                "text": "Browsers can't display <h4>",
+                "correct": false
+              },
+              {
+                "text": "It makes the text bigger",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "links-images-explorer",
+      "title": "Links and pictures",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Tags can carry extra info\n\nSome tags need more information to do their job. That extra info goes **inside the opening tag** and is called an **attribute**. An attribute has a name, an equals sign, and a value in quotes:\n\n```html\n<a href=\"https://www.nasa.gov\">Visit NASA</a>\n```\n\n### Links: `<a>`\n\n`<a>` makes a **link**. Its `href` attribute is the web address the link goes to. The words between the tags are what people click.\n\n### Pictures: `<img>`\n\n```html\n<img src=\"otter.png\" alt=\"An otter floating on its back\">\n```\n\n- `src` is the picture file.\n- `alt` describes the picture in words. Screen readers read it aloud for people who can't see the screen, and browsers show it if the picture can't load.\n\n`<img>` has no closing tag, because there's nothing to put between tags.\n\n> In our practice preview, picture files don't exist yet, so you'll see your alt text instead of a picture. That's alt text doing its job!\n\n### New words\n\n- **Attribute**: extra info inside an opening tag, like `href=\"...\"`.\n- **Link**: words you click to go to another page.\n- **Alt text**: words that describe a picture.\n",
+      "exampleMarkdown": "A link and a picture. The picture file isn't here, so the browser shows the **alt text** instead. Links in the preview don't open (to keep you safe), but they'll work on a real website.",
+      "exampleCode": "<h1>Sea Otters</h1>\n<img src=\"otter.png\" alt=\"A sea otter floating on its back, holding a shell\">\n<p><a href=\"https://www.montereybayaquarium.org\">Meet otters at the aquarium</a></p>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Finish the penguin page.\n\n1. Add an `<img>` with `src=\"penguin.png\"` and an `alt` that describes the picture (for example, *A penguin sliding on its belly*).\n2. Add a link with `<a>` whose `href` starts with `https://`. Put words inside it, like **Learn more**.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Penguins</title>\n  </head>\n  <body>\n    <h1>Penguins</h1>\n    <p>Penguins can't fly, but they're amazing swimmers.</p>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Penguins</title>\n  </head>\n  <body>\n    <h1>Penguins</h1>\n    <p>Penguins can't fly, but they're amazing swimmers.</p>\n    <img src=\"penguin.png\" alt=\"A penguin sliding on its belly across the ice\">\n    <p><a href=\"https://www.nationalgeographic.com/animals\">Learn more about penguins</a></p>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Your page has a picture",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "img"
+            },
+            "failMessage": "Add an <img> tag. It has no closing tag!"
+          },
+          {
+            "label": "The picture uses penguin.png",
+            "kind": "attribute",
+            "spec": {
+              "selector": "img",
+              "name": "src",
+              "equals": "penguin.png"
+            },
+            "failMessage": "Set src=\"penguin.png\" inside your <img> tag."
+          },
+          {
+            "label": "The picture has alt text that describes it",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "img:not([alt]), img[alt='']",
+              "max": 0
+            },
+            "failMessage": "Add alt=\"...\" inside your <img> tag, with words that describe the picture."
+          },
+          {
+            "label": "You added a link to a website",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "a[href^='https://']"
+            },
+            "failMessage": "Add <a href=\"https://...\">Learn more</a>. The href must start with https://"
+          },
+          {
+            "label": "Your link has words to click",
+            "kind": "elementText",
+            "spec": {
+              "selector": "a",
+              "minLength": 3
+            },
+            "failMessage": "Put some words between <a ...> and </a>, so people have something to click."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Both new tags need attributes. Where do attributes go: inside the opening tag, or between the tags?"
+          },
+          {
+            "level": 2,
+            "markdown": "Here's the shape of each one:\n\n```html\n<img src=\"penguin.png\" alt=\"Describe the picture here\">\n<a href=\"https://...\">Words to click</a>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's one way to finish the page."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does the href attribute do?",
+            "explanation": "href is the web address a link goes to.",
+            "options": [
+              {
+                "text": "Adds a picture",
+                "correct": false
+              },
+              {
+                "text": "Tells a link where to go",
+                "correct": true
+              },
+              {
+                "text": "Makes text bigger",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Who uses alt text?",
+            "explanation": "Screen readers read alt text aloud, and browsers show it when a picture can't load.",
+            "options": [
+              {
+                "text": "People using screen readers, and anyone whose picture didn't load",
+                "correct": true
+              },
+              {
+                "text": "Nobody",
+                "correct": false
+              },
+              {
+                "text": "Only the website owner",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Does <img> need a closing tag?",
+            "explanation": "<img> has nothing between tags, so it has no closing tag.",
+            "options": [
+              {
+                "text": "No",
+                "correct": true
+              },
+              {
+                "text": "Yes, </img>",
+                "correct": false
+              },
+              {
+                "text": "Only sometimes",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "links-images-attributes",
+      "title": "Links, images and attributes",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 12,
+      "isPublished": true,
+      "learnMarkdown": "## Attributes, links and images\n\n### Attributes\n\n**Attributes** configure an element. They live in the opening tag as `name=\"value\"` pairs, separated by spaces. Some are **boolean**: present means on (`<input required>`).\n\n### Links\n\n```html\n<a href=\"https://developer.mozilla.org\">MDN Web Docs</a>\n```\n\nThe `href` can be:\n\n| Kind | Example | Goes to |\n| --- | --- | --- |\n| Absolute URL | `https://example.com/about` | A full address, usually another site |\n| Relative URL | `about.html`, `images/logo.png` | A file relative to the current page's folder |\n| Fragment | `#faq` | The element with `id=\"faq\"` on the same page |\n\nAdd `target=\"_blank\"` to open a new tab. Pair it with `rel=\"noopener\"` so the new page can't control yours through `window.opener`.\n\nLink text should make sense on its own: \"Read the setup guide\", not \"click here\". Screen-reader users often pull up a list of links without the sentences around them.\n\n### Images\n\n```html\n<img src=\"images/nebula.jpg\" alt=\"Pink and blue clouds of gas in deep space\" width=\"600\" height=\"400\">\n```\n\n- `alt` is required for meaningful images. Describe what matters, not \"image of\". Purely decorative images get `alt=\"\"` so screen readers skip them.\n- `width` and `height` let the browser reserve space before the image loads, so the page doesn't jump.\n\n### New words\n\n- **URL** (*Uniform Resource Locator*): the address of a page or file on the web.\n- **Absolute URL**: a full address including `https://`.\n- **Relative URL**: a path from the current page, like `images/logo.png`.\n- **Fragment**: the `#name` part of a URL that points to an `id` on the page.\n",
+      "exampleMarkdown": "Every kind of link from the lesson, plus an image with alt text and dimensions. The image file doesn't exist in the preview, so its alt text shows, and the browser still reserves its 300 × 200 space. (Links don't navigate in the preview.)",
+      "exampleCode": "<nav>\n  <a href=\"#facts\">Jump to facts</a>\n</nav>\n<h1>Jupiter</h1>\n<img src=\"images/jupiter.jpg\" alt=\"Jupiter's orange and white bands with the Great Red Spot\" width=\"300\" height=\"200\">\n<h2 id=\"facts\">Facts</h2>\n<p>Jupiter's Great Red Spot is a storm bigger than Earth.</p>\n<p><a href=\"https://science.nasa.gov/jupiter/\" target=\"_blank\" rel=\"noopener\">Read NASA's Jupiter guide</a></p>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 15,
+        "instructionsMarkdown": "Complete the nebula page:\n\n1. Add an image with `src=\"images/nebula.jpg\"` (a relative URL), meaningful `alt` text, and `width` and `height` attributes.\n2. Add a link with `href=\"#facts\"` that jumps to the Facts section. Give that `<h2>` the matching `id`.\n3. Add an external link (starting with `https://`) that opens in a new tab safely (`target` and `rel`).\n4. No \"click here\": link text must describe the destination.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>The Crab Nebula</title>\n  </head>\n  <body>\n    <h1>The Crab Nebula</h1>\n    <p>The leftover cloud from a star that exploded almost 1,000 years ago.</p>\n\n    <h2>Facts</h2>\n    <p>At its center spins a neutron star, about 30 times per second.</p>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>The Crab Nebula</title>\n  </head>\n  <body>\n    <h1>The Crab Nebula</h1>\n    <p><a href=\"#facts\">Skip to the facts</a></p>\n    <p>The leftover cloud from a star that exploded almost 1,000 years ago.</p>\n    <img src=\"images/nebula.jpg\" alt=\"Glowing orange and blue filaments of the Crab Nebula\" width=\"600\" height=\"400\">\n\n    <h2 id=\"facts\">Facts</h2>\n    <p>At its center spins a neutron star, about 30 times per second.</p>\n    <p><a href=\"https://esahubble.org\" target=\"_blank\" rel=\"noopener\">See Hubble's nebula photos</a></p>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The image uses the relative URL images/nebula.jpg",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "img[src='images/nebula.jpg']"
+            },
+            "failMessage": "Add <img src=\"images/nebula.jpg\" ...>."
+          },
+          {
+            "label": "The image has meaningful alt text",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "img:not([alt]), img[alt='']",
+              "max": 0
+            },
+            "failMessage": "This image carries meaning, so describe it in its alt attribute."
+          },
+          {
+            "label": "The image has width and height",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "img[width][height]"
+            },
+            "failMessage": "Add width and height attributes so the browser can reserve space."
+          },
+          {
+            "label": "A link jumps to #facts",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "a[href='#facts']"
+            },
+            "failMessage": "Add <a href=\"#facts\">...</a>."
+          },
+          {
+            "label": "The Facts heading has id=\"facts\"",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "h2#facts"
+            },
+            "failMessage": "Give the Facts <h2> the attribute id=\"facts\" so the fragment link has a target."
+          },
+          {
+            "label": "An external link opens a new tab safely",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "a[href^='https://'][target='_blank'][rel~='noopener']"
+            },
+            "failMessage": "Your https:// link needs target=\"_blank\" and rel=\"noopener\"."
+          },
+          {
+            "label": "No link says \"click here\"",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('a')].every(a => !/click here|^here$/i.test(a.textContent.trim()))",
+              "equals": true
+            },
+            "failMessage": "Rewrite \"click here\" so the link text describes where it goes."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Three separate edits: the image (four attributes), a fragment link plus its target `id`, and the external link with two extra attributes."
+          },
+          {
+            "level": 2,
+            "markdown": "Shapes to aim for:\n\n```html\n<a href=\"#facts\">Skip to the facts</a>\n<img src=\"images/nebula.jpg\" alt=\"…\" width=\"600\" height=\"400\">\n<h2 id=\"facts\">Facts</h2>\n<a href=\"https://…\" target=\"_blank\" rel=\"noopener\">Descriptive text</a>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "A complete solution. Note where each attribute lives."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does href=\"#faq\" link to?",
+            "explanation": "A fragment points to the element with that id on the same page.",
+            "options": [
+              {
+                "text": "The element with id=\"faq\" on this page",
+                "correct": true
+              },
+              {
+                "text": "A file named faq",
+                "correct": false
+              },
+              {
+                "text": "The site's home page",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why add rel=\"noopener\" with target=\"_blank\"?",
+            "explanation": "It stops the new page from controlling yours through window.opener.",
+            "options": [
+              {
+                "text": "It's required for all links",
+                "correct": false
+              },
+              {
+                "text": "So the new tab can't control your page",
+                "correct": true
+              },
+              {
+                "text": "To make the link blue",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What alt text suits a purely decorative divider image?",
+            "explanation": "Decorative images get an empty alt so screen readers skip them.",
+            "options": [
+              {
+                "text": "alt=\"\"",
+                "correct": true
+              },
+              {
+                "text": "alt=\"image\"",
+                "correct": false
+              },
+              {
+                "text": "Leave alt out entirely",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which is a relative URL?",
+            "explanation": "images/logo.png is resolved from the current page's folder.",
+            "options": [
+              {
+                "text": "images/logo.png",
+                "correct": true
+              },
+              {
+                "text": "https://example.com/logo.png",
+                "correct": false
+              },
+              {
+                "text": "#logo",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why set width and height on an image?",
+            "explanation": "The browser reserves the space, so content doesn't jump while the image loads.",
+            "options": [
+              {
+                "text": "To make the image download faster",
+                "correct": false
+              },
+              {
+                "text": "Screen readers need them",
+                "correct": false
+              },
+              {
+                "text": "So the page doesn't jump around while it loads",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "page-rooms-explorer",
+      "title": "Rooms of a web page",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Every page has rooms\n\nA house has rooms with names: kitchen, bedroom, bathroom. When you hear \"kitchen\", you know what's inside.\n\nWeb pages have named rooms too:\n\n- `<header>`: the top of the page, with the title or logo.\n- `<nav>`: the menu of links.\n- `<main>`: the main stuff the page is about. Only one per page!\n- `<footer>`: the bottom, with small extra info.\n\nThese are called **semantic** tags. *Semantic* means \"about meaning\". They don't change how the page looks, but they tell browsers and screen readers what each part is **for**. A screen reader can jump straight to `<main>`, so nobody has to listen to the whole menu every time.\n\nThe plain `<div>` tag is a box with **no** meaning. Use the named rooms when one fits.\n\n### New words\n\n- **Semantic**: about meaning.\n- **Screen reader**: an app that reads web pages out loud.\n",
+      "exampleMarkdown": "A tiny page split into rooms: a header at the top, the main part in the middle, and a footer at the bottom.",
+      "exampleCode": "<header>\n  <h1>Dino Fan Page</h1>\n</header>\n<main>\n  <p>The T. rex had teeth as long as bananas!</p>\n</main>\n<footer>\n  <p>Made with dino love</p>\n</footer>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** This page is built from plain `<div>` boxes. Swap each one for the right room:\n\n1. The top box → `<header>`\n2. The middle box → `<main>`\n3. The bottom box → `<footer>`\n\nDon't forget to change the closing tags too! When you're done, there should be no `<div>` left.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Space Club</title>\n  </head>\n  <body>\n    <div class=\"top\">\n      <h1>Captain Cosmo's Space Club</h1>\n    </div>\n    <div class=\"middle\">\n      <p>We meet every Friday to look at the stars.</p>\n    </div>\n    <div class=\"bottom\">\n      <p>Made by club members</p>\n    </div>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Space Club</title>\n  </head>\n  <body>\n    <header>\n      <h1>Captain Cosmo's Space Club</h1>\n    </header>\n    <main>\n      <p>We meet every Friday to look at the stars.</p>\n    </main>\n    <footer>\n      <p>Made by club members</p>\n    </footer>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The title is inside a <header>",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "header h1"
+            },
+            "failMessage": "Change the top <div class=\"top\"> into <header>, and its </div> into </header>."
+          },
+          {
+            "label": "The middle part is a <main>",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "main p"
+            },
+            "failMessage": "Change the middle <div> into <main>."
+          },
+          {
+            "label": "The bottom part is a <footer>",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "footer p"
+            },
+            "failMessage": "Change the bottom <div> into <footer>."
+          },
+          {
+            "label": "No plain <div> boxes are left",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "div",
+              "max": 0
+            },
+            "failMessage": "There's still a <div> somewhere. Check your closing tags too!"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Each `<div ...>` has a matching `</div>` further down. Both the opening and the closing tag need the new name."
+          },
+          {
+            "level": 2,
+            "markdown": "Change the top box like this, then do the same for the other two:\n\n```html\n<header>\n  <h1>Captain Cosmo's Space Club</h1>\n</header>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the whole page with its rooms named."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which tag holds the main part of a page?",
+            "explanation": "<main> holds what the page is mostly about.",
+            "options": [
+              {
+                "text": "<footer>",
+                "correct": false
+              },
+              {
+                "text": "<div>",
+                "correct": false
+              },
+              {
+                "text": "<main>",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "What does semantic mean?",
+            "explanation": "Semantic tags describe what each part is for.",
+            "options": [
+              {
+                "text": "About meaning",
+                "correct": true
+              },
+              {
+                "text": "About color",
+                "correct": false
+              },
+              {
+                "text": "About speed",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Where does a <footer> usually go?",
+            "explanation": "The footer sits at the bottom with small extra info.",
+            "options": [
+              {
+                "text": "At the bottom of the page",
+                "correct": true
+              },
+              {
+                "text": "At the top",
+                "correct": false
+              },
+              {
+                "text": "Inside the title",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "semantic-html",
+      "title": "Semantic HTML",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 12,
+      "isPublished": true,
+      "learnMarkdown": "## Semantic HTML and landmarks\n\n**Semantic** elements describe what content *is*, not how it looks. A `<div>` says nothing; a `<nav>` says \"this is navigation\".\n\n| Element | Meaning |\n| --- | --- |\n| `<header>` | Introductory content: site title, logo, often the main nav |\n| `<nav>` | A block of major navigation links |\n| `<main>` | The page's primary content. Exactly one per page, not inside header/footer/aside |\n| `<article>` | Self-contained content that would make sense on its own: a post, a card, a comment |\n| `<section>` | A thematic group of content, usually with its own heading |\n| `<aside>` | Related but secondary content: sidebars, callouts |\n| `<footer>` | Closing info for the page or for an article |\n\n### Why it matters\n\n- **Accessibility.** Screen readers expose these as **landmarks**. Users jump straight to `main` or `nav` instead of listening to everything in order.\n- **Readable code.** `</article>` is much easier to match up than the fifth `</div>`.\n- **Search engines** use them to understand which part of the page matters.\n\n`<div>` is still fine for grouping things purely for styling, when no semantic element fits.\n\n### New words\n\n- **Landmark**: a region of a page that assistive technology lets users jump to.\n- **Self-contained**: makes sense if you lifted it out and put it somewhere else.\n",
+      "exampleMarkdown": "A club page built from landmarks. Read it top to bottom: you can tell what every region is from its tag alone.",
+      "exampleCode": "<header>\n  <h1>Maple Street Chess Club</h1>\n  <nav>\n    <a href=\"#results\">Results</a>\n  </nav>\n</header>\n<main>\n  <section>\n    <h2 id=\"results\">Latest results</h2>\n    <article>\n      <h3>Spring tournament</h3>\n      <p>Twelve players, forty games, one very long endgame.</p>\n    </article>\n  </section>\n</main>\n<footer>\n  <p>Maple Street Chess Club</p>\n</footer>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 15,
+        "instructionsMarkdown": "This page is built entirely from `<div>`s. Refactor it to semantic HTML:\n\n- The site header → `<header>`, and the menu inside it → `<nav>`\n- The content wrapper → `<main>`\n- The news post → `<article>`\n- The sidebar → `<aside>`\n- The footer → `<footer>`\n\nWhen you're done, no `<div>` should remain.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Riverside Robotics Club</title>\n  </head>\n  <body>\n    <div id=\"header\">\n      <h1>Riverside Robotics Club</h1>\n      <div id=\"menu\">\n        <a href=\"#news\">News</a>\n        <a href=\"#join\">Join</a>\n      </div>\n    </div>\n    <div id=\"content\">\n      <div class=\"post\">\n        <h2 id=\"news\">We built a line-following robot</h2>\n        <p>Our robot followed a black tape track for 12 laps without falling off.</p>\n      </div>\n      <div class=\"sidebar\">\n        <h2 id=\"join\">Join us</h2>\n        <p>Meetings are Tuesdays after school.</p>\n      </div>\n    </div>\n    <div id=\"footer\">\n      <p>Riverside Robotics Club</p>\n    </div>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Riverside Robotics Club</title>\n  </head>\n  <body>\n    <header>\n      <h1>Riverside Robotics Club</h1>\n      <nav>\n        <a href=\"#news\">News</a>\n        <a href=\"#join\">Join</a>\n      </nav>\n    </header>\n    <main>\n      <article>\n        <h2 id=\"news\">We built a line-following robot</h2>\n        <p>Our robot followed a black tape track for 12 laps without falling off.</p>\n      </article>\n      <aside>\n        <h2 id=\"join\">Join us</h2>\n        <p>Meetings are Tuesdays after school.</p>\n      </aside>\n    </main>\n    <footer>\n      <p>Riverside Robotics Club</p>\n    </footer>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The site title sits in a <header>",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "header > h1"
+            },
+            "failMessage": "Turn the header <div> into a <header>."
+          },
+          {
+            "label": "The menu is a <nav> inside the header",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "header > nav a"
+            },
+            "failMessage": "Turn the menu <div> into a <nav>."
+          },
+          {
+            "label": "There's exactly one <main>",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "main",
+              "min": 1,
+              "max": 1
+            },
+            "failMessage": "Use one <main> for the content wrapper."
+          },
+          {
+            "label": "The news post is an <article> in <main>",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "main article h2"
+            },
+            "failMessage": "Turn the post <div> into an <article>."
+          },
+          {
+            "label": "The sidebar is an <aside>",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "aside h2"
+            },
+            "failMessage": "Turn the sidebar <div> into an <aside>."
+          },
+          {
+            "label": "The page ends with a <footer>",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "body > footer"
+            },
+            "failMessage": "Turn the footer <div> into a <footer>, directly inside <body>."
+          },
+          {
+            "label": "No <div>s remain",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "div",
+              "max": 0
+            },
+            "failMessage": "A <div> is left over. Check every opening and closing tag."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Work from the outside in, and change each closing tag at the same time as its opening tag. The `id` and `class` attributes can go once the tags explain themselves."
+          },
+          {
+            "level": 2,
+            "markdown": "The outline you're aiming for:\n\n```html\n<header> h1, nav </header>\n<main>\n  <article> … </article>\n  <aside> … </aside>\n</main>\n<footer> … </footer>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "The fully refactored page."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "How many <main> elements should a page have?",
+            "explanation": "A page has exactly one main landmark.",
+            "options": [
+              {
+                "text": "As many as needed",
+                "correct": false
+              },
+              {
+                "text": "Exactly one",
+                "correct": true
+              },
+              {
+                "text": "One per section",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which element fits a blog post that could be shared on its own?",
+            "explanation": "Self-contained content is an <article>.",
+            "options": [
+              {
+                "text": "<article>",
+                "correct": true
+              },
+              {
+                "text": "<aside>",
+                "correct": false
+              },
+              {
+                "text": "<nav>",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What do screen-reader users gain from landmarks?",
+            "explanation": "Landmarks let them jump straight to regions like main or nav.",
+            "options": [
+              {
+                "text": "They can jump directly to regions like main or nav",
+                "correct": true
+              },
+              {
+                "text": "Larger text",
+                "correct": false
+              },
+              {
+                "text": "Faster downloads",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When is <div> the right choice?",
+            "explanation": "Use <div> for grouping purely for styling when no semantic element fits.",
+            "options": [
+              {
+                "text": "Never",
+                "correct": false
+              },
+              {
+                "text": "For all page regions",
+                "correct": false
+              },
+              {
+                "text": "Grouping for styling when no semantic element fits",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "forms-explorer",
+      "title": "Forms: boxes you can type in",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Forms\n\nA **form** is the part of a page where people type or choose things: a search box, a quiz, a sign-up page.\n\n```html\n<form>\n  <label for=\"pet\">Pet's name</label>\n  <input type=\"text\" id=\"pet\">\n  <button>Save</button>\n</form>\n```\n\n- `<form>` wraps everything.\n- `<input>` is a box to type in. Like `<img>`, it has no closing tag.\n- `<button>` is the button people press.\n- `<label>` is the name of the box, so people know what to type.\n\n### Connecting a label to its box\n\nThe label's `for` and the input's `id` must be **the same word**. Then:\n\n- Clicking the label puts the cursor in the box.\n- Screen readers say the label out loud when someone reaches the box.\n\nA box with no label is like a door with no sign!\n\n> **Stay safe:** Online, never type your real name, address, school or phone number into a form unless a grown-up says it's OK.\n\n### New words\n\n- **Form**: a part of a page for typing or choosing things.\n- **Input**: a box you can type in.\n- **Label**: the name of an input box.\n",
+      "exampleMarkdown": "A small form with one labelled box and a button. Try clicking the words **Pet's name** in the preview: the cursor jumps into the box!",
+      "exampleCode": "<form>\n  <label for=\"pet\">Pet's name</label>\n  <input type=\"text\" id=\"pet\">\n  <button>Save</button>\n</form>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** This sign-up form has two boxes, but nobody can tell what they're for.\n\n1. Add a `<label>` before each `<input>`.\n2. Connect each label to its box: the label's `for` must match the input's `id` (`nickname` and `planet`).\n3. Good label words: **Club nickname** and **Favorite planet**.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Join the Space Club</title>\n  </head>\n  <body>\n    <h1>Join the Space Club</h1>\n    <form>\n      <input type=\"text\" id=\"nickname\">\n      <input type=\"text\" id=\"planet\">\n      <button>Join!</button>\n    </form>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Join the Space Club</title>\n  </head>\n  <body>\n    <h1>Join the Space Club</h1>\n    <form>\n      <label for=\"nickname\">Club nickname</label>\n      <input type=\"text\" id=\"nickname\">\n      <label for=\"planet\">Favorite planet</label>\n      <input type=\"text\" id=\"planet\">\n      <button>Join!</button>\n    </form>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "There's still a form with two boxes",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "form input",
+              "min": 2
+            },
+            "failMessage": "Keep both <input> boxes inside the <form>."
+          },
+          {
+            "label": "You added labels",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "form label",
+              "min": 2
+            },
+            "failMessage": "Add a <label> for each of the two boxes."
+          },
+          {
+            "label": "Every box is connected to a label",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('input:not([type=submit]):not([type=hidden]), select, textarea')].every(el => el.labels && el.labels.length > 0)",
+              "equals": true
+            },
+            "failMessage": "Each label's for=\"...\" must match its input's id=\"...\" exactly."
+          },
+          {
+            "label": "Each label has words in it",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "label:empty",
+              "max": 0
+            },
+            "failMessage": "Write words between <label ...> and </label>."
+          },
+          {
+            "label": "The form still has its button",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "form button"
+            },
+            "failMessage": "Keep the <button> inside the form."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at the `id` on each input. What should the label's `for` say so they match?"
+          },
+          {
+            "level": 2,
+            "markdown": "For the first box:\n\n```html\n<label for=\"nickname\">Club nickname</label>\n<input type=\"text\" id=\"nickname\">\n```\n\nDo the same for `planet`."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the whole form with both labels connected."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "How do you connect a label to an input?",
+            "explanation": "The label's for must match the input's id.",
+            "options": [
+              {
+                "text": "Make the label's for match the input's id",
+                "correct": true
+              },
+              {
+                "text": "Put them on the same line",
+                "correct": false
+              },
+              {
+                "text": "Use the same color",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What happens when you click a connected label?",
+            "explanation": "The cursor jumps into its box.",
+            "options": [
+              {
+                "text": "The page closes",
+                "correct": false
+              },
+              {
+                "text": "Nothing",
+                "correct": false
+              },
+              {
+                "text": "The cursor jumps into its box",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Should you type your home address into a form online?",
+            "explanation": "Personal information stays private unless a grown-up says it's OK.",
+            "options": [
+              {
+                "text": "Only on fun websites",
+                "correct": false
+              },
+              {
+                "text": "Not unless a grown-up says it's OK",
+                "correct": true
+              },
+              {
+                "text": "Yes, always",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "forms",
+      "title": "Forms",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Forms that everyone can use\n\nA `<form>` collects input and submits it. Each control's `name` becomes the key in the submitted data (`team=Bolt`).\n\n### Input types\n\nThe `type` attribute changes the control and its built-in validation:\n\n| `type` | Gives you |\n| --- | --- |\n| `text` | A single-line text box (the default) |\n| `email` | Text that must look like an email; email keyboard on phones |\n| `number` | A numeric box with `min`, `max` and `step` |\n| `checkbox` | An on/off choice |\n| `radio` | One choice from a group: radios **sharing a `name`** are one group |\n\n### Labels\n\nEvery control needs a label. Two ways:\n\n```html\n<!-- explicit: for matches id -->\n<label for=\"team\">Team name</label>\n<input id=\"team\" name=\"team\">\n\n<!-- implicit: the input sits inside the label -->\n<label><input type=\"checkbox\" name=\"power\"> We need a power outlet</label>\n```\n\nLabels give screen readers the control's name and make small targets (checkboxes!) easier to click.\n\n### Grouping\n\nWrap related controls, like a radio group, in a `<fieldset>`; its first child `<legend>` names the group. Screen readers announce \"Session, group\" before the options.\n\n### Validation\n\n`required`, `min`, `max` and `type` give you free browser validation. It's a convenience for users, never security: a server must always validate again.\n\n### Buttons\n\n`<button type=\"submit\">` submits the form. A `<button>` inside a form defaults to submit, but saying so makes your intent clear.\n\n> In the preview, submitting does nothing (forms never send data from the sandbox). The console tells you when a form would have submitted.\n\n### New words\n\n- **Control**: any form element a user interacts with.\n- **Validation**: checking input meets rules before it's accepted.\n- **Fieldset / legend**: a group of controls and its caption.\n",
+      "exampleMarkdown": "A small accessible form: an explicit label, an implicitly labelled checkbox, and a labelled group of radios. Click **Sign up** in the preview and watch the console.",
+      "exampleCode": "<form>\n  <p>\n    <label for=\"email\">Parent's email</label>\n    <input type=\"email\" id=\"email\" name=\"email\" required>\n  </p>\n  <fieldset>\n    <legend>Difficulty</legend>\n    <label><input type=\"radio\" name=\"level\" value=\"easy\"> Easy</label>\n    <label><input type=\"radio\" name=\"level\" value=\"hard\"> Hard</label>\n  </fieldset>\n  <label><input type=\"checkbox\" name=\"news\"> Send me the newsletter</label>\n  <button type=\"submit\">Sign up</button>\n</form>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 15,
+        "instructionsMarkdown": "Fix this RSVP form so it's accessible and validates input:\n\n1. Give **Team name** and **Robots you're bringing** proper labels (`for`/`id`), and make the team name `required`.\n2. Make the robots box `type=\"number\"` with `min=\"0\"`.\n3. Put the two session radios in a `<fieldset>` with the `<legend>` **Session**, and label each radio.\n4. Label the checkbox.\n5. Make the button explicitly `type=\"submit\"`.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Robotics Night RSVP</title>\n  </head>\n  <body>\n    <h1>Robotics Night RSVP</h1>\n    <form>\n      Team name\n      <input type=\"text\" name=\"team\">\n\n      Robots you're bringing\n      <input name=\"robots\">\n\n      Session:\n      <input type=\"radio\" name=\"session\" value=\"early\"> Early (5 pm)\n      <input type=\"radio\" name=\"session\" value=\"late\"> Late (7 pm)\n\n      <input type=\"checkbox\" name=\"power\"> We need a power outlet\n\n      <button>Send RSVP</button>\n    </form>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Robotics Night RSVP</title>\n  </head>\n  <body>\n    <h1>Robotics Night RSVP</h1>\n    <form>\n      <p>\n        <label for=\"team\">Team name</label>\n        <input type=\"text\" id=\"team\" name=\"team\" required>\n      </p>\n      <p>\n        <label for=\"robots\">Robots you're bringing</label>\n        <input type=\"number\" id=\"robots\" name=\"robots\" min=\"0\">\n      </p>\n      <fieldset>\n        <legend>Session</legend>\n        <label><input type=\"radio\" name=\"session\" value=\"early\"> Early (5 pm)</label>\n        <label><input type=\"radio\" name=\"session\" value=\"late\"> Late (7 pm)</label>\n      </fieldset>\n      <p>\n        <label><input type=\"checkbox\" name=\"power\"> We need a power outlet</label>\n      </p>\n      <button type=\"submit\">Send RSVP</button>\n    </form>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Every control has a label",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('input:not([type=submit]):not([type=hidden]), select, textarea')].every(el => el.labels && el.labels.length > 0)",
+              "equals": true
+            },
+            "failMessage": "Some inputs have no label. Use for/id, or wrap the input inside its <label>."
+          },
+          {
+            "label": "Team name is required",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "input[name='team'][required]"
+            },
+            "failMessage": "Add the required attribute to the team name input."
+          },
+          {
+            "label": "The robots box is a number with min=\"0\"",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "input[name='robots'][type='number'][min='0']"
+            },
+            "failMessage": "Set type=\"number\" and min=\"0\" on the robots input."
+          },
+          {
+            "label": "The radios are grouped in a fieldset with a legend",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "fieldset input[type='radio']",
+              "min": 2
+            },
+            "failMessage": "Wrap both radio buttons in a <fieldset>."
+          },
+          {
+            "label": "The fieldset's legend says \"Session\"",
+            "kind": "elementText",
+            "spec": {
+              "selector": "fieldset > legend",
+              "contains": "Session"
+            },
+            "failMessage": "Add <legend>Session</legend> as the first thing inside the <fieldset>."
+          },
+          {
+            "label": "Both radios share one name",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "new Set([...document.querySelectorAll('input[type=radio]')].map(r => r.name)).size === 1",
+              "equals": true
+            },
+            "failMessage": "Radios in the same group must share the same name."
+          },
+          {
+            "label": "The button is a submit button",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "form button[type='submit']"
+            },
+            "failMessage": "Add type=\"submit\" to the button."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Start with labels: two inputs need an `id` and a matching `<label for>`; the radios and checkbox are easiest to label by wrapping each input inside its `<label>`. Then add the attributes and the fieldset."
+          },
+          {
+            "level": 2,
+            "markdown": "Patterns you need:\n\n```html\n<label for=\"team\">Team name</label>\n<input type=\"text\" id=\"team\" name=\"team\" required>\n\n<fieldset>\n  <legend>Session</legend>\n  <label><input type=\"radio\" name=\"session\" value=\"early\"> Early (5 pm)</label>\n  …\n</fieldset>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "A complete solution. Notice the two labelling styles."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What makes several radio buttons one group?",
+            "explanation": "Radios that share a name form one group; only one can be selected.",
+            "options": [
+              {
+                "text": "They're next to each other",
+                "correct": false
+              },
+              {
+                "text": "They have the same value",
+                "correct": false
+              },
+              {
+                "text": "They share the same name",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "What is a <legend> for?",
+            "explanation": "A legend names the group of controls in a fieldset.",
+            "options": [
+              {
+                "text": "It submits the form",
+                "correct": false
+              },
+              {
+                "text": "It names a fieldset's group of controls",
+                "correct": true
+              },
+              {
+                "text": "It adds a footnote",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Is required enough to keep bad data out of your database?",
+            "explanation": "Browser validation helps users, but the server must always validate too.",
+            "options": [
+              {
+                "text": "No, the server must validate too",
+                "correct": true
+              },
+              {
+                "text": "Yes",
+                "correct": false
+              },
+              {
+                "text": "Only for email fields",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which input type shows an email keyboard on phones?",
+            "explanation": "type=\"email\" also gives built-in format checks.",
+            "options": [
+              {
+                "text": "email",
+                "correct": true
+              },
+              {
+                "text": "text",
+                "correct": false
+              },
+              {
+                "text": "number",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which two ways can you label an input?",
+            "explanation": "Use for/id, or wrap the input inside the label.",
+            "options": [
+              {
+                "text": "Using a nearby <p>",
+                "correct": false
+              },
+              {
+                "text": "Matching for/id, or wrapping the input in the label",
+                "correct": true
+              },
+              {
+                "text": "Using placeholder text only",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "everyone-explorer",
+      "title": "Pages for everyone",
+      "sortOrder": 6,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Making pages everyone can use\n\nPeople use the web in lots of ways. Some people can't see the screen and use a **screen reader** that reads the page out loud. Some can't use a mouse, so they press the Tab key to move around. Making pages work for everyone is called **accessibility**.\n\nYou already know the most important tricks:\n\n1. **Alt text** on pictures, so screen readers can describe them.\n2. **Labels** on form boxes, so people know what to type.\n3. **Headings in order**: `<h1>` first, then `<h2>`.\n4. **The `lang` attribute** on `<html>`, like `<html lang=\"en\">`. It tells screen readers which language to speak, so English words don't get read with a Spanish voice!\n\n> Fun fact: accessibility helps everyone. Captions help in a noisy room, and big buttons help on a bumpy bus.\n\n### New words\n\n- **Accessibility**: making things everyone can use, including people with disabilities.\n- **`lang`**: an attribute that says which language a page is in.\n",
+      "exampleMarkdown": "This page follows all four tricks. In the code, find the `lang`, the `alt` text and the label.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head><title>Owls</title></head>\n  <body>\n    <h1>Owls</h1>\n    <img src=\"owl.png\" alt=\"A snowy owl with yellow eyes\">\n    <label for=\"owl\">Name an owl</label>\n    <input type=\"text\" id=\"owl\">\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Bug hunt!** This frog page has 3 accessibility bugs. Fix them all:\n\n1. The `<html>` tag is missing its `lang=\"en\"`.\n2. The picture has no `alt` text.\n3. The input box has no label. (Its `id` is `frogname`.)",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html>\n  <head>\n    <title>Rainforest Frogs</title>\n  </head>\n  <body>\n    <h1>Rainforest Frogs</h1>\n    <img src=\"frog.png\">\n    <p>Red-eyed tree frogs sleep all day and hunt at night.</p>\n    <form>\n      <input type=\"text\" id=\"frogname\">\n      <button>Name a frog</button>\n    </form>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Rainforest Frogs</title>\n  </head>\n  <body>\n    <h1>Rainforest Frogs</h1>\n    <img src=\"frog.png\" alt=\"A green frog with big red eyes sitting on a leaf\">\n    <p>Red-eyed tree frogs sleep all day and hunt at night.</p>\n    <form>\n      <label for=\"frogname\">Your frog's name</label>\n      <input type=\"text\" id=\"frogname\">\n      <button>Name a frog</button>\n    </form>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The page says which language it's in",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "html[lang]:not([lang=''])"
+            },
+            "failMessage": "Add lang=\"en\" to the <html> tag at the top."
+          },
+          {
+            "label": "The frog picture has alt text",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "img:not([alt]), img[alt='']",
+              "max": 0
+            },
+            "failMessage": "Add alt=\"...\" to the <img> tag, describing the frog."
+          },
+          {
+            "label": "The input box has a label",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('input:not([type=submit]):not([type=hidden]), select, textarea')].every(el => el.labels && el.labels.length > 0)",
+              "equals": true
+            },
+            "failMessage": "Add <label for=\"frogname\">...</label> before the input."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Bug 1 is on the line that says `<html>`. Bug 2 is the `<img>` tag. Bug 3 is the `<input>` with `id=\"frogname\"`."
+          },
+          {
+            "level": 2,
+            "markdown": "The three fixes look like this:\n\n```html\n<html lang=\"en\">\n<img src=\"frog.png\" alt=\"Describe the frog\">\n<label for=\"frogname\">Your frog's name</label>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the page with all three bugs fixed."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does a screen reader do?",
+            "explanation": "It reads the page out loud.",
+            "options": [
+              {
+                "text": "Prints the page",
+                "correct": false
+              },
+              {
+                "text": "Reads the page out loud",
+                "correct": true
+              },
+              {
+                "text": "Makes the screen brighter",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does lang=\"en\" tell the screen reader?",
+            "explanation": "It says the page is in English, so the right voice is used.",
+            "options": [
+              {
+                "text": "The page is new",
+                "correct": false
+              },
+              {
+                "text": "The page has pictures",
+                "correct": false
+              },
+              {
+                "text": "The page is in English",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "Who does accessibility help?",
+            "explanation": "It helps people with disabilities, and often everyone else too.",
+            "options": [
+              {
+                "text": "Only website builders",
+                "correct": false
+              },
+              {
+                "text": "Nobody",
+                "correct": false
+              },
+              {
+                "text": "Everyone, especially people with disabilities",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "accessibility-basics",
+      "title": "Accessibility basics",
+      "sortOrder": 6,
+      "ageBand": "Builder",
+      "estimatedMinutes": 12,
+      "isPublished": true,
+      "learnMarkdown": "## Accessibility basics\n\n**Accessibility** (often written **a11y**: \"a\", 11 letters, \"y\") means people with disabilities can perceive, understand, navigate and use what you build. Roughly 1 in 4 adults in the US has a disability, and the law often requires accessible sites. The standard most teams follow is **WCAG** (Web Content Accessibility Guidelines); level AA is the usual target.\n\n### The checklist you can apply today\n\n| Check | Why |\n| --- | --- |\n| `<html lang=\"en\">` | Screen readers pick pronunciation from it |\n| Meaningful `alt` on images (`alt=\"\"` if decorative) | Non-visual users get the content |\n| Heading levels in order, no skips | Users navigate and skim by headings |\n| Every form control labelled | Controls get an accessible name |\n| Descriptive link text, never \"click here\" | Links are often read as a list, out of context |\n| Landmarks (`header`, `main`, `nav`, `footer`) | Users jump between regions |\n| Everything works with the keyboard | Not everyone uses a mouse |\n| Text contrast at least 4.5:1 | Readable for low-vision users (a CSS topic) |\n\n### How to test\n\n- Unplug your mouse and **Tab** through the page. Can you reach and use everything? Can you see where focus is?\n- Turn on a screen reader (VoiceOver on Mac: Cmd + F5; Narrator on Windows: Ctrl + Win + Enter) and listen to your page.\n- Run an automated checker such as axe DevTools or Lighthouse. Automated tools catch roughly a third of issues, so they supplement manual testing rather than replace it.\n\n### New words\n\n- **a11y**: short for *accessibility*. It's a shorthand, not an acronym: an \"a\", then 11 letters, then a \"y\".\n- **WCAG** (*Web Content Accessibility Guidelines*): the international guidelines for accessible web content.\n- **Accessible name**: what assistive tech announces for an element, such as a label's text.\n",
+      "exampleMarkdown": "A page that passes every item in the checklist that HTML alone can fix. Compare it with the bug-filled challenge page next.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head><title>Coral Reefs</title></head>\n  <body>\n    <main>\n      <h1>Coral Reefs</h1>\n      <h2>Why reefs matter</h2>\n      <p>Reefs cover under 1% of the ocean floor but shelter about a quarter of marine species.</p>\n      <img src=\"reef.jpg\" alt=\"Bright corals with schools of small yellow fish\" width=\"600\" height=\"400\">\n      <p><a href=\"https://oceanservice.noaa.gov/facts/coralreef.html\">Read NOAA's coral reef facts</a></p>\n    </main>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Html",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Audit and fix.** This report has 5 accessibility bugs:\n\n1. The page language isn't declared.\n2. The heading outline skips a level.\n3. The image has no alt text.\n4. A link says \"Click here\".\n5. The email input has no label.",
+        "starterFiles": {
+          "index.html": "<!DOCTYPE html>\n<html>\n  <head>\n    <title>Volcano Report</title>\n  </head>\n  <body>\n    <header>\n      <h1>Volcano Report</h1>\n    </header>\n    <main>\n      <h3>How volcanoes form</h3>\n      <p>Volcanoes form where melted rock, called magma, escapes through cracks in Earth's crust.</p>\n      <img src=\"images/eruption.jpg\" width=\"600\" height=\"400\">\n      <p>Want more? <a href=\"https://www.usgs.gov/programs/VHP\">Click here</a>.</p>\n      <form>\n        <input type=\"email\" id=\"email\" name=\"email\">\n        <button type=\"submit\">Get the volcano newsletter</button>\n      </form>\n    </main>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Volcano Report</title>\n  </head>\n  <body>\n    <header>\n      <h1>Volcano Report</h1>\n    </header>\n    <main>\n      <h2>How volcanoes form</h2>\n      <p>Volcanoes form where melted rock, called magma, escapes through cracks in Earth's crust.</p>\n      <img src=\"images/eruption.jpg\" alt=\"Lava fountaining from a volcano at night\" width=\"600\" height=\"400\">\n      <p>Want more? <a href=\"https://www.usgs.gov/programs/VHP\">Explore the USGS Volcano Hazards Program</a>.</p>\n      <form>\n        <label for=\"email\">Parent's email</label>\n        <input type=\"email\" id=\"email\" name=\"email\">\n        <button type=\"submit\">Get the volcano newsletter</button>\n      </form>\n    </main>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The page declares its language",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "html[lang]:not([lang=''])"
+            },
+            "failMessage": "Add lang=\"en\" to the <html> element."
+          },
+          {
+            "label": "Headings don't skip a level",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('h1,h2,h3,h4,h5,h6')].map(h => +h.tagName[1]).every((lvl, i, a) => i === 0 ? lvl === 1 : lvl <= a[i - 1] + 1)",
+              "equals": true
+            },
+            "failMessage": "The section heading jumps from <h1> to <h3>. Make it an <h2>."
+          },
+          {
+            "label": "The image has alt text",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "img:not([alt])",
+              "max": 0
+            },
+            "failMessage": "Add an alt attribute describing the eruption photo."
+          },
+          {
+            "label": "No link says \"click here\"",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('a')].every(a => !/click here|^here$|^more$/i.test(a.textContent.trim()))",
+              "equals": true
+            },
+            "failMessage": "Rewrite the link text so it describes where the link goes."
+          },
+          {
+            "label": "Every form control is labelled",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('input:not([type=submit]):not([type=hidden]), select, textarea')].every(el => el.labels && el.labels.length > 0)",
+              "equals": true
+            },
+            "failMessage": "Add a <label for=\"email\"> for the email input."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Read the page against the checklist in the lesson, top to bottom. One bug is on the very first `<html>` line."
+          },
+          {
+            "level": 2,
+            "markdown": "Fix list:\n\n```html\n<html lang=\"en\">\n<h2>How volcanoes form</h2>           <!-- was h3 -->\n<img … alt=\"Describe the eruption\">\n<a href=\"…\">Explore the USGS Volcano Hazards Program</a>\n<label for=\"email\">Parent's email</label>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "The fully fixed report."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does \"a11y\" stand for?",
+            "explanation": "a + 11 letters + y = accessibility.",
+            "options": [
+              {
+                "text": "Accessibility",
+                "correct": true
+              },
+              {
+                "text": "Allergy",
+                "correct": false
+              },
+              {
+                "text": "All year",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why is \"click here\" bad link text?",
+            "explanation": "Screen-reader users often browse a list of links, where \"click here\" says nothing.",
+            "options": [
+              {
+                "text": "It's too short to click",
+                "correct": false
+              },
+              {
+                "text": "Search engines ban it",
+                "correct": false
+              },
+              {
+                "text": "It means nothing when links are read out of context",
+                "correct": true
+              }
+            ]
+          },
+          {
+            "prompt": "What should alt be on a purely decorative image?",
+            "explanation": "Empty alt tells screen readers to skip the image.",
+            "options": [
+              {
+                "text": "alt=\"\"",
+                "correct": true
+              },
+              {
+                "text": "alt=\"decoration\"",
+                "correct": false
+              },
+              {
+                "text": "Leave alt out",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Can an automated checker find every accessibility problem?",
+            "explanation": "Automated tools catch only a share of issues; manual keyboard and screen-reader testing is essential.",
+            "options": [
+              {
+                "text": "Yes",
+                "correct": false
+              },
+              {
+                "text": "Only on mobile",
+                "correct": false
+              },
+              {
+                "text": "No, you still need manual testing",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
