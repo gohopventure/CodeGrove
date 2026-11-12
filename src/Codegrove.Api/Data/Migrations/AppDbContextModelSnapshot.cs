@@ -17,7 +17,7 @@ namespace Codegrove.Api.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -244,6 +244,9 @@ namespace Codegrove.Api.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BlocksJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("InstructionsMarkdown")
                         .IsRequired()

@@ -68,7 +68,7 @@ export interface CourseDetail {
 
 export interface Challenge {
   id: number;
-  kind: 'Html' | 'Css' | 'Js' | 'Sql' | 'CSharp';
+  kind: 'Html' | 'Css' | 'Js' | 'React' | 'TypeScript' | 'Sql' | 'CSharp';
   instructionsMarkdown: string;
   starterFiles: Files;
   tests: TestSpec[];
@@ -76,6 +76,8 @@ export interface Challenge {
   revealedHints: { level: number; markdown: string }[];
   solutionFiles: Files | null;
   xpReward: number;
+  /** Present when the challenge can be built with blocks (Explorer JavaScript lessons). */
+  blocks: { toolbox: string[]; starter: object | null } | null;
 }
 
 export interface QuizQuestion {

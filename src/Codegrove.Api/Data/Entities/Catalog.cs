@@ -96,6 +96,13 @@ public class Challenge
 
     public int XpReward { get; set; } = 10;
 
+    /// <summary>
+    /// Optional blocks mode (Explorer JavaScript lessons): JSON {"toolbox": [category keys], "starter": Blockly
+    /// workspace state}. Null for text-only challenges. Any solution workspace in the content file stays out of
+    /// the database, so it can never be sent to a learner.
+    /// </summary>
+    public string? BlocksJson { get; set; }
+
     public List<TestCase> TestCases { get; set; } = [];
     public List<Hint> Hints { get; set; } = [];
 }

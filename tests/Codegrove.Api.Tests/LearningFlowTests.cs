@@ -230,6 +230,55 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/api/does-not-exist")).StatusCode);
     }
 
+    [Fact]
+    public async Task Explorer_js_lessons_offer_blocks_without_leaking_the_blocks_solution()
+    {
+        var (_, child, _) = await FamilyWithConsentedExplorer("BlockFox");
+        var course = await child.GetJson("/api/courses/javascript-basics");
+        var lessons = course.GetProperty("lessons").EnumerateArray().ToList();
+        int IdOf(string slug) => lessons.First(l => l.GetProperty("slug").GetString() == slug).GetProperty("id").GetInt32();
+
+        var lesson = await child.GetJson($"/api/lessons/{IdOf("variables-explorer")}");
+        var blocks = lesson.GetProperty("challenge").GetProperty("blocks");
+        Assert.Contains("variables", blocks.GetProperty("toolbox").EnumerateArray().Select(t => t.GetString()));
+        Assert.Equal(JsonValueKind.Object, blocks.GetProperty("starter").ValueKind);
+        // The content file has a solution workspace for the content checks; it must never reach a learner.
+        Assert.False(blocks.TryGetProperty("solution", out _));
+        Assert.DoesNotContain("Zara", blocks.GetRawText());
+
+        // Lessons without blocks send null.
+        var dom = await child.GetJson($"/api/lessons/{IdOf("dom-explorer")}");
+        Assert.Equal(JsonValueKind.Null, dom.GetProperty("challenge").GetProperty("blocks").ValueKind);
+    }
+
+    [Fact]
+    public async Task Course_length_is_the_learners_own_band()
+    {
+        var (_, explorer, _) = await FamilyWithConsentedExplorer("TimeFox");
+        var course = await explorer.GetJson("/api/courses/javascript-basics");
+        var lessonMinutes = course.GetProperty("lessons").EnumerateArray().Sum(l => l.GetProperty("estimatedMinutes").GetInt32());
+        Assert.Equal(lessonMinutes, course.GetProperty("estimatedMinutes").GetInt32());
+        Assert.Equal(45, lessonMinutes); // nine 5-minute Explorer lessons, not the 120-minute Builder path
+
+        var track = await explorer.GetJson("/api/tracks/javascript");
+        Assert.Equal(45, track.GetProperty("courses")[0].GetProperty("estimatedMinutes").GetInt32());
+
+        // Signed-out visitors see every band's lessons, so they get the course's authored estimate.
+        var anon = _factory.NewClient();
+        Assert.Equal(120, (await anon.GetJson("/api/courses/javascript-basics")).GetProperty("estimatedMinutes").GetInt32());
+    }
+
+    [Fact]
+    public async Task Every_published_course_has_a_completion_badge()
+    {
+        var (_, child, _) = await FamilyWithConsentedExplorer("ShelfOwl");
+        var codes = (await child.GetJson("/api/me/badges")).EnumerateArray().Select(b => b.GetProperty("code").GetString()).ToList();
+        Assert.Contains("web-wanderer", codes);
+        Assert.Contains("html-hero", codes);
+        Assert.Contains("style-star", codes);
+        Assert.Contains("js-juggler", codes);
+    }
+
     /// <summary>Maps each quiz question to its correct option by matching prompts against the seed file.</summary>
     private static Dictionary<string, int> CorrectAnswers(JsonElement quiz)
     {

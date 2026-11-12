@@ -20,6 +20,14 @@ self.MonacoEnvironment = {
   },
 };
 
+// React lessons edit .jsx files. The TypeScript worker parses JSX in .jsx files; telling it JSX is
+// expected keeps it from flagging every tag. Imports like "react" can't be resolved in the editor,
+// which is fine: semantic checks stay off for JavaScript, only syntax errors are underlined.
+monaco.typescript.javascriptDefaults.setCompilerOptions({
+  ...monaco.typescript.javascriptDefaults.getCompilerOptions(),
+  jsx: monaco.typescript.JsxEmit.Preserve,
+});
+
 loader.config({ monaco });
 
 export { monaco };

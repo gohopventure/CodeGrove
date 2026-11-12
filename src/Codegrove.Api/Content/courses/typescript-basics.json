@@ -1,0 +1,2007 @@
+{
+  "slug": "typescript-basics",
+  "title": "TypeScript Basics: Types That Catch Bugs",
+  "summary": "Add types to your JavaScript so TypeScript can catch mistakes before your code runs: typed functions, object shapes, unions, classes and a multi-file project.",
+  "ageBand": "Both",
+  "estimatedMinutes": 115,
+  "isPublished": true,
+  "objectives": [
+    "Explain what TypeScript adds to JavaScript and read type errors",
+    "Write functions with typed parameters and return values",
+    "Describe objects and arrays with interfaces and type aliases",
+    "Use union types and narrowing, including handling null safely",
+    "Build classes that hide their data and implement interfaces",
+    "Split a project into typed modules with export and import"
+  ],
+  "lessons": [
+    {
+      "slug": "types-explorer",
+      "title": "Labels for your values",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## JavaScript with labels\n\n**TypeScript** is JavaScript with one big extra: you can put a label on a value that says what *kind* of value it is. That label is called a **type**.\n\n```ts\nlet lives: number = 3;\nlet playerName: string = \"Pixel\";\nlet hasKey: boolean = false;\n```\n\nThe part after the colon is the type:\n\n- `string` means text, in quotes: `\"Pixel\"`\n- `number` means a number: `3`, `9.5`\n- `boolean` means `true` or `false`\n\n### TypeScript checks your work\n\nIf a value doesn't match its label, TypeScript tells you **before your code even runs**:\n\n```ts\nlet lives: number = \"three\"; // ✗ \"three\" is text, not a number\n```\n\nYou'll see a red squiggle under the mistake, and a **⚠ Type error** line in the Console. That's TypeScript saying \"this doesn't match the label you gave it.\" Fix the value (or the label) and the squiggle goes away.\n\n### TypeScript can guess\n\nYou don't always need a label. If you write `let score = 10;`, TypeScript sees the `10` and works out that `score` is a number all by itself.\n\n### New words\n\n- **TypeScript**: JavaScript plus types. It's checked first, then runs as normal JavaScript.\n- **Type**: what kind of value something is, like `string`, `number` or `boolean`.\n- **Type annotation**: the label you write after a colon, like `: number`.\n- **Type error**: TypeScript's warning that a value doesn't match its type.\n- **boolean**: a value that is only ever `true` or `false`.\n",
+      "exampleMarkdown": "A game's status bar. Every variable has a type label. Try reading each one out loud: \"lives is a number, and it's 3.\" If one of the values didn't match its label, TypeScript would show:\n\n```\n⚠ Type error in main.ts, line 2: Type 'string' is not assignable to type 'number'.\n```",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Status Bar</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      let playerName: string = \"Pixel\";\n      let lives: number = 3;\n      let hasKey: boolean = true;\n\n      const bar = document.createElement(\"p\");\n      bar.textContent = playerName + \" | lives: \" + lives + \" | key: \" + hasKey;\n      document.body.append(bar);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Bolt the robot's info card has three mistakes. TypeScript has spotted two of them already: look for the red squiggles.\n\n1. `batteryLevel` is a `number`, so it can't be `\"full\"`. Make it `100`.\n2. `canFly` is a `boolean`, so it can only be `true` or `false`. Make it `true`.\n3. Make a new variable called `favoriteSnack` with the type `string`, holding any snack you like.\n\nThe card is done when the Console has no ⚠ type errors.",
+        "starterFiles": {
+          "main.ts": "// Each value has a type after the colon: string (text), number or boolean (true/false).\nlet robotName: string = \"Bolt\";\nlet batteryLevel: number = \"full\"; // 1. A number is digits, not words. Make this 100.\nlet canFly: boolean = \"yes\"; // 2. A boolean is true or false. Make this true.\n\n// 3. Make a new variable called favoriteSnack with the type string, like this:\n//    let favoriteSnack: string = \"...\";\n\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n\nshow(\"Name: \" + robotName);\nshow(\"Battery: \" + batteryLevel + \"%\");\nshow(\"Can fly: \" + canFly);\nshow(\"Snack: \" + favoriteSnack);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Robot Card</title>\n  </head>\n  <body>\n    <h1>🤖 Robot Card</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "main.ts": "// Each value has a type after the colon: string (text), number or boolean (true/false).\nlet robotName: string = \"Bolt\";\nlet batteryLevel: number = 100; // 1. A number is digits, not words. Make this 100.\nlet canFly: boolean = true; // 2. A boolean is true or false. Make this true.\n\n// 3. Make a new variable called favoriteSnack with the type string, like this:\n//    let favoriteSnack: string = \"...\";\nlet favoriteSnack: string = \"nuts and bolts\";\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n\nshow(\"Name: \" + robotName);\nshow(\"Battery: \" + batteryLevel + \"%\");\nshow(\"Can fly: \" + canFly);\nshow(\"Snack: \" + favoriteSnack);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Robot Card</title>\n  </head>\n  <body>\n    <h1>🤖 Robot Card</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "No red squiggles are left. Look for a ⚠ Type error line in the Console: it says which line to fix."
+          },
+          {
+            "label": "The battery shows 100%",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(2)",
+              "equals": "Battery: 100%"
+            },
+            "failMessage": "Change \"full\" to the number 100 (no quotes)."
+          },
+          {
+            "label": "Bolt can fly",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(3)",
+              "equals": "Can fly: true"
+            },
+            "failMessage": "Change \"yes\" to true (no quotes: true is a boolean, not text)."
+          },
+          {
+            "label": "favoriteSnack is a string",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/let\\s+favoriteSnack\\s*:\\s*string\\s*=\\s*\\\"[^\\\"]+\\\"/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Add a line like: let favoriteSnack: string = \"popcorn\";"
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Text goes in quotes, numbers and booleans don't. `100` is a number; `\"100\"` is text."
+          },
+          {
+            "level": 2,
+            "markdown": "```ts\nlet batteryLevel: number = 100;\nlet canFly: boolean = true;\nlet favoriteSnack: string = \"popcorn\";\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished main.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which type is a value of \"hello\"?",
+            "explanation": "Anything in quotes is text, and text is a string.",
+            "options": [
+              {
+                "text": "string",
+                "correct": true
+              },
+              {
+                "text": "number",
+                "correct": false
+              },
+              {
+                "text": "boolean",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which line has a type error?",
+            "explanation": "\"ten\" is text, but the label says number.",
+            "options": [
+              {
+                "text": "let score: number = \"ten\";",
+                "correct": true
+              },
+              {
+                "text": "let score: number = 10;",
+                "correct": false
+              },
+              {
+                "text": "let name: string = \"Ten\";",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When does TypeScript tell you about a type error?",
+            "explanation": "TypeScript checks your code before it runs, so you can fix mistakes early.",
+            "options": [
+              {
+                "text": "Before the code runs",
+                "correct": true
+              },
+              {
+                "text": "Only after the page crashes",
+                "correct": false
+              },
+              {
+                "text": "Never",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "types-and-inference",
+      "title": "Types, inference and type errors",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Why TypeScript?\n\nJavaScript is **dynamically typed**: a variable can hold a number now and a string later, and you only find out something's wrong when the code runs (if you're lucky) or when a user hits the bug (if you're not).\n\n**TypeScript** adds **static types**: you (or TypeScript) decide what type each value is, and a checker looks for mismatches *before* anything runs. It's used by most large web projects, and every Angular app is written in it.\n\n```ts\nlet price: number = 4.5;\nprice = \"free\"; // ✗ Type 'string' is not assignable to type 'number'.\n```\n\n### Types disappear when the code runs\n\nBrowsers don't run TypeScript. A build tool (Vite, in real projects) **strips the types** and the browser runs the JavaScript that's left. Checking is a separate step, done by the TypeScript compiler (`tsc`) or your editor.\n\nThat has a consequence you'll see in the preview: **code with type errors still runs**. TypeScript reports the problem; it doesn't stop you. Your job is to get to zero type errors, because each one is a bug waiting to happen.\n\n### The basic types\n\n| Type | Values |\n|---|---|\n| `string` | `\"hi\"`, `'hi'`, `` `hi ${name}` `` |\n| `number` | `42`, `-1`, `3.14` (one type for all numbers) |\n| `boolean` | `true`, `false` |\n| `null`, `undefined` | \"no value\" |\n\n### Annotations and inference\n\nA **type annotation** is the `: type` you write. But you rarely need one on a variable, because TypeScript uses **type inference**: it works out the type from the value.\n\n```ts\nlet count = 5;        // inferred: number\nconst title = \"Shop\"; // inferred too. Hover over a name in the editor to see its type.\n```\n\nAnnotate when TypeScript *can't* know (function parameters, empty starting values) or when you want to state your intent so mistakes are caught where they're made.\n\n### Strict mode and `any`\n\n`any` switches type checking off for a value. It's an escape hatch, and it hides bugs. Real projects turn on **strict mode**, which (among other things) refuses to silently treat unknown things as `any`. Codegrove's checker is always strict.\n\n### New words\n\n- **Static typing**: checking types before the code runs, as opposed to **dynamic typing**, where types are only known while it runs.\n- **Type annotation**: an explicit type written after a colon, like `let total: number`.\n- **Type inference**: TypeScript working out a type from the value or code around it.\n- **Type error**: a mismatch the checker found, like a string where a number belongs.\n- **tsc** (*TypeScript Compiler*): the tool that type-checks TypeScript and can turn it into JavaScript.\n- **Strict mode**: a set of compiler checks that real projects turn on; it catches far more bugs.\n- **any**: a type that turns checking off for a value. Avoid it.\n",
+      "exampleMarkdown": "A cart line in TypeScript. `name` and `quantity` are inferred; `unitPrice` is annotated to make the intent clear. If `unitPrice` were set to `\"2.50\"`, the checker would report `Type 'string' is not assignable to type 'number'` on that line, even though JavaScript would happily multiply `\"2.50\" * 3` and hide the bug.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Cart Line</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      const name = \"Lemonade\";        // inferred: string\n      const quantity = 3;             // inferred: number\n      const unitPrice: number = 2.5;  // annotated\n      const total: number = unitPrice * quantity;\n\n      const line = document.createElement(\"p\");\n      line.textContent = `${quantity} × ${name} = $${total.toFixed(2)}`;\n      document.body.append(line);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Fix the bake sale receipt.** The code runs, but TypeScript has found mistakes that JavaScript would have let slide. Check the Console: each **⚠ Type error** names a file and line.\n\n1. Fix every type error by correcting the **values** (keep the annotations; they describe what the data should be).\n2. Give `total` an explicit type annotation.\n3. The customer has paid: set `paid` to the right value after the receipt's total is worked out.\n\nYou're done when there are no type errors and the receipt reads **Total: $6.00** and **Paid ✔**.",
+        "starterFiles": {
+          "main.ts": "// Bake sale receipt. TypeScript found mistakes before this code even ran:\n// fix every red squiggle (the Console lists them too, with line numbers).\n\nconst itemName: string = \"Brownie\";\nconst price: number = \"1.50\";\nconst quantity: number = 4;\nlet paid: boolean = \"no\";\n\n// 2. Give total an explicit type annotation.\nconst total = price * quantity;\n\n// 3. The customer has paid. Update paid here.\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"li\");\n  line.textContent = text;\n  document.querySelector(\"#receipt\")?.append(line);\n}\n\nshow(`${quantity} × ${itemName}`);\nshow(`Total: $${total.toFixed(2)}`);\nshow(paid ? \"Paid ✔\" : \"Not paid yet\");\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Bake Sale</title>\n  </head>\n  <body>\n    <h1>🧁 Bake Sale</h1>\n    <ul id=\"receipt\"></ul>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "main.ts": "// Bake sale receipt. TypeScript found mistakes before this code even ran:\n// fix every red squiggle (the Console lists them too, with line numbers).\n\nconst itemName: string = \"Brownie\";\nconst price: number = 1.5;\nconst quantity: number = 4;\nlet paid: boolean = false;\n\n// 2. Give total an explicit type annotation.\nconst total: number = price * quantity;\n\n// 3. The customer has paid. Update paid here.\npaid = true;\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"li\");\n  line.textContent = text;\n  document.querySelector(\"#receipt\")?.append(line);\n}\n\nshow(`${quantity} × ${itemName}`);\nshow(`Total: $${total.toFixed(2)}`);\nshow(paid ? \"Paid ✔\" : \"Not paid yet\");\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Bake Sale</title>\n  </head>\n  <body>\n    <h1>🧁 Bake Sale</h1>\n    <ul id=\"receipt\"></ul>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error."
+          },
+          {
+            "label": "total has a type annotation",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/const\\s+total\\s*:\\s*number\\s*=/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Write the type after the name: const total: number = …"
+          },
+          {
+            "label": "The total is $6.00",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#receipt li:nth-child(2)",
+              "equals": "Total: $6.00"
+            },
+            "failMessage": "The receipt should say Total: $6.00. Is price the number 1.5?"
+          },
+          {
+            "label": "The receipt says Paid",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#receipt li:nth-child(3)",
+              "equals": "Paid ✔"
+            },
+            "failMessage": "Set paid to true (a boolean) once the customer has paid."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`\"1.50\"` is a string that only *looks* like a number. JavaScript would multiply it anyway, which is exactly the kind of bug TypeScript exists to catch. `\"no\"` is a non-empty string, so it even counts as *true* in the ternary at the bottom!"
+          },
+          {
+            "level": 2,
+            "markdown": "```ts\nconst price: number = 1.5;\nlet paid: boolean = false;\n\nconst total: number = price * quantity;\n\npaid = true;\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished main.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What happens to TypeScript's types when the code runs in a browser?",
+            "explanation": "Browsers only run JavaScript. Build tools strip the types out first; checking is a separate step.",
+            "options": [
+              {
+                "text": "They're removed, and the browser runs plain JavaScript",
+                "correct": true
+              },
+              {
+                "text": "The browser checks them as it runs",
+                "correct": false
+              },
+              {
+                "text": "They're turned into comments that slow the page down",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What type does TypeScript infer for let count = 5;?",
+            "explanation": "TypeScript infers the type from the starting value.",
+            "options": [
+              {
+                "text": "number",
+                "correct": true
+              },
+              {
+                "text": "any",
+                "correct": false
+              },
+              {
+                "text": "string",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does code with a type error still run in the preview?",
+            "explanation": "Running and checking are separate: types are stripped, and the checker reports problems without blocking the run.",
+            "options": [
+              {
+                "text": "Types are stripped before running; checking is a separate step",
+                "correct": true
+              },
+              {
+                "text": "TypeScript fixes the error automatically",
+                "correct": false
+              },
+              {
+                "text": "The preview ignores TypeScript files",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the any type do?",
+            "explanation": "any turns off checking for that value, which is why strict projects avoid it.",
+            "options": [
+              {
+                "text": "It switches type checking off for that value",
+                "correct": true
+              },
+              {
+                "text": "It means the value can only be a number or string",
+                "correct": false
+              },
+              {
+                "text": "It makes the value read-only",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When is a type annotation most useful?",
+            "explanation": "Parameters and empty starting values can't be inferred, so they need annotations.",
+            "options": [
+              {
+                "text": "When TypeScript can't work the type out itself, like a function parameter",
+                "correct": true
+              },
+              {
+                "text": "On every single variable, always",
+                "correct": false
+              },
+              {
+                "text": "Never: inference does everything",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "functions-explorer",
+      "title": "Functions with labels",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Tell TypeScript what goes in and what comes out\n\nA function takes values in (its **parameters**) and can give a value back. In TypeScript you label both.\n\n```ts\nfunction double(n: number): number {\n  return n * 2;\n}\n```\n\n- `n: number` means \"the value that comes **in** must be a number.\"\n- `): number` after the brackets means \"the value that comes **out** is a number.\" That's the **return type**.\n\n### Now TypeScript can check every call\n\n```ts\ndouble(4);       // ✓ 8\ndouble(\"four\");  // ✗ \"four\" is a string, but n needs a number\n```\n\nThe mistake is caught where you *call* the function, before anything runs.\n\n### Labels are required on parameters\n\nTypeScript can guess the type of `let score = 10`, but it can't guess what someone will pass into a function. So a parameter with no label is a type error: TypeScript says it \"implicitly has an 'any' type\", which means \"I don't know what this is, please tell me.\"\n\n### New words\n\n- **Parameter**: a name for a value that goes into a function, like `n` in `double(n)`.\n- **Argument**: the actual value you pass in when you call it, like `4` in `double(4)`.\n- **Return type**: the type of the value a function gives back, written after the brackets.\n",
+      "exampleMarkdown": "A greeting machine. The function promises to take a `string` and give back a `string`. Calling `greet(42)` would be a type error: 42 isn't a string.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Greeting Machine</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      function greet(name: string): string {\n        return \"Hello, \" + name + \"!\";\n      }\n\n      const message = document.createElement(\"p\");\n      message.textContent = greet(\"Mochi\");\n      document.body.append(message);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Label the `petCard` function.\n\n1. Give the parameters types: `name` is a `string`, `age` is a `number`.\n2. Give the function a return type: it gives back a `string`.\n3. Now TypeScript spots a bad call: Biscuit's age is written as words. Change `\"three\"` to the number `3`.",
+        "starterFiles": {
+          "main.ts": "// 1. Give the parameters types: name is a string, age is a number.\n// 2. Add the return type after the ( ): it gives back a string.\nfunction petCard(name, age) {\n  return name + \" is \" + age + \" years old\";\n}\n\n// 3. Once the parameters have types, TypeScript finds a mistake on one of these lines.\nshow(petCard(\"Biscuit\", \"three\"));\nshow(petCard(\"Nibbles\", 2));\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Cards</title>\n  </head>\n  <body>\n    <h1>🐾 Pet Cards</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "main.ts": "// 1. Give the parameters types: name is a string, age is a number.\n// 2. Add the return type after the ( ): it gives back a string.\nfunction petCard(name: string, age: number): string {\n  return name + \" is \" + age + \" years old\";\n}\n\n// 3. Once the parameters have types, TypeScript finds a mistake on one of these lines.\nshow(petCard(\"Biscuit\", 3));\nshow(petCard(\"Nibbles\", 2));\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Cards</title>\n  </head>\n  <body>\n    <h1>🐾 Pet Cards</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still sees a type error. Did every parameter get a type?"
+          },
+          {
+            "label": "petCard has types in and out",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/function\\s+petCard\\s*\\(\\s*name\\s*:\\s*string\\s*,\\s*age\\s*:\\s*number\\s*\\)\\s*:\\s*string/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Write it like this: function petCard(name: string, age: number): string {"
+          },
+          {
+            "label": "Biscuit's card uses a number",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(1)",
+              "equals": "Biscuit is 3 years old"
+            },
+            "failMessage": "Change \"three\" to 3 (no quotes)."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Put a colon and a type after each parameter name, and after the closing bracket: `(name: string, age: number): string`."
+          },
+          {
+            "level": 2,
+            "markdown": "```ts\nfunction petCard(name: string, age: number): string {\n```\n\nThen fix the call: `petCard(\"Biscuit\", 3)`."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished main.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "In function add(a: number, b: number): number, what is the return type?",
+            "explanation": "The type after the closing bracket is what the function gives back.",
+            "options": [
+              {
+                "text": "number",
+                "correct": true
+              },
+              {
+                "text": "a",
+                "correct": false
+              },
+              {
+                "text": "add",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which call to double(n: number) is a type error?",
+            "explanation": "\"6\" is a string, but n must be a number.",
+            "options": [
+              {
+                "text": "double(\"6\")",
+                "correct": true
+              },
+              {
+                "text": "double(6)",
+                "correct": false
+              },
+              {
+                "text": "double(0.5)",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does TypeScript need labels on parameters?",
+            "explanation": "It can't guess what someone will pass in, so you tell it.",
+            "options": [
+              {
+                "text": "It can't guess what values will be passed in",
+                "correct": true
+              },
+              {
+                "text": "To make the function run faster",
+                "correct": false
+              },
+              {
+                "text": "Parameters can only be strings",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "typed-functions",
+      "title": "Typed functions",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Functions are where types pay off\n\nFunctions are the boundaries in your code: values cross into them and out of them. Typing those boundaries means TypeScript can check **every call**, everywhere.\n\n```ts\nfunction area(width: number, height: number): number {\n  return width * height;\n}\narea(3, \"4\");   // ✗ Argument of type 'string' is not assignable to parameter of type 'number'.\narea(3);        // ✗ Expected 2 arguments, but got 1.\n```\n\n### Parameters must be typed\n\nInference works on values, not on parameters. In strict mode an unannotated parameter is an error: *Parameter 'width' implicitly has an 'any' type*.\n\n### Return types\n\nTypeScript infers return types, but writing them is good practice for anything others will call. It turns \"the function accidentally returns the wrong thing\" into an error *inside* the function, where the bug is. Use `void` for a function that doesn't return a value.\n\n```ts\nfunction log(message: string): void {\n  console.log(message);\n}\n```\n\n### Optional and default parameters\n\n```ts\nfunction greet(name: string, greeting?: string): string { ... }   // greeting: string | undefined\nfunction levelUp(xp: number, bonus: number = 10): number { ... }  // or just bonus = 10 (inferred)\n```\n\nA `?` makes a parameter optional (its type becomes `string | undefined`, so you must handle `undefined`). A **default value** makes it optional *and* gives it a value. Optional parameters go after required ones.\n\n### Arrow functions and function types\n\n```ts\nconst square = (n: number): number => n * n;\n\n// The type of a function: takes a number, returns a number.\nlet transform: (n: number) => number = square;\n```\n\n### New words\n\n- **Signature**: a function's parameter types and return type, e.g. `(xp: number, bonus?: number) => number`.\n- **void**: the return type of a function that doesn't return a value.\n- **Optional parameter**: a parameter marked with `?` that can be left out; it's `undefined` when it is.\n- **Default parameter**: a parameter with a value to use when it's left out.\n- **Function type**: a type that describes a function, like `(n: number) => number`.\n",
+      "exampleMarkdown": "Typed helpers for a game. `title` is optional, `bonus` has a default, and `apply` takes another function as a parameter. Its type, `(n: number) => number`, says exactly what kind of function is allowed.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Game Helpers</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      function badge(name: string, title?: string): string {\n        return title ? `${title} ${name}` : name;\n      }\n\n      const levelUp = (xp: number, bonus: number = 10): number => xp + bonus;\n\n      function apply(value: number, change: (n: number) => number): number {\n        return change(value);\n      }\n\n      const out = document.createElement(\"p\");\n      out.textContent = `${badge(\"Ava\", \"Captain\")}: ${apply(50, levelUp)} XP`;\n      document.body.append(out);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Type the game helpers.** Right now TypeScript can't check any of these calls.\n\n1. Type `levelUp`'s parameters and its return value (all numbers).\n2. Make `bonus` optional with a **default value** of `10`, so `levelUp(50)` works.\n3. Write an **arrow function** `formatScore` that takes a name (`string`) and a score (`number`) and returns a `string` like **Ava: 60 XP**. Give it a return type.\n4. `logScore` doesn't return anything: give it the return type `void`.\n\nThe page should show **Ava: 60 XP**, and the Console **Leo: 105 XP**.",
+        "starterFiles": {
+          "main.ts": "// 1 and 2. Type the parameters and the return value; give bonus a default of 10.\nfunction levelUp(xp, bonus) {\n  return xp + bonus;\n}\n\n// 3. Write the arrow function formatScore here.\n//    const formatScore = (...): string => ...;\n\n\n// 4. Give logScore the return type void.\nfunction logScore(line: string) {\n  console.log(line);\n}\n\nconst total = levelUp(50);\nshow(formatScore(\"Ava\", total));\nlogScore(formatScore(\"Leo\", levelUp(80, 25)));\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Scoreboard</title>\n  </head>\n  <body>\n    <h1>🏆 Scoreboard</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "main.ts": "// 1 and 2. Type the parameters and the return value; give bonus a default of 10.\nfunction levelUp(xp: number, bonus: number = 10): number {\n  return xp + bonus;\n}\n\n// 3. Write the arrow function formatScore here.\n//    const formatScore = (...): string => ...;\nconst formatScore = (name: string, score: number): string => `${name}: ${score} XP`;\n\n// 4. Give logScore the return type void.\nfunction logScore(line: string): void {\n  console.log(line);\n}\n\nconst total = levelUp(50);\nshow(formatScore(\"Ava\", total));\nlogScore(formatScore(\"Leo\", levelUp(80, 25)));\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Scoreboard</title>\n  </head>\n  <body>\n    <h1>🏆 Scoreboard</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error."
+          },
+          {
+            "label": "levelUp is typed with a default bonus",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/function\\s+levelUp\\s*\\(\\s*xp\\s*:\\s*number\\s*,\\s*bonus\\s*(:\\s*number\\s*)?=\\s*10\\s*\\)\\s*:\\s*number/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Write the signature as: function levelUp(xp: number, bonus: number = 10): number"
+          },
+          {
+            "label": "formatScore is a typed arrow function",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/const\\s+formatScore\\s*=\\s*\\(\\s*\\w+\\s*:\\s*string\\s*,\\s*\\w+\\s*:\\s*number\\s*\\)\\s*:\\s*string\\s*=>/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Use an arrow function with a return type: const formatScore = (name: string, score: number): string => …"
+          },
+          {
+            "label": "logScore returns void",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/function\\s+logScore\\s*\\([^)]*\\)\\s*:\\s*void/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Add : void after logScore's brackets."
+          },
+          {
+            "label": "The page shows Ava's score",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(1)",
+              "equals": "Ava: 60 XP"
+            },
+            "failMessage": "formatScore(\"Ava\", 60) should give \"Ava: 60 XP\". Check levelUp's default bonus too."
+          },
+          {
+            "label": "The Console shows Leo's score",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Leo: 105 XP"
+            },
+            "failMessage": "logScore should log \"Leo: 105 XP\"."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "A default goes after the type: `bonus: number = 10`. An arrow function's return type goes between the `)` and the `=>`."
+          },
+          {
+            "level": 2,
+            "markdown": "```ts\nfunction levelUp(xp: number, bonus: number = 10): number {\n\nconst formatScore = (name: string, score: number): string => `${name}: ${score} XP`;\n\nfunction logScore(line: string): void {\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished main.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What's the type of greeting in function greet(name: string, greeting?: string)?",
+            "explanation": "A ? parameter can be left out, so its type includes undefined.",
+            "options": [
+              {
+                "text": "string | undefined",
+                "correct": true
+              },
+              {
+                "text": "string",
+                "correct": false
+              },
+              {
+                "text": "any",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What return type does a function that returns nothing have?",
+            "explanation": "void means \"doesn't return a value.\"",
+            "options": [
+              {
+                "text": "void",
+                "correct": true
+              },
+              {
+                "text": "null",
+                "correct": false
+              },
+              {
+                "text": "never",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which function matches the type (n: number) => string?",
+            "explanation": "It must take a number and return a string.",
+            "options": [
+              {
+                "text": "(n: number) => n.toFixed(2)",
+                "correct": true
+              },
+              {
+                "text": "(n: number) => n * 2",
+                "correct": false
+              },
+              {
+                "text": "(s: string) => s.length",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why write a return type when TypeScript could infer it?",
+            "explanation": "With a declared return type, a wrong return is reported inside the function, where the bug is.",
+            "options": [
+              {
+                "text": "Mistakes are caught inside the function instead of wherever it's called",
+                "correct": true
+              },
+              {
+                "text": "Inferred return types don't work in strict mode",
+                "correct": false
+              },
+              {
+                "text": "It makes the function run faster",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "objects-explorer",
+      "title": "Shapes for objects",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Lists and objects get labels too\n\nA list of strings is `string[]`. The `[]` means \"a list of\".\n\n```ts\nlet snacks: string[] = [\"apple\", \"popcorn\", \"grapes\"];\n```\n\n### Describe an object's shape with type\n\nAn object has several values, each with a name. You can make your own type that describes its **shape**:\n\n```ts\ntype Pet = {\n  name: string;\n  legs: number;\n};\n\nconst dog: Pet = { name: \"Biscuit\", legs: 4 };\n```\n\nNow every `Pet` must have a `name` that's a string and `legs` that's a number. Forget one, or put the wrong type in, and TypeScript tells you.\n\n### A list of your own type\n\n```ts\nconst pets: Pet[] = [\n  { name: \"Biscuit\", legs: 4 },\n  { name: \"Tweety\", legs: 2 },\n];\n```\n\n`Pet[]` means \"a list of Pets\", so TypeScript checks **every** pet in the list.\n\n### New words\n\n- **Array type**: a list type, written with `[]`, like `string[]` or `Pet[]`.\n- **Type alias**: a name you give to a type with `type`, like `type Pet = { … }`.\n- **Shape**: which properties an object has, and the type of each one.\n",
+      "exampleMarkdown": "A team list. `Player` describes the shape, and `team` is a `Player[]`. If one player had `goals: \"lots\"`, TypeScript would point right at it.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Team List</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      type Player = {\n        name: string;\n        goals: number;\n      };\n\n      const team: Player[] = [\n        { name: \"Ava\", goals: 3 },\n        { name: \"Leo\", goals: 5 },\n      ];\n\n      for (const player of team) {\n        const line = document.createElement(\"p\");\n        line.textContent = player.name + \" scored \" + player.goals;\n        document.body.append(line);\n      }\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Right now TypeScript can't help with this pet list, because nothing says what a pet looks like.\n\n1. Make a type called `Pet` with a `name` (`string`) and `legs` (`number`).\n2. Tell TypeScript that `pets` is a list of pets: `const pets: Pet[] = [`\n3. Now TypeScript spots a mistake in the list! Fix it: snakes have `0` legs.",
+        "starterFiles": {
+          "main.ts": "// 1. Make a type called Pet with a name (string) and legs (number).\n\n\n// 2. Tell TypeScript this is a list of Pets.\nconst pets = [\n  { name: \"Biscuit\", legs: 4 },\n  { name: \"Tweety\", legs: 2 },\n  { name: \"Slinky\", legs: \"none\" },\n];\n\nfor (const pet of pets) {\n  show(pet.name + \" has \" + pet.legs + \" legs\");\n}\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet List</title>\n  </head>\n  <body>\n    <h1>🐕 🐦 🐍</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "main.ts": "// 1. Make a type called Pet with a name (string) and legs (number).\ntype Pet = {\n  name: string;\n  legs: number;\n};\n\n// 2. Tell TypeScript this is a list of Pets.\nconst pets: Pet[] = [\n  { name: \"Biscuit\", legs: 4 },\n  { name: \"Tweety\", legs: 2 },\n  { name: \"Slinky\", legs: 0 },\n];\n\nfor (const pet of pets) {\n  show(pet.name + \" has \" + pet.legs + \" legs\");\n}\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet List</title>\n  </head>\n  <body>\n    <h1>🐕 🐦 🐍</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still sees a type error."
+          },
+          {
+            "label": "There is a Pet type",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/(type\\s+Pet\\s*=\\s*\\{|interface\\s+Pet\\b)/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Make the type: type Pet = { name: string; legs: number };"
+          },
+          {
+            "label": "pets is a list of Pet",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/const\\s+pets\\s*:\\s*Pet\\[\\]/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Add the label after the name: const pets: Pet[] = ["
+          },
+          {
+            "label": "Slinky has 0 legs",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(3)",
+              "equals": "Slinky has 0 legs"
+            },
+            "failMessage": "Change \"none\" to the number 0."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Did you notice? With no type, TypeScript let `\"none\"` slide. It only checks what you've described. Start with `type Pet = {` and list each property with its type."
+          },
+          {
+            "level": 2,
+            "markdown": "```ts\ntype Pet = {\n  name: string;\n  legs: number;\n};\n\nconst pets: Pet[] = [\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished main.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does number[] mean?",
+            "explanation": "The [] means \"a list of\".",
+            "options": [
+              {
+                "text": "A list of numbers",
+                "correct": true
+              },
+              {
+                "text": "One number",
+                "correct": false
+              },
+              {
+                "text": "A number between brackets",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "type Pet = { name: string }. Which is a Pet?",
+            "explanation": "It needs a name, and the name must be a string.",
+            "options": [
+              {
+                "text": "{ name: \"Rex\" }",
+                "correct": true
+              },
+              {
+                "text": "{ name: 5 }",
+                "correct": false
+              },
+              {
+                "text": "{ title: \"Rex\" }",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why didn't TypeScript complain about legs: \"none\" at first?",
+            "explanation": "TypeScript can only check against a shape you've described.",
+            "options": [
+              {
+                "text": "Nothing said pets must have number legs yet",
+                "correct": true
+              },
+              {
+                "text": "TypeScript doesn't check lists",
+                "correct": false
+              },
+              {
+                "text": "\"none\" is a number",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "objects-and-interfaces",
+      "title": "Arrays, objects and interfaces",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": true,
+      "learnMarkdown": "## Typing your data\n\nMost code is about data: lists of things, and objects with properties. TypeScript lets you describe that data once and checks it everywhere it's used.\n\n### Arrays\n\n```ts\nconst scores: number[] = [12, 40, 7];\nconst names: Array<string> = [\"Ava\", \"Leo\"]; // same thing, different spelling\n```\n\nArray methods keep the types: `scores.map((s) => s * 2)` is a `number[]`, and in `names.filter((n) => n.length > 2)` TypeScript knows `n` is a string, without any annotation.\n\n### Object types: type and interface\n\n```ts\ninterface Item {\n  name: string;\n  weight: number;\n  rarity?: string;      // optional: may be missing (string | undefined)\n  readonly id: number;  // can be read, but never reassigned\n}\n```\n\n`type Item = { ... }` describes the same shape. For object shapes the two are nearly interchangeable; teams usually pick one style. Interfaces read like a contract (\"anything that is an `Item` has these members\"), which you'll use with classes in lesson 5. `type` can also name things that aren't objects, like `type Id = number | string` (next lesson).\n\n### Excess property checks: typos get caught\n\n```ts\nconst egg: Item = { id: 3, name: \"Egg\", weigth: 9 };\n// ✗ Object literal may only specify known properties, but 'weigth' does not exist in type 'Item'.\n//   Did you mean to write 'weight'?\n```\n\nWithout the `: Item` annotation, TypeScript would happily infer a type with a `weigth` property, and the typo would turn into a quiet `undefined` somewhere else. **Annotate where data is created**, and mistakes are caught at the source.\n\n### New words\n\n- **Interface**: a named description of an object's shape, written with `interface`.\n- **Type alias**: a name for any type, written with `type`.\n- **Optional property**: a property marked `?` that may be missing; its type includes `undefined`.\n- **readonly**: marks a property that can't be reassigned after the object is created.\n- **Excess property check**: TypeScript rejecting unknown properties in an object literal, which catches typos.\n- **Generic**: a type that takes another type as a parameter, like `Array<string>`. You'll write your own later.\n",
+      "exampleMarkdown": "A typed playlist. `Song` is an interface with an optional `featuring`. `map`, `filter` and `reduce` all know they're working on `Song`s, so hovering over `s` inside them shows `Song` with no annotation needed.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Playlist</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      interface Song {\n        readonly id: number;\n        title: string;\n        seconds: number;\n        featuring?: string;\n      }\n\n      const playlist: Song[] = [\n        { id: 1, title: \"Neon Rain\", seconds: 185 },\n        { id: 2, title: \"Paper Planes\", seconds: 201, featuring: \"Ava\" },\n        { id: 3, title: \"Low Tide\", seconds: 174 },\n      ];\n\n      const minutes = playlist.reduce((sum, s) => sum + s.seconds, 0) / 60;\n      const collabs = playlist.filter((s) => s.featuring !== undefined).map((s) => s.title);\n\n      const out = document.createElement(\"p\");\n      out.textContent = `${minutes.toFixed(1)} minutes, collabs: ${collabs.join(\", \")}`;\n      document.body.append(out);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Type the adventurer's inventory.**\n\n1. Write an `interface Item`: `name` (`string`), `weight` (`number`), and an **optional** `rarity` (`string`).\n2. Annotate `inventory` as an array of `Item`. TypeScript will find a typo hiding in the data. Fix it.\n3. Write `function totalWeight(items: Item[]): number` that adds up every item's weight (a loop or `reduce`).\n4. Set `legendary` to the **names** of items whose rarity is `\"legendary\"` (use `filter`, then `map`).\n\nThe page should say **Total weight: 13 kg** and **Legendary: Dragon Egg**.",
+        "starterFiles": {
+          "main.ts": "// 1. Write the Item interface here.\n\n\n// 2. Annotate inventory as an array of Item.\nconst inventory = [\n  { name: \"Torch\", weight: 1 },\n  { name: \"Rope\", weight: 3, rarity: \"common\" },\n  { name: \"Dragon Egg\", weigth: 9, rarity: \"legendary\" },\n];\n\n// 3. Write totalWeight(items: Item[]): number here.\n\n\n// 4. The names of the legendary items, using filter and map.\nconst legendary: string[] = [];\n\nshow(`Total weight: ${totalWeight(inventory)} kg`);\nshow(`Legendary: ${legendary.join(\", \")}`);\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Inventory</title>\n  </head>\n  <body>\n    <h1>🎒 Inventory</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "main.ts": "// 1. Write the Item interface here.\ninterface Item {\n  name: string;\n  weight: number;\n  rarity?: string;\n}\n\n// 2. Annotate inventory as an array of Item.\nconst inventory: Item[] = [\n  { name: \"Torch\", weight: 1 },\n  { name: \"Rope\", weight: 3, rarity: \"common\" },\n  { name: \"Dragon Egg\", weight: 9, rarity: \"legendary\" },\n];\n\n// 3. Write totalWeight(items: Item[]): number here.\nfunction totalWeight(items: Item[]): number {\n  return items.reduce((sum, item) => sum + item.weight, 0);\n}\n\n// 4. The names of the legendary items, using filter and map.\nconst legendary: string[] = inventory.filter((item) => item.rarity === \"legendary\").map((item) => item.name);\n\nshow(`Total weight: ${totalWeight(inventory)} kg`);\nshow(`Legendary: ${legendary.join(\", \")}`);\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Inventory</title>\n  </head>\n  <body>\n    <h1>🎒 Inventory</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error."
+          },
+          {
+            "label": "Item is an interface with an optional rarity",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/interface\\s+Item\\s*\\{[^}]*rarity\\?\\s*:\\s*string/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Write interface Item { … } and mark rarity optional with a ?: rarity?: string;"
+          },
+          {
+            "label": "inventory is typed as Item[]",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/const\\s+inventory\\s*:\\s*(Item\\[\\]|Array<Item>)/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Annotate it: const inventory: Item[] = ["
+          },
+          {
+            "label": "totalWeight has a typed signature",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/function\\s+totalWeight\\s*\\(\\s*\\w+\\s*:\\s*(Item\\[\\]|Array<Item>)\\s*\\)\\s*:\\s*number/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Write the signature as: function totalWeight(items: Item[]): number"
+          },
+          {
+            "label": "legendary uses filter and map",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\.filter\\s*\\([\\s\\S]*\\.map\\s*\\(/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Build legendary with inventory.filter(…).map(…)."
+          },
+          {
+            "label": "The total weight is 13 kg",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(1)",
+              "equals": "Total weight: 13 kg"
+            },
+            "failMessage": "totalWeight should add up all three weights (1 + 3 + 9). Did the typo get fixed?"
+          },
+          {
+            "label": "The legendary item is listed",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(2)",
+              "equals": "Legendary: Dragon Egg"
+            },
+            "failMessage": "Keep items whose rarity is \"legendary\", then map them to their names."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Once `inventory` is an `Item[]`, TypeScript points at `weigth`: *did you mean to write 'weight'?* For the total, `items.reduce((sum, item) => sum + item.weight, 0)` starts at 0 and adds each weight."
+          },
+          {
+            "level": 2,
+            "markdown": "```ts\ninterface Item {\n  name: string;\n  weight: number;\n  rarity?: string;\n}\n\nfunction totalWeight(items: Item[]): number {\n  return items.reduce((sum, item) => sum + item.weight, 0);\n}\n\nconst legendary: string[] = inventory\n  .filter((item) => item.rarity === \"legendary\")\n  .map((item) => item.name);\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished main.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is the type of item.rarity when the interface says rarity?: string?",
+            "explanation": "Optional properties may be missing, so undefined is part of the type.",
+            "options": [
+              {
+                "text": "string | undefined",
+                "correct": true
+              },
+              {
+                "text": "string",
+                "correct": false
+              },
+              {
+                "text": "optional",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which is the same type as string[]?",
+            "explanation": "Array<string> is the generic spelling of the same array type.",
+            "options": [
+              {
+                "text": "Array<string>",
+                "correct": true
+              },
+              {
+                "text": "[string]",
+                "correct": false
+              },
+              {
+                "text": "string{}",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why is it worth annotating const egg: Item = { … } where the object is created?",
+            "explanation": "With the annotation, excess property checks catch typos right where the data is written.",
+            "options": [
+              {
+                "text": "Typos and missing properties are caught right there",
+                "correct": true
+              },
+              {
+                "text": "Objects without annotations can't be used in arrays",
+                "correct": false
+              },
+              {
+                "text": "It makes the object readonly",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Given readonly id: number, what happens with item.id = 5?",
+            "explanation": "readonly properties can be read but not reassigned.",
+            "options": [
+              {
+                "text": "A type error: id is read-only",
+                "correct": true
+              },
+              {
+                "text": "It works, readonly only affects strings",
+                "correct": false
+              },
+              {
+                "text": "id becomes undefined",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In names.filter((n) => n.length > 2) with names: string[], what is n's type?",
+            "explanation": "Array methods keep the element type, so n is inferred as string.",
+            "options": [
+              {
+                "text": "string",
+                "correct": true
+              },
+              {
+                "text": "any",
+                "correct": false
+              },
+              {
+                "text": "string[]",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "unions-explorer",
+      "title": "This or that",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## One value, a few choices\n\nSometimes a value can be one thing **or** another. In TypeScript, the bar `|` means \"or\":\n\n```ts\nlet answer: string | number = \"seven\";\nanswer = 7; // fine: it can be a string or a number\n```\n\nA type made with `|` is called a **union**.\n\n### Only these words allowed\n\nA union can also list exact words. This is one of TypeScript's best tricks:\n\n```ts\ntype Weather = \"sunny\" | \"rainy\" | \"snowy\";\n\nlet today: Weather = \"sunny\";  // ✓\ntoday = \"snowey\";              // ✗ typo! TypeScript catches it\ntoday = \"windy\";               // ✗ not on the list\n```\n\nThe word `type` gives your union a name, so you can use it again and again. Now a typo can't sneak in, and when you type `today = \"` the editor even suggests the allowed words.\n\n### Adding a new choice\n\nWant `\"windy\"` to be allowed? Add it to the list: `\"sunny\" | \"rainy\" | \"snowy\" | \"windy\"`. Every place that uses `Weather` now accepts it.\n\n### New words\n\n- **Union**: a type that allows one of several types or values, joined by `|`.\n- **Literal type**: an exact value used as a type, like `\"sunny\"` or `3`.\n- **type** (keyword): gives a type a name, like `type Weather = …`.\n",
+      "exampleMarkdown": "A traffic light. `Light` only allows three words, so `light = \"purple\"` would be a type error. Try reading the union out loud: \"red **or** yellow **or** green\".",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Traffic Light</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      type Light = \"red\" | \"yellow\" | \"green\";\n\n      function message(light: Light): string {\n        if (light === \"red\") return \"🔴 Stop\";\n        if (light === \"yellow\") return \"🟡 Slow down\";\n        return \"🟢 Go\";\n      }\n\n      const lights: Light[] = [\"red\", \"yellow\", \"green\"];\n      for (const light of lights) {\n        const line = document.createElement(\"p\");\n        line.textContent = message(light);\n        document.body.append(line);\n      }\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Your pet's mood can only be one of a few words. TypeScript has already caught two problems: look for the red squiggles.\n\n1. Add `\"playful\"` to the `Mood` type.\n2. Fix the typo in the first mood (it should be `\"happy\"`).\n3. In `faceFor`, return `\"🤸\"` when the mood is `\"playful\"`.\n\nYou're done when there are no ⚠ type errors and your pet shows **😄** and then **🤸**.",
+        "starterFiles": {
+          "main.ts": "// A Mood can only be one of these words. The | means \"or\".\ntype Mood = \"happy\" | \"sleepy\" | \"hungry\"; // 1. Add \"playful\" to this list.\n\nlet mood: Mood = \"hapy\"; // 2. Oops, a typo! Fix it.\n\nfunction faceFor(m: Mood): string {\n  if (m === \"happy\") return \"😄\";\n  if (m === \"sleepy\") return \"😴\";\n  if (m === \"hungry\") return \"😋\";\n  // 3. Return \"🤸\" when m is \"playful\".\n\n  return \"🤔\";\n}\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n\nshow(\"Mood: \" + mood + \" \" + faceFor(mood));\nmood = \"playful\";\nshow(\"Mood: \" + mood + \" \" + faceFor(mood));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Mood</title>\n  </head>\n  <body>\n    <h1>🐶 Pet Mood</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "main.ts": "// A Mood can only be one of these words. The | means \"or\".\ntype Mood = \"happy\" | \"sleepy\" | \"hungry\" | \"playful\"; // 1. Add \"playful\" to this list.\n\nlet mood: Mood = \"happy\"; // 2. Oops, a typo! Fix it.\n\nfunction faceFor(m: Mood): string {\n  if (m === \"happy\") return \"😄\";\n  if (m === \"sleepy\") return \"😴\";\n  if (m === \"hungry\") return \"😋\";\n  // 3. Return \"🤸\" when m is \"playful\".\n  if (m === \"playful\") return \"🤸\";\n  return \"🤔\";\n}\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n\nshow(\"Mood: \" + mood + \" \" + faceFor(mood));\nmood = \"playful\";\nshow(\"Mood: \" + mood + \" \" + faceFor(mood));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Mood</title>\n  </head>\n  <body>\n    <h1>🐶 Pet Mood</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "There's still a red squiggle. The ⚠ Type error line in the Console says which line."
+          },
+          {
+            "label": "Mood includes \"playful\"",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/type\\s+Mood\\s*=[^;]*\\\"playful\\\"/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Add | \"playful\" to the end of the Mood list."
+          },
+          {
+            "label": "Your pet starts happy",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(1)",
+              "equals": "Mood: happy 😄"
+            },
+            "failMessage": "Fix the typo: \"hapy\" should be \"happy\"."
+          },
+          {
+            "label": "Then it gets playful",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(2)",
+              "equals": "Mood: playful 🤸"
+            },
+            "failMessage": "Add a line to faceFor: if (m === \"playful\") return \"🤸\";"
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Each choice in a union is joined with `|`. To add one more, put `| \"playful\"` before the semicolon."
+          },
+          {
+            "level": 2,
+            "markdown": "```ts\ntype Mood = \"happy\" | \"sleepy\" | \"hungry\" | \"playful\";\n\nlet mood: Mood = \"happy\";\n\n// inside faceFor:\nif (m === \"playful\") return \"🤸\";\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished main.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does the | mean in string | number?",
+            "explanation": "| joins the choices of a union: the value can be either type.",
+            "options": [
+              {
+                "text": "or",
+                "correct": true
+              },
+              {
+                "text": "and",
+                "correct": false
+              },
+              {
+                "text": "divide",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "With type Size = \"S\" | \"M\" | \"L\", which line has a type error?",
+            "explanation": "\"XL\" isn't one of the three allowed words.",
+            "options": [
+              {
+                "text": "let mine: Size = \"XL\";",
+                "correct": true
+              },
+              {
+                "text": "let mine: Size = \"M\";",
+                "correct": false
+              },
+              {
+                "text": "let mine: Size = \"S\";",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why are word lists like \"sunny\" | \"rainy\" so useful?",
+            "explanation": "TypeScript only accepts the listed words, so a spelling mistake becomes a type error.",
+            "options": [
+              {
+                "text": "Typos get caught before the code runs",
+                "correct": true
+              },
+              {
+                "text": "They make the page load faster",
+                "correct": false
+              },
+              {
+                "text": "They turn words into numbers",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "unions-and-narrowing",
+      "title": "Unions, narrowing and null",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": true,
+      "learnMarkdown": "## Union types\n\nA **union type** says a value is one of several types: `string | number`, `Pet | null`. Combined with **literal types** (exact values used as types), unions describe data precisely:\n\n```ts\ntype Status = \"loading\" | \"ready\" | \"error\";\ntype Id = number | string;\n```\n\nA `Status` can't be `\"Ready\"` or `\"done\"`, and the editor autocompletes the three valid values.\n\n### Narrowing\n\nWith a union you can only use what **every** member supports. To use something specific, check which member you have. TypeScript follows your checks and **narrows** the type inside each branch:\n\n```ts\nfunction show(id: number | string) {\n  if (typeof id === \"number\") {\n    id.toFixed(0);      // id: number here\n  } else {\n    id.toUpperCase();   // id: string here\n  }\n}\n```\n\n`typeof`, `===`, truthiness (`if (x)`), `Array.isArray` and the `in` operator all narrow. This is called **control flow analysis**: TypeScript reads your `if`s the way you do.\n\n### null and undefined\n\nWith strict mode on (it always is here), `null` and `undefined` are **not** part of other types. If something might be missing, its type says so, and TypeScript makes you check. The classic example is the DOM:\n\n```ts\nconst list = document.querySelector(\"#areas\"); // Element | null: maybe there's no #areas!\nlist.append(item);          // ✗ 'list' is possibly 'null'.\n\nif (list) list.append(item); // ✓ narrowed to Element\nlist?.append(item);          // ✓ optional chaining: does nothing if list is null\n```\n\nYou'll also see `list!.append(item)`. The `!` (**non-null assertion**) tells TypeScript \"trust me, it's there.\" It removes the check rather than doing it, so use it sparingly.\n\n### Discriminated unions\n\nGive each member of a union a shared property with a different literal value (often `kind` or `type`). Checking that property narrows to one member:\n\n```ts\ntype Circle = { kind: \"circle\"; radius: number };\ntype Square = { kind: \"square\"; side: number };\ntype Shape = Circle | Square;\n\nfunction area(shape: Shape): number {\n  switch (shape.kind) {\n    case \"circle\": return Math.PI * shape.radius ** 2; // shape: Circle\n    case \"square\": return shape.side ** 2;             // shape: Square\n  }\n}\n```\n\n### Exhaustiveness checking with never\n\n`never` is the type with **no** values. If every case is handled, nothing is left for the `default` branch, so `shape` has type `never` there. Assign it to a `never` variable, and adding a new shape without a case becomes a type error, pointing you at every `switch` you need to update:\n\n```ts\ndefault: {\n  const unhandled: never = shape; // ✗ as soon as Shape gains a member you didn't handle\n  return unhandled;\n}\n```\n\n### New words\n\n- **Union type**: a type that is one of several types, written with `|`.\n- **Literal type**: an exact value used as a type, like `\"ready\"` or `42`.\n- **Narrowing**: TypeScript refining a union to a more specific type after a check.\n- **Control flow analysis**: how TypeScript follows `if`, `switch` and `return` to know the type at each point.\n- **Optional chaining** (`?.`): reads a property or calls a method only if the value isn't `null` or `undefined`.\n- **Non-null assertion** (`!`): tells TypeScript a value isn't `null`. It's not checked, so it can hide bugs.\n- **Discriminated union**: a union whose members share a literal property (the **discriminant**) that tells them apart.\n- **never**: the type with no possible values; used to prove every case is handled.\n",
+      "exampleMarkdown": "A loader status as a discriminated union. Inside each `case`, TypeScript knows exactly which properties exist: `result.message` only compiles in the `\"error\"` branch. The `never` line proves every status is handled.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Load Status</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      type Result =\n        | { status: \"loading\" }\n        | { status: \"ready\"; items: string[] }\n        | { status: \"error\"; message: string };\n\n      function describe(result: Result): string {\n        switch (result.status) {\n          case \"loading\":\n            return \"⏳ Loading…\";\n          case \"ready\":\n            return `✅ ${result.items.length} items: ${result.items.join(\", \")}`;\n          case \"error\":\n            return `❌ ${result.message}`;\n          default: {\n            const unhandled: never = result;\n            return unhandled;\n          }\n        }\n      }\n\n      const results: Result[] = [\n        { status: \"loading\" },\n        { status: \"ready\", items: [\"apples\", \"pears\"] },\n        { status: \"error\", message: \"The server is napping\" },\n      ];\n      for (const r of results) {\n        const p = document.createElement(\"p\");\n        p.textContent = describe(r);\n        document.body.append(p);\n      }\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Finish the shape calculator.** The `shapes` list has a triangle in it, but `Shape` doesn't know about triangles yet, and the page code ignores the chance that `#areas` is missing.\n\n1. Write a `Triangle` type with `kind: \"triangle\"`, `base: number` and `height: number`, and add it to `Shape`.\n2. Adding it makes the `never` line light up: TypeScript is telling you `area` doesn't handle triangles. Add a `case` (area = base × height ÷ 2).\n3. `querySelector` can return `null`. Handle that without using `!`: check it, and throw an `Error` if it's missing.\n\nDone when there are no type errors and the list shows **circle: 3.14**, **rectangle: 6.00** and **triangle: 10.00**.",
+        "starterFiles": {
+          "main.ts": "type Circle = { kind: \"circle\"; radius: number };\ntype Rectangle = { kind: \"rectangle\"; width: number; height: number };\n// 1. Write a Triangle type here (kind \"triangle\", base, height) and add it to Shape.\n\ntype Shape = Circle | Rectangle;\n\nfunction area(shape: Shape): number {\n  switch (shape.kind) {\n    case \"circle\":\n      return Math.PI * shape.radius ** 2;\n    case \"rectangle\":\n      return shape.width * shape.height;\n    // 2. Handle \"triangle\" here.\n\n    default: {\n      // Every kind handled above means nothing is left: shape is `never` here.\n      // A kind without a case makes this line a type error.\n      const unhandled: never = shape;\n      return unhandled;\n    }\n  }\n}\n\nconst shapes: Shape[] = [\n  { kind: \"circle\", radius: 1 },\n  { kind: \"rectangle\", width: 3, height: 2 },\n  { kind: \"triangle\", base: 4, height: 5 },\n];\n\n// 3. querySelector returns null when nothing matches. Handle it (no ! allowed).\nconst list = document.querySelector(\"#areas\");\n\nfor (const shape of shapes) {\n  const item = document.createElement(\"li\");\n  item.textContent = `${shape.kind}: ${area(shape).toFixed(2)}`;\n  list.append(item);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Shape Calculator</title>\n  </head>\n  <body>\n    <h1>📐 Shape Calculator</h1>\n    <ul id=\"areas\"></ul>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "main.ts": "type Circle = { kind: \"circle\"; radius: number };\ntype Rectangle = { kind: \"rectangle\"; width: number; height: number };\n// 1. Write a Triangle type here (kind \"triangle\", base, height) and add it to Shape.\ntype Triangle = { kind: \"triangle\"; base: number; height: number };\n\ntype Shape = Circle | Rectangle | Triangle;\n\nfunction area(shape: Shape): number {\n  switch (shape.kind) {\n    case \"circle\":\n      return Math.PI * shape.radius ** 2;\n    case \"rectangle\":\n      return shape.width * shape.height;\n    // 2. Handle \"triangle\" here.\n    case \"triangle\":\n      return (shape.base * shape.height) / 2;\n    default: {\n      // Every kind handled above means nothing is left: shape is `never` here.\n      // A kind without a case makes this line a type error.\n      const unhandled: never = shape;\n      return unhandled;\n    }\n  }\n}\n\nconst shapes: Shape[] = [\n  { kind: \"circle\", radius: 1 },\n  { kind: \"rectangle\", width: 3, height: 2 },\n  { kind: \"triangle\", base: 4, height: 5 },\n];\n\n// 3. querySelector returns null when nothing matches. Handle it (no ! allowed).\nconst list = document.querySelector(\"#areas\");\nif (!list) throw new Error(\"There's no #areas element on the page.\");\n\nfor (const shape of shapes) {\n  const item = document.createElement(\"li\");\n  item.textContent = `${shape.kind}: ${area(shape).toFixed(2)}`;\n  list.append(item);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Shape Calculator</title>\n  </head>\n  <body>\n    <h1>📐 Shape Calculator</h1>\n    <ul id=\"areas\"></ul>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error."
+          },
+          {
+            "label": "Shape includes a Triangle type",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/type\\s+Triangle\\s*=\\s*\\{[^}]*kind\\s*:\\s*\\\"triangle\\\"/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Write: type Triangle = { kind: \"triangle\"; base: number; height: number }; and add | Triangle to Shape."
+          },
+          {
+            "label": "area has a triangle case",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/case\\s+\\\"triangle\\\"\\s*:/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Add case \"triangle\": to the switch in area."
+          },
+          {
+            "label": "The null check doesn't use !",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "!/(\\blist!(?!=)|querySelector\\([^)]*\\)!(?!=))/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Remove the ! and check list instead, e.g. if (!list) throw new Error(\"…\");"
+          },
+          {
+            "label": "The circle's area",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#areas li:nth-child(1)",
+              "equals": "circle: 3.14"
+            },
+            "failMessage": "The first line should read circle: 3.14."
+          },
+          {
+            "label": "The triangle's area",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#areas li:nth-child(3)",
+              "equals": "triangle: 10.00"
+            },
+            "failMessage": "A triangle's area is base × height ÷ 2: (4 × 5) / 2 = 10."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Once `Triangle` is part of `Shape`, look at the `never` line's error: it says `Triangle` isn't assignable to `never`. That's TypeScript pointing at the missing `case`. For the list, after `if (!list) throw …`, TypeScript narrows `list` to `Element` for the rest of the file."
+          },
+          {
+            "level": 2,
+            "markdown": "```ts\ntype Triangle = { kind: \"triangle\"; base: number; height: number };\ntype Shape = Circle | Rectangle | Triangle;\n\n// in the switch:\ncase \"triangle\":\n  return (shape.base * shape.height) / 2;\n\n// after querySelector:\nif (!list) throw new Error(\"There's no #areas element on the page.\");\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished main.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "In function f(x: number | string), what is x's type inside if (typeof x === \"string\") { … }?",
+            "explanation": "typeof checks narrow the union to the matching member.",
+            "options": [
+              {
+                "text": "string",
+                "correct": true
+              },
+              {
+                "text": "number | string",
+                "correct": false
+              },
+              {
+                "text": "any",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why is document.querySelector(\"#menu\") typed as Element | null?",
+            "explanation": "Nothing guarantees the element exists, so strict mode makes you handle null.",
+            "options": [
+              {
+                "text": "The page might not have a #menu element",
+                "correct": true
+              },
+              {
+                "text": "Elements are always null until the page loads",
+                "correct": false
+              },
+              {
+                "text": "TypeScript doesn't know about the DOM",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the non-null assertion in menu!.append(x) do at runtime?",
+            "explanation": "! only silences the checker. If menu is null, the code still crashes.",
+            "options": [
+              {
+                "text": "Nothing: it only tells TypeScript to stop checking",
+                "correct": true
+              },
+              {
+                "text": "It skips the call if menu is null",
+                "correct": false
+              },
+              {
+                "text": "It creates the element if it's missing",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What makes { kind: \"circle\"; … } | { kind: \"square\"; … } a discriminated union?",
+            "explanation": "A shared literal property lets a check on it narrow to one member.",
+            "options": [
+              {
+                "text": "Each member has a kind property with a different literal value",
+                "correct": true
+              },
+              {
+                "text": "It uses the | symbol",
+                "correct": false
+              },
+              {
+                "text": "Both members are objects",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's the point of const unhandled: never = shape; in a switch's default branch?",
+            "explanation": "If a member isn't handled, it reaches default and can't be assigned to never, so you get a type error.",
+            "options": [
+              {
+                "text": "Adding a new member without a case becomes a type error",
+                "correct": true
+              },
+              {
+                "text": "It makes the switch run faster",
+                "correct": false
+              },
+              {
+                "text": "It throws an error at runtime for every shape",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "classes-explorer",
+      "title": "Blueprints with classes",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## A blueprint for objects\n\nSay your game needs lots of pets, and every pet has a name, some energy, and things it can do. Instead of writing each pet by hand, you make one **class**: a blueprint. Then you build as many pets from it as you like.\n\n```ts\nclass Pet {\n  name: string;     // what every pet has\n  energy: number;\n\n  constructor(name: string) {   // runs when a new pet is made\n    this.name = name;\n    this.energy = 5;\n  }\n\n  nap(): void {                 // something every pet can do\n    this.energy = this.energy + 3;\n  }\n}\n```\n\n### Making pets with new\n\n```ts\nconst rex = new Pet(\"Rex\");\nconst mittens = new Pet(\"Mittens\");\nrex.nap();   // only Rex naps: rex.energy is 8, mittens.energy is still 5\n```\n\nEach pet made with `new` is called an **object** (or an **instance**) of the class. Inside the class, `this` means \"the pet we're talking about right now\".\n\n### TypeScript knows your class\n\nIf you call something the class doesn't have, like `rex.fly()`, TypeScript underlines it: *Property 'fly' does not exist on type 'Pet'*. To fix it, add the method to the class.\n\n### New words\n\n- **Class**: a blueprint for making objects that share the same properties and methods.\n- **Method**: a function that belongs to a class, like `nap()`.\n- **Constructor**: the special method that runs when you make a new object with `new`.\n- **Instance**: one object built from a class, like `rex`.\n- **this**: inside a class, the object the code is working on right now.\n",
+      "exampleMarkdown": "A `Robot` class with one method. Two robots are built from it; only one of them charges, so they end up with different battery levels.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Robots</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      class Robot {\n        name: string;\n        battery: number;\n\n        constructor(name: string) {\n          this.name = name;\n          this.battery = 50;\n        }\n\n        charge(): void {\n          this.battery = this.battery + 25;\n        }\n      }\n\n      const bolt = new Robot(\"Bolt\");\n      const zip = new Robot(\"Zip\");\n      bolt.charge();\n\n      for (const robot of [bolt, zip]) {\n        const p = document.createElement(\"p\");\n        p.textContent = `🤖 ${robot.name}: ${robot.battery}% battery`;\n        document.body.append(p);\n      }\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Sparky wants to play, but the `Pet` class doesn't know how yet. TypeScript has underlined the problems.\n\n1. Add a `play()` method to the class that takes **2** away from `energy`.\n2. Make a second pet called **Pip** with `new Pet(\"Pip\")`, and store it in a variable called `pip`.\n\nYou're done when there are no ⚠ type errors and the page shows **Sparky has 4 energy** and **Pip has 5 energy**.",
+        "starterFiles": {
+          "main.ts": "class Pet {\n  name: string;\n  energy: number;\n\n  constructor(name: string) {\n    this.name = name;\n    this.energy = 5;\n  }\n\n  nap(): void {\n    this.energy = this.energy + 3;\n  }\n\n  // 1. Add a play() method here that takes 2 away from energy.\n\n}\n\nconst sparky = new Pet(\"Sparky\");\n// 2. Make a second pet called Pip here.\n\n\nsparky.play();\nsparky.play();\nsparky.nap();\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n\nshow(sparky.name + \" has \" + sparky.energy + \" energy\");\nshow(pip.name + \" has \" + pip.energy + \" energy\");\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Park</title>\n  </head>\n  <body>\n    <h1>🐾 Pet Park</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "main.ts": "class Pet {\n  name: string;\n  energy: number;\n\n  constructor(name: string) {\n    this.name = name;\n    this.energy = 5;\n  }\n\n  nap(): void {\n    this.energy = this.energy + 3;\n  }\n\n  // 1. Add a play() method here that takes 2 away from energy.\n  play(): void {\n    this.energy = this.energy - 2;\n  }\n}\n\nconst sparky = new Pet(\"Sparky\");\n// 2. Make a second pet called Pip here.\nconst pip = new Pet(\"Pip\");\n\nsparky.play();\nsparky.play();\nsparky.nap();\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n\nshow(sparky.name + \" has \" + sparky.energy + \" energy\");\nshow(pip.name + \" has \" + pip.energy + \" energy\");\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Park</title>\n  </head>\n  <body>\n    <h1>🐾 Pet Park</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "There's still a red squiggle. The ⚠ Type error line in the Console says which line."
+          },
+          {
+            "label": "Pet has a play() method",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\bplay\\s*\\(\\s*\\)\\s*(:\\s*void\\s*)?\\{/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Add play(): void { … } inside the class, next to nap."
+          },
+          {
+            "label": "Sparky played and napped",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(1)",
+              "equals": "Sparky has 4 energy"
+            },
+            "failMessage": "Sparky starts with 5, plays twice (−2 −2) and naps (+3), so play should take away 2."
+          },
+          {
+            "label": "Pip is in the park",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(2)",
+              "equals": "Pip has 5 energy"
+            },
+            "failMessage": "Add: const pip = new Pet(\"Pip\");"
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Copy the shape of `nap()`, but give it a new name and use `-` instead of `+`."
+          },
+          {
+            "level": 2,
+            "markdown": "```ts\n  play(): void {\n    this.energy = this.energy - 2;\n  }\n```\n\nand below the class:\n\n```ts\nconst pip = new Pet(\"Pip\");\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished main.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is a class?",
+            "explanation": "A class is a blueprint: you build objects from it with new.",
+            "options": [
+              {
+                "text": "A blueprint for making objects",
+                "correct": true
+              },
+              {
+                "text": "A list of numbers",
+                "correct": false
+              },
+              {
+                "text": "A kind of loop",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which line makes a new pet from the Pet class?",
+            "explanation": "new runs the constructor and gives you a new object.",
+            "options": [
+              {
+                "text": "const fluffy = new Pet(\"Fluffy\");",
+                "correct": true
+              },
+              {
+                "text": "const fluffy = Pet(\"Fluffy\");",
+                "correct": false
+              },
+              {
+                "text": "const fluffy = class Pet;",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Inside a method, what does this.energy mean?",
+            "explanation": "this is the object the method was called on, so this.energy is that pet's energy.",
+            "options": [
+              {
+                "text": "The energy of the object the method is working on",
+                "correct": true
+              },
+              {
+                "text": "The energy of every pet at once",
+                "correct": false
+              },
+              {
+                "text": "A brand-new variable",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "classes-and-interfaces",
+      "title": "Classes, access modifiers and interfaces",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": true,
+      "learnMarkdown": "## Classes in TypeScript\n\nJavaScript has classes; TypeScript adds types to them and a few keywords that control who can touch what. If you go on to the C# track, almost all of this carries over unchanged.\n\n```ts\nclass Counter {\n  count: number = 0;                 // a property (field) with a type and a starting value\n\n  constructor(readonly label: string) {}  // parameter property: declares AND sets this.label\n\n  increment(by: number = 1): void {  // a method\n    this.count += by;\n  }\n}\n\nconst clicks = new Counter(\"Clicks\");\nclicks.increment();\n```\n\nUnder strict mode, every property must get a value, either where it's declared or in the constructor. Otherwise you'll see *Property 'x' has no initializer*.\n\n### Access modifiers\n\n| Modifier | Who can use it |\n|---|---|\n| `public` (the default) | any code |\n| `private` | only code inside this class |\n| `protected` | this class and classes that **extend** it |\n| `readonly` | anyone can read it; it can only be set in the constructor |\n\n`private` is how a class protects its own rules. If `balance` is private, the only way to change it is through methods like `deposit`, which can refuse bad input. That's **encapsulation**.\n\nTypeScript's `private` is checked at compile time and removed when the code runs. JavaScript also has its own runtime-private fields, written `#balance`. Either works; TypeScript code often uses `private` because it reads like other languages (C#, Java).\n\n### Getters\n\nA **getter** looks like a property from outside but runs code:\n\n```ts\nget summary(): string {\n  return `${this.label}: ${this.count}`;\n}\n// clicks.summary  (no parentheses)\n```\n\nA getter with no setter is read-only from outside, which pairs nicely with a private field.\n\n### implements: classes that keep a promise\n\nAn interface can describe what a class must offer. `implements` makes TypeScript check it:\n\n```ts\ninterface Resettable {\n  reset(): void;\n}\n\nclass Counter implements Resettable {\n  // ✗ until Counter has a reset() method\n}\n```\n\nCode that only needs \"something resettable\" can accept a `Resettable` and work with any class that implements it.\n\n### New words\n\n- **Field** (or property): a value each object of a class holds.\n- **Parameter property**: a constructor parameter with a modifier (`readonly label: string`) that declares and sets a field in one go.\n- **Access modifier**: `public`, `private` or `protected`, controlling what code can use a member.\n- **Encapsulation**: keeping an object's data private so it can only change through its own methods.\n- **Getter**: a method marked `get` that's read like a property.\n- **implements**: declares that a class provides everything an interface describes; TypeScript checks it.\n",
+      "exampleMarkdown": "A `Thermostat` with a private temperature. Outside code can read `reading` (a getter) and call `set`, but `set` refuses anything outside the safe range. Writing `heater.celsius = 99` would be a type error: *Property 'celsius' is private*.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Thermostat</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      interface Device {\n        readonly name: string;\n        readonly reading: string;\n      }\n\n      class Thermostat implements Device {\n        private celsius = 20;\n\n        constructor(readonly name: string) {}\n\n        set(value: number): boolean {\n          if (value < 10 || value > 30) return false;\n          this.celsius = value;\n          return true;\n        }\n\n        get reading(): string {\n          return `${this.name}: ${this.celsius}°C`;\n        }\n      }\n\n      const heater = new Thermostat(\"Living room\");\n      const tooHot = heater.set(99);\n      heater.set(22);\n\n      const p = document.createElement(\"p\");\n      p.textContent = `${heater.reading} (99°C refused: ${!tooHot})`;\n      document.body.append(p);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Lock down the wallet.** `Wallet` promises to implement `Account`, but it doesn't keep that promise yet, and the code at the bottom tries to cheat.\n\n1. Add `withdraw(amount: number): boolean`. If there's enough money, take it out, add `-amount` to the history (like `\"-15\"`), and return `true`. Otherwise change nothing and return `false`.\n2. Make `deposit` ignore amounts that aren't positive (return early).\n3. Add a public method `log(): string` that returns the history joined with `\", \"`.\n4. Delete the line that sets `wallet.total` directly. TypeScript already refuses it: `total` is private. Keep `total` private.\n\nDone when there are no type errors and the page shows **ByteRunner: $5**, **Game: bought · Console: not enough** and **History: +20, -15**.",
+        "starterFiles": {
+          "main.ts": "interface Account {\n  readonly owner: string;\n  readonly balance: number;\n  deposit(amount: number): void;\n  withdraw(amount: number): boolean;\n}\n\nclass Wallet implements Account {\n  private total = 0;\n  private history: string[] = [];\n\n  constructor(readonly owner: string) {}\n\n  get balance(): number {\n    return this.total;\n  }\n\n  deposit(amount: number): void {\n    // 2. Ignore amounts that aren't positive.\n    this.total += amount;\n    this.history.push(`+${amount}`);\n  }\n\n  // 1. withdraw(amount: number): boolean\n\n  // 3. log(): string\n}\n\nconst wallet = new Wallet(\"ByteRunner\");\nwallet.deposit(20);\nwallet.deposit(-50);\nconst boughtGame = wallet.withdraw(15);\nconst boughtConsole = wallet.withdraw(300);\nwallet.total = 1_000_000; // 4. Sneaky! Delete this line.\n\nshow(`${wallet.owner}: $${wallet.balance}`);\nshow(`Game: ${boughtGame ? \"bought\" : \"not enough\"} · Console: ${boughtConsole ? \"bought\" : \"not enough\"}`);\nshow(`History: ${wallet.log()}`);\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Wallet</title>\n  </head>\n  <body>\n    <h1>💰 Wallet</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "main.ts": "interface Account {\n  readonly owner: string;\n  readonly balance: number;\n  deposit(amount: number): void;\n  withdraw(amount: number): boolean;\n}\n\nclass Wallet implements Account {\n  private total = 0;\n  private history: string[] = [];\n\n  constructor(readonly owner: string) {}\n\n  get balance(): number {\n    return this.total;\n  }\n\n  deposit(amount: number): void {\n    // 2. Ignore amounts that aren't positive.\n    if (amount <= 0) return;\n    this.total += amount;\n    this.history.push(`+${amount}`);\n  }\n\n  // 1. withdraw(amount: number): boolean\n  withdraw(amount: number): boolean {\n    if (amount <= 0 || amount > this.total) return false;\n    this.total -= amount;\n    this.history.push(`-${amount}`);\n    return true;\n  }\n\n  // 3. log(): string\n  log(): string {\n    return this.history.join(\", \");\n  }\n}\n\nconst wallet = new Wallet(\"ByteRunner\");\nwallet.deposit(20);\nwallet.deposit(-50);\nconst boughtGame = wallet.withdraw(15);\nconst boughtConsole = wallet.withdraw(300);\n\nshow(`${wallet.owner}: $${wallet.balance}`);\nshow(`Game: ${boughtGame ? \"bought\" : \"not enough\"} · Console: ${boughtConsole ? \"bought\" : \"not enough\"}`);\nshow(`History: ${wallet.log()}`);\n\n// ---- Shows a line on the page. No changes needed below. ----\nfunction show(text: string): void {\n  const line = document.createElement(\"p\");\n  line.textContent = text;\n  document.body.append(line);\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Wallet</title>\n  </head>\n  <body>\n    <h1>💰 Wallet</h1>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error."
+          },
+          {
+            "label": "Wallet still implements Account",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/class\\s+Wallet\\s+implements\\s+Account/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Keep implements Account on the class: it's the promise TypeScript checks."
+          },
+          {
+            "label": "total is still private",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/private\\s+total\\b/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Keep total private. Delete the line that assigns wallet.total instead."
+          },
+          {
+            "label": "withdraw has a typed signature",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/withdraw\\s*\\(\\s*\\w+\\s*:\\s*number\\s*\\)\\s*:\\s*boolean\\s*\\{/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Write the method as: withdraw(amount: number): boolean { … }"
+          },
+          {
+            "label": "The balance is $5",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(1)",
+              "equals": "ByteRunner: $5"
+            },
+            "failMessage": "20 in, −50 ignored, 15 out: the balance should be 5. Does deposit skip amounts that aren't positive?"
+          },
+          {
+            "label": "Only the game was bought",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(2)",
+              "equals": "Game: bought · Console: not enough"
+            },
+            "failMessage": "withdraw should return true when there's enough money and false (changing nothing) when there isn't."
+          },
+          {
+            "label": "The history is right",
+            "kind": "elementText",
+            "spec": {
+              "selector": "p:nth-of-type(3)",
+              "equals": "History: +20, -15"
+            },
+            "failMessage": "withdraw should push `-${amount}` to the history, and log() should return this.history.join(\", \")."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Read the first error: *Class 'Wallet' incorrectly implements interface 'Account'*. The interface lists `withdraw`, so the class must have it. Inside methods, `this.total` and `this.history` are fine to use: `private` only blocks code **outside** the class."
+          },
+          {
+            "level": 2,
+            "markdown": "```ts\ndeposit(amount: number): void {\n  if (amount <= 0) return;\n  // …\n}\n\nwithdraw(amount: number): boolean {\n  if (amount <= 0 || amount > this.total) return false;\n  this.total -= amount;\n  this.history.push(`-${amount}`);\n  return true;\n}\n\nlog(): string {\n  return this.history.join(\", \");\n}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished main.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A class has private score: number. Where can score be read or changed?",
+            "explanation": "private members are only reachable from code inside the class.",
+            "options": [
+              {
+                "text": "Only inside the class's own methods",
+                "correct": true
+              },
+              {
+                "text": "Anywhere, but only read",
+                "correct": false
+              },
+              {
+                "text": "Only in the constructor",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does constructor(readonly id: number) {} do?",
+            "explanation": "A parameter property declares the field and assigns the argument in one step.",
+            "options": [
+              {
+                "text": "Declares a readonly id field and sets it from the argument",
+                "correct": true
+              },
+              {
+                "text": "Makes the constructor read-only",
+                "correct": false
+              },
+              {
+                "text": "Nothing: the body is empty",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What happens when a class says implements Shape but is missing a method Shape lists?",
+            "explanation": "TypeScript checks the class against the interface and reports what's missing.",
+            "options": [
+              {
+                "text": "A type error on the class",
+                "correct": true
+              },
+              {
+                "text": "The method is added automatically",
+                "correct": false
+              },
+              {
+                "text": "It fails only when the method is called",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How do you read a getter declared as get total(): number?",
+            "explanation": "Getters are read like properties, without parentheses.",
+            "options": [
+              {
+                "text": "obj.total",
+                "correct": true
+              },
+              {
+                "text": "obj.total()",
+                "correct": false
+              },
+              {
+                "text": "obj.get(total)",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why make a field private and change it only through methods?",
+            "explanation": "Encapsulation lets the class enforce its own rules, like refusing negative deposits.",
+            "options": [
+              {
+                "text": "So the class can check every change and keep its data valid",
+                "correct": true
+              },
+              {
+                "text": "Private fields use less memory",
+                "correct": false
+              },
+              {
+                "text": "It's required for every field in TypeScript",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "project-explorer",
+      "title": "Project: Monster card deck",
+      "sortOrder": 6,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 8,
+      "isPublished": true,
+      "learnMarkdown": "## Your first TypeScript project\n\nReal projects are split into several **files**, each with one job. Your monster card game has three:\n\n| File | Its job |\n|---|---|\n| `types.ts` | describes what a card looks like |\n| `cards.ts` | holds the deck of cards |\n| `main.ts` | shows the cards on the page |\n\n### Sharing between files: export and import\n\nThings in one file are private to that file. To share something, put `export` in front of it. Another file can then bring it in with `import`:\n\n```ts\n// types.ts\nexport interface Card { name: string; power: number; }\n\n// cards.ts\nimport type { Card } from \"./types\";\nexport const deck: Card[] = [ … ];\n```\n\n`import type` means \"I only need this as a label.\" The `./` means \"a file in the same folder.\"\n\n### Everything you've learned, together\n\nThis project uses all of it: types like `string` and `number`, a word list (`\"fire\" | \"water\" | \"leaf\"`), an interface for the card shape, and typed functions. TypeScript checks every file, and even checks that the files fit together.\n\n### New words\n\n- **Module**: a file that shares things with `export` and uses other files' things with `import`.\n- **export**: makes something in a file available to other files.\n- **import**: brings in something another file exported.\n",
+      "exampleMarkdown": "One file can't show imports, so here is the whole idea in one place: a `Card` type, a typed deck, and a function that finds the strongest card. In the challenge, these pieces live in three separate files.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Card Deck</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      type Kind = \"fire\" | \"water\" | \"leaf\";\n      interface Card {\n        name: string;\n        kind: Kind;\n        power: number;\n      }\n\n      const deck: Card[] = [\n        { name: \"Sparkfin\", kind: \"water\", power: 4 },\n        { name: \"Cinderclaw\", kind: \"fire\", power: 8 },\n      ];\n\n      for (const card of deck) {\n        const p = document.createElement(\"p\");\n        p.textContent = `${card.name}: ${card.kind}, power ${card.power}`;\n        document.body.append(p);\n      }\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Build the deck!** This project has three files: use the tabs above the editor to switch between them.\n\n1. In **types.ts**: `Card` isn't shared yet. Put `export` in front of `interface Card`.\n2. In **cards.ts**: one card's kind has a typo (TypeScript will point at it once step 1 is done). Fix it.\n3. In **cards.ts**: invent your own monster and add it as a 4th card. Its kind must be `\"fire\"`, `\"water\"` or `\"leaf\"`.\n\nYou're done when there are no ⚠ type errors and the page shows **4 cards**, with **🌿 Mossbeard** in third place.",
+        "starterFiles": {
+          "cards.ts": "import type { Card } from \"./types\";\n\n// The deck. Every card must match the Card shape in types.ts.\nexport const deck: Card[] = [\n  { name: \"Flamepup\", kind: \"fire\", power: 7 },\n  { name: \"Splashy\", kind: \"water\", power: 5 },\n  { name: \"Mossbeard\", kind: \"leef\", power: 9 }, // 2. Fix this card's kind.\n  // 3. Add your own monster here, like: { name: \"…\", kind: \"…\", power: … },\n];\n",
+          "types.ts": "// The shapes our cards use. Other files import them.\n\nexport type Kind = \"fire\" | \"water\" | \"leaf\";\n\n// 1. Other files can only use Card if it's exported. Put export in front of interface.\ninterface Card {\n  name: string;\n  kind: Kind;\n  power: number;\n}\n",
+          "main.ts": "import { deck } from \"./cards\";\nimport type { Card, Kind } from \"./types\";\n\n// Picks an icon for each kind of card.\nfunction iconFor(kind: Kind): string {\n  if (kind === \"fire\") return \"🔥\";\n  if (kind === \"water\") return \"💧\";\n  if (kind === \"leaf\") return \"🌿\";\n  return \"❓\";\n}\n\n// Finds the card with the most power.\nfunction strongest(cards: Card[]): Card {\n  let best = cards[0];\n  for (const card of cards) {\n    if (card.power > best.power) best = card;\n  }\n  return best;\n}\n\n// ---- Shows the deck on the page. No changes needed in this file. ----\nconst list = document.querySelector(\"#deck\");\nfor (const card of deck) {\n  const item = document.createElement(\"li\");\n  item.textContent = `${iconFor(card.kind)} ${card.name} (power ${card.power})`;\n  list?.append(item);\n}\n\nconst top = strongest(deck);\nconst best = document.querySelector(\"#best\");\nif (best) best.textContent = `Strongest: ${top.name} with ${top.power} power`;\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Monster Cards</title>\n  </head>\n  <body>\n    <h1>🃏 Monster Cards</h1>\n    <ul id=\"deck\"></ul>\n    <p id=\"best\"></p>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "cards.ts": "import type { Card } from \"./types\";\n\n// The deck. Every card must match the Card shape in types.ts.\nexport const deck: Card[] = [\n  { name: \"Flamepup\", kind: \"fire\", power: 7 },\n  { name: \"Splashy\", kind: \"water\", power: 5 },\n  { name: \"Mossbeard\", kind: \"leaf\", power: 9 }, // 2. Fix this card's kind.\n  // 3. Add your own monster here, like: { name: \"…\", kind: \"…\", power: … },\n  { name: \"Thunderpaws\", kind: \"fire\", power: 6 },\n];\n",
+          "types.ts": "// The shapes our cards use. Other files import them.\n\nexport type Kind = \"fire\" | \"water\" | \"leaf\";\n\n// 1. Other files can only use Card if it's exported. Put export in front of interface.\nexport interface Card {\n  name: string;\n  kind: Kind;\n  power: number;\n}\n",
+          "main.ts": "import { deck } from \"./cards\";\nimport type { Card, Kind } from \"./types\";\n\n// Picks an icon for each kind of card.\nfunction iconFor(kind: Kind): string {\n  if (kind === \"fire\") return \"🔥\";\n  if (kind === \"water\") return \"💧\";\n  if (kind === \"leaf\") return \"🌿\";\n  return \"❓\";\n}\n\n// Finds the card with the most power.\nfunction strongest(cards: Card[]): Card {\n  let best = cards[0];\n  for (const card of cards) {\n    if (card.power > best.power) best = card;\n  }\n  return best;\n}\n\n// ---- Shows the deck on the page. No changes needed in this file. ----\nconst list = document.querySelector(\"#deck\");\nfor (const card of deck) {\n  const item = document.createElement(\"li\");\n  item.textContent = `${iconFor(card.kind)} ${card.name} (power ${card.power})`;\n  list?.append(item);\n}\n\nconst top = strongest(deck);\nconst best = document.querySelector(\"#best\");\nif (best) best.textContent = `Strongest: ${top.name} with ${top.power} power`;\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Monster Cards</title>\n  </head>\n  <body>\n    <h1>🃏 Monster Cards</h1>\n    <ul id=\"deck\"></ul>\n    <p id=\"best\"></p>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "There's still a ⚠ type error. It names the file and line: check every tab."
+          },
+          {
+            "label": "Card is exported",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/export\\s+interface\\s+Card\\b/.test(window.__cgSources[\"types.ts\"])",
+              "equals": true
+            },
+            "failMessage": "In types.ts, write export in front of interface Card."
+          },
+          {
+            "label": "The deck has 4 cards",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#deck li",
+              "min": 4,
+              "max": 4
+            },
+            "failMessage": "Add one more card to the deck in cards.ts (don't forget the comma between cards)."
+          },
+          {
+            "label": "Mossbeard is a leaf card",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#deck li:nth-child(3)",
+              "equals": "🌿 Mossbeard (power 9)"
+            },
+            "failMessage": "In cards.ts, \"leef\" should be \"leaf\"."
+          },
+          {
+            "label": "The strongest card is shown",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#best",
+              "contains": "Strongest:"
+            },
+            "failMessage": "The strongest card should appear under the list. Check the Console for errors."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The error on `import type { Card }` says types.ts *declares 'Card' locally, but it is not exported*. That's step 1. A new card is an object in curly braces with a `name`, a `kind` and a `power`, followed by a comma."
+          },
+          {
+            "level": 2,
+            "markdown": "In **types.ts**:\n\n```ts\nexport interface Card {\n```\n\nIn **cards.ts**:\n\n```ts\n  { name: \"Mossbeard\", kind: \"leaf\", power: 9 },\n  { name: \"Thunderpaws\", kind: \"fire\", power: 6 },\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished types.ts and cards.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does export do?",
+            "explanation": "export makes something in a file available to other files.",
+            "options": [
+              {
+                "text": "Lets other files use something from this file",
+                "correct": true
+              },
+              {
+                "text": "Deletes it from the file",
+                "correct": false
+              },
+              {
+                "text": "Prints it on the page",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the ./ in import { deck } from \"./cards\" mean?",
+            "explanation": "./ means \"look in the same folder as this file.\"",
+            "options": [
+              {
+                "text": "A file in the same folder",
+                "correct": true
+              },
+              {
+                "text": "A website address",
+                "correct": false
+              },
+              {
+                "text": "The file is hidden",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "With kind: \"fire\" | \"water\" | \"leaf\", why does kind: \"lava\" cause a type error?",
+            "explanation": "\"lava\" isn't one of the allowed words in the union.",
+            "options": [
+              {
+                "text": "It isn't one of the allowed words",
+                "correct": true
+              },
+              {
+                "text": "Lava cards are too strong",
+                "correct": false
+              },
+              {
+                "text": "Words can't be used as types",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "project-quest-log",
+      "title": "Project: Quest log",
+      "sortOrder": 6,
+      "ageBand": "Builder",
+      "estimatedMinutes": 25,
+      "isPublished": true,
+      "learnMarkdown": "## Putting it together\n\nThis project is laid out like a real TypeScript codebase: types in one module, logic in a class, and the UI in the entry file. You'll also meet **generics**, the last big idea in this course.\n\n| File | Its job |\n|---|---|\n| `types.ts` | the `Status` union and the `Quest` interface |\n| `QuestLog.ts` | a class that owns the quests and the rules for changing them |\n| `main.ts` | creates the log and draws the board |\n\n### Modules and import type\n\nEvery file is a **module**: nothing leaves it unless it's exported. `import type { Quest } from \"./types\"` imports something only used as a type. It's removed completely when the code runs, which makes the intent clear and keeps build tools fast.\n\n### Generics\n\nYou've already used generic types: `Quest[]` is `Array<Quest>`, and `document.querySelector<HTMLDivElement>(\"#board\")` returns `HTMLDivElement | null`. A **generic** function takes a **type parameter** (by convention `T`) so it works for many types while keeping full type information:\n\n```ts\nfunction firstOr<T>(items: readonly T[], fallback: T): T {\n  return items.length > 0 ? items[0] : fallback;\n}\n\nfirstOr([3, 1, 2], 0);         // T is number, returns number\nfirstOr([\"a\", \"b\"], \"none\");   // T is string, returns string\n```\n\nWithout the generic you'd write `any` and lose checking. With it, TypeScript **infers** `T` from the arguments and the return type follows.\n\n### readonly arrays\n\n`readonly Quest[]` lets callers read an array but not `push`, `splice` or reassign items. The quest log hands out `readonly Quest[]`, so the only way to change quests is through the class's methods (encapsulation again).\n\n### How real projects check types\n\nA real project has a **tsconfig.json** holding compiler options like `\"strict\": true`. Teams run `tsc --noEmit` (check only, don't output files) in their build pipeline, so code with type errors can't be merged. Codegrove runs the same strict checks every time your preview updates.\n\n### New words\n\n- **Module**: a file with its own scope that shares things through `export` and `import`.\n- **import type**: an import used only for types; it's erased when the code runs.\n- **Generic**: a function, class or type that takes a type as a parameter, like `Array<T>`.\n- **Type parameter**: the placeholder type in a generic, usually written `T`.\n- **tsconfig.json**: the file that holds a TypeScript project's compiler options.\n",
+      "exampleMarkdown": "A generic `pickRandom<T>`: one function that works for a list of strings, numbers or objects. Hover-style comments show the type TypeScript infers for each call.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Generics</title>\n  </head>\n  <body>\n    <script type=\"text/typescript\">\n      function pickRandom<T>(items: readonly T[]): T | undefined {\n        return items[Math.floor(Math.random() * items.length)];\n      }\n\n      interface Snack {\n        name: string;\n        crunchy: boolean;\n      }\n\n      const word = pickRandom([\"fizz\", \"buzz\", \"bop\"]);          // string | undefined\n      const roll = pickRandom([1, 2, 3, 4, 5, 6]);               // number | undefined\n      const snack = pickRandom<Snack>([{ name: \"Chips\", crunchy: true }]); // Snack | undefined\n\n      const p = document.createElement(\"p\");\n      p.textContent = `${word} · rolled ${roll} · ${snack?.name}`;\n      document.body.append(p);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "TypeScript",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Finish the quest log.** The board code in `main.ts` is written; it calls things that don't exist yet.\n\nIn **QuestLog.ts**:\n\n1. Add `start(id: number): void`, which sets that quest's status to `\"active\"`.\n2. Add `complete(id: number): void`, which sets it to `\"done\"`. Use a private helper so the two don't repeat code, and remember that `find()` returns `Quest | undefined`.\n\nIn **main.ts**:\n\n3. Write a generic function `countWhere<T>(items: readonly T[], test: (item: T) => boolean): number` that returns how many items pass the test.\n\nDone when there are no type errors, the summary reads **Done: 1 of 3 · XP earned: 50**, and clicking **Done** on a quest moves it to the done column.",
+        "starterFiles": {
+          "QuestLog.ts": "import type { Quest, Status } from \"./types\";\n\nexport class QuestLog {\n  private quests: Quest[] = [];\n  private nextId = 1;\n\n  add(title: string, xp: number): Quest {\n    const quest: Quest = { id: this.nextId++, title, status: \"todo\", xp };\n    this.quests.push(quest);\n    return quest;\n  }\n\n  // 1. start(id: number): void sets that quest's status to \"active\".\n  // 2. complete(id: number): void sets it to \"done\".\n  //    Both can share one private helper. Remember: find() might not find anything.\n\n\n  byStatus(status: Status): Quest[] {\n    return this.quests.filter((quest) => quest.status === status);\n  }\n\n  /** Every quest, read-only: outside code can look but can't push or remove. */\n  get all(): readonly Quest[] {\n    return this.quests;\n  }\n}\n",
+          "main.ts": "import { QuestLog } from \"./QuestLog\";\nimport type { Quest, Status } from \"./types\";\n\n// 3. Write a generic function countWhere<T> here. It takes items: readonly T[] and\n//    test: (item: T) => boolean, and returns how many items pass the test (a number).\n\n\nconst log = new QuestLog();\nlog.add(\"Tame the dragon\", 50);\nlog.add(\"Find the lost sock\", 5);\nconst shop = log.add(\"Build the shop page\", 30);\nlog.start(shop.id);\nlog.complete(1);\n\n// ---- Draws the board. No changes needed below. ----\nconst board = document.querySelector<HTMLDivElement>(\"#board\");\nconst summary = document.querySelector<HTMLParagraphElement>(\"#summary\");\nif (!board || !summary) throw new Error(\"The page needs #board and #summary.\");\n\nconst columns: Status[] = [\"todo\", \"active\", \"done\"];\n\nconst questItem = (quest: Quest): HTMLLIElement => {\n  const item = document.createElement(\"li\");\n  item.textContent = `${quest.title} · ${quest.xp} XP `;\n  if (quest.status !== \"done\") {\n    const button = document.createElement(\"button\");\n    button.textContent = \"Done\";\n    button.addEventListener(\"click\", () => {\n      log.complete(quest.id);\n      render();\n    });\n    item.append(button);\n  }\n  return item;\n};\n\nconst render = (): void => {\n  board.replaceChildren(\n    ...columns.map((status) => {\n      const section = document.createElement(\"section\");\n      section.id = `col-${status}`;\n      const quests = log.byStatus(status);\n      const heading = document.createElement(\"h2\");\n      heading.textContent = `${status} (${quests.length})`;\n      const list = document.createElement(\"ul\");\n      list.append(...quests.map(questItem));\n      section.append(heading, list);\n      return section;\n    }),\n  );\n\n  const done = countWhere(log.all, (q) => q.status === \"done\");\n  const xp = log.byStatus(\"done\").reduce((sum, q) => sum + q.xp, 0);\n  summary.textContent = `Done: ${done} of ${log.all.length} · XP earned: ${xp}`;\n};\n\nrender();\n",
+          "types.ts": "// Shared types for the quest log. Nothing to change in this file.\n\nexport type Status = \"todo\" | \"active\" | \"done\";\n\nexport interface Quest {\n  readonly id: number;\n  title: string;\n  status: Status;\n  xp: number;\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Quest Log</title>\n  </head>\n  <body>\n    <h1>🗺️ Quest Log</h1>\n    <div id=\"board\"></div>\n    <p id=\"summary\"></p>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "QuestLog.ts": "import type { Quest, Status } from \"./types\";\n\nexport class QuestLog {\n  private quests: Quest[] = [];\n  private nextId = 1;\n\n  add(title: string, xp: number): Quest {\n    const quest: Quest = { id: this.nextId++, title, status: \"todo\", xp };\n    this.quests.push(quest);\n    return quest;\n  }\n\n  // 1. start(id: number): void sets that quest's status to \"active\".\n  // 2. complete(id: number): void sets it to \"done\".\n  //    Both can share one private helper. Remember: find() might not find anything.\n  start(id: number): void {\n    this.setStatus(id, \"active\");\n  }\n\n  complete(id: number): void {\n    this.setStatus(id, \"done\");\n  }\n\n  private setStatus(id: number, status: Status): void {\n    const quest = this.quests.find((q) => q.id === id); // Quest | undefined\n    if (quest) quest.status = status;\n  }\n\n  byStatus(status: Status): Quest[] {\n    return this.quests.filter((quest) => quest.status === status);\n  }\n\n  /** Every quest, read-only: outside code can look but can't push or remove. */\n  get all(): readonly Quest[] {\n    return this.quests;\n  }\n}\n",
+          "main.ts": "import { QuestLog } from \"./QuestLog\";\nimport type { Quest, Status } from \"./types\";\n\n// 3. Write a generic function countWhere<T> here. It takes items: readonly T[] and\n//    test: (item: T) => boolean, and returns how many items pass the test (a number).\nfunction countWhere<T>(items: readonly T[], test: (item: T) => boolean): number {\n  return items.filter(test).length;\n}\n\nconst log = new QuestLog();\nlog.add(\"Tame the dragon\", 50);\nlog.add(\"Find the lost sock\", 5);\nconst shop = log.add(\"Build the shop page\", 30);\nlog.start(shop.id);\nlog.complete(1);\n\n// ---- Draws the board. No changes needed below. ----\nconst board = document.querySelector<HTMLDivElement>(\"#board\");\nconst summary = document.querySelector<HTMLParagraphElement>(\"#summary\");\nif (!board || !summary) throw new Error(\"The page needs #board and #summary.\");\n\nconst columns: Status[] = [\"todo\", \"active\", \"done\"];\n\nconst questItem = (quest: Quest): HTMLLIElement => {\n  const item = document.createElement(\"li\");\n  item.textContent = `${quest.title} · ${quest.xp} XP `;\n  if (quest.status !== \"done\") {\n    const button = document.createElement(\"button\");\n    button.textContent = \"Done\";\n    button.addEventListener(\"click\", () => {\n      log.complete(quest.id);\n      render();\n    });\n    item.append(button);\n  }\n  return item;\n};\n\nconst render = (): void => {\n  board.replaceChildren(\n    ...columns.map((status) => {\n      const section = document.createElement(\"section\");\n      section.id = `col-${status}`;\n      const quests = log.byStatus(status);\n      const heading = document.createElement(\"h2\");\n      heading.textContent = `${status} (${quests.length})`;\n      const list = document.createElement(\"ul\");\n      list.append(...quests.map(questItem));\n      section.append(heading, list);\n      return section;\n    }),\n  );\n\n  const done = countWhere(log.all, (q) => q.status === \"done\");\n  const xp = log.byStatus(\"done\").reduce((sum, q) => sum + q.xp, 0);\n  summary.textContent = `Done: ${done} of ${log.all.length} · XP earned: ${xp}`;\n};\n\nrender();\n",
+          "types.ts": "// Shared types for the quest log. Nothing to change in this file.\n\nexport type Status = \"todo\" | \"active\" | \"done\";\n\nexport interface Quest {\n  readonly id: number;\n  title: string;\n  status: Status;\n  xp: number;\n}\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Quest Log</title>\n  </head>\n  <body>\n    <h1>🗺️ Quest Log</h1>\n    <div id=\"board\"></div>\n    <p id=\"summary\"></p>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error. It names the file and line: check each tab."
+          },
+          {
+            "label": "start and complete are typed methods",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/^(?=[\\s\\S]*\\bstart\\s*\\(\\s*\\w+\\s*:\\s*number\\s*\\)\\s*:\\s*void\\s*\\{)(?=[\\s\\S]*\\bcomplete\\s*\\(\\s*\\w+\\s*:\\s*number\\s*\\)\\s*:\\s*void\\s*\\{)/.test(window.__cgSources[\"QuestLog.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Add start(id: number): void and complete(id: number): void to the class."
+          },
+          {
+            "label": "countWhere is generic",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/function\\s+countWhere\\s*<\\s*T\\s*>\\s*\\(/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Declare it as function countWhere<T>(items: readonly T[], test: (item: T) => boolean): number"
+          },
+          {
+            "label": "countWhere doesn't use any",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "!/countWhere[^{]*\\bany\\b/.test(window.__cgSources[\"main.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Use the type parameter T instead of any."
+          },
+          {
+            "label": "The summary is right",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#summary",
+              "equals": "Done: 1 of 3 · XP earned: 50"
+            },
+            "failMessage": "Quest 1 should be done and the shop quest active. Check start and complete."
+          },
+          {
+            "label": "One quest is active",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#col-active li",
+              "min": 1,
+              "max": 1
+            },
+            "failMessage": "start(id) should set that quest's status to \"active\"."
+          },
+          {
+            "label": "Click Done on the first to-do quest",
+            "kind": "interact",
+            "spec": {
+              "selector": "#col-todo li button",
+              "click": true
+            },
+            "failMessage": "There should be a Done button on the quest that's still to do."
+          },
+          {
+            "label": "The clicked quest is done",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#summary",
+              "equals": "Done: 2 of 3 · XP earned: 55"
+            },
+            "failMessage": "Clicking Done calls log.complete(id). Does complete set the status to \"done\"?"
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error while the page ran. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`this.quests.find((q) => q.id === id)` has the type `Quest | undefined`, so TypeScript makes you check it (`if (quest) …`) before setting `quest.status`. For `countWhere`, arrays already have a method that keeps the items passing a test; you just need how many there are."
+          },
+          {
+            "level": 2,
+            "markdown": "```ts\n// QuestLog.ts\nstart(id: number): void {\n  this.setStatus(id, \"active\");\n}\n\ncomplete(id: number): void {\n  this.setStatus(id, \"done\");\n}\n\nprivate setStatus(id: number, status: Status): void {\n  const quest = this.quests.find((q) => q.id === id);\n  if (quest) quest.status = status;\n}\n\n// main.ts\nfunction countWhere<T>(items: readonly T[], test: (item: T) => boolean): number {\n  return items.filter(test).length;\n}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished QuestLog.ts and main.ts."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is T in function first<T>(items: T[]): T?",
+            "explanation": "T is a type parameter: a placeholder filled in (usually inferred) at each call.",
+            "options": [
+              {
+                "text": "A type parameter that's filled in for each call",
+                "correct": true
+              },
+              {
+                "text": "A variable holding the first item",
+                "correct": false
+              },
+              {
+                "text": "Short for \"text\"",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why use a generic instead of any for firstOr(items, fallback)?",
+            "explanation": "Generics keep the connection between input and output types; any throws checking away.",
+            "options": [
+              {
+                "text": "The return type follows the argument types, so checking still works",
+                "correct": true
+              },
+              {
+                "text": "Generics run faster than any",
+                "correct": false
+              },
+              {
+                "text": "any isn't allowed in functions",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's the type of quests.find((q) => q.id === 7) when quests is Quest[]?",
+            "explanation": "find returns undefined when nothing matches, so the type includes undefined.",
+            "options": [
+              {
+                "text": "Quest | undefined",
+                "correct": true
+              },
+              {
+                "text": "Quest",
+                "correct": false
+              },
+              {
+                "text": "Quest[]",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does import type { Quest } from \"./types\" do when the code runs?",
+            "explanation": "Type-only imports are erased; they exist only for the checker.",
+            "options": [
+              {
+                "text": "Nothing: it's removed, because it's only used as a type",
+                "correct": true
+              },
+              {
+                "text": "It loads types.ts twice",
+                "correct": false
+              },
+              {
+                "text": "It copies the Quest interface into the page",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A teammate's code has type errors but runs fine. What does tsc --noEmit in the build pipeline do?",
+            "explanation": "--noEmit checks types without writing output, and fails the build on errors.",
+            "options": [
+              {
+                "text": "Fails the check, so the code can't be merged until the errors are fixed",
+                "correct": true
+              },
+              {
+                "text": "Fixes the errors automatically",
+                "correct": false
+              },
+              {
+                "text": "Nothing, because the code runs",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

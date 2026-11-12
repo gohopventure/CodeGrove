@@ -1,5 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { buildRunDocument, composeFiles, type Files } from '../runner/compose';
+import { buildRunDocument, composeFiles, REACT_RUN_OPTIONS, type Files } from '../runner/compose';
+import { hasTypeScript, loadToolkit, needsReact, needsReactRuntime } from '../runner/react';
+import type { TypeChecker, TypeDiagnostic } from '../runner/typeCheck';
 import type { ConsoleLine, RunnerMessage, TestResult, TestSpec } from '../runner/types';
 
 /** Where runner.html lives. Must be a different origin from the app (see vite.config.ts). */
@@ -26,7 +28,10 @@ interface PendingRun {
  * and its CSP blocks all network access. Messages are accepted only from this exact frame's window
  * and only for the current runId.
  */
-export const LivePreview = forwardRef<LivePreviewHandle, { title: string }>(function LivePreview({ title }, ref) {
+export const LivePreview = forwardRef<LivePreviewHandle, { title: string; typeChecker?: TypeChecker }>(function LivePreview(
+  { title, typeChecker },
+  ref,
+) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const pending = useRef<PendingRun | null>(null);
   // The run whose frame is on screen. Console output keeps arriving after tests finish
@@ -63,15 +68,42 @@ export const LivePreview = forwardRef<LivePreviewHandle, { title: string }>(func
   }, [finish]);
 
   useImperativeHandle(ref, () => ({
-    run(files, tests) {
+    async run(files, tests) {
       finish(null); // a newer run replaces any unfinished one
       const runId = crypto.randomUUID();
       currentRunId.current = runId;
       setConsoleLines([]);
-      return new Promise((resolve) => {
+
+      // JSX and TypeScript pages need Sucrase (and React, if they use it), downloaded once on first use.
+      const compiled = needsReact(files);
+      const react = needsReactRuntime(files);
+      let html: string;
+      try {
+        const kit = compiled ? await loadToolkit({ react }) : undefined;
+        // TypeScript pages are type-checked before they run. If the checker itself fails, the page
+        // still runs; typeCheck/typeError tests then report that types couldn't be checked.
+        let typeDiagnostics: TypeDiagnostic[] | undefined;
+        if (typeChecker && hasTypeScript(files)) {
+          try {
+            typeDiagnostics = await typeChecker(files);
+          } catch {
+            typeDiagnostics = undefined;
+          }
+        }
+        if (currentRunId.current !== runId) return null; // a newer run started while we were checking
+        html = buildRunDocument(composeFiles(files, kit), runId, tests, { ...(react ? REACT_RUN_OPTIONS : {}), typeDiagnostics });
+      } catch {
+        if (currentRunId.current === runId) {
+          setConsoleLines([{ level: 'error', text: "We couldn't load the tools this preview needs. Check your internet connection and try again." }]);
+        }
+        return null;
+      }
+      if (currentRunId.current !== runId) return null; // a newer run started while React was loading
+
+      return new Promise<TestResult[] | null>((resolve) => {
         pending.current = {
           runId,
-          html: buildRunDocument(composeFiles(files), runId, tests),
+          html,
           resolve,
           timer: window.setTimeout(() => {
             setConsoleLines((l) => [...l, { level: 'error', text: 'Your page took too long to finish loading, so we stopped it.' }]);
@@ -81,7 +113,7 @@ export const LivePreview = forwardRef<LivePreviewHandle, { title: string }>(func
         setFrameKey((k) => k + 1); // a fresh frame per run: nothing leaks between runs
       });
     },
-  }), [finish]);
+  }), [finish, typeChecker]);
 
   return (
     <div className="flex h-full min-h-[320px] flex-col overflow-hidden rounded-card border border-line bg-surface">
@@ -103,7 +135,7 @@ export const LivePreview = forwardRef<LivePreviewHandle, { title: string }>(func
           {consoleLines.length === 0 && <li className="text-muted">Nothing logged yet.</li>}
           {consoleLines.map((l, i) => (
             <li key={i} className={l.level === 'error' ? 'text-bad' : l.level === 'warn' ? 'text-accent' : ''}>
-              {l.level === 'error' ? '✕ ' : '› '}
+              {l.level === 'error' ? '✕ ' : l.level === 'warn' ? '⚠ ' : '› '}
               {l.text}
             </li>
           ))}

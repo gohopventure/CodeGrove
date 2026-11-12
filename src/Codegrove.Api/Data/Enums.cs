@@ -37,7 +37,11 @@ public enum ConsentMethod
 
 public enum ConsentStatus { Pending = 0, Granted = 1, Revoked = 2, Expired = 3 }
 
-public enum ChallengeKind { Html = 0, Css = 1, Js = 2, Sql = 3, CSharp = 4 }
+/// <summary>
+/// What a challenge's files are, so the app knows how to run them. Stored as a string, so adding a
+/// kind needs no migration. TypeScript: .ts files run with their types stripped and are type-checked.
+/// </summary>
+public enum ChallengeKind { Html = 0, Css = 1, Js = 2, Sql = 3, CSharp = 4, React = 5, TypeScript = 6 }
 
 public enum SubmissionCheckedBy { Client = 0, Server = 1 }
 

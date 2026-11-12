@@ -15,8 +15,11 @@ export type TestKind =
   | 'cssProperty' // { selector, property, equals }: the computed value on the element
   | 'cssRule' // { selector, property, equals?, matches?, media? }: the value the learner's CSS declares
   | 'jsExpression' // { expression, equals }
+  | 'interact' // { selector, click?, type? }: clicks and/or types, so later tests can check the result
   | 'consoleIncludes' // { text }
-  | 'noErrors'; // {}
+  | 'noErrors' // {}
+  | 'typeCheck' // { file? }: TypeScript found no type errors (in that file, or in any file)
+  | 'typeError'; // { file?, code?, contains?, line? }: TypeScript DOES report a matching error
 
 export interface TestResult {
   testId: number;

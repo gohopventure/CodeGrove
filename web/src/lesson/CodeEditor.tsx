@@ -1,9 +1,10 @@
 import Editor from '@monaco-editor/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Files } from '../api/types';
 import './monacoSetup';
+import { syncTypeScriptModels } from './typeCheckMonaco';
 
-const LANGUAGE: Record<string, string> = { html: 'html', css: 'css', js: 'javascript', ts: 'typescript', json: 'json' };
+const LANGUAGE: Record<string, string> = { html: 'html', css: 'css', js: 'javascript', jsx: 'javascript', ts: 'typescript', tsx: 'typescript', json: 'json' };
 const languageFor = (file: string) => LANGUAGE[file.split('.').pop() ?? ''] ?? 'plaintext';
 
 /**
@@ -23,9 +24,17 @@ export function CodeEditor({
   readOnly?: boolean;
   label?: string;
 }) {
-  const names = Object.keys(files);
+  const names = Object.keys(files).filter((name) => !name.startsWith('.')); // dotfiles are app data, not learner code
   const [active, setActive] = useState(names[0] ?? 'index.html');
   const [fontSize, setFontSize] = useState(16);
+
+  // TypeScript lessons: give every .ts file a model up front (not only the open tab), so an import
+  // like `import { Pet } from "./types"` resolves and the squiggles are right before the tab is opened.
+  // Re-run only when the set of files changes, not on every keystroke.
+  const fileKey = names.join('|');
+  useEffect(() => {
+    if (!readOnly) syncTypeScriptModels(files);
+  }, [fileKey, readOnly]); // keyed on file names on purpose, not on every keystroke
 
   return (
     <div className="flex h-full min-h-[320px] flex-col overflow-hidden rounded-card border border-line bg-surface">

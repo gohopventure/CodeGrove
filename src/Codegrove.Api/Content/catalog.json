@@ -19,6 +19,29 @@
       "isPublished": true,
       "courses": ["javascript-basics"],
       "prerequisites": ["web-foundations"]
+    },
+    {
+      // Right after JavaScript: TypeScript is JavaScript plus types. It's the bridge to C# (static
+      // types, interfaces, classes) and comes before Angular, which is written in TypeScript. React
+      // doesn't require it, so learners already in the React track aren't blocked.
+      "slug": "typescript",
+      "title": "TypeScript",
+      "description": "Add types to your JavaScript so mistakes show up before your code runs: typed functions, objects, unions and classes.",
+      "ageBand": "Both",
+      "sortOrder": 3,
+      "isPublished": true,
+      "courses": ["typescript-basics"],
+      "prerequisites": ["javascript"]
+    },
+    {
+      "slug": "frontend-frameworks",
+      "title": "Frontend Frameworks",
+      "description": "Build apps out of components with React: JSX, props, lists, state, forms and data from a server.",
+      "ageBand": "Both",
+      "sortOrder": 4,
+      "isPublished": true,
+      "courses": ["react-basics", "react-apps"],
+      "prerequisites": ["javascript"]
     }
   ],
   "badges": [
@@ -53,6 +76,54 @@
       "iconUrl": "/badges/html-hero.svg",
       "ruleType": "CourseCompleted",
       "ruleCourseSlug": "html-basics"
+    },
+    {
+      "code": "web-wanderer",
+      "name": "Web Wanderer",
+      "description": "You finished How the Web Works.",
+      "iconUrl": "/badges/web-wanderer.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "how-the-web-works"
+    },
+    {
+      "code": "style-star",
+      "name": "Style Star",
+      "description": "You finished the CSS course.",
+      "iconUrl": "/badges/style-star.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "css-basics"
+    },
+    {
+      "code": "js-juggler",
+      "name": "JavaScript Juggler",
+      "description": "You finished the JavaScript course.",
+      "iconUrl": "/badges/js-juggler.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "javascript-basics"
+    },
+    {
+      "code": "component-crafter",
+      "name": "Component Crafter",
+      "description": "You finished React Basics.",
+      "iconUrl": "/badges/component-crafter.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "react-basics"
+    },
+    {
+      "code": "app-architect",
+      "name": "App Architect",
+      "description": "You finished React Apps and built a whole app.",
+      "iconUrl": "/badges/app-architect.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "react-apps"
+    },
+    {
+      "code": "type-tamer",
+      "name": "Type Tamer",
+      "description": "You finished TypeScript Basics.",
+      "iconUrl": "/badges/type-tamer.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "typescript-basics"
     },
     {
       "code": "steady-builder",

@@ -118,6 +118,29 @@ export function evaluateTest(test: TestSpec, doc: Document, win: Window, lines: 
       break;
     }
 
+    case 'interact': {
+      // Does something a learner would do, so later tests can check what changed. Tests run in order
+      // and (for React pages) with a short pause after each one, so the page has re-rendered by the
+      // time the next test looks. Passes when the element exists and the action ran without an error.
+      //   { selector, click: true }  or  { selector, type: "Sam" }  (both may be given: click first)
+      const el = doc.querySelector(s.selector) as HTMLElement | null;
+      if (!el) break;
+      if (s.click === true) el.click();
+      if (typeof s.type === 'string') {
+        const field = el as HTMLInputElement | HTMLTextAreaElement;
+        // Set the value the way a keystroke does: through the element prototype's setter, so libraries
+        // that track the "last known value" (React does) see a real change, then fire input + change.
+        const proto = Object.getPrototypeOf(field);
+        const setter = Object.getOwnPropertyDescriptor(proto, 'value')?.set;
+        if (setter) setter.call(field, s.type);
+        else field.value = s.type;
+        field.dispatchEvent(new (win as any).Event('input', { bubbles: true }));
+        field.dispatchEvent(new (win as any).Event('change', { bubbles: true }));
+      }
+      passed = true;
+      break;
+    }
+
     case 'consoleIncludes':
       passed = lines.some((l) => l.level !== 'error' && norm(l.text, caseSensitive).includes(norm(s.text, caseSensitive)));
       break;
@@ -125,6 +148,36 @@ export function evaluateTest(test: TestSpec, doc: Document, win: Window, lines: 
     case 'noErrors':
       passed = !lines.some((l) => l.level === 'error');
       break;
+
+    case 'typeCheck':
+    case 'typeError': {
+      // Type errors are found before the page runs (typeCheck.ts) and handed to the harness, which
+      // puts them on window.__cgTypeDiagnostics. Missing means the checker didn't run: fail.
+      const all = (win as any).__cgTypeDiagnostics as
+        | { file: string; line: number; column: number; code: number; message: string }[]
+        | undefined;
+      if (!Array.isArray(all)) {
+        return { testId: test.id, passed: false, message: `${test.failMessage} (TypeScript couldn't check your code this time. Try again.)` };
+      }
+      const inFile = s.file ? all.filter((d) => d.file === s.file) : all;
+      if (test.kind === 'typeCheck') {
+        const first = inFile[0];
+        if (!first) return { testId: test.id, passed: true, message: null };
+        const more = inFile.length > 1 ? ` (and ${inFile.length - 1} more)` : '';
+        return {
+          testId: test.id,
+          passed: false,
+          message: `${test.failMessage} First one: ${first.file}, line ${first.line}: ${first.message}${more}`,
+        };
+      }
+      passed = inFile.some(
+        (d) =>
+          (s.code === undefined || d.code === s.code) &&
+          (s.line === undefined || d.line === s.line) &&
+          (s.contains === undefined || d.message.toLowerCase().includes(String(s.contains).toLowerCase())),
+      );
+      break;
+    }
 
     default:
       passed = false;
@@ -137,6 +190,10 @@ interface HarnessConfig {
   runId: string;
   tests: TestSpec[];
   settleMs: number;
+  /** Pause after each test (React pages), so clicks and typing have re-rendered before the next test. */
+  stepDelayMs?: number;
+  /** TypeScript pages: the type errors found before the run, as display text plus data for the tests. */
+  typeErrors?: { text: string; diagnostic: { file: string; line: number; column: number; code: number; message: string } }[];
 }
 
 /**
@@ -165,65 +222,147 @@ export function harnessMain(cfg: HarnessConfig, evaluate: typeof evaluateTest): 
   const fromExtension = (text: unknown) =>
     typeof text === 'string' && /(?:chrome|moz|safari-web|ms-browser)-extension:\/\/|webkit-masked-url:/i.test(text);
 
+  // console.log("%s has %d lives", name, 3) works like the browser's console: placeholders take the
+  // next arguments (%c styling is dropped). React's warnings are written this way.
+  const formatArgs = (args: unknown[]) => {
+    if (typeof args[0] !== 'string' || !args[0].includes('%')) return args.map(format).join(' ');
+    const rest = args.slice(1);
+    const head = args[0].replace(/%([sdifoOc%])/g, (whole, kind: string) => {
+      if (kind === '%') return '%';
+      if (rest.length === 0) return whole;
+      const value = rest.shift();
+      if (kind === 'c') return '';
+      if (kind === 'd' || kind === 'i') return String(parseInt(String(value), 10));
+      if (kind === 'f') return String(parseFloat(String(value)));
+      return format(value);
+    });
+    return [head, ...rest.map(format)].join(' ').trim();
+  };
+
   (['log', 'info', 'warn', 'error'] as const).forEach((level) => {
     const original = console[level].bind(console);
     console[level] = (...args: unknown[]) => {
-      if (!fromExtension(new Error().stack)) record(level, args.map(format).join(' '));
+      if (!fromExtension(new Error().stack)) record(level, formatArgs(args));
       original(...args);
     };
   });
 
+  // Where an error happened, in the learner's terms. React lessons compile each file into its own
+  // script named with //# sourceURL, so the stack names the file ("App.jsx:7:12"); the first such
+  // frame wins, which skips React's own frames. Plain pages fall back to the line in the page.
+  const learnerFile = /([\w-]+\.(?:jsx?|tsx?)):(\d+):\d+/;
+  const where = (e: ErrorEvent) => {
+    const frame = learnerFile.exec(String(e.error?.stack ?? '')) ?? learnerFile.exec(`${e.filename ?? ''}:${e.lineno}:0`);
+    if (frame) return ` (${frame[1]}, line ${frame[2]})`;
+    return e.lineno ? ` (line ${e.lineno})` : '';
+  };
+
+  // TypeScript pages: the type errors go to the console panel first, so the learner sees what TypeScript
+  // found before anything their code logs. They're posted but not added to `lines`: they aren't
+  // runtime errors, so noErrors and consoleIncludes ignore them (typeCheck/typeError test them).
+  if (cfg.typeErrors) {
+    Object.defineProperty(window, '__cgTypeDiagnostics', {
+      value: Object.freeze(cfg.typeErrors.map((t) => Object.freeze(t.diagnostic))),
+      writable: false,
+      configurable: false,
+    });
+    cfg.typeErrors.forEach((t) => post({ type: 'cg:console', level: 'warn', text: `Type error in ${t.text}` }));
+  }
+
   window.addEventListener('error', (e) => {
     if (fromExtension(e.filename) || fromExtension(e.error?.stack)) return;
-    record('error', e.message + (e.lineno ? ` (line ${e.lineno})` : ''));
+    record('error', e.message + where(e));
   });
 
-  // Keep the preview on the learner's page: links to other pages and form submissions don't leave
-  // the sandbox (it couldn't load them anyway); the console explains what would have happened.
+  // Keep the preview on the learner's page: links to other pages don't leave the sandbox (it
+  // couldn't load them anyway); the console explains what would have happened.
   document.addEventListener(
     'click',
     (e) => {
-      const target = e.target as Element | null;
-      const link = target?.closest?.('a[href]');
+      const link = (e.target as Element | null)?.closest?.('a[href]');
       const href = link?.getAttribute('href') ?? '';
       if (link && !href.startsWith('#')) {
         e.preventDefault();
         record('info', `Link to ${href} (links to other pages don't open in the preview, but they will on a real website)`);
-        return;
-      }
-      const submit = target?.closest?.('button:not([type]), button[type="submit"], input[type="submit"]');
-      if (submit?.closest('form')) {
-        e.preventDefault();
-        record('info', 'Form submitted! (In the preview, forms don\'t send anything anywhere.)');
       }
     },
     true,
   );
-  document.addEventListener('submit', (e) => e.preventDefault(), true);
+
+  // Forms. The frame is sandboxed without allow-forms, and in such a frame browsers never fire
+  // "submit" at all, so a learner's form.addEventListener('submit', ...) would never run. Instead,
+  // once a click on a submit button has finished (this listener is on window, so it runs after the
+  // learner's own click handlers) the harness cancels the native submission and fires a synthetic
+  // submit event that behaves like the real one: it bubbles, it's cancelable and it has a submitter.
+  // Nothing can leave the frame either way (sandbox + CSP form-action 'none').
+  window.addEventListener('click', (e) => {
+    const submitter = (e.target as Element | null)?.closest?.('button:not([type]), button[type="submit"], input[type="submit"]') as
+      | HTMLButtonElement
+      | HTMLInputElement
+      | null;
+    const form = submitter?.form;
+    if (!form) return;
+    const cancelledByLearner = e.defaultPrevented;
+    e.preventDefault();
+    if (cancelledByLearner) return;
+    const init = { bubbles: true, cancelable: true };
+    form.dispatchEvent(typeof SubmitEvent === 'function' ? new SubmitEvent('submit', { ...init, submitter }) : new Event('submit', init));
+  });
+
+  // A submit the learner's code didn't handle (no listener, or no preventDefault) is explained in the console.
+  window.addEventListener('submit', (e) => {
+    if (e.defaultPrevented) return;
+    e.preventDefault();
+    record('info', 'Form submitted! (In the preview, forms don\'t send anything anywhere.)');
+  });
   window.addEventListener('unhandledrejection', (e) => {
     if (fromExtension(e.reason?.stack)) return;
     record('error', `Promise error: ${format(e.reason)}`);
   });
 
+  const runOne = (t: TestSpec): TestResult => {
+    try {
+      return evaluate(t, document, window, lines);
+    } catch {
+      return { testId: t.id, passed: false, message: t.failMessage };
+    }
+  };
+
+  // Practice API requests (mockApi.ts) still in flight. Pages that fetch are tested once their requests
+  // have answered, so the learner's .then() callbacks (and React's re-render) have run.
+  const pendingRequests = () => (window as Window & { __cgMockPending?: number }).__cgMockPending ?? 0;
+
+  /** Calls `then` once no practice-API request is in flight (capped at 2 s), plus `pauseMs`. */
+  const afterIdle = (pauseMs: number, then: () => void) => {
+    const started = Date.now();
+    const poll = () => {
+      if (pendingRequests() > 0 && Date.now() - started < 2000) setTimeout(poll, 20);
+      else setTimeout(then, pauseMs);
+    };
+    poll();
+  };
+
   const runTests = () => {
-    const results = cfg.tests.map((t) => {
-      try {
-        return evaluate(t, document, window, lines);
-      } catch {
-        return { testId: t.id, passed: false, message: t.failMessage };
+    const delay = cfg.stepDelayMs ?? 0;
+    if (delay <= 0) {
+      post({ type: 'cg:done', results: cfg.tests.map(runOne) });
+      return;
+    }
+    // One test at a time. After each, wait for any request it started (a click that fetches) and
+    // then pause, so the re-render it triggered has landed before the next test reads the page.
+    const results: TestResult[] = [];
+    const next = (i: number) => {
+      if (i >= cfg.tests.length) {
+        post({ type: 'cg:done', results });
+        return;
       }
-    });
-    post({ type: 'cg:done', results });
+      results.push(runOne(cfg.tests[i]!));
+      afterIdle(delay, () => next(i + 1));
+    };
+    next(0);
   };
 
-  // Pages that fetch from the practice API (mockApi.ts) are tested once their requests have
-  // answered, plus one more tick so the learner's .then() callbacks have run. Capped at 2 s.
-  const startedAt = Date.now();
-  const whenIdle = () => {
-    const pending = (window as Window & { __cgMockPending?: number }).__cgMockPending ?? 0;
-    if (pending > 0 && Date.now() - startedAt < 2000) setTimeout(whenIdle, 20);
-    else setTimeout(runTests, 0);
-  };
-
-  window.addEventListener('load', () => setTimeout(whenIdle, cfg.settleMs));
+  // After "load" and the settle time: wait for requests made on load, then (for React pages) one
+  // more pause for the re-render their data causes.
+  window.addEventListener('load', () => setTimeout(() => afterIdle(cfg.stepDelayMs ?? 0, runTests), cfg.settleMs));
 }

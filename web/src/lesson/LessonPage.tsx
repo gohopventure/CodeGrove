@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api, ApiError } from '../api/client';
 import { keys, useLesson, useMe } from '../api/queries';
@@ -8,9 +8,21 @@ import { Markdown } from '../components/Markdown';
 import { ErrorNote, Spinner } from '../components/ui';
 import { CodeEditor } from './CodeEditor';
 import { LivePreview, type LivePreviewHandle } from './LivePreview';
+import { monacoTypeChecker } from './typeCheckMonaco';
 import { CelebrationToast, HintLadder, QuizCard, TestResultList, useHeartbeat } from './parts';
 
+// Blockly is big, so it only downloads for lessons that offer blocks.
+const BlocksEditor = lazy(() => import('./blocks/BlocksEditor'));
+
 type Step = 'learn' | 'example' | 'challenge' | 'quiz' | 'done';
+type EditMode = 'blocks' | 'text';
+
+/**
+ * A submission made in blocks mode also carries the workspace as this hidden file, so the learner gets
+ * their blocks back next time. The preview ignores it (it isn't linked from index.html) and the editor
+ * never shows dotfiles.
+ */
+const BLOCKS_FILE = '.blocks.json';
 
 const STEPS: { id: Step; label: string }[] = [
   { id: 'learn', label: 'Learn' },
@@ -224,13 +236,60 @@ function ChallengeStep({
   const [solution, setSolution] = useState<Files | null>(null);
   const checkingRef = useRef(false); // a live re-render must not cancel a check in progress
 
-  // Restore the last submitted code if there's no draft in this tab.
+  // Blocks mode (Explorer JS lessons). The blocks write script.js; Text mode edits it directly.
+  // Workspace state and the chosen mode are kept for this tab session only, like drafts.
+  const blocks = challenge.blocks;
+  const blocksKey = `cg:blocks:${challenge.id}`;
+  const modeKey = `cg:mode:${challenge.id}`;
+  const [mode, setModeState] = useState<EditMode>(() =>
+    blocks && sessionStorage.getItem(modeKey) !== 'text' ? 'blocks' : 'text',
+  );
+  const blocksState = useRef<object | null>(readJson<object>(blocksKey) ?? blocks?.starter ?? null);
+  const lastGenerated = useRef<string | null>(null); // script.js as the blocks last made it
+  const [blocksEpoch, setBlocksEpoch] = useState(0); // bump to remount the workspace (Start over)
+
+  const setMode = useCallback((m: EditMode) => {
+    setModeState(m);
+    sessionStorage.setItem(modeKey, m);
+  }, [modeKey]);
+
+  const onBlocksChange = useCallback((state: object, script: string) => {
+    blocksState.current = state;
+    lastGenerated.current = script;
+    sessionStorage.setItem(blocksKey, JSON.stringify(state));
+    setFiles((f) => (f['script.js'] === script ? f : { ...f, 'script.js': script }));
+  }, [blocksKey]);
+
+  function switchToBlocks() {
+    const script = files['script.js'];
+    const typedChanges = script !== lastGenerated.current && script !== challenge.starterFiles['script.js'];
+    if (typedChanges && !window.confirm(
+      "Blocks can't read code you typed. If you switch back, script.js becomes the code your blocks make, and your typed changes are lost. Switch to blocks?",
+    )) return;
+    setMode('blocks');
+  }
+
+  // Restore the last submitted code if there's no draft in this tab. A submission made with blocks
+  // reopens in Blocks with the learner's workspace; one typed as text reopens in Text.
   useEffect(() => {
     if (readDraft(draftKey)) return;
     api.get<{ files: Files } | undefined>(`/api/challenges/${challenge.id}/submissions/latest`)
-      .then((latest) => latest?.files && setFiles(latest.files))
+      .then((latest) => {
+        if (!latest?.files) return;
+        const { [BLOCKS_FILE]: savedBlocks, ...code } = latest.files;
+        setFiles(code);
+        if (!blocks) return;
+        const state = savedBlocks ? parseJson<object>(savedBlocks) : null;
+        if (state) {
+          blocksState.current = state;
+          setBlocksEpoch((n) => n + 1); // remount the workspace with the saved blocks
+          setMode('blocks');
+        } else {
+          setMode('text');
+        }
+      })
       .catch(() => undefined);
-  }, [challenge.id, draftKey]);
+  }, [challenge.id, draftKey, blocks, setMode]);
 
   // Live preview: re-render 400 ms after typing stops. Drafts are kept for this tab session only.
   useEffect(() => {
@@ -254,7 +313,10 @@ function ChallengeStep({
         return;
       }
       setResults(res);
-      const submitted = await api.post<SubmissionResponse>(`/api/challenges/${challenge.id}/submissions`, { files, results: res });
+      const submittedFiles = mode === 'blocks' && blocksState.current
+        ? { ...files, [BLOCKS_FILE]: JSON.stringify(blocksState.current) }
+        : files;
+      const submitted = await api.post<SubmissionResponse>(`/api/challenges/${challenge.id}/submissions`, { files: submittedFiles, results: res });
       onOutcome(submitted.outcome);
       if (submitted.passed) onPassed();
     } catch (e) {
@@ -274,12 +336,64 @@ function ChallengeStep({
         <Markdown>{challenge.instructionsMarkdown}</Markdown>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="h-[28rem]">
-          <CodeEditor files={files} onChange={setFiles} dark={dark} />
+      {blocks && (
+        <div className="flex flex-wrap items-center gap-3">
+          <div role="group" aria-label="Code with" className="inline-flex overflow-hidden rounded-card border border-line">
+            <button
+              type="button"
+              aria-pressed={mode === 'blocks'}
+              onClick={() => mode !== 'blocks' && switchToBlocks()}
+              className={`px-4 py-1.5 font-bold ${mode === 'blocks' ? 'bg-brand text-brand-ink' : 'bg-surface text-muted hover:bg-surface-2'}`}
+            >
+              <span aria-hidden="true">🧩 </span>Blocks
+            </button>
+            <button
+              type="button"
+              aria-pressed={mode === 'text'}
+              onClick={() => setMode('text')}
+              className={`px-4 py-1.5 font-bold ${mode === 'text' ? 'bg-brand text-brand-ink' : 'bg-surface text-muted hover:bg-surface-2'}`}
+            >
+              <span aria-hidden="true">⌨️ </span>Text
+            </button>
+          </div>
+          <p className="text-sm text-muted">
+            {mode === 'blocks'
+              ? 'Snap blocks together. The JavaScript they make shows up underneath. Ready for real code? Switch to Text.'
+              : "You're writing real JavaScript! You can still switch back to blocks."}
+          </p>
         </div>
-        <div className="h-[28rem]">
-          <LivePreview ref={preview} title="Your page preview" />
+      )}
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {mode === 'blocks' && blocks ? (
+          <div className="flex h-[38rem] flex-col overflow-hidden rounded-card border border-line bg-surface">
+            <div className="min-h-0 flex-1">
+              <Suspense fallback={<Spinner label="Loading blocks" />}>
+                <BlocksEditor
+                  key={blocksEpoch}
+                  toolbox={blocks.toolbox}
+                  initialState={blocksState.current}
+                  onChange={onBlocksChange}
+                  dark={dark}
+                />
+              </Suspense>
+            </div>
+            <section aria-labelledby="blocks-code-heading" className="flex h-44 shrink-0 flex-col border-t border-line">
+              <h3 id="blocks-code-heading" className="bg-surface-2 px-3 py-1 text-sm font-bold">
+                Your blocks as JavaScript <span className="font-normal text-muted">(script.js)</span>
+              </h3>
+              <pre tabIndex={0} className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap bg-[#1b2128] p-3 font-mono text-sm leading-snug text-[#e8edf2]">
+                <code>{files['script.js']}</code>
+              </pre>
+            </section>
+          </div>
+        ) : (
+          <div className={blocks ? 'h-[38rem]' : 'h-[28rem]'}>
+            <CodeEditor files={files} onChange={setFiles} dark={dark} />
+          </div>
+        )}
+        <div className={blocks ? 'h-[38rem]' : 'h-[28rem]'}>
+          <LivePreview ref={preview} title="Your page preview" typeChecker={monacoTypeChecker} />
         </div>
       </div>
 
@@ -293,8 +407,12 @@ function ChallengeStep({
           onClick={() => {
             if (window.confirm('Start over with the original code? Your changes will be lost.')) {
               sessionStorage.removeItem(draftKey);
+              sessionStorage.removeItem(blocksKey);
               setFiles(challenge.starterFiles);
               setResults(null);
+              blocksState.current = blocks?.starter ?? null;
+              lastGenerated.current = null;
+              setBlocksEpoch((n) => n + 1);
             }
           }}
         >
@@ -311,7 +429,11 @@ function ChallengeStep({
       {solution && (
         <section aria-labelledby="solution-heading" className="card space-y-2">
           <h3 id="solution-heading" className="text-lg font-bold">One possible solution</h3>
-          <p className="text-muted">Read it, compare it with yours, then type the changes yourself.</p>
+          <p className="text-muted">
+            {mode === 'blocks'
+              ? 'This is the solution as JavaScript. Can you build the same thing with blocks? Or switch to Text and type it.'
+              : 'Read it, compare it with yours, then type the changes yourself.'}
+          </p>
           {Object.entries(solution).map(([name, code]) => (
             <div key={name}>
               <p className="font-mono text-sm font-bold">{name}</p>
@@ -325,9 +447,17 @@ function ChallengeStep({
 }
 
 function readDraft(key: string): Files | null {
+  return readJson<Files>(key);
+}
+
+function readJson<T>(key: string): T | null {
+  const raw = sessionStorage.getItem(key);
+  return raw ? parseJson<T>(raw) : null;
+}
+
+function parseJson<T>(raw: string): T | null {
   try {
-    const raw = sessionStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as Files) : null;
+    return JSON.parse(raw) as T;
   } catch {
     return null;
   }

@@ -18,7 +18,7 @@ public sealed record RevealedHintDto(int Level, string Markdown);
 public sealed record ChallengeDto(
     int Id, ChallengeKind Kind, string InstructionsMarkdown, IReadOnlyDictionary<string, string> StarterFiles,
     IReadOnlyList<TestSpecDto> Tests, IReadOnlyList<int> HintLevels, IReadOnlyList<RevealedHintDto> RevealedHints,
-    IReadOnlyDictionary<string, string>? SolutionFiles, int XpReward);
+    IReadOnlyDictionary<string, string>? SolutionFiles, int XpReward, JsonElement? Blocks);
 
 public sealed record QuizOptionDto(int Id, string Text);
 public sealed record QuizQuestionDto(int Id, string Prompt, IReadOnlyList<QuizOptionDto> Options);
@@ -92,7 +92,8 @@ public sealed class LearningController(AppDbContext db, ProgressService progress
                 c.Hints.Select(h => h.Level).OrderBy(l => l).ToList(),
                 revealed.Select(h => new RevealedHintDto(h.Level, h.Markdown)).ToList(),
                 solutionUnlocked ? Files(c.SolutionFilesJson) : null,
-                c.XpReward);
+                c.XpReward,
+                c.BlocksJson is null ? null : JsonDocument.Parse(c.BlocksJson).RootElement);
         }
 
         QuizDto? quiz = lesson.Quiz is { } q

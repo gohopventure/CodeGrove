@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Codegrove.Api.Data;
+using Codegrove.Api.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -63,7 +64,7 @@ public sealed class CatalogController(AppDbContext db) : ControllerBase
         foreach (var c in track.Courses)
         {
             var lessonIds = await LessonIdsFor(c.Id, band, ct);
-            courses.Add(new CourseSummaryDto(c.Slug, c.Title, c.Summary, c.EstimatedMinutes, c.IsPublished,
+            courses.Add(new CourseSummaryDto(c.Slug, c.Title, c.Summary, await MinutesFor(c, band, ct), c.IsPublished,
                 lessonIds.Count, await CompletedCount(userId, lessonIds, ct)));
         }
 
@@ -95,9 +96,24 @@ public sealed class CatalogController(AppDbContext db) : ControllerBase
             .Select(l => new LessonSummaryDto(l.Id, l.Slug, l.Title, l.EstimatedMinutes, l.IsPublished && course.IsPublished, false))
             .ToListAsync(ct);
 
-        return new CourseDetailDto(course.Slug, course.Title, course.Summary, course.EstimatedMinutes, course.IsPublished,
+        return new CourseDetailDto(course.Slug, course.Title, course.Summary, await MinutesFor(course, band, ct), course.IsPublished,
             JsonSerializer.Deserialize<List<string>>(course.ObjectivesJson) ?? [],
             lessons.Select(l => l with { Completed = completed.Contains(l.Id) }).ToList());
+    }
+
+    /// <summary>
+    /// How long the course takes for this band: the sum of its published lessons for that band. Explorer and
+    /// Builder lessons differ a lot (about 45 vs 120 minutes for JavaScript), so one stored figure would mislead
+    /// one of them. Without a band (signed out) or before any lesson is published, the course's
+    /// authored estimate is used.
+    /// </summary>
+    private async Task<int> MinutesFor(Course course, AgeBand? band, CancellationToken ct)
+    {
+        if (band is null) return course.EstimatedMinutes;
+        var minutes = await db.Lessons
+            .Where(l => l.CourseId == course.Id && l.IsPublished && (l.AgeBand == AgeBand.Both || l.AgeBand == band))
+            .SumAsync(l => l.EstimatedMinutes, ct);
+        return minutes > 0 ? minutes : course.EstimatedMinutes;
     }
 
     /// <summary>Signed-in learners always see their own band; others can pick one with ?band=.</summary>

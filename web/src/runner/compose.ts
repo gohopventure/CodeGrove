@@ -1,6 +1,8 @@
 import { protectLoops } from './loopProtect';
 import { installMockApi } from './mockApi';
+import { composeReact, insertBeforeFirstScript, needsReact, type ReactToolkit } from './react';
 import { evaluateTest, harnessMain } from './testEngine';
+import { describeTypeError, type TypeDiagnostic } from './typeCheck';
 import type { TestSpec } from './types';
 
 export type Files = Record<string, string>;
@@ -15,8 +17,11 @@ export const PREVIEW_CSP =
  * has no network), and every script gets loop protection. Only files the page actually links are
  * included, so learners still have to write the <link> and <script> tags themselves.
  */
-export function composeFiles(files: Files): string {
-  let html = files['index.html'] ?? '';
+export function composeFiles(files: Files, react?: ReactToolkit): string {
+  // React pages (JSX files or inline JSX) are compiled first; see react.ts. Scripts that step creates
+  // are marked data-cg-runtime and left alone below.
+  const reactPage = react && needsReact(files) ? composeReact(files, react) : null;
+  let html = reactPage?.html ?? files['index.html'] ?? '';
 
   html = html.replace(/<link\b[^>]*\bhref=["']([^"']+)["'][^>]*>/gi, (tag, href: string) => {
     const css = files[href.replace(/^\.\//, '')];
@@ -24,7 +29,7 @@ export function composeFiles(files: Files): string {
   });
 
   html = html.replace(
-    /<script\b([^>]*)\bsrc=["']([^"']+)["']([^>]*)>\s*<\/script>/gi,
+    /<script\b(?![^>]*\bdata-cg-runtime)([^>]*)\bsrc=["']([^"']+)["']([^>]*)>\s*<\/script>/gi,
     (tag, _before: string, src: string) => {
       const js = files[src.replace(/^\.\//, '')];
       return js !== undefined ? `<script>\n${protectLoops(escapeScriptEnd(js))}\n</script>` : tag;
@@ -32,20 +37,34 @@ export function composeFiles(files: Files): string {
   );
 
   // Inline <script> blocks without a src attribute.
-  html = html.replace(/<script\b(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi, (_tag, attrs: string, code: string) =>
+  html = html.replace(/<script\b(?![^>]*\b(?:src=|data-cg-runtime))([^>]*)>([\s\S]*?)<\/script>/gi, (_tag, attrs: string, code: string) =>
     `<script${attrs}>${protectLoops(code)}</script>`,
   );
 
-  return html;
+  return reactPage ? insertBeforeFirstScript(html, reactPage.runtime) : html;
 }
+
+export interface RunOptions {
+  /** How long after "load" the tests start. */
+  settleMs?: number;
+  /** Pause between tests, so a framework can re-render after a test clicks or types. */
+  stepDelayMs?: number;
+  /** TypeScript pages: what the type checker found (an empty list means "checked, no errors"). */
+  typeDiagnostics?: TypeDiagnostic[];
+}
+
+/** Timing for React pages: React renders asynchronously and re-renders after every click or keystroke. */
+export const REACT_RUN_OPTIONS: RunOptions = { settleMs: 120, stepDelayMs: 30 };
 
 /**
  * Builds the final document the runner writes: CSP meta + test harness + practice API (mockApi.ts)
  * first, then the learner's page.
  * The harness is serialized from real functions so the same code is unit-tested and shipped.
  */
-export function buildRunDocument(learnerHtml: string, runId: string, tests: TestSpec[], settleMs = 60): string {
-  const config = JSON.stringify({ runId, tests, settleMs }).replace(/</g, '\\u003c');
+export function buildRunDocument(learnerHtml: string, runId: string, tests: TestSpec[], options: RunOptions = {}): string {
+  const { settleMs = 60, stepDelayMs = 0, typeDiagnostics } = options;
+  const typeErrors = typeDiagnostics?.map((diagnostic) => ({ text: describeTypeError(diagnostic), diagnostic }));
+  const config = JSON.stringify({ runId, tests, settleMs, stepDelayMs, typeErrors }).replace(/</g, '\\u003c');
   const harness =
     `<meta http-equiv="Content-Security-Policy" content="${PREVIEW_CSP}">` +
     `<script>(${harnessMain.toString()})(${config}, (${evaluateTest.toString()}));` +

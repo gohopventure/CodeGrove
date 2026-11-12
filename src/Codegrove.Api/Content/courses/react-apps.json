@@ -1,0 +1,2269 @@
+{
+  "slug": "react-apps",
+  "title": "React Apps: Forms, Effects and Data",
+  "summary": "Build real apps with React: show and hide things, handle forms, load data, share state between components, and finish with a project.",
+  "ageBand": "Both",
+  "estimatedMinutes": 130,
+  "isPublished": true,
+  "objectives": [
+    "Show, hide and switch parts of the page with conditional rendering",
+    "Build forms whose fields are controlled by state",
+    "Load data from a server with useEffect and fetch",
+    "Share state between components by lifting it up",
+    "Plan and build a complete app from components"
+  ],
+  "lessons": [
+    {
+      "slug": "conditional-explorer",
+      "title": "Show and hide things",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Sometimes yes, sometimes no\n\nLots of things on a page only appear sometimes: a \"You win!\" message, a menu that opens, a warning. In React you decide with a bit of JavaScript right inside the JSX.\n\n### && means \"only if\"\n\n```jsx\n{isOpen && <p>The shop is open!</p>}\n```\n\nRead it as: \"if `isOpen` is true, show the paragraph.\" If it's false, React shows nothing at all.\n\n### ? : means \"this or that\"\n\n```jsx\n<p>{isOpen ? \"Come in!\" : \"Sorry, we're closed.\"}</p>\n```\n\nRead it as: \"is it open? If yes, the first thing. If not, the second thing.\" This is called the **ternary**. Use it when you always want to show *something*, just a different thing.\n\n### Flip it with !\n\n`!` means \"not\", so `!true` is `false`. That makes a toggle button easy:\n\n```jsx\n<button onClick={() => setIsOpen(!isOpen)}>Open / close</button>\n```\n\n### New words\n\n- **Conditional rendering**: showing something on the page only when a condition is true.\n- **&&**: \"and\". In JSX, `{x && <p/>}` shows the paragraph only when `x` is true.\n- **Ternary** (`? :`): picks one of two things: `condition ? ifYes : ifNo`.\n- **! (not)**: flips true to false, and false to true.\n",
+      "exampleMarkdown": "Press the button to switch the light. The emoji and the words use the ternary; the \"Too bright!\" warning uses `&&`.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Light Switch</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useState } from \"react\";\n\n      function App() {\n        const [on, setOn] = useState(false);\n\n        return (\n          <main>\n            <p style={{ fontSize: \"4rem\" }}>{on ? \"💡\" : \"🌑\"}</p>\n            <button onClick={() => setOn(!on)}>{on ? \"Turn off\" : \"Turn on\"}</button>\n            {on && <p>Too bright!</p>}\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Hide the secret.\n\n1. Only show the `#secret` paragraph when `showSecret` is true (use `&&`).\n2. Make the button say **Hide secret** when the secret is showing, and **Show secret** when it isn't (use `? :`).\n\nClick the button in the preview to try it.",
+        "starterFiles": {
+          "App.jsx": "import { useState } from \"react\";\n\nexport default function App() {\n  const [showSecret, setShowSecret] = useState(false);\n\n  return (\n    <main>\n      <h1>🔒 Secret Base</h1>\n      {/* 2. Make the button say \"Hide secret\" when the secret is showing */}\n      <button id=\"toggle\" onClick={() => setShowSecret(!showSecret)}>\n        Show secret\n      </button>\n      {/* 1. Only show this when showSecret is true */}\n      <p id=\"secret\">The password is: pickles</p>\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Secret Base</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useState } from \"react\";\n\nexport default function App() {\n  const [showSecret, setShowSecret] = useState(false);\n\n  return (\n    <main>\n      <h1>🔒 Secret Base</h1>\n      {/* 2. Make the button say \"Hide secret\" when the secret is showing */}\n      <button id=\"toggle\" onClick={() => setShowSecret(!showSecret)}>\n        {showSecret ? \"Hide secret\" : \"Show secret\"}\n      </button>\n      {/* 1. Only show this when showSecret is true */}\n      {showSecret && <p id=\"secret\">The password is: pickles</p>}\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Secret Base</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The secret starts hidden",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#secret",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "Wrap the paragraph: {showSecret && <p id=\"secret\">…</p>}"
+          },
+          {
+            "label": "The button says Show secret",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#toggle",
+              "equals": "Show secret"
+            },
+            "failMessage": "Use a ternary for the button's words: {showSecret ? \"Hide secret\" : \"Show secret\"}"
+          },
+          {
+            "label": "Click the button",
+            "kind": "interact",
+            "spec": {
+              "selector": "#toggle",
+              "click": true
+            },
+            "failMessage": "We couldn't find #toggle to click it."
+          },
+          {
+            "label": "The secret appears",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#secret",
+              "contains": "pickles"
+            },
+            "failMessage": "Keep the paragraph's words the same; just wrap it with showSecret &&."
+          },
+          {
+            "label": "The button says Hide secret",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#toggle",
+              "equals": "Hide secret"
+            },
+            "failMessage": "Use a ternary: {showSecret ? \"Hide secret\" : \"Show secret\"}"
+          },
+          {
+            "label": "Click it again",
+            "kind": "interact",
+            "spec": {
+              "selector": "#toggle",
+              "click": true
+            },
+            "failMessage": "We couldn't find #toggle to click it."
+          },
+          {
+            "label": "The secret hides again",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#secret",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "The paragraph should only show while showSecret is true."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`{showSecret && <p id=\"secret\">…</p>}` shows the paragraph only when `showSecret` is true. The button's words can be `{showSecret ? \"Hide secret\" : \"Show secret\"}`."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\n<button id=\"toggle\" onClick={() => setShowSecret(!showSecret)}>\n  {showSecret ? \"Hide secret\" : \"Show secret\"}\n</button>\n{showSecret && <p id=\"secret\">The password is: pickles</p>}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does {won && <p>You win!</p>} show when won is false?",
+            "explanation": "&& only shows the paragraph when the condition is true.",
+            "options": [
+              {
+                "text": "Nothing",
+                "correct": true
+              },
+              {
+                "text": "You win!",
+                "correct": false
+              },
+              {
+                "text": "false",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does {hungry ? \"🍕\" : \"😊\"} show when hungry is true?",
+            "explanation": "The ternary picks the first thing when the condition is true.",
+            "options": [
+              {
+                "text": "🍕",
+                "correct": true
+              },
+              {
+                "text": "😊",
+                "correct": false
+              },
+              {
+                "text": "Both",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "If light is true, what is !light?",
+            "explanation": "! flips true to false.",
+            "options": [
+              {
+                "text": "false",
+                "correct": true
+              },
+              {
+                "text": "true",
+                "correct": false
+              },
+              {
+                "text": "light",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "conditional-rendering",
+      "title": "Conditional rendering",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 13,
+      "isPublished": true,
+      "learnMarkdown": "## UI that depends on state\n\nMost screens have parts that come and go: a spinner while loading, an error after a failed save, a \"Next\" button after you answer. Since a component is just a function, you choose what to return with ordinary JavaScript.\n\n### Three tools\n\n**`&&`**: render something or nothing.\n\n```jsx\n{unread > 0 && <span className=\"badge\">{unread}</span>}\n```\n\n**Ternary `? :`**: render one thing or another. Works for whole elements, text and attributes:\n\n```jsx\n{loggedIn ? <Dashboard /> : <LoginForm />}\n<li className={done ? \"done\" : \"\"}>…</li>\n<button disabled={!canSave}>Save</button>\n```\n\n**`if` before the return**: for bigger decisions, or to return early.\n\n```jsx\nfunction Profile({ user }) {\n  if (!user) return <p>Loading…</p>;\n  return <h2>{user.name}</h2>;\n}\n```\n\nA component may also `return null` to render nothing.\n\n### The 0 gotcha\n\n`&&` returns its left side when that side is falsy, and React renders numbers. So `{items.length && <List />}` shows a stray **0** when the list is empty. Make the left side a real boolean: `{items.length > 0 && <List />}`.\n\n### Derive conditions from state\n\nStore the minimal state (here: which option was picked) and compute the rest during render: `const answered = picked !== null;`. Named conditions also make the JSX read like a sentence: `{answered && !correct && <RetryButton />}`.\n\n### New words\n\n- **Conditional rendering**: choosing what a component renders based on state or props.\n- **Falsy**: values that count as false in a condition: `false`, `0`, `\"\"`, `null`, `undefined`, `NaN`.\n- **Ternary operator**: `condition ? a : b`, an expression that picks one of two values.\n- **Early return**: returning from a function before the end, often for a special case.\n- **null**: \"no value\". A component that returns `null` renders nothing.\n",
+      "exampleMarkdown": "The badge only appears when there are unread messages (using `> 0`, so no stray 0), the list switches to a friendly message when it's empty, and the class changes for read messages.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Inbox</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useState } from \"react\";\n\n      function App() {\n        const [messages, setMessages] = useState([\n          { id: 1, from: \"Coach\", read: false },\n          { id: 2, from: \"Grandma\", read: true },\n        ]);\n        const unread = messages.filter((m) => !m.read).length;\n\n        return (\n          <main>\n            <h2>\n              Inbox {unread > 0 && <span style={{ background: \"crimson\", color: \"white\", padding: \"0 6px\" }}>{unread}</span>}\n            </h2>\n            {messages.length === 0 ? (\n              <p>No messages. Go outside!</p>\n            ) : (\n              <ul>\n                {messages.map((m) => (\n                  <li key={m.id} style={{ fontWeight: m.read ? \"normal\" : \"bold\" }}>\n                    {m.from}\n                  </li>\n                ))}\n              </ul>\n            )}\n            <button onClick={() => setMessages(messages.map((m) => ({ ...m, read: true })))}>Mark all read</button>\n            <button onClick={() => setMessages([])}>Delete all</button>\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Finish the quiz card. `picked` holds the chosen option, or `null` before answering.\n\n1. Before the `return`, work out `answered` and `correct` from `picked`. Don't add more state.\n2. Disable the option buttons once an answer is picked.\n3. After answering, show a `<p>` with class **feedback** plus **right** or **wrong**. It says **Correct!** or **Not quite. The answer is Saturn.** (Use `question.answer`, don't type Saturn.)\n4. After a **wrong** answer only, show a `#retry` button that resets `picked` so the player can try again.\n\nThe checker answers Jupiter, tries again, then answers Saturn.",
+        "starterFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\n\nconst question = {\n  text: \"Which planet has the most moons?\",\n  options: [\"Jupiter\", \"Saturn\", \"Neptune\"],\n  answer: \"Saturn\",\n};\n\nexport default function App() {\n  // The option the player picked, or null before they answer\n  const [picked, setPicked] = useState(null);\n\n  // 1. Work out whether they've answered, and whether they were right\n\n  return (\n    <main>\n      <h2>{question.text}</h2>\n      <div className=\"options\">\n        {question.options.map((option, i) => (\n          // 2. Disable the buttons once an answer is picked\n          <button key={option} id={`opt-${i}`} onClick={() => setPicked(option)}>\n            {option}\n          </button>\n        ))}\n      </div>\n\n      {/* 3. Feedback, only after answering */}\n\n      {/* 4. The Try again button, only after a wrong answer */}\n    </main>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n.options {\n  display: flex;\n  gap: 0.5rem;\n}\n\n.options button:disabled {\n  opacity: 0.5;\n}\n\n.right {\n  color: #15803d;\n}\n\n.wrong {\n  color: #b91c1c;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Quiz</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\n\nconst question = {\n  text: \"Which planet has the most moons?\",\n  options: [\"Jupiter\", \"Saturn\", \"Neptune\"],\n  answer: \"Saturn\",\n};\n\nexport default function App() {\n  // The option the player picked, or null before they answer\n  const [picked, setPicked] = useState(null);\n\n  // 1. Work out whether they've answered, and whether they were right\n  const answered = picked !== null;\n  const correct = picked === question.answer;\n\n  return (\n    <main>\n      <h2>{question.text}</h2>\n      <div className=\"options\">\n        {question.options.map((option, i) => (\n          // 2. Disable the buttons once an answer is picked\n          <button key={option} id={`opt-${i}`} onClick={() => setPicked(option)} disabled={answered}>\n            {option}\n          </button>\n        ))}\n      </div>\n\n      {/* 3. Feedback, only after answering */}\n      {answered && (\n        <p className={correct ? \"feedback right\" : \"feedback wrong\"}>\n          {correct ? \"Correct!\" : `Not quite. The answer is ${question.answer}.`}\n        </p>\n      )}\n\n      {/* 4. The Try again button, only after a wrong answer */}\n      {answered && !correct && (\n        <button id=\"retry\" onClick={() => setPicked(null)}>\n          Try again\n        </button>\n      )}\n    </main>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n.options {\n  display: flex;\n  gap: 0.5rem;\n}\n\n.options button:disabled {\n  opacity: 0.5;\n}\n\n.right {\n  color: #15803d;\n}\n\n.wrong {\n  color: #b91c1c;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Quiz</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No feedback before answering",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".feedback",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "Render the feedback only when answered is true."
+          },
+          {
+            "label": "No Try again button yet",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#retry",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "Only render #retry after a wrong answer."
+          },
+          {
+            "label": "Answer Jupiter",
+            "kind": "interact",
+            "spec": {
+              "selector": "#opt-0",
+              "click": true
+            },
+            "failMessage": "We couldn't find #opt-0 to click it."
+          },
+          {
+            "label": "A wrong answer gets feedback",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".feedback.wrong",
+              "equals": "Not quite. The answer is Saturn."
+            },
+            "failMessage": "Show <p className=\"feedback wrong\">Not quite. The answer is {question.answer}.</p> for a wrong answer."
+          },
+          {
+            "label": "The options are disabled",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('.options button')].every((b) => b.disabled)",
+              "equals": true
+            },
+            "failMessage": "Add disabled={answered} to the option buttons."
+          },
+          {
+            "label": "Click Try again",
+            "kind": "interact",
+            "spec": {
+              "selector": "#retry",
+              "click": true
+            },
+            "failMessage": "We couldn't find #retry to click it."
+          },
+          {
+            "label": "Trying again clears the feedback",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".feedback",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "#retry should set picked back to null."
+          },
+          {
+            "label": "The options work again",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('.options button')].some((b) => b.disabled)",
+              "equals": false
+            },
+            "failMessage": "After setPicked(null), answered is false, so the buttons are enabled."
+          },
+          {
+            "label": "Answer Saturn",
+            "kind": "interact",
+            "spec": {
+              "selector": "#opt-1",
+              "click": true
+            },
+            "failMessage": "We couldn't find #opt-1 to click it."
+          },
+          {
+            "label": "A right answer says Correct!",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".feedback.right",
+              "equals": "Correct!"
+            },
+            "failMessage": "Use correct ? \"Correct!\" : … for the text, and add the class right."
+          },
+          {
+            "label": "No Try again after a right answer",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#retry",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "Show #retry only when answered && !correct."
+          },
+          {
+            "label": "The answer comes from the question",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/answer is Saturn/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": false
+            },
+            "failMessage": "Build the message from question.answer instead of typing Saturn."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`const answered = picked !== null;` and `const correct = picked === question.answer;`. Then the JSX needs `disabled={answered}`, `{answered && (…)}` and `{answered && !correct && (…)}`."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\n{answered && (\n  <p className={correct ? \"feedback right\" : \"feedback wrong\"}>\n    {correct ? \"Correct!\" : `Not quite. The answer is ${question.answer}.`}\n  </p>\n)}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does {cart.length && <CartIcon />} show when the cart is empty?",
+            "explanation": "&& returns the 0, and React renders numbers. Use cart.length > 0 &&.",
+            "options": [
+              {
+                "text": "0",
+                "correct": true
+              },
+              {
+                "text": "Nothing",
+                "correct": false
+              },
+              {
+                "text": "<CartIcon />",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which is best for \"show the login form or the dashboard\"?",
+            "explanation": "A ternary always renders one of two options.",
+            "options": [
+              {
+                "text": "A ternary: loggedIn ? <Dashboard /> : <LoginForm />",
+                "correct": true
+              },
+              {
+                "text": "&&",
+                "correct": false
+              },
+              {
+                "text": "A for loop",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does a component that returns null render?",
+            "explanation": "null means \"render nothing\".",
+            "options": [
+              {
+                "text": "Nothing",
+                "correct": true
+              },
+              {
+                "text": "The word null",
+                "correct": false
+              },
+              {
+                "text": "An error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why compute const answered = picked !== null instead of adding answered state?",
+            "explanation": "Derived values always match the state they come from.",
+            "options": [
+              {
+                "text": "It can't get out of sync with picked",
+                "correct": true
+              },
+              {
+                "text": "State is slower",
+                "correct": false
+              },
+              {
+                "text": "useState can't hold booleans",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "forms-explorer",
+      "title": "Typing and forms",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Boxes that React can read\n\nTo use what someone types, keep it in **state**. Then connect the text box to that state with two props:\n\n```jsx\nconst [name, setName] = useState(\"\");\n\n<input value={name} onChange={(event) => setName(event.target.value)} />\n```\n\n- `value={name}` shows whatever is in state.\n- `onChange` runs every time a key is pressed. `event.target.value` is the text in the box, so we save it with `setName`.\n\nNow `name` is always up to date, and you can use it anywhere: `<h2>Hello, {name}!</h2>` changes as you type!\n\n### Forms\n\nPut the box and a button inside a `<form>`. When the button is clicked (or Enter is pressed), the form's `onSubmit` runs:\n\n```jsx\nfunction handleSubmit(event) {\n  event.preventDefault();\n  // do something with name\n}\n\n<form onSubmit={handleSubmit}> ... </form>\n```\n\n`event.preventDefault()` stops the browser's old habit of reloading the page when a form is sent.\n\n### New words\n\n- **onChange**: runs your code every time the text in a box changes.\n- **event.target.value**: the text that's in the box right now.\n- **onSubmit**: runs your code when a form is sent.\n- **preventDefault**: tells the browser not to do its usual thing (for a form, reloading the page).\n",
+      "exampleMarkdown": "Type in the box: the big text copies you as you type, because both use the same `word` state. Press **Shout!** to save it.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Echo</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useState } from \"react\";\n\n      function App() {\n        const [word, setWord] = useState(\"\");\n        const [shouted, setShouted] = useState(\"\");\n\n        function handleSubmit(event) {\n          event.preventDefault();\n          setShouted(word.toUpperCase() + \"!!!\");\n        }\n\n        return (\n          <form onSubmit={handleSubmit}>\n            <input value={word} onChange={(event) => setWord(event.target.value)} />\n            <button>Shout!</button>\n            <h2>{word}</h2>\n            <p>{shouted}</p>\n          </form>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Make a pet name maker.\n\n1. Make a `name` state that starts as `\"\"`, and connect the `#pet-name` box to it with `value` and `onChange`.\n2. Make the heading say **Hello, Rex!** when someone types **Rex**.\n3. Make a `names` state that starts as `[]`. When the form is sent, add the name to the list, and show each name as an `<li>` in `#names`.\n\nTry it in the preview: type a name and press **Add pet**.",
+        "starterFiles": {
+          "App.jsx": "import { useState } from \"react\";\n\nexport default function App() {\n  // 1. Make state for the name (start with \"\")\n\n  // 3. Make state for the list of names (start with [])\n\n  function handleSubmit(event) {\n    event.preventDefault(); // stops the page from reloading\n    // 3. Add the name to the list here\n  }\n\n  return (\n    <main>\n      {/* 2. Show Hello, and the name */}\n      <h2>Hello!</h2>\n      <form onSubmit={handleSubmit}>\n        <label htmlFor=\"pet-name\">Pet name</label>\n        {/* 1. Connect this box to your state with value and onChange */}\n        <input id=\"pet-name\" />\n        <button id=\"add\">Add pet</button>\n      </form>\n      <ul id=\"names\">{/* 3. Show the list of names */}</ul>\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Names</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useState } from \"react\";\n\nexport default function App() {\n  // 1. Make state for the name (start with \"\")\n  const [name, setName] = useState(\"\");\n  // 3. Make state for the list of names (start with [])\n  const [names, setNames] = useState([]);\n\n  function handleSubmit(event) {\n    event.preventDefault(); // stops the page from reloading\n    // 3. Add the name to the list here\n    setNames([...names, name]);\n  }\n\n  return (\n    <main>\n      {/* 2. Show Hello, and the name */}\n      <h2>Hello, {name}!</h2>\n      <form onSubmit={handleSubmit}>\n        <label htmlFor=\"pet-name\">Pet name</label>\n        {/* 1. Connect this box to your state with value and onChange */}\n        <input id=\"pet-name\" value={name} onChange={(event) => setName(event.target.value)} />\n        <button id=\"add\">Add pet</button>\n      </form>\n      <ul id=\"names\">\n        {names.map((n) => (\n          <li key={n}>{n}</li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Names</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Type Rex in the box",
+            "kind": "interact",
+            "spec": {
+              "selector": "#pet-name",
+              "type": "Rex"
+            },
+            "failMessage": "We couldn't find #pet-name to type into it."
+          },
+          {
+            "label": "The heading says hello",
+            "kind": "elementText",
+            "spec": {
+              "selector": "h2",
+              "equals": "Hello, Rex!"
+            },
+            "failMessage": "Connect the box with value={name} and onChange, then show {name} in the heading."
+          },
+          {
+            "label": "Press Add pet",
+            "kind": "interact",
+            "spec": {
+              "selector": "#add",
+              "click": true
+            },
+            "failMessage": "We couldn't find #add to click it."
+          },
+          {
+            "label": "Rex is in the list",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#names li",
+              "min": 1,
+              "max": 1
+            },
+            "failMessage": "In handleSubmit, add the name to the list: setNames([...names, name])."
+          },
+          {
+            "label": "The list shows the name",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#names li",
+              "equals": "Rex"
+            },
+            "failMessage": "Show each name with names.map((n) => <li key={n}>{n}</li>)."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`const [name, setName] = useState(\"\");` then `<input … value={name} onChange={(event) => setName(event.target.value)} />`."
+          },
+          {
+            "level": 2,
+            "markdown": "In `handleSubmit`: `setNames([...names, name]);`. In the list: `{names.map((n) => <li key={n}>{n}</li>)}`."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "In onChange, where is the text someone typed?",
+            "explanation": "event.target is the box, and .value is the text inside it.",
+            "options": [
+              {
+                "text": "event.target.value",
+                "correct": true
+              },
+              {
+                "text": "event.text",
+                "correct": false
+              },
+              {
+                "text": "onChange.value",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does event.preventDefault() do in a form's onSubmit?",
+            "explanation": "Without it, the browser tries to reload the page when the form is sent.",
+            "options": [
+              {
+                "text": "Stops the page from reloading",
+                "correct": true
+              },
+              {
+                "text": "Deletes what was typed",
+                "correct": false
+              },
+              {
+                "text": "Sends the form to a server",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When does onChange run?",
+            "explanation": "Each key press changes the text, so onChange runs each time.",
+            "options": [
+              {
+                "text": "Every time the text in the box changes",
+                "correct": true
+              },
+              {
+                "text": "Only when you press Enter",
+                "correct": false
+              },
+              {
+                "text": "Only once",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "forms",
+      "title": "Controlled forms",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## One source of truth\n\nAn `<input>` keeps its own value in the DOM. In React you usually take control of it: the value lives in **state**, the input shows that state, and every keystroke updates the state. That's a **controlled component**:\n\n```jsx\nconst [email, setEmail] = useState(\"\");\n\n<input type=\"email\" value={email} onChange={(e) => setEmail(e.target.value)} />\n```\n\nThe state is the **single source of truth**. Because you always have the current value, you can validate as the user types, disable a button until a field is filled in, or clear the form with `setEmail(\"\")`.\n\nThe same pattern works for every field. Only the property you read changes:\n\n| Field | Prop | Read it from |\n| --- | --- | --- |\n| `<input>`, `<textarea>` | `value` | `e.target.value` |\n| `<select>` | `value` (on the select, not `selected` on an option) | `e.target.value` |\n| checkbox | `checked` | `e.target.checked` |\n\nForget `onChange` and React warns you: the field would be stuck showing the state and ignore typing.\n\n### Submitting\n\nHandle the form, not the button: `<form onSubmit={handleSubmit}>` catches both a click on the button and Enter in a field.\n\n```jsx\nfunction handleSubmit(e) {\n  e.preventDefault();             // no page reload\n  if (email.trim() === \"\") {\n    setError(\"Email is required.\");\n    return;                       // stop here: nothing is saved\n  }\n  save(email);\n  setEmail(\"\");                   // reset the field\n}\n```\n\n`return` early when the data isn't valid, then show the error **conditionally**: `{error && <p className=\"error\">{error}</p>}` renders the paragraph only when `error` isn't an empty string. For screen readers, `role=\"alert\"` makes the message be read out when it appears.\n\n### New words\n\n- **Controlled component**: a form field whose value comes from React state and changes only through `onChange`.\n- **Single source of truth**: keeping a piece of data in one place, so nothing can disagree about it.\n- **Validation**: checking input before using it (\"is the name empty?\").\n- **preventDefault**: stops the browser's built-in action for an event (for a form, reloading the page).\n- **trim()**: removes spaces from the start and end of a string, so \"   \" counts as empty.\n",
+      "exampleMarkdown": "A sign-up form with three controlled fields. The button is disabled until the form is valid, which is easy because every value is already in state.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Sign up</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useState } from \"react\";\n\n      function App() {\n        const [username, setUsername] = useState(\"\");\n        const [color, setColor] = useState(\"teal\");\n        const [agree, setAgree] = useState(false);\n        const [saved, setSaved] = useState(null);\n\n        const valid = username.trim().length >= 3 && agree;\n\n        function handleSubmit(e) {\n          e.preventDefault();\n          setSaved({ username: username.trim(), color });\n        }\n\n        return (\n          <form onSubmit={handleSubmit}>\n            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder=\"Username (3+ letters)\" />\n            <select value={color} onChange={(e) => setColor(e.target.value)}>\n              <option value=\"teal\">Teal</option>\n              <option value=\"orange\">Orange</option>\n            </select>\n            <label>\n              <input type=\"checkbox\" checked={agree} onChange={(e) => setAgree(e.target.checked)} /> I agree to be awesome\n            </label>\n            <button disabled={!valid}>Sign up</button>\n            {saved && <p style={{ color: saved.color }}>Welcome, {saved.username}!</p>}\n          </form>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Build the team sign-up form.\n\n1. Make `#player` and `#team` controlled fields. The team starts as **Red**.\n2. Handle the form's submit, and stop the page reload.\n3. If the name is empty (spaces don't count), show `<p className=\"error\">Please enter a name.</p>` and don't add anyone. Only render the error when there is one.\n4. Otherwise add the player to `#roster` as **Ava (Blue)**, clear the error, and empty the name box (keep the team).\n\nThe checker presses **Join** with no name, then types **Ava**, picks **Blue** and joins.",
+        "starterFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\n\nexport default function App() {\n  // 1. State for each field, 3. for the error message, 4. for the roster\n\n  function handleSubmit(event) {\n    // 2–4. Stop the reload, check the name, then add the player and reset the form\n  }\n\n  return (\n    <main>\n      <h1>Join a team</h1>\n      <form onSubmit={handleSubmit}>\n        <label htmlFor=\"player\">Name</label>\n        <input id=\"player\" />\n\n        <label htmlFor=\"team\">Team</label>\n        <select id=\"team\">\n          <option value=\"Red\">Red</option>\n          <option value=\"Blue\">Blue</option>\n          <option value=\"Green\">Green</option>\n        </select>\n\n        <button id=\"join\">Join</button>\n      </form>\n      {/* 3. The error message goes here, only when there is one */}\n      <ul id=\"roster\">{/* 4. One <li> per player, like \"Ava (Blue)\" */}</ul>\n    </main>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n  max-width: 26rem;\n}\n\nform {\n  display: grid;\n  gap: 0.4rem;\n}\n\n.error {\n  color: #b91c1c;\n  font-weight: bold;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Join a Team</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\n\nexport default function App() {\n  // 1. State for each field, 3. for the error message, 4. for the roster\n  const [player, setPlayer] = useState(\"\");\n  const [team, setTeam] = useState(\"Red\");\n  const [error, setError] = useState(\"\");\n  const [roster, setRoster] = useState([]);\n\n  function handleSubmit(event) {\n    // 2–4. Stop the reload, check the name, then add the player and reset the form\n    event.preventDefault();\n    const name = player.trim();\n    if (name === \"\") {\n      setError(\"Please enter a name.\");\n      return;\n    }\n    setRoster([...roster, { id: roster.length + 1, name, team }]);\n    setError(\"\");\n    setPlayer(\"\");\n  }\n\n  return (\n    <main>\n      <h1>Join a team</h1>\n      <form onSubmit={handleSubmit}>\n        <label htmlFor=\"player\">Name</label>\n        <input id=\"player\" value={player} onChange={(e) => setPlayer(e.target.value)} />\n\n        <label htmlFor=\"team\">Team</label>\n        <select id=\"team\" value={team} onChange={(e) => setTeam(e.target.value)}>\n          <option value=\"Red\">Red</option>\n          <option value=\"Blue\">Blue</option>\n          <option value=\"Green\">Green</option>\n        </select>\n\n        <button id=\"join\">Join</button>\n      </form>\n      {/* 3. The error message goes here, only when there is one */}\n      {error && <p className=\"error\" role=\"alert\">{error}</p>}\n      <ul id=\"roster\">\n        {roster.map((p) => (\n          <li key={p.id}>\n            {p.name} ({p.team})\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n  max-width: 26rem;\n}\n\nform {\n  display: grid;\n  gap: 0.4rem;\n}\n\n.error {\n  color: #b91c1c;\n  font-weight: bold;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Join a Team</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "No error at the start",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".error",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "Only render the error when there is one: {error && <p className=\"error\">{error}</p>}."
+          },
+          {
+            "label": "Press Join with no name",
+            "kind": "interact",
+            "spec": {
+              "selector": "#join",
+              "click": true
+            },
+            "failMessage": "We couldn't find #join to click it."
+          },
+          {
+            "label": "An empty name shows an error",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".error",
+              "equals": "Please enter a name."
+            },
+            "failMessage": "In handleSubmit, check player.trim() === \"\" and set the error message."
+          },
+          {
+            "label": "Nobody was added",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#roster li",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "Return early when the name is empty, before adding to the roster."
+          },
+          {
+            "label": "Type Ava",
+            "kind": "interact",
+            "spec": {
+              "selector": "#player",
+              "type": "Ava"
+            },
+            "failMessage": "We couldn't find #player to type into it."
+          },
+          {
+            "label": "Pick Blue",
+            "kind": "interact",
+            "spec": {
+              "selector": "#team",
+              "type": "Blue"
+            },
+            "failMessage": "We couldn't find #team to type into it."
+          },
+          {
+            "label": "Press Join",
+            "kind": "interact",
+            "spec": {
+              "selector": "#join",
+              "click": true
+            },
+            "failMessage": "We couldn't find #join to click it."
+          },
+          {
+            "label": "Ava joins Blue",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#roster li",
+              "equals": "Ava (Blue)"
+            },
+            "failMessage": "Add { name, team } to the roster and show it as {p.name} ({p.team})."
+          },
+          {
+            "label": "The error is gone",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".error",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "Clear the error after a successful join: setError(\"\")."
+          },
+          {
+            "label": "The name box is empty again",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "document.querySelector('#player').value",
+              "equals": ""
+            },
+            "failMessage": "Reset the name after joining: setPlayer(\"\")."
+          },
+          {
+            "label": "The team stays picked",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "document.querySelector('#team').value",
+              "equals": "Blue"
+            },
+            "failMessage": "Keep the team as it was: only reset the name."
+          },
+          {
+            "label": "The page doesn't reload",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/preventDefault\\(\\)/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Call event.preventDefault() at the start of handleSubmit."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Four pieces of state: `player` (\"\"), `team` (\"Red\"), `error` (\"\") and `roster` ([]). Both fields need `value` and `onChange`; the select gets its `value` on the `<select>` itself."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\nfunction handleSubmit(event) {\n  event.preventDefault();\n  const name = player.trim();\n  if (name === \"\") {\n    setError(\"Please enter a name.\");\n    return;\n  }\n  setRoster([...roster, { id: roster.length + 1, name, team }]);\n  setError(\"\");\n  setPlayer(\"\");\n}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What makes an input \"controlled\"?",
+            "explanation": "State is the source of truth; the input just shows it.",
+            "options": [
+              {
+                "text": "Its value comes from state and changes through onChange",
+                "correct": true
+              },
+              {
+                "text": "It has a name attribute",
+                "correct": false
+              },
+              {
+                "text": "It's inside a <form>",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "For a checkbox, which property holds whether it's ticked?",
+            "explanation": "Checkboxes use checked; text fields use value.",
+            "options": [
+              {
+                "text": "e.target.checked",
+                "correct": true
+              },
+              {
+                "text": "e.target.value",
+                "correct": false
+              },
+              {
+                "text": "e.target.ticked",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why put onSubmit on the <form> instead of onClick on the button?",
+            "explanation": "A form submits from the button or Enter, and onSubmit handles both.",
+            "options": [
+              {
+                "text": "It also catches pressing Enter in a field",
+                "correct": true
+              },
+              {
+                "text": "Buttons can't have onClick",
+                "correct": false
+              },
+              {
+                "text": "onClick is slower",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does {error && <p>{error}</p>} show when error is \"\"?",
+            "explanation": "An empty string is falsy, so React renders nothing.",
+            "options": [
+              {
+                "text": "Nothing",
+                "correct": true
+              },
+              {
+                "text": "An empty <p>",
+                "correct": false
+              },
+              {
+                "text": "The word false",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why use name.trim() before checking if a name is empty?",
+            "explanation": "trim removes spaces at both ends.",
+            "options": [
+              {
+                "text": "So a name of only spaces counts as empty",
+                "correct": true
+              },
+              {
+                "text": "To make it uppercase",
+                "correct": false
+              },
+              {
+                "text": "To remove the letters",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "fetch-explorer",
+      "title": "Getting data with useEffect",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Asking the internet for data\n\nRemember `fetch` from the JavaScript course? It asks a server for data. In React, there's one more question: **when** should the component ask? Not every time it draws (that would ask over and over!), just once, when it first shows up.\n\nThat's what `useEffect` is for:\n\n```jsx\nuseEffect(() => {\n  fetch(\"https://api.codegrove.test/pets\")\n    .then((response) => response.json())\n    .then((data) => setPets(data));\n}, []);\n```\n\n- The code inside runs **after** the component appears on the page.\n- The `[]` at the end means \"only run this once.\" Don't forget it!\n- When the data arrives, `setPets` saves it in state, and React draws the list.\n\n### While you wait\n\nData takes a moment to arrive. Until then, the list is empty, so it's polite to say so:\n\n```jsx\n{pets.length === 0 && <p>Loading…</p>}\n```\n\nThe practice server in the preview lives at `https://api.codegrove.test`. It has `/planets`, `/pets` and `/weather`.\n\n### New words\n\n- **useEffect**: a React tool for running code after the component shows up, like fetching data.\n- **Effect**: work that reaches outside the component, like talking to a server.\n- **[] (dependency array)**: the list at the end of useEffect. Empty means \"run once.\"\n",
+      "exampleMarkdown": "The effect runs once, after the page appears. It fetches the weather, saves it in state, and React draws it. Until then, the `weather` state is `null`, so we show **Loading…**.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Weather</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useEffect, useState } from \"react\";\n\n      function App() {\n        const [weather, setWeather] = useState(null);\n\n        useEffect(() => {\n          fetch(\"https://api.codegrove.test/weather\")\n            .then((response) => response.json())\n            .then((data) => setWeather(data));\n        }, []);\n\n        if (weather === null) return <p>Loading…</p>;\n\n        return (\n          <main>\n            <h2>{weather.town}</h2>\n            <p>{weather.tempC}°C and {weather.conditions}</p>\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Show every planet from the practice server.\n\n1. Inside the `useEffect`, fetch `https://api.codegrove.test/planets`, turn the response into JSON, and save it with `setPlanets`.\n2. In `#planets`, show one `<li>` per planet with its `name`. Each planet has an `id` you can use as the key.\n3. While `planets` is empty, show `<p id=\"loading\">Loading…</p>`.",
+        "starterFiles": {
+          "App.jsx": "import { useEffect, useState } from \"react\";\n\nexport default function App() {\n  const [planets, setPlanets] = useState([]);\n\n  useEffect(() => {\n    // 1. Fetch https://api.codegrove.test/planets here,\n    //    turn the answer into JSON, then save it with setPlanets\n  }, []);\n\n  return (\n    <main>\n      <h1>🪐 Planet Finder</h1>\n      {/* 3. Show \"Loading…\" while the list is empty */}\n      <ul id=\"planets\">{/* 2. One <li> per planet name */}</ul>\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Planet Finder</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useEffect, useState } from \"react\";\n\nexport default function App() {\n  const [planets, setPlanets] = useState([]);\n\n  useEffect(() => {\n    // 1. Fetch https://api.codegrove.test/planets here,\n    //    turn the answer into JSON, then save it with setPlanets\n    fetch(\"https://api.codegrove.test/planets\")\n      .then((response) => response.json())\n      .then((data) => setPlanets(data));\n  }, []);\n\n  return (\n    <main>\n      <h1>🪐 Planet Finder</h1>\n      {/* 3. Show \"Loading…\" while the list is empty */}\n      {planets.length === 0 && <p id=\"loading\">Loading…</p>}\n      <ul id=\"planets\">\n        {planets.map((planet) => (\n          <li key={planet.id}>{planet.name}</li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Planet Finder</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "All 8 planets are listed",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#planets li",
+              "min": 8,
+              "max": 8
+            },
+            "failMessage": "Fetch the planets in useEffect, save them with setPlanets, then map them into <li>s."
+          },
+          {
+            "label": "The first planet is Mercury",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#planets li:first-child",
+              "equals": "Mercury"
+            },
+            "failMessage": "Show each planet's name: <li key={planet.id}>{planet.name}</li>"
+          },
+          {
+            "label": "Loading… is gone once the data is here",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#loading",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "Only show Loading… while the list is empty: {planets.length === 0 && …}"
+          },
+          {
+            "label": "Loading… is shown while waiting",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/id=\\\"loading\\\"/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Add <p id=\"loading\">Loading…</p> for while the list is empty."
+          },
+          {
+            "label": "The fetch is inside useEffect",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/useEffect\\(\\s*\\(\\)\\s*=>\\s*\\{[\\s\\S]*fetch\\(/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Put the fetch inside the useEffect, so it runs once."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Three steps in a chain: `fetch(url)`, then `.then((response) => response.json())`, then `.then((data) => setPlanets(data))`."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\n{planets.length === 0 && <p id=\"loading\">Loading…</p>}\n<ul id=\"planets\">\n  {planets.map((planet) => (\n    <li key={planet.id}>{planet.name}</li>\n  ))}\n</ul>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "When does the code inside useEffect run?",
+            "explanation": "Effects run after React draws the component.",
+            "options": [
+              {
+                "text": "After the component shows up on the page",
+                "correct": true
+              },
+              {
+                "text": "Before anything else in the file",
+                "correct": false
+              },
+              {
+                "text": "Only when you click",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the [] at the end of useEffect mean?",
+            "explanation": "An empty list means the effect doesn't need to run again.",
+            "options": [
+              {
+                "text": "Run the effect only once",
+                "correct": true
+              },
+              {
+                "text": "Run it forever",
+                "correct": false
+              },
+              {
+                "text": "Delete the data",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why show \"Loading…\"?",
+            "explanation": "Until the data arrives, there's nothing to show yet.",
+            "options": [
+              {
+                "text": "The data takes a moment to arrive",
+                "correct": true
+              },
+              {
+                "text": "fetch always fails the first time",
+                "correct": false
+              },
+              {
+                "text": "React needs it",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "effects-and-fetch",
+      "title": "Effects and fetching data",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 16,
+      "isPublished": true,
+      "learnMarkdown": "## Rendering must stay pure\n\nReact may call your component many times, whenever state changes. So rendering should only *calculate* the JSX: no network requests, no timers, no changing things outside. Work that reaches outside the component is a **side effect**, and it goes in `useEffect`:\n\n```jsx\nuseEffect(() => {\n  // runs AFTER React has updated the page\n}, [dependencies]);\n```\n\n### The dependency array\n\nThe second argument says **when** the effect runs again:\n\n| Dependencies | Runs |\n| --- | --- |\n| `[]` | once, after the first render |\n| `[userId]` | after the first render, and again whenever `userId` changes |\n| *(left out)* | after **every** render. Fetching here and setting state makes an endless loop |\n\nList every prop or state value the effect reads, so it never works with stale values.\n\n### Fetching data\n\n```jsx\nconst [user, setUser] = useState(null);\nconst [status, setStatus] = useState(\"loading\");\n\nuseEffect(() => {\n  let ignore = false;\n  fetch(`${API}/users/${userId}`)\n    .then((r) => {\n      if (!r.ok) throw new Error(`HTTP ${r.status}`); // 404s don't reject on their own\n      return r.json();\n    })\n    .then((data) => { if (!ignore) { setUser(data); setStatus(\"ready\"); } })\n    .catch(() => { if (!ignore) setStatus(\"error\"); });\n  return () => { ignore = true; };   // cleanup\n}, [userId]);\n```\n\n- `fetch` only rejects on network failure. A 404 or 500 still arrives as a response, so check `response.ok` yourself.\n- A request has three states the UI must handle: **loading**, **error** and **ready**. Early returns keep that readable.\n- The function you return is the **cleanup**. React runs it before the effect runs again and when the component is removed. Here it sets `ignore`, so a slow, outdated answer (say, for the previous `userId`) can't overwrite newer data. That bug is called a **race condition**.\n\n(Bigger apps often use a data library such as TanStack Query for caching and retries. Under the hood it's this same pattern.)\n\n### New words\n\n- **Side effect**: anything a function does besides returning a value: network calls, timers, changing the page directly.\n- **Pure function**: a function that only calculates its result from its inputs, with no side effects.\n- **useEffect**: the hook that runs side effects after React updates the page.\n- **Dependency array**: the values an effect depends on; it reruns when one changes.\n- **Cleanup function**: returned from an effect; runs before the next run and when the component goes away.\n- **Race condition**: a bug where the result depends on which of two slow operations finishes first.\n- **HTTP** (*HyperText Transfer Protocol*) **status**: the number a server answers with: 200 OK, 404 Not Found, 500 Server Error.\n",
+      "exampleMarkdown": "Pick a planet and the effect fetches it. `id` is a dependency, so the effect reruns when it changes, and the cleanup stops an older, slower answer from replacing the newer one. Planet 9 doesn't exist, which shows the error path.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Planet Viewer</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useEffect, useState } from \"react\";\n\n      function App() {\n        const [id, setId] = useState(3);\n        const [planet, setPlanet] = useState(null);\n        const [status, setStatus] = useState(\"loading\");\n\n        useEffect(() => {\n          let ignore = false;\n          setStatus(\"loading\");\n          fetch(`https://api.codegrove.test/planets/${id}`)\n            .then((r) => {\n              if (!r.ok) throw new Error(`HTTP ${r.status}`);\n              return r.json();\n            })\n            .then((data) => { if (!ignore) { setPlanet(data); setStatus(\"ready\"); } })\n            .catch(() => { if (!ignore) setStatus(\"error\"); });\n          return () => { ignore = true; };\n        }, [id]);\n\n        return (\n          <main>\n            {[3, 5, 6, 9].map((n) => (\n              <button key={n} onClick={() => setId(n)} disabled={n === id}>Planet {n}</button>\n            ))}\n            {status === \"loading\" && <p>Loading…</p>}\n            {status === \"error\" && <p>No planet number {id}!</p>}\n            {status === \"ready\" && <p>{planet.name} has {planet.moons} moons.</p>}\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Build the adoption page from the practice API (`/pets`).\n\n1. Fetch `/pets` once, in an effect. Check `response.ok`, save the pets, and set `status` to **ready**. If anything fails, set `status` to **error**. Add a cleanup so a late answer is ignored.\n2. Show only pets that haven't been adopted, one `<li>` each in `#pets`, like **Biscuit the dog (3)**.\n3. Use early returns for the other states: `<p id=\"status\">Loading pets…</p>` while loading, and `<p id=\"status\">Couldn't load the pets. Try again later.</p>` on error.",
+        "starterFiles": {
+          "App.jsx": "import { useEffect, useState } from \"react\";\nimport \"./App.css\";\n\nconst API = \"https://api.codegrove.test\";\n\nexport default function App() {\n  const [pets, setPets] = useState([]);\n  // 1. Track the request: \"loading\", \"ready\" or \"error\"\n  const [status, setStatus] = useState(\"loading\");\n\n  // 1. Load /pets once, when the component appears.\n  //    Check response.ok; on any failure set status to \"error\".\n\n  // 2. Only pets that haven't been adopted\n\n  // 3. Loading and error screens (early returns)\n\n  return (\n    <main>\n      <h1>Adopt a friend</h1>\n      <ul id=\"pets\">{/* 2. \"Biscuit the dog (3)\" */}</ul>\n    </main>\n  );\n}\n",
+          "App.css": "main, #status {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n#pets li {\n  padding: 0.25rem 0;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Adopt a Friend</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useEffect, useState } from \"react\";\nimport \"./App.css\";\n\nconst API = \"https://api.codegrove.test\";\n\nexport default function App() {\n  const [pets, setPets] = useState([]);\n  // 1. Track the request: \"loading\", \"ready\" or \"error\"\n  const [status, setStatus] = useState(\"loading\");\n\n  // 1. Load /pets once, when the component appears.\n  //    Check response.ok; on any failure set status to \"error\".\n  useEffect(() => {\n    let ignore = false; // set when the component goes away before the answer arrives\n\n    fetch(`${API}/pets`)\n      .then((response) => {\n        if (!response.ok) throw new Error(`HTTP ${response.status}`);\n        return response.json();\n      })\n      .then((data) => {\n        if (ignore) return;\n        setPets(data);\n        setStatus(\"ready\");\n      })\n      .catch(() => {\n        if (!ignore) setStatus(\"error\");\n      });\n\n    return () => {\n      ignore = true;\n    };\n  }, []);\n\n  // 2. Only pets that haven't been adopted\n  const available = pets.filter((pet) => !pet.adopted);\n\n  // 3. Loading and error screens (early returns)\n  if (status === \"loading\") return <p id=\"status\">Loading pets…</p>;\n  if (status === \"error\") return <p id=\"status\">Couldn't load the pets. Try again later.</p>;\n\n  return (\n    <main>\n      <h1>Adopt a friend</h1>\n      <ul id=\"pets\">\n        {available.map((pet) => (\n          <li key={pet.id}>\n            {pet.name} the {pet.species} ({pet.age})\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+          "App.css": "main, #status {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n#pets li {\n  padding: 0.25rem 0;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Adopt a Friend</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Only available pets are listed",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#pets li",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "Fetch /pets in an effect, then filter out pets where adopted is true."
+          },
+          {
+            "label": "Pets show name, species and age",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#pets li:first-child",
+              "equals": "Biscuit the dog (3)"
+            },
+            "failMessage": "Write each pet as {pet.name} the {pet.species} ({pet.age})."
+          },
+          {
+            "label": "Nugget is in the list",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#pets li:last-child",
+              "equals": "Nugget the hamster (1)"
+            },
+            "failMessage": "Keep the order from the API: filter, then map."
+          },
+          {
+            "label": "The loading message is gone",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#status",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "Set status to \"ready\" when the pets arrive, and only show #status while loading or on error."
+          },
+          {
+            "label": "The effect runs once",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\}\\s*,\\s*\\[\\s*\\]\\s*\\)/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Give useEffect an empty dependency array: useEffect(() => { … }, [])."
+          },
+          {
+            "label": "Checks response.ok",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\.ok\\b/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "fetch doesn't reject on 404 or 500: check response.ok and throw if it's false."
+          },
+          {
+            "label": "Handles errors",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\.catch\\(/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Add .catch(() => setStatus(\"error\")) at the end of the chain."
+          },
+          {
+            "label": "Cleans up",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/return\\s*\\(\\s*\\)\\s*=>/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Return a cleanup function from the effect, e.g. () => { ignore = true; }."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Inside `useEffect(() => { … }, [])`: fetch, check `response.ok` (throw if not), `.json()`, then `setPets` and `setStatus(\"ready\")`; `.catch` sets `\"error\"`. Return `() => { ignore = true; }` and skip the setters when `ignore` is true."
+          },
+          {
+            "level": 2,
+            "markdown": "After the effect: `const available = pets.filter((pet) => !pet.adopted);` then\n```jsx\nif (status === \"loading\") return <p id=\"status\">Loading pets…</p>;\nif (status === \"error\") return <p id=\"status\">Couldn't load the pets. Try again later.</p>;\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why shouldn't you call fetch directly in a component's body?",
+            "explanation": "Rendering must be pure; side effects belong in useEffect.",
+            "options": [
+              {
+                "text": "Rendering can happen many times, so it would fetch again and again",
+                "correct": true
+              },
+              {
+                "text": "fetch doesn't work in .jsx files",
+                "correct": false
+              },
+              {
+                "text": "It makes the code longer",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "useEffect(() => { … }, [teamId]) runs when?",
+            "explanation": "The dependency array lists what the effect depends on.",
+            "options": [
+              {
+                "text": "After the first render and whenever teamId changes",
+                "correct": true
+              },
+              {
+                "text": "Only once",
+                "correct": false
+              },
+              {
+                "text": "On every render",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "The server answers 404. What does fetch do?",
+            "explanation": "Only network failures reject; HTTP errors arrive as responses.",
+            "options": [
+              {
+                "text": "Resolves normally; you must check response.ok",
+                "correct": true
+              },
+              {
+                "text": "Rejects, so .catch runs",
+                "correct": false
+              },
+              {
+                "text": "Retries automatically",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When does an effect's cleanup function run?",
+            "explanation": "Cleanup undoes or cancels what the previous run started.",
+            "options": [
+              {
+                "text": "Before the effect runs again, and when the component is removed",
+                "correct": true
+              },
+              {
+                "text": "Only when the page reloads",
+                "correct": false
+              },
+              {
+                "text": "Never, it's optional decoration",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Leaving out the dependency array and calling setState in the effect causes…",
+            "explanation": "No array means \"run after every render\", and setState causes another render.",
+            "options": [
+              {
+                "text": "An endless loop of renders and requests",
+                "correct": true
+              },
+              {
+                "text": "Nothing special",
+                "correct": false
+              },
+              {
+                "text": "A syntax error",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "sharing-explorer",
+      "title": "Sharing state between components",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Two components, one number\n\nSometimes two components need the **same** information. A scoreboard shows the score, and the buttons change it. If each one keeps its own state, they don't know about each other: click a button and the scoreboard stays the same!\n\nThe fix is called **lifting state up**: move the state into the **parent**, the component that holds them both. Then:\n\n- The parent passes the value **down** as a prop: `<Scoreboard score={score} />`\n- The parent passes a **function** down too, so the child can ask for a change: `<Buttons onScore={() => setScore(score + 1)} />`\n\n```jsx\nfunction Buttons(props) {\n  return <button onClick={props.onScore}>Goal!</button>;\n}\n```\n\nThe child doesn't change anything itself. It calls the function it was given, the parent changes its state, and React draws **both** children again with the new number.\n\n### New words\n\n- **Parent / child**: if App's JSX has `<Buttons />` in it, App is the parent and Buttons is the child.\n- **Lifting state up**: moving state into the parent so its children can share it.\n- **Callback prop**: a function passed as a prop, so a child can tell its parent something happened.\n",
+      "exampleMarkdown": "The score lives in `App`. `Scoreboard` gets the score, `GoalButton` gets a function. Click **Goal!** and both stay in step.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Scoreboard</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useState } from \"react\";\n\n      function Scoreboard(props) {\n        return <h2>Score: {props.score}</h2>;\n      }\n\n      function GoalButton(props) {\n        return <button onClick={props.onGoal}>⚽ Goal!</button>;\n      }\n\n      function App() {\n        const [score, setScore] = useState(0);\n        return (\n          <main>\n            <Scoreboard score={score} />\n            <GoalButton onGoal={() => setScore(score + 1)} />\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The thermostat is broken: the buttons change a number nobody can see. Lift the state up.\n\n1. Move the temperature state into `App` (start at **20**).\n2. Remove the state from `Controls`. Instead, the buttons call `props.onDown` and `props.onUp`, which `App` passes in.\n3. Pass the temperature to `Display` as a `temp` prop, and show it: **20°**.\n\nClick **Warmer** in the preview. The number should go up!",
+        "starterFiles": {
+          "App.jsx": "import { useState } from \"react\";\n\n// These buttons keep their OWN temperature, so the Display never finds out!\n// 2. Remove this state, and use onUp and onDown props instead.\nfunction Controls() {\n  const [temp, setTemp] = useState(20);\n  return (\n    <div>\n      <button id=\"down\" onClick={() => setTemp(temp - 1)}>Colder</button>\n      <button id=\"up\" onClick={() => setTemp(temp + 1)}>Warmer</button>\n    </div>\n  );\n}\n\n// 3. Show the temp prop instead of 20\nfunction Display() {\n  return <p id=\"temp\">20°</p>;\n}\n\nexport default function App() {\n  // 1. Keep the temperature here, in App (start at 20)\n\n  return (\n    <main>\n      <h1>🌡️ Thermostat</h1>\n      <Display />\n      <Controls />\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Thermostat</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useState } from \"react\";\n\n// These buttons keep their OWN temperature, so the Display never finds out!\n// 2. Remove this state, and use onUp and onDown props instead.\nfunction Controls(props) {\n  return (\n    <div>\n      <button id=\"down\" onClick={props.onDown}>Colder</button>\n      <button id=\"up\" onClick={props.onUp}>Warmer</button>\n    </div>\n  );\n}\n\n// 3. Show the temp prop instead of 20\nfunction Display(props) {\n  return <p id=\"temp\">{props.temp}°</p>;\n}\n\nexport default function App() {\n  // 1. Keep the temperature here, in App (start at 20)\n  const [temp, setTemp] = useState(20);\n\n  return (\n    <main>\n      <h1>🌡️ Thermostat</h1>\n      <Display temp={temp} />\n      <Controls onUp={() => setTemp(temp + 1)} onDown={() => setTemp(temp - 1)} />\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Thermostat</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "It starts at 20°",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#temp",
+              "equals": "20°"
+            },
+            "failMessage": "Display should show {props.temp}°."
+          },
+          {
+            "label": "Click Warmer",
+            "kind": "interact",
+            "spec": {
+              "selector": "#up",
+              "click": true
+            },
+            "failMessage": "We couldn't find #up to click it."
+          },
+          {
+            "label": "Click Warmer again",
+            "kind": "interact",
+            "spec": {
+              "selector": "#up",
+              "click": true
+            },
+            "failMessage": "We couldn't find #up to click it."
+          },
+          {
+            "label": "Warmer makes the display go up",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#temp",
+              "equals": "22°"
+            },
+            "failMessage": "Keep the state in App, pass onUp={() => setTemp(temp + 1)} to Controls, and temp={temp} to Display."
+          },
+          {
+            "label": "Click Colder",
+            "kind": "interact",
+            "spec": {
+              "selector": "#down",
+              "click": true
+            },
+            "failMessage": "We couldn't find #down to click it."
+          },
+          {
+            "label": "Colder makes it go down",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#temp",
+              "equals": "21°"
+            },
+            "failMessage": "Pass onDown={() => setTemp(temp - 1)} to Controls, and use it on the Colder button."
+          },
+          {
+            "label": "Controls gets callback props",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/<Controls[^>]*onUp=/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "In App: <Controls onUp={…} onDown={…} />"
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`App` gets `const [temp, setTemp] = useState(20);`. Then `<Display temp={temp} />` and `<Controls onUp={() => setTemp(temp + 1)} onDown={() => setTemp(temp - 1)} />`."
+          },
+          {
+            "level": 2,
+            "markdown": "Inside `Controls`, the buttons use the props: `onClick={props.onUp}`. Inside `Display`: `<p id=\"temp\">{props.temp}°</p>`. Remember to add `props` to both functions' brackets!"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Two components need the same state. Where should it live?",
+            "explanation": "Lift it up to the parent, then pass it down.",
+            "options": [
+              {
+                "text": "In their parent",
+                "correct": true
+              },
+              {
+                "text": "In both of them",
+                "correct": false
+              },
+              {
+                "text": "In a CSS file",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How can a child ask the parent to change state?",
+            "explanation": "Callback props let children tell the parent what happened.",
+            "options": [
+              {
+                "text": "By calling a function the parent passed as a prop",
+                "correct": true
+              },
+              {
+                "text": "By changing its props",
+                "correct": false
+              },
+              {
+                "text": "It can't ever",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In <Game onWin={celebrate} />, what is onWin?",
+            "explanation": "It's a function passed down as a prop.",
+            "options": [
+              {
+                "text": "A callback prop",
+                "correct": true
+              },
+              {
+                "text": "A CSS class",
+                "correct": false
+              },
+              {
+                "text": "A state variable inside Game",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "sharing-state",
+      "title": "Lifting state up",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Where should state live?\n\nState belongs to one component. When two components need the same data (a product list that shows quantities and a cart summary that shows totals), neither one can own it. The rule:\n\n> Put state in the **closest common parent** of every component that uses it.\n\nThat's **lifting state up**. The parent owns the state and passes:\n\n- the **data** down as props, so children can render it\n- **callback props** (functions) down, so children can ask for changes\n\n```jsx\nfunction App() {\n  const [cart, setCart] = useState({});\n  const add = (id) => setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 }));\n  return (\n    <>\n      <ProductList cart={cart} onAdd={add} />\n      <CartSummary cart={cart} />\n    </>\n  );\n}\n```\n\nData flows **down** through props; events flow **up** through callbacks. Children like `CartSummary` become **presentational**: they don't own anything, they render what they're given, which makes them easy to reuse and test.\n\n### Name callbacks for what happened\n\nBy convention, props are `onSomething` (`onAdd`, `onDelete`, `onSelect`), and the parent's functions are `handleSomething` or a verb (`addToCart`). The child says *what happened*; the parent decides *what to do*.\n\n### Updating objects in state\n\n`{ ...c, [id]: newValue }` copies the object and changes one key. `[id]` is a **computed property name**: the key is the *value* of `id`. And `c[id] ?? 0` uses the **nullish coalescing** operator: it falls back to 0 when the product isn't in the cart yet.\n\n### Don't copy props into state\n\n`const [count, setCount] = useState(props.count)` only uses the prop the *first* time; later changes are ignored. If a value comes from the parent, read the prop directly.\n\n### New words\n\n- **Lifting state up**: moving shared state to the closest common parent.\n- **Callback prop**: a function prop a child calls to tell the parent something happened.\n- **Presentational component**: a component that only renders the props it's given.\n- **Computed property name**: `{ [key]: value }`, an object key taken from a variable.\n- **Nullish coalescing** (`??`): `a ?? b` gives `b` only when `a` is `null` or `undefined`.\n",
+      "exampleMarkdown": "`TabBar` and `TabPanel` are siblings, so the selected tab lives in their parent. `TabBar` reports clicks with `onSelect`; `App` updates the state; both re-render.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Tabs</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useState } from \"react\";\n\n      const tabs = { home: \"Welcome home!\", games: \"Pick a game.\", settings: \"Turn the music down.\" };\n\n      function TabBar({ selected, onSelect }) {\n        return (\n          <nav>\n            {Object.keys(tabs).map((name) => (\n              <button key={name} onClick={() => onSelect(name)} aria-pressed={name === selected}>\n                {name}\n              </button>\n            ))}\n          </nav>\n        );\n      }\n\n      function TabPanel({ selected }) {\n        return <p>{tabs[selected]}</p>;\n      }\n\n      function App() {\n        const [selected, setSelected] = useState(\"home\");\n        return (\n          <main>\n            <TabBar selected={selected} onSelect={setSelected} />\n            <TabPanel selected={selected} />\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Connect the merch shop. `ProductList` and `CartSummary` both need the cart, so it goes in `App`.\n\n1. In **App.jsx**, keep the cart in state as an object of `{ productId: quantity }` (start with `{}`).\n2. Write `addToCart(id)`, which adds one of that product without mutating the cart.\n3. Pass the products, the cart and an `onAdd` callback to `ProductList`; pass the products and cart to `CartSummary`.\n4. In **ProductList.jsx**, show each product in `#products` as an `<li>` with a `<span className=\"qty\">In cart: 2</span>` and a button with id `add-<product id>` (like `add-1`) that calls `onAdd`.\n5. In **CartSummary.jsx**, work out **3 items** and **Total: $14.50** from the cart and products. Don't keep these in state.\n\nThe checker adds two sticker packs and one pixel pin.",
+        "starterFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\nimport { products } from \"./products\";\nimport ProductList from \"./ProductList\";\nimport CartSummary from \"./CartSummary\";\n\nexport default function App() {\n  // 1. The cart lives here: an object of { productId: quantity }, like { 1: 2, 3: 1 }\n\n  // 2. A function that adds one of a product to the cart (without mutating it)\n\n  return (\n    <main>\n      <h1>Merch shop</h1>\n      {/* 3. Pass what each child needs */}\n      <ProductList />\n      <CartSummary />\n    </main>\n  );\n}\n",
+          "ProductList.jsx": "// 4. Show every product with its quantity, and an Add button that calls onAdd\nexport default function ProductList() {\n  return <ul id=\"products\"></ul>;\n}\n",
+          "CartSummary.jsx": "// 5. Work out the number of items and the total price from the cart\nexport default function CartSummary() {\n  return (\n    <aside>\n      <p id=\"cart-count\">0 items</p>\n      <p id=\"cart-total\">Total: $0.00</p>\n    </aside>\n  );\n}\n",
+          "products.js": "export const products = [\n  { id: 1, name: \"Sticker pack\", price: 4 },\n  { id: 2, name: \"Pixel pin\", price: 6.5 },\n  { id: 3, name: \"Hoodie\", price: 32 },\n];\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n#products li {\n  margin-bottom: 0.4rem;\n}\n\n.qty {\n  color: #6b7280;\n}\n\naside {\n  margin-top: 1rem;\n  padding: 0.5rem 1rem;\n  background: #f3f4f6;\n  border-radius: 8px;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Merch Shop</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\nimport { products } from \"./products\";\nimport ProductList from \"./ProductList\";\nimport CartSummary from \"./CartSummary\";\n\nexport default function App() {\n  // 1. The cart lives here: an object of { productId: quantity }, like { 1: 2, 3: 1 }\n  const [cart, setCart] = useState({});\n\n  // 2. A function that adds one of a product to the cart (without mutating it)\n  function addToCart(id) {\n    setCart((current) => ({ ...current, [id]: (current[id] ?? 0) + 1 }));\n  }\n\n  return (\n    <main>\n      <h1>Merch shop</h1>\n      {/* 3. Pass what each child needs */}\n      <ProductList products={products} cart={cart} onAdd={addToCart} />\n      <CartSummary products={products} cart={cart} />\n    </main>\n  );\n}\n",
+          "ProductList.jsx": "// 4. Show every product with its quantity, and an Add button that calls onAdd\nexport default function ProductList({ products, cart, onAdd }) {\n  return (\n    <ul id=\"products\">\n      {products.map((product) => (\n        <li key={product.id}>\n          {product.name}{\" \"}\n          <span className=\"qty\">In cart: {cart[product.id] ?? 0}</span>{\" \"}\n          <button id={`add-${product.id}`} onClick={() => onAdd(product.id)}>\n            Add\n          </button>\n        </li>\n      ))}\n    </ul>\n  );\n}\n",
+          "CartSummary.jsx": "// 5. Work out the number of items and the total price from the cart\nexport default function CartSummary({ products, cart }) {\n  let items = 0;\n  let total = 0;\n  for (const product of products) {\n    const quantity = cart[product.id] ?? 0;\n    items += quantity;\n    total += quantity * product.price;\n  }\n\n  return (\n    <aside>\n      <p id=\"cart-count\">{items} items</p>\n      <p id=\"cart-total\">Total: ${total.toFixed(2)}</p>\n    </aside>\n  );\n}\n",
+          "products.js": "export const products = [\n  { id: 1, name: \"Sticker pack\", price: 4 },\n  { id: 2, name: \"Pixel pin\", price: 6.5 },\n  { id: 3, name: \"Hoodie\", price: 32 },\n];\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n#products li {\n  margin-bottom: 0.4rem;\n}\n\n.qty {\n  color: #6b7280;\n}\n\naside {\n  margin-top: 1rem;\n  padding: 0.5rem 1rem;\n  background: #f3f4f6;\n  border-radius: 8px;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Merch Shop</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Every product is listed",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#products li",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "Map the products prop into <li>s in ProductList."
+          },
+          {
+            "label": "Quantities start at 0",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#products li:first-child .qty",
+              "equals": "In cart: 0"
+            },
+            "failMessage": "Show In cart: {cart[product.id] ?? 0}."
+          },
+          {
+            "label": "Add a sticker pack",
+            "kind": "interact",
+            "spec": {
+              "selector": "#add-1",
+              "click": true
+            },
+            "failMessage": "We couldn't find #add-1 to click it."
+          },
+          {
+            "label": "Add another sticker pack",
+            "kind": "interact",
+            "spec": {
+              "selector": "#add-1",
+              "click": true
+            },
+            "failMessage": "We couldn't find #add-1 to click it."
+          },
+          {
+            "label": "Add a pixel pin",
+            "kind": "interact",
+            "spec": {
+              "selector": "#add-2",
+              "click": true
+            },
+            "failMessage": "We couldn't find #add-2 to click it."
+          },
+          {
+            "label": "The list shows quantities",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#products li:first-child .qty",
+              "equals": "In cart: 2"
+            },
+            "failMessage": "Keep the cart in App and pass it to ProductList; onAdd should add 1 to that product."
+          },
+          {
+            "label": "The summary counts items",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#cart-count",
+              "equals": "3 items"
+            },
+            "failMessage": "In CartSummary, add up every quantity in the cart."
+          },
+          {
+            "label": "The summary adds up the price",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#cart-total",
+              "equals": "Total: $14.50"
+            },
+            "failMessage": "Add quantity × price for each product, then show it with toFixed(2)."
+          },
+          {
+            "label": "The cart state lives in App",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/useState\\(\\s*\\{\\s*\\}\\s*\\)/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Keep the cart in App: const [cart, setCart] = useState({});"
+          },
+          {
+            "label": "ProductList uses a callback prop",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/<ProductList[^>]*onAdd=/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Pass the add function down: <ProductList … onAdd={addToCart} />"
+          },
+          {
+            "label": "CartSummary has no state of its own",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/useState/.test(window.__cgSources[\"CartSummary.jsx\"])",
+              "equals": false
+            },
+            "failMessage": "CartSummary should calculate from its props, not keep its own state."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "In App: `const [cart, setCart] = useState({});` and `function addToCart(id) { setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 })); }`. Children receive props by destructuring: `function ProductList({ products, cart, onAdd })`."
+          },
+          {
+            "level": 2,
+            "markdown": "In ProductList: `onClick={() => onAdd(product.id)}` and `In cart: {cart[product.id] ?? 0}`. In CartSummary, loop over `products`: for each, `const q = cart[product.id] ?? 0;` then add `q` to the item count and `q * product.price` to the total."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx, ProductList.jsx and CartSummary.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Sibling components A and B both need the same state. Where does it go?",
+            "explanation": "Lift it to the nearest component that contains both.",
+            "options": [
+              {
+                "text": "In their closest common parent",
+                "correct": true
+              },
+              {
+                "text": "In A, and B asks A for it",
+                "correct": false
+              },
+              {
+                "text": "In a copy in each",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In React, which way do data and events flow?",
+            "explanation": "Parents pass data down; children call callbacks to report events.",
+            "options": [
+              {
+                "text": "Data down through props, events up through callbacks",
+                "correct": true
+              },
+              {
+                "text": "Both up",
+                "correct": false
+              },
+              {
+                "text": "Data up, events down",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does { ...cart, [id]: 5 } make?",
+            "explanation": "[id] is a computed property name.",
+            "options": [
+              {
+                "text": "A copy of cart with the key whose name is id's value set to 5",
+                "correct": true
+              },
+              {
+                "text": "A key literally named \"id\"",
+                "correct": false
+              },
+              {
+                "text": "An array",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's the problem with useState(props.count) inside a child?",
+            "explanation": "The initial value is only used on the first render; read the prop instead.",
+            "options": [
+              {
+                "text": "Later changes to props.count are ignored",
+                "correct": true
+              },
+              {
+                "text": "It's a syntax error",
+                "correct": false
+              },
+              {
+                "text": "It makes props read-only",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "project-explorer",
+      "title": "Project: Wish list app",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 10,
+      "isPublished": true,
+      "learnMarkdown": "## Put it all together\n\nTime to build a whole app by yourself! A wish list uses almost everything from this course:\n\n| You need… | Use… |\n| --- | --- |\n| To remember what's typed | state + `value` and `onChange` |\n| To add a wish when the form is sent | `onSubmit` + `preventDefault` |\n| To show all the wishes | `map` with a `key` |\n| To remove one wish | `filter` |\n| A message when the list is empty | `&&` |\n\n### Removing with filter\n\n`filter` keeps the items you say yes to. To remove one wish, keep every wish **except** that one:\n\n```jsx\nsetWishes(wishes.filter((wish) => wish.id !== id));\n```\n\n`!==` means \"is not the same as.\"\n\n### Give each wish an id\n\nTwo wishes could have the same words (\"socks\", \"socks\"), and keys must be different. So give each wish an object with an `id` number that goes up by one each time: `{ id: 1, text: \"socks\" }`.\n\n### Plan first\n\nBefore typing, look at the starter and ask: what does this app need to **remember**? Those things become state. Everything else can be worked out from them.\n\n### New words\n\n- **filter**: makes a new array with only the items that pass a test.\n- **!==**: \"is not equal to.\"\n- **id**: a number or name that's different for every item, so you can find one item exactly.\n",
+      "exampleMarkdown": "A tiny idea board with add and remove, showing the pattern you'll need: an `id` for every item, `filter` to remove one, and a message when the list is empty.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Idea Board</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useState } from \"react\";\n\n      function App() {\n        const [ideas, setIdeas] = useState([\n          { id: 1, text: \"Build a robot\" },\n          { id: 2, text: \"Learn to juggle\" },\n        ]);\n\n        function remove(id) {\n          setIdeas(ideas.filter((idea) => idea.id !== id));\n        }\n\n        return (\n          <main>\n            <h2>{ideas.length} ideas</h2>\n            {ideas.length === 0 && <p>No ideas left. Time to think!</p>}\n            <ul>\n              {ideas.map((idea) => (\n                <li key={idea.id}>\n                  {idea.text} <button onClick={() => remove(idea.id)}>Done</button>\n                </li>\n              ))}\n            </ul>\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your project!** Build a wish list app.\n\n1. When the form is sent, add what's in `#wish` to the list in `#wishes` (one `<li>` per wish), then empty the box. Don't add a wish if the box is empty.\n2. Each `<li>` has the wish and a **Remove** button that takes just that wish away.\n3. The heading counts the wishes, like **2 wishes**.\n4. Only show \"Your wish list is empty.\" when there are no wishes.\n\nThe checker tries an empty wish, adds **Kite** and **Skates**, then removes Kite.",
+        "starterFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\n\nexport default function App() {\n  // Your wish list app starts here!\n  // You'll need state for the text box, and state for the list of wishes.\n\n  return (\n    <main>\n      <h1>🎁 My Wish List</h1>\n      <form>\n        <input id=\"wish\" placeholder=\"I wish for…\" />\n        <button id=\"add\">Add</button>\n      </form>\n      <h2>0 wishes</h2>\n      <p className=\"empty\">Your wish list is empty.</p>\n      <ul id=\"wishes\"></ul>\n    </main>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n  max-width: 24rem;\n}\n\n#wishes li {\n  display: flex;\n  justify-content: space-between;\n  padding: 0.3rem 0;\n  border-bottom: 1px dashed #d1d5db;\n}\n\n.empty {\n  color: #6b7280;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Wish List</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\n\nexport default function App() {\n  // Your wish list app starts here!\n  // You'll need state for the text box, and state for the list of wishes.\n  const [text, setText] = useState(\"\");\n  const [wishes, setWishes] = useState([]);\n  const [nextId, setNextId] = useState(1);\n\n  function handleSubmit(event) {\n    event.preventDefault();\n    if (text.trim() === \"\") return; // ignore empty wishes\n    setWishes([...wishes, { id: nextId, text: text.trim() }]);\n    setNextId(nextId + 1);\n    setText(\"\");\n  }\n\n  function remove(id) {\n    setWishes(wishes.filter((wish) => wish.id !== id));\n  }\n\n  return (\n    <main>\n      <h1>🎁 My Wish List</h1>\n      <form onSubmit={handleSubmit}>\n        <input id=\"wish\" placeholder=\"I wish for…\" value={text} onChange={(event) => setText(event.target.value)} />\n        <button id=\"add\">Add</button>\n      </form>\n      <h2>{wishes.length} wishes</h2>\n      {wishes.length === 0 && <p className=\"empty\">Your wish list is empty.</p>}\n      <ul id=\"wishes\">\n        {wishes.map((wish) => (\n          <li key={wish.id}>\n            {wish.text} <button onClick={() => remove(wish.id)}>Remove</button>\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n  max-width: 24rem;\n}\n\n#wishes li {\n  display: flex;\n  justify-content: space-between;\n  padding: 0.3rem 0;\n  border-bottom: 1px dashed #d1d5db;\n}\n\n.empty {\n  color: #6b7280;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Wish List</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The empty message shows at the start",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".empty",
+              "min": 1,
+              "max": 1
+            },
+            "failMessage": "Show the empty message when there are no wishes."
+          },
+          {
+            "label": "Press Add with an empty box",
+            "kind": "interact",
+            "spec": {
+              "selector": "#add",
+              "click": true
+            },
+            "failMessage": "We couldn't find #add to click it."
+          },
+          {
+            "label": "Empty wishes are ignored",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#wishes li",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "In your submit function, stop if the text is empty: if (text.trim() === \"\") return;"
+          },
+          {
+            "label": "Type Kite",
+            "kind": "interact",
+            "spec": {
+              "selector": "#wish",
+              "type": "Kite"
+            },
+            "failMessage": "We couldn't find #wish to type into it."
+          },
+          {
+            "label": "Press Add",
+            "kind": "interact",
+            "spec": {
+              "selector": "#add",
+              "click": true
+            },
+            "failMessage": "We couldn't find #add to click it."
+          },
+          {
+            "label": "Type Skates",
+            "kind": "interact",
+            "spec": {
+              "selector": "#wish",
+              "type": "Skates"
+            },
+            "failMessage": "We couldn't find #wish to type into it."
+          },
+          {
+            "label": "Press Add again",
+            "kind": "interact",
+            "spec": {
+              "selector": "#add",
+              "click": true
+            },
+            "failMessage": "We couldn't find #add to click it."
+          },
+          {
+            "label": "Both wishes are listed",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#wishes li",
+              "min": 2,
+              "max": 2
+            },
+            "failMessage": "Keep the wishes in state and add one each time the form is sent."
+          },
+          {
+            "label": "Wishes are in order",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#wishes li:first-child",
+              "contains": "Kite"
+            },
+            "failMessage": "Add new wishes to the end: [...wishes, newWish]."
+          },
+          {
+            "label": "The heading counts wishes",
+            "kind": "elementText",
+            "spec": {
+              "selector": "h2",
+              "equals": "2 wishes"
+            },
+            "failMessage": "Use {wishes.length} in the heading."
+          },
+          {
+            "label": "The empty message is gone",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".empty",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "Only show it when there are no wishes: {wishes.length === 0 && …}"
+          },
+          {
+            "label": "The box is empty after adding",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "document.querySelector('#wish').value",
+              "equals": ""
+            },
+            "failMessage": "After adding, clear the box: setText(\"\")."
+          },
+          {
+            "label": "Remove Kite",
+            "kind": "interact",
+            "spec": {
+              "selector": "#wishes li:first-child button",
+              "click": true
+            },
+            "failMessage": "We couldn't find #wishes li:first-child button to click it."
+          },
+          {
+            "label": "Remove takes one wish away",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#wishes li",
+              "min": 1,
+              "max": 1
+            },
+            "failMessage": "Each Remove button should filter out just its own wish."
+          },
+          {
+            "label": "The right wish was removed",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#wishes li",
+              "contains": "Skates"
+            },
+            "failMessage": "Remove by id: wishes.filter((wish) => wish.id !== id)."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "You need state for the text (`\"\"`) and the wishes (`[]`). Connect the box with `value` and `onChange`, and give the form an `onSubmit` that calls `event.preventDefault()` first."
+          },
+          {
+            "level": 2,
+            "markdown": "Store each wish as `{ id, text }` so keys are unique. Adding: `setWishes([...wishes, { id: nextId, text }])`. Removing: `setWishes(wishes.filter((wish) => wish.id !== id))`. Each `<li>` gets `<button onClick={() => remove(wish.id)}>Remove</button>`."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which code removes the wish with id 3?",
+            "explanation": "filter keeps every wish whose id is not 3.",
+            "options": [
+              {
+                "text": "wishes.filter((w) => w.id !== 3)",
+                "correct": true
+              },
+              {
+                "text": "wishes.map((w) => w.id !== 3)",
+                "correct": false
+              },
+              {
+                "text": "wishes.push(3)",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why give each wish an id instead of using its words as the key?",
+            "explanation": "Keys must be different, and an id always is.",
+            "options": [
+              {
+                "text": "Two wishes could have the same words",
+                "correct": true
+              },
+              {
+                "text": "Words can't be keys",
+                "correct": false
+              },
+              {
+                "text": "ids make the page faster",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Before building an app, what should you ask first?",
+            "explanation": "The things to remember become your state.",
+            "options": [
+              {
+                "text": "What does the app need to remember?",
+                "correct": true
+              },
+              {
+                "text": "What color is the button?",
+                "correct": false
+              },
+              {
+                "text": "How many files are there?",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "project-task-tracker",
+      "title": "Project: Task tracker",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 25,
+      "isPublished": true,
+      "learnMarkdown": "## Your end-of-course project\n\nYou'll build a task tracker the way React developers build real features: plan the state, split the UI into components, then wire them together. It uses everything from this course and the last one.\n\n### 1. Find the minimal state\n\nList everything the UI shows, then ask of each item: *can it be calculated from something else?* If so, it's **derived**, not state.\n\n| The UI shows | State or derived? |\n| --- | --- |\n| The tasks (title, done) | **State**: `tasks` |\n| Which filter is picked | **State**: `filter` |\n| The tasks under the current filter | Derived: `tasks.filter(…)` |\n| \"2 tasks left\" | Derived: count of tasks not done |\n| What's typed in the new-task box | **State**, but it only matters to the form, so it lives in `TaskForm` |\n\nKeep state as close as possible to where it's used, and lift it only as far as it needs to go.\n\n### 2. Split into components\n\n- `TaskForm` owns its text box and reports new titles with `onAdd(title)`.\n- `TaskItem` renders one task and reports clicks with `onToggle(id)`.\n- `App` owns `tasks` and `filter`, and does the updates.\n\n### 3. Immutable updates for every action\n\n```jsx\nsetTasks((ts) => [...ts, newTask]);                                       // add\nsetTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t))); // toggle one\nsetTasks((ts) => ts.filter((t) => !t.done));                              // remove many\n```\n\nEach new task needs a stable, unique id. `crypto.randomUUID()` makes one, like `\"3b241101-e2bb-4255-8caf-4136c566a962\"`.\n\n### 4. Data-driven UI\n\nInstead of writing three filter buttons by hand, describe the filters as data (`FILTERS`) and map over them. Adding a fourth filter is then one line. `Object.entries(obj)` gives you `[key, value]` pairs to map over.\n\nUse `aria-pressed` on toggle-style buttons, so screen readers announce which filter is on; the CSS can style the same attribute.\n\n### New words\n\n- **Minimal state**: the smallest set of values that everything else can be calculated from.\n- **Colocation**: keeping state in the component that uses it, lifting only when needed.\n- **UUID** (*Universally Unique Identifier*): a long random id that's practically never repeated.\n- **Data-driven UI**: rendering from a data description (like an object of filters) instead of repeating JSX.\n- **aria-pressed**: tells assistive technology whether a toggle button is on.\n",
+      "exampleMarkdown": "A small version of the same architecture: `NoteForm` owns its own text, `App` owns the list, and the visible notes and the count are derived. Your project adds toggling, filters and clearing.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Notes</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useState } from \"react\";\n\n      function NoteForm({ onAdd }) {\n        const [text, setText] = useState(\"\");\n        function handleSubmit(e) {\n          e.preventDefault();\n          if (text.trim() === \"\") return;\n          onAdd(text.trim());\n          setText(\"\");\n        }\n        return (\n          <form onSubmit={handleSubmit}>\n            <input value={text} onChange={(e) => setText(e.target.value)} placeholder=\"New note\" />\n            <button>Add</button>\n          </form>\n        );\n      }\n\n      function App() {\n        const [notes, setNotes] = useState([]);\n        const [starredOnly, setStarredOnly] = useState(false);\n\n        const add = (text) => setNotes((ns) => [...ns, { id: crypto.randomUUID(), text, starred: false }]);\n        const star = (id) => setNotes((ns) => ns.map((n) => (n.id === id ? { ...n, starred: !n.starred } : n)));\n        const visible = starredOnly ? notes.filter((n) => n.starred) : notes;\n\n        return (\n          <main>\n            <NoteForm onAdd={add} />\n            <label>\n              <input type=\"checkbox\" checked={starredOnly} onChange={(e) => setStarredOnly(e.target.checked)} /> Starred only\n            </label>\n            <ul>\n              {visible.map((n) => (\n                <li key={n.id} onClick={() => star(n.id)}>{n.starred ? \"⭐\" : \"☆\"} {n.text}</li>\n              ))}\n            </ul>\n            <p>{notes.length} notes</p>\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your project!** Build a task tracker across three files.\n\n1. **TaskForm.jsx**: make `#new-task` controlled. On submit, call the `onAdd` prop with the trimmed text (skip empty text), then clear the box.\n2. **TaskItem.jsx**: render an `<li>` with a checkbox (`checked` when the task is done) and the title. Changing the checkbox calls `onToggle(task.id)`. Add the class **done** to finished tasks.\n3. **App.jsx**: keep `tasks` and `filter` in state. Add tasks (each with a unique id), toggle them, and render a `TaskItem` per visible task in `#tasks`.\n4. Render the filter buttons from `FILTERS`, with ids `filter-all`, `filter-active` and `filter-done`, and `aria-pressed` on the one that's picked.\n5. `#left` shows **2 tasks left** (and **1 task left** for one). `#clear-done` removes finished tasks.\n\nThe checker adds three tasks, ticks one, tries each filter, then clears the finished task.",
+        "starterFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\nimport TaskForm from \"./TaskForm\";\nimport TaskItem from \"./TaskItem\";\n\n// 4. The three filters. Each has a label and a test for which tasks it shows.\nconst FILTERS = {\n  all: { label: \"All\", test: () => true },\n  active: { label: \"Active\", test: (task) => !task.done },\n  done: { label: \"Done\", test: (task) => task.done },\n};\n\nexport default function App() {\n  // 3. State: the tasks, and which filter is picked\n\n  // 3. Add a task, toggle a task, clear done tasks\n\n  // 4–5. Derived values: the visible tasks, and how many are left\n\n  return (\n    <main>\n      <h1>✅ Task Tracker</h1>\n      <TaskForm />\n\n      <nav aria-label=\"Filter tasks\">\n        {/* 4. One button per filter: id=\"filter-all\", \"filter-active\", \"filter-done\" */}\n      </nav>\n\n      <ul id=\"tasks\">{/* 3. One TaskItem per visible task */}</ul>\n\n      <footer>\n        <p id=\"left\">? tasks left</p>\n        <button id=\"clear-done\">Clear done</button>\n      </footer>\n    </main>\n  );\n}\n",
+          "TaskForm.jsx": "import { useState } from \"react\";\n\n// 1. A form with input#new-task. On submit, call onAdd with the trimmed text\n//    (skip empty text), then clear the box.\nexport default function TaskForm() {\n  return (\n    <form>\n      <input id=\"new-task\" placeholder=\"What needs doing?\" />\n      <button id=\"add-task\">Add</button>\n    </form>\n  );\n}\n",
+          "TaskItem.jsx": "// 2. One task: a checkbox (checked when done) and the title.\nexport default function TaskItem() {\n  return <li></li>;\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n  max-width: 28rem;\n}\n\nnav {\n  display: flex;\n  gap: 0.4rem;\n  margin: 0.75rem 0;\n}\n\nnav button[aria-pressed=\"true\"] {\n  background: #4c1d95;\n  color: white;\n}\n\n#tasks {\n  list-style: none;\n  padding: 0;\n}\n\n.done label {\n  text-decoration: line-through;\n  color: #6b7280;\n}\n\nfooter {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n\n.sr-only {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  overflow: hidden;\n  clip: rect(0 0 0 0);\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Task Tracker</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\nimport TaskForm from \"./TaskForm\";\nimport TaskItem from \"./TaskItem\";\n\n// 4. The three filters. Each has a label and a test for which tasks it shows.\nconst FILTERS = {\n  all: { label: \"All\", test: () => true },\n  active: { label: \"Active\", test: (task) => !task.done },\n  done: { label: \"Done\", test: (task) => task.done },\n};\n\nexport default function App() {\n  // 3. State: the tasks, and which filter is picked\n  const [tasks, setTasks] = useState([]);\n  const [filter, setFilter] = useState(\"all\");\n\n  // 3. Add a task, toggle a task, clear done tasks\n  function addTask(title) {\n    setTasks((current) => [...current, { id: crypto.randomUUID(), title, done: false }]);\n  }\n\n  function toggleTask(id) {\n    setTasks((current) => current.map((task) => (task.id === id ? { ...task, done: !task.done } : task)));\n  }\n\n  function clearDone() {\n    setTasks((current) => current.filter((task) => !task.done));\n  }\n\n  // 4–5. Derived values: the visible tasks, and how many are left\n  const visible = tasks.filter(FILTERS[filter].test);\n  const left = tasks.filter((task) => !task.done).length;\n\n  return (\n    <main>\n      <h1>✅ Task Tracker</h1>\n      <TaskForm onAdd={addTask} />\n\n      <nav aria-label=\"Filter tasks\">\n        {Object.entries(FILTERS).map(([key, { label }]) => (\n          <button key={key} id={`filter-${key}`} aria-pressed={filter === key} onClick={() => setFilter(key)}>\n            {label}\n          </button>\n        ))}\n      </nav>\n\n      <ul id=\"tasks\">\n        {visible.map((task) => (\n          <TaskItem key={task.id} task={task} onToggle={toggleTask} />\n        ))}\n      </ul>\n\n      <footer>\n        <p id=\"left\">\n          {left} {left === 1 ? \"task\" : \"tasks\"} left\n        </p>\n        <button id=\"clear-done\" onClick={clearDone} disabled={left === tasks.length}>\n          Clear done\n        </button>\n      </footer>\n    </main>\n  );\n}\n",
+          "TaskForm.jsx": "import { useState } from \"react\";\n\n// 1. A form with input#new-task. On submit, call onAdd with the trimmed text\n//    (skip empty text), then clear the box.\nexport default function TaskForm({ onAdd }) {\n  const [text, setText] = useState(\"\");\n\n  function handleSubmit(event) {\n    event.preventDefault();\n    const title = text.trim();\n    if (title === \"\") return;\n    onAdd(title);\n    setText(\"\");\n  }\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <label htmlFor=\"new-task\" className=\"sr-only\">New task</label>\n      <input id=\"new-task\" placeholder=\"What needs doing?\" value={text} onChange={(e) => setText(e.target.value)} />\n      <button id=\"add-task\">Add</button>\n    </form>\n  );\n}\n",
+          "TaskItem.jsx": "// 2. One task: a checkbox (checked when done) and the title.\nexport default function TaskItem({ task, onToggle }) {\n  return (\n    <li className={task.done ? \"done\" : \"\"}>\n      <label>\n        <input type=\"checkbox\" checked={task.done} onChange={() => onToggle(task.id)} /> {task.title}\n      </label>\n    </li>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n  max-width: 28rem;\n}\n\nnav {\n  display: flex;\n  gap: 0.4rem;\n  margin: 0.75rem 0;\n}\n\nnav button[aria-pressed=\"true\"] {\n  background: #4c1d95;\n  color: white;\n}\n\n#tasks {\n  list-style: none;\n  padding: 0;\n}\n\n.done label {\n  text-decoration: line-through;\n  color: #6b7280;\n}\n\nfooter {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n\n.sr-only {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  overflow: hidden;\n  clip: rect(0 0 0 0);\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Task Tracker</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Press Add with an empty box",
+            "kind": "interact",
+            "spec": {
+              "selector": "#add-task",
+              "click": true
+            },
+            "failMessage": "We couldn't find #add-task to click it."
+          },
+          {
+            "label": "Empty tasks are skipped",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#tasks li",
+              "min": 0,
+              "max": 0
+            },
+            "failMessage": "In TaskForm, return early when the trimmed text is empty."
+          },
+          {
+            "label": "Type Walk the dog",
+            "kind": "interact",
+            "spec": {
+              "selector": "#new-task",
+              "type": "Walk the dog"
+            },
+            "failMessage": "We couldn't find #new-task to type into it."
+          },
+          {
+            "label": "Add it",
+            "kind": "interact",
+            "spec": {
+              "selector": "#add-task",
+              "click": true
+            },
+            "failMessage": "We couldn't find #add-task to click it."
+          },
+          {
+            "label": "Type Homework",
+            "kind": "interact",
+            "spec": {
+              "selector": "#new-task",
+              "type": "Homework"
+            },
+            "failMessage": "We couldn't find #new-task to type into it."
+          },
+          {
+            "label": "Add it",
+            "kind": "interact",
+            "spec": {
+              "selector": "#add-task",
+              "click": true
+            },
+            "failMessage": "We couldn't find #add-task to click it."
+          },
+          {
+            "label": "Type Practice piano",
+            "kind": "interact",
+            "spec": {
+              "selector": "#new-task",
+              "type": "Practice piano"
+            },
+            "failMessage": "We couldn't find #new-task to type into it."
+          },
+          {
+            "label": "Add it",
+            "kind": "interact",
+            "spec": {
+              "selector": "#add-task",
+              "click": true
+            },
+            "failMessage": "We couldn't find #add-task to click it."
+          },
+          {
+            "label": "Three tasks are listed",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#tasks li",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "TaskForm calls onAdd(title); App adds { id, title, done: false } and renders a TaskItem per task."
+          },
+          {
+            "label": "Tasks show their titles",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#tasks li:first-child",
+              "equals": "Walk the dog"
+            },
+            "failMessage": "TaskItem shows {task.title} next to the checkbox."
+          },
+          {
+            "label": "The box clears after adding",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "document.querySelector('#new-task').value",
+              "equals": ""
+            },
+            "failMessage": "After onAdd, clear TaskForm's text: setText(\"\")."
+          },
+          {
+            "label": "The count shows tasks left",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#left",
+              "equals": "3 tasks left"
+            },
+            "failMessage": "Count the tasks that aren't done, during render."
+          },
+          {
+            "label": "Tick Homework",
+            "kind": "interact",
+            "spec": {
+              "selector": "#tasks li:nth-child(2) input[type=checkbox]",
+              "click": true
+            },
+            "failMessage": "We couldn't find #tasks li:nth-child(2) input[type=checkbox] to click it."
+          },
+          {
+            "label": "Homework is marked done",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "#tasks li.done:nth-child(2) input[type=checkbox]:checked"
+            },
+            "failMessage": "Toggle with map + spread, set checked={task.done}, and add className \"done\" when done."
+          },
+          {
+            "label": "The count goes down",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#left",
+              "equals": "2 tasks left"
+            },
+            "failMessage": "#left should count only tasks that aren't done."
+          },
+          {
+            "label": "Show done tasks",
+            "kind": "interact",
+            "spec": {
+              "selector": "#filter-done",
+              "click": true
+            },
+            "failMessage": "We couldn't find #filter-done to click it."
+          },
+          {
+            "label": "Done shows finished tasks",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#tasks li",
+              "min": 1,
+              "max": 1
+            },
+            "failMessage": "Keep the picked filter in state, and render tasks.filter(FILTERS[filter].test)."
+          },
+          {
+            "label": "The picked filter is pressed",
+            "kind": "attribute",
+            "spec": {
+              "selector": "#filter-done",
+              "name": "aria-pressed",
+              "equals": "true"
+            },
+            "failMessage": "Add aria-pressed={filter === key} to each filter button."
+          },
+          {
+            "label": "Show active tasks",
+            "kind": "interact",
+            "spec": {
+              "selector": "#filter-active",
+              "click": true
+            },
+            "failMessage": "We couldn't find #filter-active to click it."
+          },
+          {
+            "label": "Active shows unfinished tasks",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#tasks li",
+              "min": 2,
+              "max": 2
+            },
+            "failMessage": "The active filter shows tasks that aren't done."
+          },
+          {
+            "label": "Show all tasks",
+            "kind": "interact",
+            "spec": {
+              "selector": "#filter-all",
+              "click": true
+            },
+            "failMessage": "We couldn't find #filter-all to click it."
+          },
+          {
+            "label": "All shows everything",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#tasks li",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "The all filter shows every task."
+          },
+          {
+            "label": "Clear done",
+            "kind": "interact",
+            "spec": {
+              "selector": "#clear-done",
+              "click": true
+            },
+            "failMessage": "We couldn't find #clear-done to click it."
+          },
+          {
+            "label": "Finished tasks are cleared",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#tasks li",
+              "min": 2,
+              "max": 2
+            },
+            "failMessage": "Clear done should keep only tasks that aren't done (filter)."
+          },
+          {
+            "label": "Tick Walk the dog",
+            "kind": "interact",
+            "spec": {
+              "selector": "#tasks li:first-child input[type=checkbox]",
+              "click": true
+            },
+            "failMessage": "We couldn't find #tasks li:first-child input[type=checkbox] to click it."
+          },
+          {
+            "label": "One task left is singular",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#left",
+              "equals": "1 task left"
+            },
+            "failMessage": "Use a ternary for the word: left === 1 ? \"task\" : \"tasks\"."
+          },
+          {
+            "label": "Tasks have unique ids",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/randomUUID\\(\\)|id:\\s*\\w+/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Give each new task an id, e.g. crypto.randomUUID()."
+          },
+          {
+            "label": "The filter buttons come from FILTERS",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/Object\\.(entries|keys)\\(\\s*FILTERS\\s*\\)/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Map over Object.entries(FILTERS) instead of writing each button by hand."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "App needs `const [tasks, setTasks] = useState([]);` and `const [filter, setFilter] = useState(\"all\");`. Derive `const visible = tasks.filter(FILTERS[filter].test);` and `const left = tasks.filter((t) => !t.done).length;`."
+          },
+          {
+            "level": 2,
+            "markdown": "Toggle: `setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));`. Filter buttons:\n```jsx\n{Object.entries(FILTERS).map(([key, { label }]) => (\n  <button key={key} id={`filter-${key}`} aria-pressed={filter === key} onClick={() => setFilter(key)}>\n    {label}\n  </button>\n))}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx, TaskForm.jsx and TaskItem.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "\"3 tasks left\" can be calculated from tasks. So it should be…",
+            "explanation": "Anything you can calculate from state shouldn't be stored separately.",
+            "options": [
+              {
+                "text": "Derived during render",
+                "correct": true
+              },
+              {
+                "text": "Its own state",
+                "correct": false
+              },
+              {
+                "text": "A prop from TaskItem",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does TaskForm keep the typed text in its own state instead of App?",
+            "explanation": "Keep state as close as possible to where it's used.",
+            "options": [
+              {
+                "text": "Only the form needs it, so it's colocated there",
+                "correct": true
+              },
+              {
+                "text": "App can't hold strings",
+                "correct": false
+              },
+              {
+                "text": "Forms must own all state",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which update toggles one task without mutating?",
+            "explanation": "map makes a new array, and the spread makes a new object for the changed task.",
+            "options": [
+              {
+                "text": "ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t))",
+                "correct": true
+              },
+              {
+                "text": "ts.find((t) => t.id === id).done = true",
+                "correct": false
+              },
+              {
+                "text": "ts.push({ id, done: true })",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's the benefit of rendering filter buttons from a FILTERS object?",
+            "explanation": "Data-driven UI avoids repeating the same JSX.",
+            "options": [
+              {
+                "text": "Adding a filter is one line of data, not more JSX",
+                "correct": true
+              },
+              {
+                "text": "It makes buttons load faster",
+                "correct": false
+              },
+              {
+                "text": "React requires it",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does aria-pressed tell a screen reader?",
+            "explanation": "It announces the pressed (selected) state.",
+            "options": [
+              {
+                "text": "Whether a toggle button is on",
+                "correct": true
+              },
+              {
+                "text": "The button's color",
+                "correct": false
+              },
+              {
+                "text": "The keyboard shortcut",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -16,15 +16,18 @@
     "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-query": "^5.107.1",
     "acorn": "^8.19.0",
+    "blockly": "^13.4.0",
     "monaco-editor": "^0.57.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.18.5",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "sucrase": "^3.35.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
+    "@types/jsdom": "^30.0.0",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
@@ -39,6 +42,9 @@
     "node": ">=22.12.0"
   },
   "overrides": {
-    "dompurify": "^3.4.17"
+    "dompurify": "^3.4.17",
+    "blockly": {
+      "jsdom": "$jsdom"
+    }
   }
 }

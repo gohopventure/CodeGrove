@@ -20,9 +20,9 @@ codegrove/
 │  ├─ Data/                      EF Core context, entities, migrations, seeders
 │  ├─ Content/                   Course content as JSON (seeded on startup, upsert by slug)
 │  └─ Infrastructure/            Auth setup, CSRF guard, rate limits, consent cleanup job
-├─ tests/Codegrove.Api.Tests/    xUnit: rule tests + end-to-end API tests on in-memory SQLite (41 tests)
+├─ tests/Codegrove.Api.Tests/    xUnit: rule tests + end-to-end API tests on in-memory SQLite (43 tests)
 ├─ web/                          React 19 + TypeScript + Vite + Tailwind 4 SPA
-│  ├─ src/runner/                Code checking: declarative test engine, harness, loop protection (15 tests)
+│  ├─ src/runner/                Code checking: test engine, harness, loop protection, practice API for fetch
 │  ├─ src/lesson/                Lesson player, Monaco editor wrapper, sandboxed live preview
 │  ├─ src/pages/                 Learner, parent and public pages
 │  └─ public/runner.html         The sandboxed preview page (deployed to its own origin)
@@ -45,6 +45,8 @@ dotnet run                                # http://localhost:5080, SQLite file c
 ```
 
 Development uses SQLite by default so nothing else is needed. Delete `codegrove-dev.db` to start fresh.
+SQLite is created with `EnsureCreated`, not migrations, so **delete it after any schema change** (for example
+the `AddChallengeBlocks` migration); SQL Server picks schema changes up through migrations.
 To develop against SQL Server (what production runs on, and what the migrations target):
 
 ```bash
@@ -88,8 +90,8 @@ and the confirm link is also shown on screen, so you can test without an inbox.
 ## Tests
 
 ```bash
-dotnet test                 # 41 API tests: rules + full HTTP flows (consent, lesson, XP once, hints, limits)
-cd web && npm test          # 15 runner tests: test engine, loop protection, document composition
+dotnet test                 # 44 API tests: rules + full HTTP flows (consent, lesson, XP once, hints, limits)
+cd web && npm test          # runner tests (engine, harness, forms, practice API) + content checks on every challenge
 ```
 
 ## How code checking works
@@ -102,7 +104,13 @@ cd web && npm test          # 15 runner tests: test engine, loop protection, doc
    blocks all network access.
 3. The runner replaces itself with that document. The harness captures console output, waits for
    `load`, runs the challenge's **declarative tests** (`elementExists`, `elementText`,
-   `cssProperty`, `consoleIncludes`, …) and posts results back. Authors write tests as JSON, not code.
+   `cssProperty`, `jsExpression`, `consoleIncludes`, …) and posts results back. Authors write tests
+   as JSON, not code. Two sandbox gaps are filled inside the frame: `fetch` is replaced by a small
+   practice API at `https://api.codegrove.test` (`src/runner/mockApi.ts`; tests wait for its pending
+   requests), and clicking a submit button fires a synthetic `submit` event, because sandboxed frames
+   without `allow-forms` never fire one. An `interact` test (`{ selector, click: true }` or
+   `{ selector, type: "Sam" }`) acts like the learner, so the tests after it can check what changed.
+   React pages are compiled first (see *React lessons* below).
 4. The app posts code + results to the API, which decides "passed" itself (every test of the
    challenge must be present and passing), awards XP once, and checks badges and certificates.
 
@@ -116,8 +124,43 @@ Until the Phase 2 authoring UI exists, content is JSON in `src/Codegrove.Api/Con
 
 The seeder upserts by slug on every start and validates published lessons (tests present, hints at
 levels 1–3, exactly one correct option per question, captions for every video). Learner progress is
-keyed by lesson id, so editing content never loses progress. `html-basics.json` has the fully built
-first lesson in both an Explorer and a Builder version; the other lessons and courses are outlines.
+keyed by lesson id, so editing content never loses progress. Published so far: the Web Foundations
+track (How the Web Works, HTML, CSS), the JavaScript track (`javascript-basics`) and the Frontend
+Frameworks track (`react-basics`, `react-apps`), each lesson in an Explorer and a Builder version. `npm test` in `web/` runs every published challenge through the real
+harness: each solution must pass all its tests and each starter must fail at least one.
+
+### Blocks mode (Explorer JavaScript lessons)
+
+A JS challenge can add `"blocks": { "toolbox": [...], "starter": {...}, "solution": {...} }`. Learners then get a
+Blocks / Text toggle: Blockly (lazy-loaded, `web/src/lesson/blocks/`) writes `script.js`, and the generated
+JavaScript is shown under the blocks. The generator is tuned to look like the lessons' code (`let`,
+`console.log`, `a + b`, `x = x + 1`).
+
+- `toolbox`: category keys from `web/src/lesson/blocks/toolbox.ts` (`variables`, `math`, `text`, `logic`,
+  `loops`, `functions`, `console`); the seeder rejects unknown keys.
+- `starter` / `solution`: Blockly workspace JSON. Only the starter is stored and sent; the solution exists so
+  `npm test` can prove the lesson is solvable with its toolbox (its generated code must pass every test).
+- Submissions made with blocks include the workspace as a hidden `.blocks.json` file, so learners get
+  their blocks back. Blockly media is served from `public/blockly-media`, never Blockly's CDN.
+
+### React lessons (`"kind": "React"`)
+
+Challenge files are laid out like a small Vite project: `index.html` (an empty `#root` and
+`<script type="module" src="main.jsx">`), `main.jsx` (`createRoot(...).render(<App />)`), `App.jsx` first so
+the editor opens on it, plus any other `.jsx`/`.css` files. Learners write real `import`/`export`.
+
+- In the app, Sucrase (lazy-loaded) compiles each `.jsx`/`.js` file (JSX + imports only; line numbers are
+  kept), and `src/runner/react.ts` adds a tiny module loader (`moduleLoader.ts`), React's **development**
+  builds (readable errors and warnings like missing keys) and one script per learner file. Errors name the
+  file and line: "App.jsx, line 4". React and Sucrase download only for React lessons (~1.3 MB, one chunk).
+- `vite-plugins/reactRuntime.ts` packs React from `node_modules` as `virtual:cg-react-runtime`, so the
+  preview always runs the same React version as the app, with no CDN.
+- Single-file examples use an inline `<script type="text/jsx">` in `exampleCode`.
+- Tests run one at a time. After each one the harness waits for any practice-API request it started
+  (a click that fetches), then pauses 30 ms for React's re-render, so `interact` → `elementText`
+  sequences work. The first test waits the same way for requests made on load (`useEffect` fetches). Source checks use `window.__cgSources["App.jsx"]` (the
+  uncompiled file).
+- Known gap: Sucrase doesn't validate closing tag names, so `<h1>Hi</h2>` runs. Monaco underlines it.
 
 ## Deploying to Azure
 

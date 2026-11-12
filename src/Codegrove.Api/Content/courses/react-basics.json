@@ -1,0 +1,1829 @@
+{
+  "slug": "react-basics",
+  "title": "React Basics: Components and State",
+  "summary": "Build pages out of components: JSX, props, lists and state with React.",
+  "ageBand": "Both",
+  "estimatedMinutes": 100,
+  "isPublished": true,
+  "objectives": [
+    "Explain what React is and how a React project fits together",
+    "Write components and use them like tags",
+    "Show data in JSX with curly braces",
+    "Pass information into components with props",
+    "Turn arrays into lists with map and keys",
+    "Make components interactive with useState"
+  ],
+  "lessons": [
+    {
+      "slug": "components-explorer",
+      "title": "Your first React component",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Build pages out of bricks\n\nYou've built pages with HTML and made them move with JavaScript. **React** is a JavaScript tool that big websites use to build pages out of small, reusable pieces called **components**. Think of components like LEGO bricks: build a brick once, then snap in as many copies as you want.\n\n### A component is a function\n\n```jsx\nfunction Welcome() {\n  return <p>Welcome, astronauts!</p>;\n}\n```\n\nThat's a whole component! Two rules:\n\n1. Its name starts with a **capital letter** (`Welcome`, not `welcome`).\n2. It **returns** what should show on the page.\n\nThe HTML-looking part is called **JSX**. It looks like HTML, but it lives inside JavaScript.\n\n### Use a component like a tag\n\n```jsx\n<Welcome />\n<Welcome />\n```\n\nEach `<Welcome />` puts one copy of the component on the page. The `/` before `>` closes the tag.\n\n### Where does it go?\n\nA React project has a few files. You'll mostly work in **App.jsx**. The file **main.jsx** puts your `App` component on the page for you, so you don't need to change it.\n\n### New words\n\n- **React**: a JavaScript library (a bundle of ready-made code) for building pages out of components.\n- **Component**: a function that returns a piece of the page. Its name starts with a capital letter.\n- **JSX** (*JavaScript XML*): the HTML-looking code inside a component.\n- **Render**: when React draws your components on the page.\n",
+      "exampleMarkdown": "`App` uses the `Welcome` component twice, so the message shows up twice. (In a real project these would be in separate files. Here everything is in one page so you can see it all at once.)",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Space Club</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n\n      function Welcome() {\n        return <p>Welcome, astronauts!</p>;\n      }\n\n      function App() {\n        return (\n          <main>\n            <h1>Space Club</h1>\n            <Welcome />\n            <Welcome />\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Build the front page of a pet shop in **App.jsx**.\n\n1. Change the heading to **Pixel's Pet Shop**.\n2. Add a `<p>` that says **We have cats, dogs and one very fast hamster.**\n3. Make a new component called `OpenSign` that returns `<strong>We're open!</strong>`. Then put `<OpenSign />` inside `<main>`.\n\nWatch the preview change as you type.",
+        "starterFiles": {
+          "App.jsx": "export default function App() {\n  return (\n    <main>\n      <h1>Hello!</h1>\n      {/* 2. Add a <p> here */}\n\n      {/* 3. Use your OpenSign component here */}\n    </main>\n  );\n}\n\n// 3. Make an OpenSign component down here\n\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Shop</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "export default function App() {\n  return (\n    <main>\n      <h1>Pixel's Pet Shop</h1>\n      {/* 2. Add a <p> here */}\n      <p>We have cats, dogs and one very fast hamster.</p>\n      {/* 3. Use your OpenSign component here */}\n      <OpenSign />\n    </main>\n  );\n}\n\n// 3. Make an OpenSign component down here\nfunction OpenSign() {\n  return <strong>We're open!</strong>;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Shop</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The heading says Pixel's Pet Shop",
+            "kind": "elementText",
+            "spec": {
+              "selector": "h1",
+              "equals": "Pixel's Pet Shop"
+            },
+            "failMessage": "Change the text between <h1> and </h1>."
+          },
+          {
+            "label": "There's a paragraph about the pets",
+            "kind": "elementText",
+            "spec": {
+              "selector": "main p",
+              "contains": "hamster"
+            },
+            "failMessage": "Add <p>We have cats, dogs and one very fast hamster.</p> inside <main>."
+          },
+          {
+            "label": "The OpenSign component shows on the page",
+            "kind": "elementText",
+            "spec": {
+              "selector": "main strong",
+              "equals": "We're open!"
+            },
+            "failMessage": "Write function OpenSign() { return <strong>We're open!</strong>; } and put <OpenSign /> inside <main>."
+          },
+          {
+            "label": "OpenSign is a component",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/function\\s+OpenSign\\s*\\(/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Make OpenSign a function: function OpenSign() { ... }"
+          },
+          {
+            "label": "App uses <OpenSign />",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/<OpenSign\\s*\\/>/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Use your component like a tag: <OpenSign />"
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "A component is a function with a capital-letter name that **returns** some JSX. You use it like a tag: `<OpenSign />`."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\nfunction OpenSign() {\n  return <strong>We're open!</strong>;\n}\n```\nThen add `<OpenSign />` inside `<main>`, under your paragraph."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is a React component?",
+            "explanation": "A component is a function that returns JSX: a piece of the page.",
+            "options": [
+              {
+                "text": "A function that returns part of the page",
+                "correct": true
+              },
+              {
+                "text": "A kind of CSS file",
+                "correct": false
+              },
+              {
+                "text": "A button you click",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which name works for a component?",
+            "explanation": "Component names start with a capital letter, so React can tell them apart from HTML tags.",
+            "options": [
+              {
+                "text": "Scoreboard",
+                "correct": true
+              },
+              {
+                "text": "scoreboard",
+                "correct": false
+              },
+              {
+                "text": "score-board",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How do you show the Scoreboard component on the page?",
+            "explanation": "You use a component like a tag, and close it with />.",
+            "options": [
+              {
+                "text": "<Scoreboard />",
+                "correct": true
+              },
+              {
+                "text": "Scoreboard()",
+                "correct": false
+              },
+              {
+                "text": "<scoreboard>",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "components",
+      "title": "Components and the React way",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 12,
+      "isPublished": true,
+      "learnMarkdown": "## Why React?\n\nWith plain JavaScript you write the steps to change the page: find this element, change its text, append that one. That works, but in a big app it's easy to forget a step and end up with a page that doesn't match your data.\n\n**React** flips it around. You describe what the page *should look like* for the current data, and React works out which DOM changes to make. This style is called **declarative**: you declare the result, not the steps.\n\nReact apps are built from **components**: functions that return a piece of the **UI** (*User Interface*). Small components combine into bigger ones, all the way up to the whole app.\n\n```jsx\nfunction Header() {\n  return (\n    <header>\n      <h1>Game Night</h1>\n    </header>\n  );\n}\n```\n\n- Component names are **PascalCase** (every word capitalized). React treats `<header>` as an HTML tag and `<Header />` as your component.\n- A component **returns JSX**. When it spans several lines, wrap it in `( )` so JavaScript doesn't stop at the end of the `return` line.\n\n### How a React project fits together\n\nReal projects (made with a tool like **Vite**) have the same shape as your challenge:\n\n| File | What it does |\n| --- | --- |\n| `index.html` | One empty `<div id=\"root\">` and a `<script type=\"module\">` that loads `main.jsx` |\n| `main.jsx` | `createRoot(...).render(<App />)` draws your app inside `#root` |\n| `App.jsx` | The top component. Everything else goes inside it |\n\n### Modules: one component per file\n\nEach file is a **module**. A module shares things with `export` and gets them from other files with `import`:\n\n```jsx\n// Header.jsx\nexport default function Header() { ... }\n\n// App.jsx\nimport Header from \"./Header\";   // \".jsx\" is optional in the path\n```\n\n`export default` marks the file's main thing; there can be one per file. A component that's only used in one file doesn't need exporting.\n\n### New words\n\n- **React**: a JavaScript library for building user interfaces from components.\n- **UI** (*User Interface*): everything the user sees and interacts with.\n- **Component**: a function that returns JSX. Named in PascalCase.\n- **JSX** (*JavaScript XML*): HTML-like syntax inside JavaScript that React turns into elements.\n- **Declarative**: describing the result you want instead of the steps to get there.\n- **Render**: React calling your components and putting the result on the page.\n- **Module**: a file whose code is private unless it's exported.\n- **export default / import**: share a file's main value / use it in another file.\n",
+      "exampleMarkdown": "Three components: `Header`, `Rule` (used three times) and `App`, which puts them together. In a real project each would live in its own file.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Club Rules</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n\n      function Header() {\n        return (\n          <header>\n            <h1>Robotics Club</h1>\n          </header>\n        );\n      }\n\n      function Rule() {\n        return <li>Safety glasses on!</li>;\n      }\n\n      function App() {\n        return (\n          <main>\n            <Header />\n            <ol>\n              <Rule />\n              <Rule />\n              <Rule />\n            </ol>\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Split the Game Night page into components.\n\n1. In **Header.jsx**, write a `Header` component that returns a `<header>` containing `<h1>Game Night</h1>`, and make it the file's **default export**.\n2. In **App.jsx**, import `Header` and render it as the first thing inside `<main>`.\n3. Still in **App.jsx**, define a `Footer` component that returns `<footer>See you Friday!</footer>` and render it after the list.",
+        "starterFiles": {
+          "App.jsx": "import \"./App.css\";\n\nexport default function App() {\n  return (\n    <main>\n      {/* 2. Show the Header component here */}\n      <ul>\n        <li>Snack table at 6</li>\n        <li>Tournament at 7</li>\n      </ul>\n      {/* 3. Show the Footer component here */}\n    </main>\n  );\n}\n\n// 3. Define a Footer component (no export needed: only this file uses it)\n",
+          "Header.jsx": "// 1. Write a Header component here and export it as the default.\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  max-width: 32rem;\n  margin: 2rem auto;\n}\n\nheader {\n  background: #4c1d95;\n  color: white;\n  padding: 0.5rem 1rem;\n  border-radius: 8px;\n}\n\nfooter {\n  color: #6b7280;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Game Night</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import \"./App.css\";\nimport Header from \"./Header\";\n\nexport default function App() {\n  return (\n    <main>\n      {/* 2. Show the Header component here */}\n      <Header />\n      <ul>\n        <li>Snack table at 6</li>\n        <li>Tournament at 7</li>\n      </ul>\n      {/* 3. Show the Footer component here */}\n      <Footer />\n    </main>\n  );\n}\n\n// 3. Define a Footer component (no export needed: only this file uses it)\nfunction Footer() {\n  return <footer>See you Friday!</footer>;\n}\n",
+          "Header.jsx": "// 1. Write a Header component here and export it as the default.\nexport default function Header() {\n  return (\n    <header>\n      <h1>Game Night</h1>\n    </header>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  max-width: 32rem;\n  margin: 2rem auto;\n}\n\nheader {\n  background: #4c1d95;\n  color: white;\n  padding: 0.5rem 1rem;\n  border-radius: 8px;\n}\n\nfooter {\n  color: #6b7280;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Game Night</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The header shows Game Night",
+            "kind": "elementText",
+            "spec": {
+              "selector": "main > header h1",
+              "equals": "Game Night"
+            },
+            "failMessage": "Return <header><h1>Game Night</h1></header> from Header, and render <Header /> inside <main>."
+          },
+          {
+            "label": "The header comes first",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "main > header:first-child"
+            },
+            "failMessage": "Put <Header /> above the list, as the first thing inside <main>."
+          },
+          {
+            "label": "The footer comes after the list",
+            "kind": "elementText",
+            "spec": {
+              "selector": "main > ul + footer",
+              "equals": "See you Friday!"
+            },
+            "failMessage": "Define Footer in App.jsx and render <Footer /> right after the </ul>."
+          },
+          {
+            "label": "Header.jsx has a default export",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/export\\s+default\\s+function\\s+Header\\b/.test(window.__cgSources[\"Header.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "In Header.jsx: export default function Header() { ... }"
+          },
+          {
+            "label": "App.jsx imports Header",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/import\\s+Header\\s+from\\s+[\\\"']\\.\\/Header(\\.jsx)?[\\\"']/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "At the top of App.jsx: import Header from \"./Header\";"
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Header.jsx needs `export default function Header() { return ( … ); }`. App.jsx needs `import Header from \"./Header\";` at the top, then `<Header />` where you want it."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\n// Header.jsx\nexport default function Header() {\n  return (\n    <header>\n      <h1>Game Night</h1>\n    </header>\n  );\n}\n```\nIn App.jsx, `Footer` is just `function Footer() { return <footer>See you Friday!</footer>; }`."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx and Header.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does \"declarative\" mean in React?",
+            "explanation": "You describe the result for the current data; React works out the DOM changes.",
+            "options": [
+              {
+                "text": "You describe what the UI should look like and React updates the DOM",
+                "correct": true
+              },
+              {
+                "text": "You write every DOM change step by step",
+                "correct": false
+              },
+              {
+                "text": "You declare all your variables with const",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why must component names start with a capital letter?",
+            "explanation": "<header> is an HTML element; <Header /> is your component.",
+            "options": [
+              {
+                "text": "So JSX can tell components apart from HTML tags",
+                "correct": true
+              },
+              {
+                "text": "Because JavaScript requires it for all functions",
+                "correct": false
+              },
+              {
+                "text": "It's only a style choice",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which line makes Header available to other files?",
+            "explanation": "export default shares the file's main value; import is how another file uses it.",
+            "options": [
+              {
+                "text": "export default function Header() { … }",
+                "correct": true
+              },
+              {
+                "text": "function Header() { … }",
+                "correct": false
+              },
+              {
+                "text": "import Header from \"./Header\";",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does main.jsx do in a React project?",
+            "explanation": "createRoot(document.getElementById(\"root\")).render(<App />) puts the app on the page.",
+            "options": [
+              {
+                "text": "Draws <App /> inside the #root element",
+                "correct": true
+              },
+              {
+                "text": "Holds all the CSS",
+                "correct": false
+              },
+              {
+                "text": "Lists every component in the app",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why wrap a multi-line return in parentheses?",
+            "explanation": "A bare return followed by a new line returns undefined; ( ) keeps the JSX together.",
+            "options": [
+              {
+                "text": "So JavaScript doesn't end the return statement at the line break",
+                "correct": true
+              },
+              {
+                "text": "Parentheses make JSX faster",
+                "correct": false
+              },
+              {
+                "text": "React needs them to find the component",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "jsx-explorer",
+      "title": "JSX: curly braces are magic",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## JSX is HTML with superpowers\n\nJSX looks like HTML, but you can drop **JavaScript** right into it with **curly braces** `{ }`.\n\n```jsx\nconst pet = \"Biscuit\";\n\nfunction App() {\n  return <h1>Hello, {pet}!</h1>;   // shows: Hello, Biscuit!\n}\n```\n\nAnything inside `{ }` gets worked out first: a variable, some math like `{2 + 3}`, or text joined together.\n\n### Three JSX rules\n\n1. **`className`, not `class`.** `class` already means something in JavaScript, so JSX uses `className=\"card\"`.\n2. **Close every tag.** Tags with nothing inside close themselves: `<img src=\"cat.png\" alt=\"A cat\" />`, `<br />`.\n3. **One outer element.** A component returns one thing, so wrap groups in a `<div>` (or an empty `<>` … `</>`).\n\n```jsx\nreturn (\n  <div className=\"card\">\n    <h2>{pet}</h2>\n    <p>Age: {3 + 1}</p>\n  </div>\n);\n```\n\n### New words\n\n- **Curly braces** `{ }`: in JSX, they hold JavaScript that gets worked out and shown.\n- **className**: how you give an element a CSS class in JSX.\n- **Self-closing tag**: a tag with nothing inside that ends with `/>`, like `<img />`.\n",
+      "exampleMarkdown": "The variables at the top fill in the card. Change `score` in your head: the page would show the new number and the new total.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Score Card</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n\n      const name = \"Rio\";\n      const score = 40;\n\n      function App() {\n        return (\n          <div className=\"card\">\n            <h2>{name}</h2>\n            <p>Score: {score}</p>\n            <p>With bonus: {score + 10}</p>\n          </div>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Finish the player card in **App.jsx**.\n\n1. Give the outer `<div>` the class **card** (remember: `className`).\n2. Make the `<h2>` show the `player` variable using `{ }`.\n3. Make the level paragraph say **Level 7** using the `level` variable.",
+        "starterFiles": {
+          "App.jsx": "const player = \"Nova\";\nconst level = 7;\nconst avatar = \"🦊\";\n\nexport default function App() {\n  return (\n    <div>\n      <p>{avatar}</p>\n      {/* 1. Show the player's name in this h2 with { } */}\n      <h2>Player name goes here</h2>\n      {/* 2. Show \"Level 7\" using the level variable */}\n      <p className=\"level\">Level ?</p>\n    </div>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Player Card</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "const player = \"Nova\";\nconst level = 7;\nconst avatar = \"🦊\";\n\nexport default function App() {\n  return (\n    <div className=\"card\">\n      <p>{avatar}</p>\n      {/* 1. Show the player's name in this h2 with { } */}\n      <h2>{player}</h2>\n      {/* 2. Show \"Level 7\" using the level variable */}\n      <p className=\"level\">Level {level}</p>\n    </div>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Player Card</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The card has the class card",
+            "kind": "elementExists",
+            "spec": {
+              "selector": "div.card"
+            },
+            "failMessage": "Add className=\"card\" to the outer <div>."
+          },
+          {
+            "label": "The name comes from the player variable",
+            "kind": "elementText",
+            "spec": {
+              "selector": "h2",
+              "equals": "Nova"
+            },
+            "failMessage": "Put {player} between <h2> and </h2>."
+          },
+          {
+            "label": "Uses {player}",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\{\\s*player\\s*\\}/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Use the variable with curly braces: {player}"
+          },
+          {
+            "label": "The level shows Level 7",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".level",
+              "equals": "Level 7"
+            },
+            "failMessage": "Inside the paragraph: Level {level}"
+          },
+          {
+            "label": "Uses {level}",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\{\\s*level\\s*\\}/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Use the variable with curly braces: {level}"
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Curly braces show a variable: `<h2>{player}</h2>`. For the class, JSX uses `className=\"card\"`."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\n<div className=\"card\">\n  ...\n  <h2>{player}</h2>\n  <p className=\"level\">Level {level}</p>\n</div>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What shows on the page? `<p>{4 + 4}</p>`",
+            "explanation": "JavaScript inside { } is worked out first, so React shows 8.",
+            "options": [
+              {
+                "text": "8",
+                "correct": true
+              },
+              {
+                "text": "4 + 4",
+                "correct": false
+              },
+              {
+                "text": "{4 + 4}",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How do you give an element a CSS class in JSX?",
+            "explanation": "class is a JavaScript word, so JSX uses className.",
+            "options": [
+              {
+                "text": "className=\"card\"",
+                "correct": true
+              },
+              {
+                "text": "class=\"card\"",
+                "correct": false
+              },
+              {
+                "text": "css=\"card\"",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which image tag is correct JSX?",
+            "explanation": "In JSX, empty tags must close themselves with />.",
+            "options": [
+              {
+                "text": "<img src=\"cat.png\" alt=\"A cat\" />",
+                "correct": true
+              },
+              {
+                "text": "<img src=\"cat.png\" alt=\"A cat\">",
+                "correct": false
+              },
+              {
+                "text": "<img>cat.png</img>",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "jsx",
+      "title": "JSX in depth",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 12,
+      "isPublished": true,
+      "learnMarkdown": "## What JSX really is\n\nJSX isn't HTML. Before your code runs, a **compiler** (a tool that translates code) turns each tag into a function call:\n\n```jsx\n<h1 className=\"title\">Hi {name}</h1>\n// becomes roughly\njsx(\"h1\", { className: \"title\", children: [\"Hi \", name] })\n```\n\nThat one fact explains all of JSX's rules.\n\n### Expressions go in curly braces\n\n`{ }` holds any JavaScript **expression**: something that produces a value. Variables, math, function calls, template strings, ternaries:\n\n```jsx\n<p>{user.name.toUpperCase()}</p>\n<p>{items.length} items, total ${(price * qty).toFixed(2)}</p>\n```\n\n**Statements** like `if`, `for` or `const` can't go inside `{ }` (they don't produce a value). Do that work before the `return`, store the result in a variable, then show the variable.\n\n### Attributes are JavaScript property names\n\n- `className` instead of `class`, `htmlFor` instead of `for`.\n- Multi-word attributes are **camelCase**: `tabIndex`, `onClick`, `autoFocus`. (`aria-*` and `data-*` keep their dashes.)\n- Strings use quotes; everything else uses braces: `width={200}`, `disabled={true}`.\n\n### Inline styles take an object\n\n```jsx\n<p style={{ color: \"teal\", fontSize: \"2rem\" }}>Hi</p>\n```\n\nThe outer braces mean \"JavaScript here\"; the inner ones are a JavaScript **object**. CSS property names become camelCase (`font-size` → `fontSize`). Most styling still belongs in a `.css` file with `className`.\n\n### One root, and fragments\n\nA function returns one value, so a component returns one element. If you don't want an extra `<div>` in the page, use a **fragment**: `<>` … `</>`. It groups elements without adding anything to the DOM.\n\nEvery tag must be closed (`<img />`, `<br />`, `<input />`), and comments look like `{/* this */}`.\n\n### New words\n\n- **JSX** (*JavaScript XML*): tag syntax that compiles to JavaScript function calls.\n- **Compiler**: a tool that translates code into another form before it runs.\n- **Expression**: code that produces a value (`2 + 2`, `name`, `fn()`). Statements (`if`, `for`) don't.\n- **camelCase**: joining words with capitals after the first: `fontSize`, `onClick`.\n- **Fragment** (`<>` … `</>`): groups elements without adding an element to the page.\n",
+      "exampleMarkdown": "The price is worked out before the `return`, then shown with braces. The `<>` fragment means the heading and paragraphs sit directly inside `#root`, with no extra wrapper.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Ticket Price</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n\n      const show = \"Laser Light Show\";\n      const price = 8.5;\n      const tickets = 3;\n\n      function App() {\n        const total = (price * tickets).toFixed(2);\n        return (\n          <>\n            <h2>{show.toUpperCase()}</h2>\n            <p style={{ color: \"purple\" }}>{tickets} tickets</p>\n            <p>Total: ${total}</p>\n          </>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Build a weather card from the two variables in **App.jsx**.\n\n1. Before the `return`, work out the temperature in Fahrenheit: `°F = °C × 9 / 5 + 32`, rounded with `Math.round`.\n2. Show `city` in the `<h2>`.\n3. Make the paragraph show **22°C / 72°F** using `tempC` and your Fahrenheit value (don't type 72 yourself). Give it the class **temp** and make it bold with an inline style object.\n4. Swap the outer `<div>` for a fragment, so the `<h2>` and `<p>` sit directly inside `#root`.",
+        "starterFiles": {
+          "App.jsx": "import \"./App.css\";\n\nconst city = \"Lima\";\nconst tempC = 22;\n\nexport default function App() {\n  // 1. Work out the temperature in °F here (round it).\n\n  // 4. Return a fragment instead of the <div>\n  return (\n    <div>\n      {/* 2. The city's name */}\n      <h2>City</h2>\n      {/* 3. Both temperatures, in bold, worked out from tempC */}\n      <p>?</p>\n    </div>\n  );\n}\n",
+          "App.css": "#root {\n  font-family: system-ui, sans-serif;\n  margin: 2rem;\n}\n\n.temp {\n  font-size: 2rem;\n  color: #0369a1;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Weather</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import \"./App.css\";\n\nconst city = \"Lima\";\nconst tempC = 22;\n\nexport default function App() {\n  // 1. Work out the temperature in °F here (round it).\n  const tempF = Math.round((tempC * 9) / 5 + 32);\n\n  // 4. Return a fragment instead of the <div>\n  return (\n    <>\n      {/* 2. The city's name */}\n      <h2>{city}</h2>\n      {/* 3. Both temperatures, in bold, worked out from tempC */}\n      <p className=\"temp\" style={{ fontWeight: \"bold\" }}>\n        {tempC}°C / {tempF}°F\n      </p>\n    </>\n  );\n}\n",
+          "App.css": "#root {\n  font-family: system-ui, sans-serif;\n  margin: 2rem;\n}\n\n.temp {\n  font-size: 2rem;\n  color: #0369a1;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Weather</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The city is shown",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#root > h2",
+              "equals": "Lima"
+            },
+            "failMessage": "Use {city} inside the <h2>, and return a fragment (<> … </>) so the h2 is directly inside #root."
+          },
+          {
+            "label": "The temperature shows both units",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#root > p.temp",
+              "equals": "22°C / 72°F"
+            },
+            "failMessage": "The paragraph needs className=\"temp\" and {tempC}°C / {tempF}°F."
+          },
+          {
+            "label": "The temperature is bold",
+            "kind": "cssProperty",
+            "spec": {
+              "selector": ".temp",
+              "property": "font-weight",
+              "equals": "bold"
+            },
+            "failMessage": "Add style={{ fontWeight: \"bold\" }} to the paragraph."
+          },
+          {
+            "label": "Fahrenheit is calculated, not typed",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/72/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": false
+            },
+            "failMessage": "Work out °F from tempC with Math.round(...) instead of typing 72."
+          },
+          {
+            "label": "Uses Math.round",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/Math\\.round\\(/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Round the Fahrenheit value with Math.round(...)."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Do the math before `return`: `const tempF = Math.round(tempC * 9 / 5 + 32);`. In JSX, show values with braces: `{tempC}°C / {tempF}°F`."
+          },
+          {
+            "level": 2,
+            "markdown": "Inline styles take an object, so there are two pairs of braces: `style={{ fontWeight: \"bold\" }}`. Replace `<div>` and `</div>` with `<>` and `</>`."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does JSX turn into before it runs?",
+            "explanation": "A compiler turns each tag into a call like jsx(\"h1\", props).",
+            "options": [
+              {
+                "text": "JavaScript function calls",
+                "correct": true
+              },
+              {
+                "text": "An HTML file",
+                "correct": false
+              },
+              {
+                "text": "CSS rules",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which of these can go inside { } in JSX?",
+            "explanation": "Only expressions (code that produces a value) work inside braces.",
+            "options": [
+              {
+                "text": "items.length * 2",
+                "correct": true
+              },
+              {
+                "text": "if (ready) { … }",
+                "correct": false
+              },
+              {
+                "text": "const x = 5",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How do you write CSS's background-color as an inline style in JSX?",
+            "explanation": "style takes an object, and CSS names become camelCase.",
+            "options": [
+              {
+                "text": "style={{ backgroundColor: \"pink\" }}",
+                "correct": true
+              },
+              {
+                "text": "style=\"background-color: pink\"",
+                "correct": false
+              },
+              {
+                "text": "style={backgroundColor: pink}",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does a fragment (<> … </>) add to the DOM?",
+            "explanation": "Fragments let a component return several elements without a wrapper.",
+            "options": [
+              {
+                "text": "Nothing: it only groups elements",
+                "correct": true
+              },
+              {
+                "text": "A <div>",
+                "correct": false
+              },
+              {
+                "text": "A <section>",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which attribute name is correct in JSX?",
+            "explanation": "for is a JavaScript keyword, so labels use htmlFor.",
+            "options": [
+              {
+                "text": "htmlFor",
+                "correct": true
+              },
+              {
+                "text": "for",
+                "correct": false
+              },
+              {
+                "text": "html-for",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "props-explorer",
+      "title": "Props: give your components info",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Same brick, different stickers\n\nA component that always shows the same thing isn't very useful. **Props** let you send information *into* a component, so each copy can be different.\n\nYou pass props like HTML attributes:\n\n```jsx\n<Badge color=\"gold\" label=\"Winner\" />\n<Badge color=\"silver\" label=\"Runner-up\" />\n```\n\nThe component gets them all in one object, usually called `props`:\n\n```jsx\nfunction Badge(props) {\n  return <p>{props.label} ({props.color})</p>;\n}\n```\n\n`props.label` is `\"Winner\"` for the first badge and `\"Runner-up\"` for the second. One component, many results!\n\n### Props only go one way\n\nProps travel **down**, from the component that uses the tag to the component itself. A component reads its props but never changes them.\n\n### New words\n\n- **Props** (short for *properties*): information you pass into a component, written like HTML attributes.\n- **props.something**: how a component reads one of its props.\n",
+      "exampleMarkdown": "`Badge` is written once and used three times. Each use passes different props, so each badge says something different.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Badges</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n\n      function Badge(props) {\n        return (\n          <p>\n            🏅 {props.label} ({props.color})\n          </p>\n        );\n      }\n\n      function App() {\n        return (\n          <main>\n            <h1>Race Results</h1>\n            <Badge label=\"Winner\" color=\"gold\" />\n            <Badge label=\"Runner-up\" color=\"silver\" />\n            <Badge label=\"Third place\" color=\"bronze\" />\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Fill the adoption page with pet cards.\n\n1. Make `PetCard` show `props.name` in the `<h2>` and `props.sound` after **Says:**.\n2. In `App`, add two more pet cards: **Mittens** who says **Meow**, and **Zippy** who says **Squeak**.",
+        "starterFiles": {
+          "App.jsx": "import \"./App.css\";\n\nfunction PetCard(props) {\n  return (\n    <div className=\"pet-card\">\n      {/* 1. Show props.name and props.sound instead of ??? */}\n      <h2>???</h2>\n      <p>Says: ???</p>\n    </div>\n  );\n}\n\nexport default function App() {\n  return (\n    <main>\n      <h1>Adopt a Pet</h1>\n      <PetCard name=\"Biscuit\" sound=\"Woof\" />\n      {/* 2. Add Mittens (Meow) and Zippy (Squeak) */}\n    </main>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n.pet-card {\n  display: inline-block;\n  width: 9rem;\n  margin: 0.5rem;\n  padding: 0.75rem;\n  border: 3px solid #f59e0b;\n  border-radius: 12px;\n  text-align: center;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Adopt a Pet</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import \"./App.css\";\n\nfunction PetCard(props) {\n  return (\n    <div className=\"pet-card\">\n      {/* 1. Show props.name and props.sound instead of ??? */}\n      <h2>{props.name}</h2>\n      <p>Says: {props.sound}</p>\n    </div>\n  );\n}\n\nexport default function App() {\n  return (\n    <main>\n      <h1>Adopt a Pet</h1>\n      <PetCard name=\"Biscuit\" sound=\"Woof\" />\n      {/* 2. Add Mittens (Meow) and Zippy (Squeak) */}\n      <PetCard name=\"Mittens\" sound=\"Meow\" />\n      <PetCard name=\"Zippy\" sound=\"Squeak\" />\n    </main>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n.pet-card {\n  display: inline-block;\n  width: 9rem;\n  margin: 0.5rem;\n  padding: 0.75rem;\n  border: 3px solid #f59e0b;\n  border-radius: 12px;\n  text-align: center;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Adopt a Pet</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Biscuit's card shows its name",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".pet-card:nth-of-type(1) h2",
+              "equals": "Biscuit"
+            },
+            "failMessage": "Show the name with {props.name} inside the <h2>."
+          },
+          {
+            "label": "Biscuit's card shows its sound",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".pet-card:nth-of-type(1) p",
+              "equals": "Says: Woof"
+            },
+            "failMessage": "Write Says: {props.sound} in the paragraph."
+          },
+          {
+            "label": "There are 3 pet cards",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".pet-card",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "Add <PetCard name=\"Mittens\" sound=\"Meow\" /> and one for Zippy."
+          },
+          {
+            "label": "Mittens is the second pet",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".pet-card:nth-of-type(2) h2",
+              "equals": "Mittens"
+            },
+            "failMessage": "The second card needs name=\"Mittens\"."
+          },
+          {
+            "label": "Zippy says Squeak",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".pet-card:nth-of-type(3) p",
+              "equals": "Says: Squeak"
+            },
+            "failMessage": "The third card needs name=\"Zippy\" and sound=\"Squeak\"."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Inside `PetCard`, `{props.name}` shows the name you passed in. Copy the `<PetCard … />` line to make more cards."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\n<h2>{props.name}</h2>\n<p>Says: {props.sound}</p>\n```\nand in App: `<PetCard name=\"Mittens\" sound=\"Meow\" />`."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What are props?",
+            "explanation": "Props are written like attributes and arrive in the component's props object.",
+            "options": [
+              {
+                "text": "Information you pass into a component",
+                "correct": true
+              },
+              {
+                "text": "Special CSS for React",
+                "correct": false
+              },
+              {
+                "text": "The files in a React project",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "With <Hero power=\"flying\" />, what is props.power?",
+            "explanation": "Each attribute you write becomes a property of props.",
+            "options": [
+              {
+                "text": "\"flying\"",
+                "correct": true
+              },
+              {
+                "text": "\"Hero\"",
+                "correct": false
+              },
+              {
+                "text": "\"power\"",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Can a component change its own props?",
+            "explanation": "Props come from the parent. A component reads them but doesn't change them.",
+            "options": [
+              {
+                "text": "No, props are read-only",
+                "correct": true
+              },
+              {
+                "text": "Yes, any time",
+                "correct": false
+              },
+              {
+                "text": "Only on Fridays",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "props",
+      "title": "Props and reusable components",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 14,
+      "isPublished": true,
+      "learnMarkdown": "## Components with inputs\n\nA component is a function, and **props** are its arguments. Whatever attributes you write on the tag arrive as one object:\n\n```jsx\n<Avatar user=\"ByteRunner\" size={64} online={true} />\n\nfunction Avatar(props) {\n  // props = { user: \"ByteRunner\", size: 64, online: true }\n}\n```\n\nStrings can use quotes. Anything else (numbers, booleans, arrays, objects, functions) goes in braces. `size=\"64\"` would pass the *string* `\"64\"`, which is a classic bug.\n\n### Destructuring props\n\nMost React code unpacks props right in the parameter list, using **destructuring**:\n\n```jsx\nfunction Avatar({ user, size, online = false }) {\n  return <img src={`/avatars/${user}.png`} width={size} alt={user} />;\n}\n```\n\n`online = false` is a **default value**: it's used when the prop isn't passed at all.\n\n### The children prop\n\nWhatever you put *between* a component's opening and closing tags arrives as `children`:\n\n```jsx\n<Panel title=\"Tips\">Drink water. Take breaks.</Panel>\n\nfunction Panel({ title, children }) {\n  return (\n    <section>\n      <h2>{title}</h2>\n      {children}\n    </section>\n  );\n}\n```\n\nThat makes wrapper components (cards, panels, layouts) easy to reuse.\n\n### One-way data flow\n\nProps flow **down** from parent to child. A component must never change its props: treat them as read-only. (When data needs to change, that's **state**, coming up soon.) Because data only flows one way, you can always find where a value came from by looking up the tree.\n\n### New words\n\n- **Props** (*properties*): the input object a component receives from its parent.\n- **Destructuring**: unpacking object properties into variables: `const { a, b } = obj`.\n- **Default value**: a fallback used when a prop isn't passed: `{ badge = \"New\" }`.\n- **children**: the special prop holding whatever is between a component's tags.\n- **One-way data flow**: data passes from parent to child through props, never back up.\n",
+      "exampleMarkdown": "`Panel` is reusable: the title comes from a prop, the body from `children`, and `tone` falls back to `\"info\"` when it isn't passed.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Panels</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n\n      function Panel({ title, tone = \"info\", children }) {\n        const colors = { info: \"#0369a1\", warning: \"#b45309\" };\n        return (\n          <section style={{ borderLeft: `6px solid ${colors[tone]}`, paddingLeft: \"1rem\" }}>\n            <h2>{title}</h2>\n            {children}\n          </section>\n        );\n      }\n\n      function App() {\n        return (\n          <main>\n            <Panel title=\"Tip\">Save your work often.</Panel>\n            <Panel title=\"Careful\" tone=\"warning\">\n              <p>Deleting a file can't be undone.</p>\n            </Panel>\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Build a reusable product card for the skate shop.\n\n1. In **ProductCard.jsx**, write and default-export `ProductCard`. Destructure its props: `name`, `price`, `badge` (default **\"New\"**) and `children`. Return an `<article className=\"product\">` containing:\n   - `<span className=\"badge\">` with the badge\n   - `<h3>` with the name\n   - `<p className=\"price\">` with the price as dollars with two decimals (`49.5` → **$49.50**; try `toFixed`)\n   - `<p className=\"description\">` with the children\n2. Import it in **App.jsx**.\n3. Render three cards. Pass prices as **numbers**:\n   - Skateboard, 49.5, \"Great for beginners.\"\n   - Helmet, 29, \"Protects your brain.\"\n   - Knee pads, 15.25, badge **Sale**, \"Fall like a pro.\"",
+        "starterFiles": {
+          "App.jsx": "import \"./App.css\";\n// 2. Import ProductCard\n\nexport default function App() {\n  return (\n    <main>\n      <h1>Skate Shop</h1>\n      {/* 3. Three ProductCards go here */}\n    </main>\n  );\n}\n",
+          "ProductCard.jsx": "// 1. Write the ProductCard component here, then export it as the default.\n//    Props: name, price (a number), badge (default \"New\"), children.\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n.product {\n  border: 1px solid #d1d5db;\n  border-radius: 10px;\n  padding: 0.75rem 1rem;\n  margin-bottom: 0.75rem;\n}\n\n.badge {\n  background: #16a34a;\n  color: white;\n  border-radius: 999px;\n  padding: 0.1rem 0.6rem;\n  font-size: 0.8rem;\n}\n\n.price {\n  font-weight: bold;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Skate Shop</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import \"./App.css\";\n// 2. Import ProductCard\nimport ProductCard from \"./ProductCard\";\n\nexport default function App() {\n  return (\n    <main>\n      <h1>Skate Shop</h1>\n      {/* 3. Three ProductCards go here */}\n      <ProductCard name=\"Skateboard\" price={49.5}>\n        Great for beginners.\n      </ProductCard>\n      <ProductCard name=\"Helmet\" price={29}>\n        Protects your brain.\n      </ProductCard>\n      <ProductCard name=\"Knee pads\" price={15.25} badge=\"Sale\">\n        Fall like a pro.\n      </ProductCard>\n    </main>\n  );\n}\n",
+          "ProductCard.jsx": "// 1. Write the ProductCard component here, then export it as the default.\n//    Props: name, price (a number), badge (default \"New\"), children.\nexport default function ProductCard({ name, price, badge = \"New\", children }) {\n  return (\n    <article className=\"product\">\n      <span className=\"badge\">{badge}</span>\n      <h3>{name}</h3>\n      <p className=\"price\">${price.toFixed(2)}</p>\n      <p className=\"description\">{children}</p>\n    </article>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n.product {\n  border: 1px solid #d1d5db;\n  border-radius: 10px;\n  padding: 0.75rem 1rem;\n  margin-bottom: 0.75rem;\n}\n\n.badge {\n  background: #16a34a;\n  color: white;\n  border-radius: 999px;\n  padding: 0.1rem 0.6rem;\n  font-size: 0.8rem;\n}\n\n.price {\n  font-weight: bold;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Skate Shop</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "There are 3 product cards",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "article.product",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "Render three <ProductCard> elements, each returning <article className=\"product\">."
+          },
+          {
+            "label": "The first card shows its name",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".product:nth-of-type(1) h3",
+              "equals": "Skateboard"
+            },
+            "failMessage": "Show {name} in an <h3>."
+          },
+          {
+            "label": "Prices have two decimals",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".product:nth-of-type(1) .price",
+              "equals": "$49.50"
+            },
+            "failMessage": "Show ${price.toFixed(2)} and pass price={49.5} as a number."
+          },
+          {
+            "label": "Children become the description",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".product:nth-of-type(2) .description",
+              "equals": "Protects your brain."
+            },
+            "failMessage": "Put the text between <ProductCard> and </ProductCard>, and show {children} in .description."
+          },
+          {
+            "label": "The badge defaults to New",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".product:nth-of-type(1) .badge",
+              "equals": "New"
+            },
+            "failMessage": "Give badge a default value in the parameter list: { badge = \"New\" }."
+          },
+          {
+            "label": "A badge prop replaces the default",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".product:nth-of-type(3) .badge",
+              "equals": "Sale"
+            },
+            "failMessage": "Pass badge=\"Sale\" to the knee pads card."
+          },
+          {
+            "label": "ProductCard destructures its props",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/function\\s+ProductCard\\s*\\(\\s*\\{/.test(window.__cgSources[\"ProductCard.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Destructure in the parameter list: function ProductCard({ name, price, badge = \"New\", children })"
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Start with `export default function ProductCard({ name, price, badge = \"New\", children }) { return ( … ); }`. Prices must be numbers (`price={49.5}`), or `toFixed` won't exist."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\n<article className=\"product\">\n  <span className=\"badge\">{badge}</span>\n  <h3>{name}</h3>\n  <p className=\"price\">${price.toFixed(2)}</p>\n  <p className=\"description\">{children}</p>\n</article>\n```\nThe `$` before `{` is just text."
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished ProductCard.jsx and App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does <Score points=\"10\" /> pass as points?",
+            "explanation": "Quotes make a string. Use points={10} for a number.",
+            "options": [
+              {
+                "text": "The string \"10\"",
+                "correct": true
+              },
+              {
+                "text": "The number 10",
+                "correct": false
+              },
+              {
+                "text": "Nothing",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In function Tag({ label = \"Hi\" }), when is \"Hi\" used?",
+            "explanation": "Defaults only apply when the prop is missing (undefined).",
+            "options": [
+              {
+                "text": "When label isn't passed",
+                "correct": true
+              },
+              {
+                "text": "Always",
+                "correct": false
+              },
+              {
+                "text": "When label is an empty string",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "<Card>Hello</Card>: how does Card read \"Hello\"?",
+            "explanation": "Content between the tags arrives as children.",
+            "options": [
+              {
+                "text": "From its children prop",
+                "correct": true
+              },
+              {
+                "text": "From props.text",
+                "correct": false
+              },
+              {
+                "text": "It can't",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why shouldn't a component change its props?",
+            "explanation": "Props are read-only inputs. Changing data is what state is for.",
+            "options": [
+              {
+                "text": "Props belong to the parent; data flows one way, down",
+                "correct": true
+              },
+              {
+                "text": "Changing props deletes the component",
+                "correct": false
+              },
+              {
+                "text": "Props are always numbers",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "lists-explorer",
+      "title": "Lists with map",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## One line of code, a whole list\n\nSay you have an array of games:\n\n```jsx\nconst games = [\"tag\", \"chess\", \"soccer\"];\n```\n\nYou could write three `<li>` tags by hand, but what if there were 100? Arrays have a helper called **map** that turns every item into something new. In React, you map each item into a tag:\n\n```jsx\n<ul>\n  {games.map((game) => (\n    <li key={game}>{game}</li>\n  ))}\n</ul>\n```\n\nRead it like this: \"for each `game` in `games`, make an `<li>` that shows the game.\"\n\n### What's key?\n\nReact wants every item in a list to have a **key**: a name tag that's different for each item. It helps React keep track of which item is which when the list changes. If you forget it, React prints a warning in the Console.\n\nFor a list of different words, the word itself works as the key.\n\n### New words\n\n- **map**: an array helper that makes a new array by changing every item.\n- **key**: a special prop that gives each list item its own name tag. Keys must be different from each other.\n",
+      "exampleMarkdown": "`map` turns the array of three games into three `<li>` tags. `games.length` counts them.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Games</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n\n      const games = [\"tag\", \"chess\", \"soccer\"];\n\n      function App() {\n        return (\n          <main>\n            <h2>We know {games.length} games</h2>\n            <ul>\n              {games.map((game) => (\n                <li key={game}>Let's play {game}!</li>\n              ))}\n            </ul>\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Show the snack list.\n\n1. Inside `<ul id=\"snack-list\">`, use `snacks.map` to make one `<li>` for each snack. Give each `<li>` a `key`.\n2. Make the heading say **4 snacks** using `snacks.length` (so it would still be right if you added a snack).",
+        "starterFiles": {
+          "App.jsx": "const snacks = [\"apples\", \"popcorn\", \"pretzels\", \"grapes\"];\n\nexport default function App() {\n  return (\n    <main>\n      {/* 2. Show how many snacks there are, like \"4 snacks\" */}\n      <h2>? snacks</h2>\n      <ul id=\"snack-list\">\n        {/* 1. Use snacks.map to make one <li> per snack (with a key!) */}\n      </ul>\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Snacks</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "const snacks = [\"apples\", \"popcorn\", \"pretzels\", \"grapes\"];\n\nexport default function App() {\n  return (\n    <main>\n      {/* 2. Show how many snacks there are, like \"4 snacks\" */}\n      <h2>{snacks.length} snacks</h2>\n      <ul id=\"snack-list\">\n        {/* 1. Use snacks.map to make one <li> per snack (with a key!) */}\n        {snacks.map((snack) => (\n          <li key={snack}>{snack}</li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Snacks</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "There's one li per snack",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#snack-list li",
+              "min": 4,
+              "max": 4
+            },
+            "failMessage": "Use {snacks.map((snack) => <li key={snack}>{snack}</li>)} inside the <ul>."
+          },
+          {
+            "label": "The first snack is apples",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#snack-list li:first-child",
+              "equals": "apples"
+            },
+            "failMessage": "Each <li> should show the snack: {snack}"
+          },
+          {
+            "label": "The list is made with map",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/snacks\\.map\\(/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Make the list with snacks.map(...), not by typing each <li>."
+          },
+          {
+            "label": "The heading counts the snacks",
+            "kind": "elementText",
+            "spec": {
+              "selector": "h2",
+              "equals": "4 snacks"
+            },
+            "failMessage": "Use {snacks.length} in the heading."
+          },
+          {
+            "label": "Uses snacks.length",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/snacks\\.length/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Count with {snacks.length} instead of typing 4."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`map` needs a little function that gets one snack and returns one `<li>`: `snacks.map((snack) => <li key={snack}>{snack}</li>)`. Wrap the whole thing in `{ }`."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\n<ul id=\"snack-list\">\n  {snacks.map((snack) => (\n    <li key={snack}>{snack}</li>\n  ))}\n</ul>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does map do to an array?",
+            "explanation": "map runs your function on every item and collects the results.",
+            "options": [
+              {
+                "text": "Makes a new array by changing every item",
+                "correct": true
+              },
+              {
+                "text": "Deletes the first item",
+                "correct": false
+              },
+              {
+                "text": "Sorts the items",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does React want a key on each list item?",
+            "explanation": "Keys are name tags React uses to track each item.",
+            "options": [
+              {
+                "text": "So it can tell the items apart when the list changes",
+                "correct": true
+              },
+              {
+                "text": "To make the text bold",
+                "correct": false
+              },
+              {
+                "text": "To lock the list",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's wrong with giving every item key=\"x\"?",
+            "explanation": "Each key has to be unique within the list, or React can't tell items apart.",
+            "options": [
+              {
+                "text": "Keys must be different from each other",
+                "correct": true
+              },
+              {
+                "text": "Keys can't be letters",
+                "correct": false
+              },
+              {
+                "text": "Nothing",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "lists-and-keys",
+      "title": "Rendering lists and keys",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 14,
+      "isPublished": true,
+      "learnMarkdown": "## Data in, list out\n\nReal apps show lists of data: messages, products, search results. In React you don't loop and append like you did with the DOM. You **transform** the array into an array of elements with `map`, and React renders the whole array:\n\n```jsx\n<ul>\n  {songs.map((song) => (\n    <SongRow key={song.id} song={song} />\n  ))}\n</ul>\n```\n\n`filter`, `map` and `reduce` are the everyday tools:\n\n```jsx\nconst favorites = songs.filter((s) => s.liked);          // keep some items\nconst titles = songs.map((s) => s.title);                // change every item\nconst minutes = songs.reduce((sum, s) => sum + s.minutes, 0); // combine into one value\n```\n\nDo the filtering and math before the `return` and keep the JSX simple.\n\n### Why keys matter\n\nWhen a list changes, React compares the new list of elements with the old one. The **key** tells it which element is which, so it can update, move, add or remove exactly the right DOM nodes, and keep each item's state with the right item.\n\nGood keys are **stable** and **unique among siblings**:\n\n- ✅ An id from the data: `key={song.id}`\n- ⚠️ The array index `key={index}`: OK only if the list never reorders, filters or inserts. Otherwise items can swap their state.\n- ❌ `Math.random()`: a new key every render makes React throw away and rebuild every item.\n\nThe key goes on the outermost element returned from `map` (here `<SongRow>`), not inside the child component. It isn't passed to the component as a prop.\n\n### New words\n\n- **filter / map / reduce**: array methods that keep some items, transform every item, or combine items into one value.\n- **key**: a special attribute that identifies an element among its siblings in a list.\n- **Stable key**: a key that stays the same for the same item every render (like an id from a database).\n- **Sibling**: an element with the same parent as another element.\n",
+      "exampleMarkdown": "The data is filtered and summed before `return`. Each row gets `key={song.id}`, so React can track rows if the list changes.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Playlist</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n\n      const songs = [\n        { id: 11, title: \"Ocean Drive\", minutes: 3, liked: true },\n        { id: 12, title: \"Paper Planes\", minutes: 4, liked: false },\n        { id: 13, title: \"Green Light\", minutes: 5, liked: true },\n      ];\n\n      function SongRow({ song }) {\n        return <li>{song.title} ({song.minutes} min)</li>;\n      }\n\n      function App() {\n        const liked = songs.filter((s) => s.liked);\n        const minutes = liked.reduce((sum, s) => sum + s.minutes, 0);\n        return (\n          <main>\n            <h2>Liked songs: {minutes} minutes</h2>\n            <ul>\n              {liked.map((song) => (\n                <SongRow key={song.id} song={song} />\n              ))}\n            </ul>\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Build a reading tracker from the `books` array. `BookItem` is already written for you.\n\n1. In `#books`, render a `<BookItem>` for every book. Pass the book as a `book` prop and use the book's `id` as the key.\n2. Before the `return`, make an array of books that **aren't** read yet, and render those in `#to-read` the same way.\n3. Add up the `pages` of the books that **are** read, and show it: **Pages read: 704**. Calculate it; don't type the number.",
+        "starterFiles": {
+          "App.jsx": "import BookItem from \"./BookItem\";\n\nconst books = [\n  { id: 1, title: \"Hatchet\", author: \"Gary Paulsen\", pages: 192, read: true },\n  { id: 2, title: \"Wonder\", author: \"R. J. Palacio\", pages: 320, read: false },\n  { id: 3, title: \"Holes\", author: \"Louis Sachar\", pages: 272, read: true },\n  { id: 4, title: \"Dog Man\", author: \"Dav Pilkey\", pages: 240, read: true },\n  { id: 5, title: \"Amari and the Night Brothers\", author: \"B. B. Alston\", pages: 416, read: false },\n];\n\nexport default function App() {\n  // 2. Make an array of the books that aren't read yet\n\n  // 3. Add up the pages of the books that ARE read\n\n  return (\n    <main>\n      <h2>My shelf</h2>\n      <ul id=\"books\">{/* 1. One <BookItem> per book */}</ul>\n\n      <h2>To read</h2>\n      <ul id=\"to-read\">{/* 2. One <BookItem> per unread book */}</ul>\n\n      <p id=\"total\">Pages read: ?</p>\n    </main>\n  );\n}\n",
+          "BookItem.jsx": "export default function BookItem({ book }) {\n  return (\n    <li>\n      {book.title} by {book.author}\n    </li>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Reading Tracker</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import BookItem from \"./BookItem\";\n\nconst books = [\n  { id: 1, title: \"Hatchet\", author: \"Gary Paulsen\", pages: 192, read: true },\n  { id: 2, title: \"Wonder\", author: \"R. J. Palacio\", pages: 320, read: false },\n  { id: 3, title: \"Holes\", author: \"Louis Sachar\", pages: 272, read: true },\n  { id: 4, title: \"Dog Man\", author: \"Dav Pilkey\", pages: 240, read: true },\n  { id: 5, title: \"Amari and the Night Brothers\", author: \"B. B. Alston\", pages: 416, read: false },\n];\n\nexport default function App() {\n  // 2. Make an array of the books that aren't read yet\n  const unread = books.filter((book) => !book.read);\n\n  // 3. Add up the pages of the books that ARE read\n  const pagesRead = books.filter((book) => book.read).reduce((sum, book) => sum + book.pages, 0);\n\n  return (\n    <main>\n      <h2>My shelf</h2>\n      <ul id=\"books\">\n        {books.map((book) => (\n          <BookItem key={book.id} book={book} />\n        ))}\n      </ul>\n\n      <h2>To read</h2>\n      <ul id=\"to-read\">\n        {unread.map((book) => (\n          <BookItem key={book.id} book={book} />\n        ))}\n      </ul>\n\n      <p id=\"total\">Pages read: {pagesRead}</p>\n    </main>\n  );\n}\n",
+          "BookItem.jsx": "export default function BookItem({ book }) {\n  return (\n    <li>\n      {book.title} by {book.author}\n    </li>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Reading Tracker</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Every book is on the shelf",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#books li",
+              "min": 5,
+              "max": 5
+            },
+            "failMessage": "Inside #books: {books.map((book) => <BookItem key={book.id} book={book} />)}"
+          },
+          {
+            "label": "Books show title and author",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#books li:first-child",
+              "equals": "Hatchet by Gary Paulsen"
+            },
+            "failMessage": "Pass the whole book object: book={book}."
+          },
+          {
+            "label": "Only unread books are in To read",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#to-read li",
+              "min": 2,
+              "max": 2
+            },
+            "failMessage": "Filter first: const unread = books.filter((book) => !book.read);"
+          },
+          {
+            "label": "The first unread book is Wonder",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#to-read li:first-child",
+              "contains": "Wonder"
+            },
+            "failMessage": "Map over your unread array inside #to-read."
+          },
+          {
+            "label": "Pages read are added up",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#total",
+              "equals": "Pages read: 704"
+            },
+            "failMessage": "Filter the read books, then add their pages with reduce (or a loop)."
+          },
+          {
+            "label": "Keys come from the data",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/key=\\{\\s*book\\.id\\s*\\}/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Use the book's id as the key: key={book.id}"
+          },
+          {
+            "label": "The total is calculated",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/704/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": false
+            },
+            "failMessage": "Work out the total from the data instead of typing 704."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Lists are `array.map((book) => <BookItem key={book.id} book={book} />)` inside `{ }`. Work out `unread` and the page total before the `return`."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\nconst unread = books.filter((book) => !book.read);\nconst pagesRead = books\n  .filter((book) => book.read)\n  .reduce((sum, book) => sum + book.pages, 0);\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Where does the key go in books.map((b) => <BookItem key={b.id} book={b} />)?",
+            "explanation": "The key belongs on the outermost element returned from map.",
+            "options": [
+              {
+                "text": "On <BookItem>, the element map returns",
+                "correct": true
+              },
+              {
+                "text": "On the <li> inside BookItem",
+                "correct": false
+              },
+              {
+                "text": "On the <ul>",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which is the best key for a list of messages from a server?",
+            "explanation": "Ids from the data are stable and unique.",
+            "options": [
+              {
+                "text": "message.id",
+                "correct": true
+              },
+              {
+                "text": "Math.random()",
+                "correct": false
+              },
+              {
+                "text": "The array index, always",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What can go wrong with key={index} in a list you can reorder?",
+            "explanation": "If items move, the same index now points at a different item.",
+            "options": [
+              {
+                "text": "Items can get mixed up with each other's state",
+                "correct": true
+              },
+              {
+                "text": "React refuses to render",
+                "correct": false
+              },
+              {
+                "text": "Nothing, ever",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which method adds up all the numbers in an array?",
+            "explanation": "reduce combines all items into one value, like a total.",
+            "options": [
+              {
+                "text": "reduce",
+                "correct": true
+              },
+              {
+                "text": "filter",
+                "correct": false
+              },
+              {
+                "text": "map",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Can BookItem read props.key?",
+            "explanation": "Pass the id as another prop too if the component needs it.",
+            "options": [
+              {
+                "text": "No, key is used by React and isn't passed as a prop",
+                "correct": true
+              },
+              {
+                "text": "Yes, like any prop",
+                "correct": false
+              },
+              {
+                "text": "Only if it's a number",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "state-explorer",
+      "title": "State: components that remember",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Making things change\n\nSo far your components always show the same thing. To make a page that **changes** when you click, a component needs to **remember** something. That memory is called **state**.\n\n### useState\n\nReact gives you a tool called `useState`:\n\n```jsx\nimport { useState } from \"react\";\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  ...\n}\n```\n\nThat one line gives you two things:\n\n- `count`: the value right now (it starts at `0`).\n- `setCount`: a function that changes the value.\n\nWhen you call `setCount`, React **draws the component again** with the new value. That's why a normal variable doesn't work: changing it doesn't tell React to draw again.\n\n### Clicks\n\nButtons get an `onClick` prop with a function to run:\n\n```jsx\n<button onClick={() => setCount(count + 1)}>Add one</button>\n```\n\n### New words\n\n- **State**: information a component remembers. When it changes, React draws the component again.\n- **useState**: the React tool that makes a piece of state. It gives you the value and a function to change it.\n- **onClick**: a prop that says what to do when something is clicked.\n",
+      "exampleMarkdown": "Each click calls `setStars`, React draws `App` again, and the new number shows up. Try clicking the buttons in the preview!",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Star Counter</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useState } from \"react\";\n\n      function App() {\n        const [stars, setStars] = useState(0);\n\n        return (\n          <main>\n            <p>⭐ Stars: {stars}</p>\n            <button onClick={() => setStars(stars + 1)}>Add a star</button>\n            <button onClick={() => setStars(stars + 5)}>Add five</button>\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The bakery button is broken. Click it in the preview: the number never changes.\n\n1. Replace `let cookies = 0;` with state: `const [cookies, setCookies] = useState(0);`. Then make the **Bake a cookie** button call `setCookies` to add one.\n2. Add a **Start over** button with `id=\"reset\"` that sets the cookies back to **0**.\n\nClick your buttons in the preview to test them. The checker clicks them too!",
+        "starterFiles": {
+          "App.jsx": "import { useState } from \"react\";\n\nexport default function App() {\n  // This doesn't work! Clicking changes the variable,\n  // but React doesn't know it should draw the page again.\n  // 1. Replace it with useState.\n  let cookies = 0;\n\n  return (\n    <main>\n      <h1>🍪 Cookie Bakery</h1>\n      <p id=\"count\">Cookies: {cookies}</p>\n      <button id=\"bake\" onClick={() => { cookies = cookies + 1; }}>\n        Bake a cookie\n      </button>\n      {/* 2. Add a \"Start over\" button with id=\"reset\" */}\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Cookie Bakery</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useState } from \"react\";\n\nexport default function App() {\n  // This doesn't work! Clicking changes the variable,\n  // but React doesn't know it should draw the page again.\n  // 1. Replace it with useState.\n  const [cookies, setCookies] = useState(0);\n\n  return (\n    <main>\n      <h1>🍪 Cookie Bakery</h1>\n      <p id=\"count\">Cookies: {cookies}</p>\n      <button id=\"bake\" onClick={() => setCookies(cookies + 1)}>\n        Bake a cookie\n      </button>\n      {/* 2. Add a \"Start over\" button with id=\"reset\" */}\n      <button id=\"reset\" onClick={() => setCookies(0)}>\n        Start over\n      </button>\n    </main>\n  );\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Cookie Bakery</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "It starts at 0 cookies",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#count",
+              "equals": "Cookies: 0"
+            },
+            "failMessage": "Start the state at 0: useState(0)."
+          },
+          {
+            "label": "Click Bake a cookie",
+            "kind": "interact",
+            "spec": {
+              "selector": "#bake",
+              "click": true
+            },
+            "failMessage": "We couldn't find #bake to click it."
+          },
+          {
+            "label": "Click it again",
+            "kind": "interact",
+            "spec": {
+              "selector": "#bake",
+              "click": true
+            },
+            "failMessage": "We couldn't find #bake to click it."
+          },
+          {
+            "label": "And again",
+            "kind": "interact",
+            "spec": {
+              "selector": "#bake",
+              "click": true
+            },
+            "failMessage": "We couldn't find #bake to click it."
+          },
+          {
+            "label": "Baking adds cookies",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#count",
+              "equals": "Cookies: 3"
+            },
+            "failMessage": "The button needs onClick={() => setCookies(cookies + 1)}."
+          },
+          {
+            "label": "Click Start over",
+            "kind": "interact",
+            "spec": {
+              "selector": "#reset",
+              "click": true
+            },
+            "failMessage": "We couldn't find #reset to click it."
+          },
+          {
+            "label": "Start over goes back to 0",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#count",
+              "equals": "Cookies: 0"
+            },
+            "failMessage": "Add <button id=\"reset\" onClick={() => setCookies(0)}>Start over</button>."
+          },
+          {
+            "label": "Uses useState",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/useState\\(\\s*0\\s*\\)/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": true
+            },
+            "failMessage": "Make the cookie count with useState(0)."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`const [cookies, setCookies] = useState(0);` gives you the number and a function to change it. Buttons run code with `onClick={() => …}`."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\n<button id=\"bake\" onClick={() => setCookies(cookies + 1)}>Bake a cookie</button>\n<button id=\"reset\" onClick={() => setCookies(0)}>Start over</button>\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is state?",
+            "explanation": "State is the component's memory. Changing it makes React draw again.",
+            "options": [
+              {
+                "text": "Something a component remembers that can change",
+                "correct": true
+              },
+              {
+                "text": "A US state",
+                "correct": false
+              },
+              {
+                "text": "A type of CSS",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "const [score, setScore] = useState(10). What is score at the start?",
+            "explanation": "The value you pass to useState is where it starts.",
+            "options": [
+              {
+                "text": "10",
+                "correct": true
+              },
+              {
+                "text": "0",
+                "correct": false
+              },
+              {
+                "text": "setScore",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why doesn't changing a normal variable update the page?",
+            "explanation": "Only calling the state setter tells React to re-render.",
+            "options": [
+              {
+                "text": "React doesn't know it needs to draw again",
+                "correct": true
+              },
+              {
+                "text": "Variables can't hold numbers",
+                "correct": false
+              },
+              {
+                "text": "Buttons can't change variables",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "state",
+      "title": "State with useState",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Data that changes over time\n\nProps come from the parent. **State** is data a component owns and can change: what's typed in a box, which tab is open, a score. React's rule: **UI = f(state)**. Your component is a function of its state; change the state and React calls the function again to get the new UI. That's called a **re-render**.\n\n```jsx\nimport { useState } from \"react\";\n\nfunction Likes() {\n  const [likes, setLikes] = useState(0);\n  return <button onClick={() => setLikes(likes + 1)}>👍 {likes}</button>;\n}\n```\n\n`useState(initial)` returns a pair: the current value and a **setter**. Functions starting with `use` are **hooks**. Call them at the top level of the component, never inside `if`s or loops, so React can match each call to its state.\n\n### Each render is a snapshot\n\nDuring one render, `likes` is a constant. Calling `setLikes` doesn't change the variable; it asks React for a new render with a new value. So this adds **one**, not three:\n\n```jsx\nsetLikes(likes + 1);\nsetLikes(likes + 1);\nsetLikes(likes + 1); // likes is still the old value in all three lines\n```\n\nWhen the new value depends on the old one, pass an **updater function**. React feeds it the latest value:\n\n```jsx\nsetLikes((n) => n + 1);\n```\n\n### Never mutate state\n\nReact notices changes by comparing old and new values. If you change an array in place (`log.push(x)`) it's the same array, so React may skip the update. Always make a **new** array or object:\n\n```jsx\nsetLog([...log, entry]);                 // add\nsetLog(log.filter((e) => e.id !== id));  // remove\nsetUser({ ...user, name: \"Sam\" });       // change one field\n```\n\n### Derive, don't duplicate\n\nIf a value can be worked out from state you already have (a total, \"who's winning\", a filtered list), calculate it during render. Keeping it in its own state means two things to keep in sync, which is a common source of bugs.\n\n### New words\n\n- **State**: data a component owns that can change, causing a re-render.\n- **Re-render**: React calling your component again to get UI for the new state.\n- **Hook**: a function starting with `use` that plugs into React (`useState`, `useEffect`…).\n- **Setter**: the function from `useState` that asks for a new value.\n- **Updater function**: passing `(old) => new` to a setter, to build on the latest value.\n- **Mutate**: change a value in place. State must be replaced, not mutated.\n- **Derived value**: something calculated from state during render instead of stored.\n",
+      "exampleMarkdown": "A to-do list: the array is replaced (never pushed to) when you add an item, the updater function builds on the latest list, and the remaining count is derived, not stored.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Chores</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"text/jsx\">\n      import { createRoot } from \"react-dom/client\";\n      import { useState } from \"react\";\n\n      function App() {\n        const [chores, setChores] = useState([\n          { id: 1, text: \"Feed the cat\", done: false },\n          { id: 2, text: \"Water plants\", done: true },\n        ]);\n\n        function addChore() {\n          setChores((list) => [...list, { id: list.length + 1, text: \"New chore\", done: false }]);\n        }\n\n        function toggle(id) {\n          setChores((list) => list.map((c) => (c.id === id ? { ...c, done: !c.done } : c)));\n        }\n\n        const left = chores.filter((c) => !c.done).length; // derived\n\n        return (\n          <main>\n            <h2>{left} chores left</h2>\n            <ul>\n              {chores.map((c) => (\n                <li key={c.id} onClick={() => toggle(c.id)} style={{ textDecoration: c.done ? \"line-through\" : \"none\" }}>\n                  {c.text}\n                </li>\n              ))}\n            </ul>\n            <button onClick={addChore}>Add chore</button>\n          </main>\n        );\n      }\n\n      createRoot(document.getElementById(\"root\")).render(<App />);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "React",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Make the scoreboard work.\n\n1. Keep each team's score in state. The **+1** buttons (`#red-plus`, `#blue-plus`) add a point, and `#red-score` / `#blue-score` show the scores.\n2. Keep a log of every point in state, as an array. Each click adds an entry, and `#log` shows one `<li>` per point in order, like **Red +1**. Add to the array without mutating it (no `push`), and give each `<li>` a stable key.\n3. `#leader` shows **Red leads**, **Blue leads** or **Tied**. Work it out from the scores during render; don't store it in state.\n\nThe checker clicks Red twice and Blue once, then reads the page.",
+        "starterFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\n\nexport default function App() {\n  // 1. State for both scores, and 2. for the log of points\n\n  // 3. Work out who's leading (no extra state needed!)\n\n  return (\n    <main>\n      <div className=\"teams\">\n        <section className=\"red\">\n          <h2>Red</h2>\n          <p id=\"red-score\">0</p>\n          <button id=\"red-plus\">+1</button>\n        </section>\n        <section className=\"blue\">\n          <h2>Blue</h2>\n          <p id=\"blue-score\">0</p>\n          <button id=\"blue-plus\">+1</button>\n        </section>\n      </div>\n      <p id=\"leader\">?</p>\n      <ol id=\"log\">{/* 2. One <li> per point, like \"Red +1\" */}</ol>\n    </main>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n.teams {\n  display: flex;\n  gap: 1rem;\n}\n\n.teams section {\n  flex: 1;\n  border-radius: 12px;\n  padding: 0.5rem 1rem;\n  color: white;\n  text-align: center;\n}\n\n.red { background: #dc2626; }\n.blue { background: #2563eb; }\n\n#red-score, #blue-score {\n  font-size: 3rem;\n  margin: 0;\n}\n\n#leader {\n  font-weight: bold;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Scoreboard</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "App.jsx": "import { useState } from \"react\";\nimport \"./App.css\";\n\nexport default function App() {\n  // 1. State for both scores, and 2. for the log of points\n  const [red, setRed] = useState(0);\n  const [blue, setBlue] = useState(0);\n  const [log, setLog] = useState([]);\n\n  function score(team) {\n    if (team === \"Red\") setRed((r) => r + 1);\n    else setBlue((b) => b + 1);\n    // A new array with the new entry at the end; the old array is never changed.\n    setLog((entries) => [...entries, { id: entries.length + 1, text: `${team} +1` }]);\n  }\n\n  // 3. Work out who's leading (no extra state needed!)\n  let leader = \"Tied\";\n  if (red > blue) leader = \"Red leads\";\n  else if (blue > red) leader = \"Blue leads\";\n\n  return (\n    <main>\n      <div className=\"teams\">\n        <section className=\"red\">\n          <h2>Red</h2>\n          <p id=\"red-score\">{red}</p>\n          <button id=\"red-plus\" onClick={() => score(\"Red\")}>+1</button>\n        </section>\n        <section className=\"blue\">\n          <h2>Blue</h2>\n          <p id=\"blue-score\">{blue}</p>\n          <button id=\"blue-plus\" onClick={() => score(\"Blue\")}>+1</button>\n        </section>\n      </div>\n      <p id=\"leader\">{leader}</p>\n      <ol id=\"log\">\n        {log.map((entry) => (\n          <li key={entry.id}>{entry.text}</li>\n        ))}\n      </ol>\n    </main>\n  );\n}\n",
+          "App.css": "main {\n  font-family: system-ui, sans-serif;\n  margin: 1.5rem;\n}\n\n.teams {\n  display: flex;\n  gap: 1rem;\n}\n\n.teams section {\n  flex: 1;\n  border-radius: 12px;\n  padding: 0.5rem 1rem;\n  color: white;\n  text-align: center;\n}\n\n.red { background: #dc2626; }\n.blue { background: #2563eb; }\n\n#red-score, #blue-score {\n  font-size: 3rem;\n  margin: 0;\n}\n\n#leader {\n  font-weight: bold;\n}\n",
+          "main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\n\n// Finds the empty <div id=\"root\"> in index.html and draws <App /> inside it.\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Scoreboard</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "It starts tied",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#leader",
+              "equals": "Tied"
+            },
+            "failMessage": "Show the derived leader text in #leader: \"Tied\" when the scores are equal."
+          },
+          {
+            "label": "Click Red +1",
+            "kind": "interact",
+            "spec": {
+              "selector": "#red-plus",
+              "click": true
+            },
+            "failMessage": "We couldn't find #red-plus to click it."
+          },
+          {
+            "label": "Click Red +1 again",
+            "kind": "interact",
+            "spec": {
+              "selector": "#red-plus",
+              "click": true
+            },
+            "failMessage": "We couldn't find #red-plus to click it."
+          },
+          {
+            "label": "Click Blue +1",
+            "kind": "interact",
+            "spec": {
+              "selector": "#blue-plus",
+              "click": true
+            },
+            "failMessage": "We couldn't find #blue-plus to click it."
+          },
+          {
+            "label": "Red's score went up",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#red-score",
+              "equals": "2"
+            },
+            "failMessage": "#red-plus needs an onClick that adds 1 to Red's state, and #red-score shows it."
+          },
+          {
+            "label": "Blue's score went up",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#blue-score",
+              "equals": "1"
+            },
+            "failMessage": "#blue-plus needs an onClick that adds 1 to Blue's state."
+          },
+          {
+            "label": "The leader updates",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#leader",
+              "equals": "Red leads"
+            },
+            "failMessage": "Work out the leader from the two scores before the return."
+          },
+          {
+            "label": "Every point is logged",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#log li",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "Keep the log in state and add one entry per click: setLog((l) => [...l, entry])."
+          },
+          {
+            "label": "The log is in order",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#log li:last-child",
+              "equals": "Blue +1"
+            },
+            "failMessage": "New entries go at the end of the array."
+          },
+          {
+            "label": "The log isn't mutated",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\.push\\(/.test(window.__cgSources[\"App.jsx\"])",
+              "equals": false
+            },
+            "failMessage": "Don't push into state. Make a new array: [...log, entry]."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error or a React warning. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "You need three pieces of state: two numbers and an array. A helper like `function score(team) { … }` keeps both buttons short. The leader is a plain `let` with an `if`/`else`, computed before `return`."
+          },
+          {
+            "level": 2,
+            "markdown": "```jsx\nconst [log, setLog] = useState([]);\n// in the click handler:\nsetLog((entries) => [...entries, { id: entries.length + 1, text: `${team} +1` }]);\n// in the JSX:\n{log.map((entry) => <li key={entry.id}>{entry.text}</li>)}\n```"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the finished App.jsx."
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "count is 0. After a click runs setCount(count + 1) three times, what's count?",
+            "explanation": "count is a snapshot: all three calls compute 0 + 1. Use setCount((c) => c + 1) to add three.",
+            "options": [
+              {
+                "text": "1",
+                "correct": true
+              },
+              {
+                "text": "3",
+                "correct": false
+              },
+              {
+                "text": "0",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which correctly adds an item to an array in state?",
+            "explanation": "State must be replaced with a new array, not changed in place.",
+            "options": [
+              {
+                "text": "setItems([...items, item])",
+                "correct": true
+              },
+              {
+                "text": "items.push(item)",
+                "correct": false
+              },
+              {
+                "text": "items[items.length] = item",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Where can you call useState?",
+            "explanation": "Hooks must run in the same order every render, so they can't be conditional.",
+            "options": [
+              {
+                "text": "At the top level of a component",
+                "correct": true
+              },
+              {
+                "text": "Inside an if statement",
+                "correct": false
+              },
+              {
+                "text": "Inside a loop",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "total is always price × quantity. Where should it live?",
+            "explanation": "Derived values are calculated, so they can't get out of sync.",
+            "options": [
+              {
+                "text": "Calculated during render from the state",
+                "correct": true
+              },
+              {
+                "text": "In its own useState",
+                "correct": false
+              },
+              {
+                "text": "In a global variable",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does calling a state setter do?",
+            "explanation": "The setter schedules a re-render; the current render keeps its snapshot.",
+            "options": [
+              {
+                "text": "Asks React to re-render with the new value",
+                "correct": true
+              },
+              {
+                "text": "Changes the variable immediately",
+                "correct": false
+              },
+              {
+                "text": "Reloads the page",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

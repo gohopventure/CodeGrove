@@ -29,7 +29,14 @@ public sealed record LessonFile(
 
 public sealed record ChallengeFile(
     ChallengeKind Kind, string InstructionsMarkdown, Dictionary<string, string> StarterFiles,
-    Dictionary<string, string> SolutionFiles, int XpReward, List<TestFile> Tests, List<HintFile> Hints);
+    Dictionary<string, string> SolutionFiles, int XpReward, List<TestFile> Tests, List<HintFile> Hints, BlocksFile? Blocks = null);
+
+/// <summary>
+/// Blocks mode for a JavaScript challenge. Toolbox entries are category keys the web app knows
+/// (see BlockCategories). Starter and Solution are Blockly workspace states; only the starter is stored.
+/// The web app's content check runs the solution's generated code against the challenge's tests.
+/// </summary>
+public sealed record BlocksFile(List<string> Toolbox, JsonElement? Starter, JsonElement? Solution);
 
 public sealed record TestFile(string Label, string Kind, JsonElement Spec, string FailMessage);
 
@@ -137,6 +144,9 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
         c.StarterFilesJson = JsonSerializer.Serialize(f.StarterFiles);
         c.SolutionFilesJson = JsonSerializer.Serialize(f.SolutionFiles);
         c.XpReward = f.XpReward;
+        c.BlocksJson = f.Blocks is { } bf
+            ? JsonSerializer.Serialize(new { toolbox = bf.Toolbox, starter = bf.Starter }, Json)
+            : null;
 
         db.TestCases.RemoveRange(c.TestCases);
         c.TestCases = f.Tests.Select((t, i) => new TestCase
@@ -237,6 +247,10 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
         await db.SaveChangesAsync(ct);
     }
 
+    /// <summary>Toolbox categories the web app's blocks editor defines (web/src/lesson/blocks/toolbox.ts).</summary>
+    public static readonly IReadOnlySet<string> BlockCategories =
+        new HashSet<string> { "variables", "math", "text", "logic", "loops", "functions", "console" };
+
     /// <summary>Catches authoring mistakes at seed time instead of in front of a child.</summary>
     private static void Validate(CourseFile f, string path)
     {
@@ -248,7 +262,23 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
             if (l.VideoUrl is not null && l.CaptionsUrl is null) Fail("videos must have a captions file (WCAG).");
             if (l.Challenge is { } c)
             {
+                if (c.Blocks is { } b)
+                {
+                    if (c.Kind != ChallengeKind.Js) Fail("blocks mode is only for JavaScript challenges.");
+                    if (b.Toolbox.Count == 0) Fail("blocks mode needs at least one toolbox category.");
+                    if (b.Toolbox.FirstOrDefault(k => !BlockCategories.Contains(k)) is { } bad)
+                        Fail($"unknown blocks category '{bad}'. Known: {string.Join(", ", BlockCategories)}.");
+                }
                 if (c.Tests.Count == 0) Fail("a challenge needs at least one test.");
+                if (c.Kind == ChallengeKind.TypeScript)
+                {
+                    static bool HasTs(Dictionary<string, string> files) => files.Keys.Any(k => !k.StartsWith('.') && (k.EndsWith(".ts") || k.EndsWith(".tsx")));
+                    if (!HasTs(c.StarterFiles) || !HasTs(c.SolutionFiles)) Fail("TypeScript challenges need at least one .ts file.");
+                    // TypeScript's whole job is finding type errors; a lesson that never checks them isn't teaching it.
+                    if (!c.Tests.Any(t => t.Kind is "typeCheck" or "typeError")) Fail("TypeScript challenges need a typeCheck or typeError test.");
+                }
+                else if (c.Tests.Any(t => t.Kind is "typeCheck" or "typeError"))
+                    Fail("typeCheck and typeError tests only work in TypeScript challenges.");
                 if (c.Hints.Select(h => h.Level).Order().SequenceEqual([1, 2, 3]) is false) Fail("a challenge needs hints at levels 1, 2 and 3.");
             }
             if (l.Quiz is { } q && q.Questions.Any(x => x.Options.Count(o => o.Correct) != 1))
