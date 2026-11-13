@@ -34,11 +34,24 @@
       "prerequisites": ["javascript"]
     },
     {
-      "slug": "frontend-frameworks",
-      "title": "Frontend Frameworks",
-      "description": "Build apps out of components with React: JSX, props, lists, state, forms and data from a server.",
+      // Angular is written in TypeScript, so the TypeScript track comes first. Same order as the
+      // curriculum this platform follows: TypeScript, then Angular, then React.
+      "slug": "angular",
+      "title": "Angular",
+      "description": "Build apps with Google's framework: components, signals, control flow, inputs and outputs, and services.",
       "ageBand": "Both",
       "sortOrder": 4,
+      "isPublished": true,
+      "courses": ["angular-basics"],
+      "prerequisites": ["typescript"]
+    },
+    {
+      // The slug predates the Angular track; only the title changed, so progress and certificates are unaffected.
+      "slug": "frontend-frameworks",
+      "title": "React",
+      "description": "Build apps out of components with React: JSX, props, lists, state, forms and data from a server.",
+      "ageBand": "Both",
+      "sortOrder": 5,
       "isPublished": true,
       "courses": ["react-basics", "react-apps"],
       "prerequisites": ["javascript"]
@@ -108,6 +121,14 @@
       "iconUrl": "/badges/component-crafter.svg",
       "ruleType": "CourseCompleted",
       "ruleCourseSlug": "react-basics"
+    },
+    {
+      "code": "angular-ace",
+      "name": "Angular Ace",
+      "description": "You finished Angular Basics.",
+      "iconUrl": "/badges/angular-ace.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "angular-basics"
     },
     {
       "code": "app-architect",

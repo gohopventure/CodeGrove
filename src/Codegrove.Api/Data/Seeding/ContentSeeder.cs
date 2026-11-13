@@ -423,15 +423,16 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
                         Fail($"unknown blocks category '{bad}'. Known: {string.Join(", ", BlockCategories)}.");
                 }
                 if (c.Tests.Count == 0) Fail("a challenge needs at least one test.");
-                if (c.Kind == ChallengeKind.TypeScript)
+                // Angular is written in TypeScript, so Angular challenges follow the TypeScript rules too.
+                if (c.Kind is ChallengeKind.TypeScript or ChallengeKind.Angular)
                 {
                     static bool HasTs(Dictionary<string, string> files) => files.Keys.Any(k => !k.StartsWith('.') && (k.EndsWith(".ts") || k.EndsWith(".tsx")));
-                    if (!HasTs(c.StarterFiles) || !HasTs(c.SolutionFiles)) Fail("TypeScript challenges need at least one .ts file.");
+                    if (!HasTs(c.StarterFiles) || !HasTs(c.SolutionFiles)) Fail($"{c.Kind} challenges need at least one .ts file.");
                     // TypeScript's whole job is finding type errors; a lesson that never checks them isn't teaching it.
-                    if (!c.Tests.Any(t => t.Kind is "typeCheck" or "typeError")) Fail("TypeScript challenges need a typeCheck or typeError test.");
+                    if (!c.Tests.Any(t => t.Kind is "typeCheck" or "typeError")) Fail($"{c.Kind} challenges need a typeCheck or typeError test.");
                 }
                 else if (c.Tests.Any(t => t.Kind is "typeCheck" or "typeError"))
-                    Fail("typeCheck and typeError tests only work in TypeScript challenges.");
+                    Fail("typeCheck and typeError tests only work in TypeScript and Angular challenges.");
                 if (c.Hints.Select(h => h.Level).Order().SequenceEqual([1, 2, 3]) is false) Fail("a challenge needs hints at levels 1, 2 and 3.");
                 foreach (var h in c.Hints)
                 {

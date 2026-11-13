@@ -8,6 +8,8 @@ export function TracksPage() {
   const isLearner = me?.roles.includes('Learner');
   const [band, setBand] = useState<'Explorer' | 'Builder' | ''>('');
   const { data: tracks, error, isLoading } = useTracks(isLearner ? undefined : band || undefined);
+  // Prerequisites arrive as slugs; show each track's title instead ("TypeScript", not "typescript").
+  const titles = new Map(tracks?.map((t) => [t.slug, t.title]));
 
   return (
     <div>
@@ -34,7 +36,7 @@ export function TracksPage() {
               <p className="text-sm font-bold text-muted">Track {i + 1} · {t.courseCount} course{t.courseCount === 1 ? '' : 's'}</p>
               <h2 className="text-2xl font-bold">{t.title}</h2>
               <p className="text-muted">{t.description}</p>
-              {t.prerequisites.length > 0 && <p className="text-sm">Best after: {t.prerequisites.join(', ').replace(/-/g, ' ')}</p>}
+              {t.prerequisites.length > 0 && <p className="text-sm">Best after: {t.prerequisites.map((slug) => titles.get(slug) ?? slug.replace(/-/g, ' ')).join(', ')}</p>}
             </Link>
           </li>
         ))}

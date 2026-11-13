@@ -30,7 +30,7 @@ export function installModuleLoader(win: Window): void {
     if (!request.startsWith('.') && !request.startsWith('/')) {
       if (factories[request] || styles[request]) return request;
       throw new Error(
-        `Can't find the package "${request}". In the preview you can import "react", "react-dom/client" and your own files (like "./Card").`,
+        `Can't find the package "${request}". In the preview you can import the packages this lesson uses (like "react" or "@angular/core") and your own files (like "./Card").`,
       );
     }
     // Relative to the importing file. Lesson files live in one folder, but nested paths still work.
@@ -95,7 +95,7 @@ export function installModuleLoader(win: Window): void {
       } catch (error) {
         const e = error as Error;
         // Compile errors already start with "App.jsx, line 3:", so they don't need "SyntaxError:" too.
-        const located = /^[\w-]+\.(?:jsx?|tsx?)[,:]/.test(String(e?.message));
+        const located = /^[\w.-]+\.(?:jsx?|tsx?)[,:]/.test(String(e?.message));
         const plain = !e || e.name === 'Error' || located;
         // An error thrown while a file first runs (top-level code, not a click or a render) is caught
         // here, so the page's error event never sees it. Name the learner's file and line from the

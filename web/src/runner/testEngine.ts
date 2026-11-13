@@ -203,8 +203,23 @@ interface HarnessConfig {
 export function harnessMain(cfg: HarnessConfig, evaluate: typeof evaluateTest): void {
   const lines: ConsoleLine[] = [];
   const post = (msg: Record<string, unknown>) => window.parent.postMessage({ ...msg, runId: cfg.runId }, '*');
+  // Where an error happened, in the learner's terms. React and Angular lessons compile each file into
+  // its own script named with //# sourceURL, so the stack names the file ("App.jsx:7:12",
+  // "pet.service.ts:5:3"); the first such frame wins, which skips the framework's own frames.
+  const learnerFile = /([\w.-]+\.(?:jsx?|tsx?)):(\d+):\d+/;
+  const locate = (stack: unknown) => {
+    // Angular's template compiler names its generated code "ng:///App.js"; that's never the learner's file.
+    const frame = learnerFile.exec(String(stack ?? '').replace(/ng:\/\/\/[^\s)]*/g, ''));
+    return frame ? ` (${frame[1]}, line ${frame[2]})` : '';
+  };
+
   const format = (v: unknown) => {
     if (typeof v === 'string') return v;
+    // Error objects (console.error(err), Angular's "ERROR" logs) would otherwise print as "{}".
+    if (v instanceof Error) {
+      const located = /^[\w.-]+\.(?:jsx?|tsx?), line \d+:/.test(v.message);
+      return `${located ? '' : `${v.name}: `}${v.message}${located ? '' : locate(v.stack)}`;
+    }
     try {
       return JSON.stringify(v);
     } catch {
@@ -247,15 +262,7 @@ export function harnessMain(cfg: HarnessConfig, evaluate: typeof evaluateTest): 
     };
   });
 
-  // Where an error happened, in the learner's terms. React lessons compile each file into its own
-  // script named with //# sourceURL, so the stack names the file ("App.jsx:7:12"); the first such
-  // frame wins, which skips React's own frames. Plain pages fall back to the line in the page.
-  const learnerFile = /([\w-]+\.(?:jsx?|tsx?)):(\d+):\d+/;
-  const where = (e: ErrorEvent) => {
-    const frame = learnerFile.exec(String(e.error?.stack ?? '')) ?? learnerFile.exec(`${e.filename ?? ''}:${e.lineno}:0`);
-    if (frame) return ` (${frame[1]}, line ${frame[2]})`;
-    return e.lineno ? ` (line ${e.lineno})` : '';
-  };
+  const where = (e: ErrorEvent) => locate(e.error?.stack) || locate(`${e.filename ?? ''}:${e.lineno}:0`) || (e.lineno ? ` (line ${e.lineno})` : '');
 
   // TypeScript pages: the type errors go to the console panel first, so the learner sees what TypeScript
   // found before anything their code logs. They're posted but not added to `lines`: they aren't
@@ -331,12 +338,21 @@ export function harnessMain(cfg: HarnessConfig, evaluate: typeof evaluateTest): 
   // Practice API requests (mockApi.ts) still in flight. Pages that fetch are tested once their requests
   // have answered, so the learner's .then() callbacks (and React's re-render) have run.
   const pendingRequests = () => (window as Window & { __cgMockPending?: number }).__cgMockPending ?? 0;
+  // Frameworks that render asynchronously can say they're still busy. Angular pages define this
+  // (vite-plugins/angularRuntime.ts): true while the app starts up or re-renders after a click.
+  const frameworkBusy = () => {
+    try {
+      return (window as Window & { __cgBusy?: () => boolean }).__cgBusy?.() === true;
+    } catch {
+      return false;
+    }
+  };
 
-  /** Calls `then` once no practice-API request is in flight (capped at 2 s), plus `pauseMs`. */
+  /** Calls `then` once no practice-API request is in flight and the framework is idle (capped at 2 s), plus `pauseMs`. */
   const afterIdle = (pauseMs: number, then: () => void) => {
     const started = Date.now();
     const poll = () => {
-      if (pendingRequests() > 0 && Date.now() - started < 2000) setTimeout(poll, 20);
+      if ((pendingRequests() > 0 || frameworkBusy()) && Date.now() - started < 2000) setTimeout(poll, 20);
       else setTimeout(then, pauseMs);
     };
     poll();

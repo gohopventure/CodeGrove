@@ -254,6 +254,23 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task Tracks_follow_the_curriculum_order_with_angular_after_typescript()
+    {
+        var client = _factory.NewClient();
+        var tracks = (await client.GetJson("/api/tracks")).EnumerateArray().Select(t => t.GetProperty("slug").GetString()).ToList();
+        Assert.Equal(["web-foundations", "javascript", "typescript", "angular", "frontend-frameworks"], tracks);
+
+        // Angular challenges are TypeScript projects: the API sends kind "Angular" with .ts starter files.
+        var (_, child, _) = await FamilyWithConsentedExplorer("NgFox");
+        var course = await child.GetJson("/api/courses/angular-basics");
+        var first = course.GetProperty("lessons").EnumerateArray().First(l => l.GetProperty("slug").GetString() == "components-explorer");
+        var lesson = await child.GetJson($"/api/lessons/{first.GetProperty("id").GetInt32()}");
+        var challenge = lesson.GetProperty("challenge");
+        Assert.Equal("Angular", challenge.GetProperty("kind").GetString());
+        Assert.True(challenge.GetProperty("starterFiles").TryGetProperty("app.ts", out _));
+    }
+
+    [Fact]
     public async Task Explorer_js_lessons_offer_blocks_without_leaking_the_blocks_solution()
     {
         var (_, child, _) = await FamilyWithConsentedExplorer("BlockFox");

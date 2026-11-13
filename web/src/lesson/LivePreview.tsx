@@ -1,4 +1,5 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { ANGULAR_RUN_OPTIONS, needsAngular } from '../runner/angular';
 import { buildRunDocument, composeFiles, REACT_RUN_OPTIONS, type Files } from '../runner/compose';
 import { hasTypeScript, loadToolkit, needsReact, needsReactRuntime } from '../runner/react';
 import type { TypeChecker, TypeDiagnostic } from '../runner/typeCheck';
@@ -74,12 +75,13 @@ export const LivePreview = forwardRef<LivePreviewHandle, { title: string; typeCh
       currentRunId.current = runId;
       setConsoleLines([]);
 
-      // JSX and TypeScript pages need Sucrase (and React, if they use it), downloaded once on first use.
+      // JSX and TypeScript pages need Sucrase (and React or Angular, if they use it), downloaded once on first use.
       const compiled = needsReact(files);
       const react = needsReactRuntime(files);
+      const angular = needsAngular(files);
       let html: string;
       try {
-        const kit = compiled ? await loadToolkit({ react }) : undefined;
+        const kit = compiled ? await loadToolkit({ react, angular }) : undefined;
         // TypeScript pages are type-checked before they run. If the checker itself fails, the page
         // still runs; typeCheck/typeError tests then report that types couldn't be checked.
         let typeDiagnostics: TypeDiagnostic[] | undefined;
@@ -91,7 +93,7 @@ export const LivePreview = forwardRef<LivePreviewHandle, { title: string; typeCh
           }
         }
         if (currentRunId.current !== runId) return null; // a newer run started while we were checking
-        html = buildRunDocument(composeFiles(files, kit), runId, tests, { ...(react ? REACT_RUN_OPTIONS : {}), typeDiagnostics });
+        html = buildRunDocument(composeFiles(files, kit), runId, tests, { ...(react ? REACT_RUN_OPTIONS : angular ? ANGULAR_RUN_OPTIONS : {}), typeDiagnostics });
       } catch {
         if (currentRunId.current === runId) {
           setConsoleLines([{ level: 'error', text: "We couldn't load the tools this preview needs. Check your internet connection and try again." }]);

@@ -1,0 +1,197 @@
+{
+  "course": "angular-basics",
+  "lessons": {
+    "components-explorer": {
+      "intro": [
+        {
+          "displayText": "Angular builds apps out of pieces called components, and today you'll make your very first one. Your mission is a name badge for Bolt the robot!",
+          "speechText": "Angular builds apps out of pieces called components, and today you'll make your very first one. Your mission is a name badge for Bolt the robot!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Bolt's badge looks great! Your new word is component: a class with the data, plus a template that shows it.",
+          "speechText": "Bolt's badge looks great! Your new word is component: a class with the data, plus a template that shows it.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "components": {
+      "intro": [
+        {
+          "displayText": "Angular is a full framework for building apps, used a lot by large teams and big organizations. You'll learn what a component is, what the Component decorator does, and how an Angular app starts up. Every screen in a real Angular app is built this way, so this is the foundation for everything else. Then you'll wire up a mission control panel.",
+          "speechText": "Angular is a full framework for building apps, used a lot by large teams and big organizations. You'll learn what a component is, what the Component decorator does, and how an Angular app starts up. Every screen in a real Angular app is built this way, so this is the foundation for everything else. Then you'll wire up a mission control panel.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Nice work, mission control is live. You used interpolation for properties and a method call. The gotcha is floating-point maths: 0.85 × 100 isn't exactly 85, so round before you show it.",
+          "speechText": "Nice work, mission control is live. You used interpolation for properties and a method call. The gotcha is floating point maths: zero point eight five times one hundred isn't exactly 85, so round before you show it.",
+          "mood": "Encouraging"
+        }
+      ]
+    },
+    "signals-explorer": {
+      "intro": [
+        {
+          "displayText": "Pages get exciting when things change, and signals are how Angular keeps track of changing values. Your mission is to feed Nibbles the hamster with a click!",
+          "speechText": "Pages get exciting when things change, and signals are how Angular keeps track of changing values. Your mission is to feed Nibbles the hamster with a click!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Nibbles is full and happy! Your new word is signal: a box for a value that Angular watches, so the page updates by itself.",
+          "speechText": "Nibbles is full and happy! Your new word is signal: a box for a value that Angular watches, so the page updates by itself.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "signals-and-events": {
+      "intro": [
+        {
+          "displayText": "Signals are how modern Angular stores state and knows exactly what to re-render. You'll use writable signals, computed signals and event binding. Real apps lean on computed values to avoid keeping two copies of the same data in sync. Then you'll finish a ticket counter for the school play.",
+          "speechText": "Signals are how modern Angular stores state and knows exactly what to re-render. You'll use writable signals, computed signals and event binding. Real apps lean on computed values to avoid keeping two copies of the same data in sync. Then you'll finish a ticket counter for the school play.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Good work. The total can't drift out of sync because it's computed, not copied. The gotcha is mutating in place: pushing into an array inside a signal won't re-render, so always set a new array.",
+          "speechText": "Good work. The total can't drift out of sync because it's computed, not copied. The gotcha is mutating in place: pushing into an array inside a signal won't re-render, so always set a new array.",
+          "mood": "Encouraging"
+        }
+      ]
+    },
+    "control-flow-explorer": {
+      "intro": [
+        {
+          "displayText": "Templates can make choices and repeat things, all by themselves. Your mission is to fill a treasure chest and find out when you're rich!",
+          "speechText": "Templates can make choices and repeat things, all by themselves. Your mission is to fill a treasure chest and find out when you're rich!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "What a treasure hunt! Your new word is condition: a question that's true or false, which at if uses to decide what to show.",
+          "speechText": "What a treasure hunt! Your new word is condition: a question that's true or false, which the if block uses to decide what to show.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "control-flow-and-binding": {
+      "intro": [
+        {
+          "displayText": "Templates decide what to render with control flow blocks and push data into the DOM with property binding. You'll use if, for with track, empty, and class and property bindings. Nearly every screen in a real app is a list, a condition, or both. Then you'll render a playlist.",
+          "speechText": "Templates decide what to render with control flow blocks and push data into the DOM with property binding. You'll use if, for with track, empty, and class and property bindings. Nearly every screen in a real app is a list, a condition, or both. Then you'll render a playlist.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Nice, the playlist renders and reacts. You used every binding type: text, property and event. The gotcha is tracking by index on lists that reorder or delete, which makes Angular reuse the wrong elements, so track a real id.",
+          "speechText": "Nice, the playlist renders and reacts. You used every binding type: text, property and event. The gotcha is tracking by index on lists that reorder or delete, which makes Angular reuse the wrong elements, so track a real id.",
+          "mood": "Encouraging"
+        }
+      ]
+    },
+    "inputs-explorer": {
+      "intro": [
+        {
+          "displayText": "You can build your own tags and use them again and again, like LEGO bricks. Your mission is to make pet cards for the animal shelter!",
+          "speechText": "You can build your own tags and use them again and again, like LEGO bricks. Your mission is to make pet cards for the animal shelter!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The shelter's cards look adorable! Your new word is input: a value the parent passes into a component, like name or animal.",
+          "speechText": "The shelter's cards look adorable! Your new word is input: a value the parent passes into a component, like name or animal.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "inputs-and-outputs": {
+      "intro": [
+        {
+          "displayText": "Components talk through inputs, which send data down, and outputs, which send events up. You'll make a child component that announces clicks instead of changing its parent's data. Keeping children ignorant of their parents is what makes them reusable across a whole app. Then you'll run the vote for a class pet.",
+          "speechText": "Components talk through inputs, which send data down, and outputs, which send events up. You'll make a child component that announces clicks instead of changing its parent's data. Keeping children ignorant of their parents is what makes them reusable across a whole app. Then you'll run the vote for a class pet.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Nice, the vote counts and the leader updates. The child only emits; the parent owns the data. The gotcha is error NG0303: when Angular says it can't bind to a property, check the parent's imports first.",
+          "speechText": "Nice, the vote counts and the leader updates. The child only emits, and the parent owns the data. The gotcha is error N G zero three zero three: when Angular says it can't bind to a property, check the parent's imports first.",
+          "mood": "Encouraging"
+        }
+      ]
+    },
+    "services-explorer": {
+      "intro": [
+        {
+          "displayText": "Sometimes two parts of a page need the very same information. Your mission is to connect a shared toy box to the shelf and the button!",
+          "speechText": "Sometimes two parts of a page need the very same information. Your mission is to connect a shared toy box to the shelf and the button!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The toy room works together now! Your new word is service: a helper class that many components share, so they always agree.",
+          "speechText": "The toy room works together now! Your new word is service: a helper class that many components share, so they always agree.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "services-and-di": {
+      "intro": [
+        {
+          "displayText": "Services hold the state and logic that several components share, and dependency injection is how components get them. You'll write computed signals in a service and inject it into a component. Real apps keep components thin and put the work in services, which makes both easier to test. Then you'll connect a snack stand's menu to its cart.",
+          "speechText": "Services hold the state and logic that several components share, and dependency injection is how components get them. You'll write computed signals in a service and inject it into a component. Real apps keep components thin and put the work in services, which makes both easier to test. Then you'll connect a snack stand's menu to its cart.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Great work, the menu and the summary share one cart. Private writable state with a read-only view means only the service changes it. The gotcha is calling new on a service: you get a separate copy, so always inject it.",
+          "speechText": "Great work, the menu and the summary share one cart. Private writable state with a read-only view means only the service changes it. The gotcha is calling new on a service: you get a separate copy, so always inject it.",
+          "mood": "Encouraging"
+        }
+      ]
+    },
+    "project-explorer": {
+      "intro": [
+        {
+          "displayText": "It's project time, and you'll use everything you've learned in this course. Your mission is to build a pet shelter app where you can add your very own pet!",
+          "speechText": "It's project time, and you'll use everything you've learned in this course. Your mission is to build a pet shelter app where you can add your very own pet!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You built a whole Angular app, and that's a big deal! Your new word is template reference: a hashtag name on a tag, so the template can use it.",
+          "speechText": "You built a whole Angular app, and that's a big deal! Your new word is template reference: a hashtag name on a tag, so the template can use it.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "project-quest-board": {
+      "intro": [
+        {
+          "displayText": "This project is a quest board built the way an Angular team would build one. You'll put the rules in a service, keep a presentational component simple, and wire it together in a container. Splitting state from display like this is what keeps big Angular apps manageable. Let's build it.",
+          "speechText": "This project is a quest board built the way an Angular team would build one. You'll put the rules in a service, keep a presentational component simple, and wire it together in a container. Splitting state from display like this is what keeps big Angular apps manageable. Let's build it.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Excellent, that's a complete Angular app with a model, a service, and presentational and container components. You've finished the Angular basics course. The gotcha to remember is mutating objects inside a signal: always build new ones with map, filter or spread.",
+          "speechText": "Excellent, that's a complete Angular app with a model, a service, and presentational and container components. You've finished the Angular basics course. The gotcha to remember is mutating objects inside a signal: always build new ones with map, filter or spread.",
+          "mood": "Celebrating"
+        }
+      ]
+    }
+  }
+}

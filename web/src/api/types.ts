@@ -95,7 +95,7 @@ export interface RevealedHint {
 
 export interface Challenge {
   id: number;
-  kind: 'Html' | 'Css' | 'Js' | 'React' | 'TypeScript' | 'Sql' | 'CSharp';
+  kind: 'Html' | 'Css' | 'Js' | 'React' | 'TypeScript' | 'Angular' | 'Sql' | 'CSharp';
   instructionsMarkdown: string;
   starterFiles: Files;
   tests: TestSpec[];

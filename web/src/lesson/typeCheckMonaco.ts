@@ -8,6 +8,7 @@
  * creates its model early, and imports between lesson files resolve in the editor too.
  */
 import type { Files } from '../api/types';
+import { needsAngular } from '../runner/angular';
 import { flattenMessage, sortDiagnostics, TS_COMPILER_OPTIONS, typeScriptFiles, type TypeChecker, type TypeDiagnostic } from '../runner/typeCheck';
 import { monaco } from './monacoSetup';
 
@@ -19,11 +20,33 @@ monaco.typescript.typescriptDefaults.setEagerModelSync(true);
 const uriFor = (name: string) => monaco.Uri.parse(name);
 
 /**
+ * Angular's type definitions (~1.6 MB, ~360 KB gzipped), added to the worker the first time a lesson
+ * imports Angular. Paths are file:///node_modules/…, where TypeScript looks for packages from the
+ * learner's files (file:///main.ts), so `import { Component } from '@angular/core'` resolves, and the
+ * editor shows Angular's own hover docs and errors.
+ */
+let angularTypes: Promise<void> | null = null;
+export function ensureAngularTypes(): Promise<void> {
+  angularTypes ??= import('virtual:cg-angular-types')
+    .then(({ default: declarations }) => {
+      for (const [path, text] of Object.entries(declarations)) monaco.typescript.typescriptDefaults.addExtraLib(text, `file://${path}`);
+    })
+    .catch((error: unknown) => {
+      angularTypes = null; // a failed download can be retried on the next check
+      throw error;
+    });
+  return angularTypes;
+}
+
+/**
  * Makes the worker's set of TypeScript files match this lesson: creates or updates a model per .ts
  * file and disposes TypeScript models left over from other lessons (their code would otherwise still
  * count, e.g. an old types.ts declaring the same names). Called by the editor and the checker.
  */
 export function syncTypeScriptModels(files: Files): void {
+  // Start downloading Angular's types as soon as the editor shows an Angular file, so the first red
+  // squiggles are about the learner's code, not "Cannot find module '@angular/core'".
+  if (needsAngular(files)) void ensureAngularTypes().catch(() => undefined);
   const names = typeScriptFiles(files);
   const keep = new Set(names.map((n) => uriFor(n).toString()));
 
@@ -45,6 +68,7 @@ export const monacoTypeChecker: TypeChecker = async (files) => {
   const names = typeScriptFiles(files);
   if (names.length === 0) return [];
   syncTypeScriptModels(files);
+  if (needsAngular(files)) await ensureAngularTypes();
 
   const uris = names.map(uriFor);
   const getWorker = await monaco.typescript.getTypeScriptWorker();

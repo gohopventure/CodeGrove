@@ -38,7 +38,7 @@ const cases = readdirSync(coursesDir)
   .flatMap((file) => {
     const course = JSON.parse(readFileSync(coursesDir + file, 'utf8')) as { lessons: LessonFile[] };
     return course.lessons
-      .filter((l) => l.isPublished && l.challenge && ['Html', 'Css', 'Js', 'React', 'TypeScript'].includes(l.challenge.kind))
+      .filter((l) => l.isPublished && l.challenge && ['Html', 'Css', 'Js', 'React', 'TypeScript', 'Angular'].includes(l.challenge.kind))
       .map((l) => ({ name: `${file} → ${l.slug}`, lesson: l }));
   });
 
@@ -88,9 +88,9 @@ describe('blocks challenges', () => {
   });
 });
 
-// TypeScript lessons: the worked example has to be clean code (no type errors, nothing logged as an
-// error), since learners copy from it. Its TypeScript is inline: <script type="text/typescript">.
-const tsCases = cases.filter(({ lesson }) => lesson.challenge?.kind === 'TypeScript');
+// TypeScript and Angular lessons: the worked example has to be clean code (no type errors, nothing
+// logged as an error), since learners copy from it. Its TypeScript is inline: <script type="text/typescript">.
+const tsCases = cases.filter(({ lesson }) => lesson.challenge?.kind === 'TypeScript' || lesson.challenge?.kind === 'Angular');
 
 describe('TypeScript examples', () => {
   it('finds TypeScript lessons to check', () => expect(tsCases.length).toBeGreaterThan(0));
@@ -103,7 +103,12 @@ describe('TypeScript examples', () => {
     const diagnostics = await nodeTypeChecker({ 'example.ts': inline! });
     expect(diagnostics.map((d) => describeTypeError(d, false)), 'example has type errors').toEqual([]);
 
-    const { results } = await runInJsdom({ 'index.html': example }, [{ id: 1, label: 'runs', kind: 'noErrors', spec: {}, failMessage: '' }]);
+    const { results } = await runInJsdom({ 'index.html': example }, [
+      { id: 1, label: 'runs', kind: 'noErrors', spec: {}, failMessage: '' },
+      // Angular examples render into <app-root>; an empty one means the app never started.
+      { id: 2, label: 'renders', kind: 'elementExists', spec: { selector: example.includes('<app-root') ? 'app-root *' : 'body' }, failMessage: '' },
+    ]);
     expect(results[0]?.passed, 'example logs an error when it runs').toBe(true);
+    expect(results[1]?.passed, 'example rendered nothing into <app-root>').toBe(true);
   });
 });

@@ -1,0 +1,2567 @@
+{
+  "slug": "angular-basics",
+  "title": "Angular Basics: Components, Signals and Services",
+  "summary": "Build apps the Angular way: components and templates, signals, control flow, inputs and outputs, services with dependency injection, and a multi-file project.",
+  "ageBand": "Both",
+  "estimatedMinutes": 95,
+  "isPublished": true,
+  "objectives": [
+    "Explain what Angular is and how an Angular app starts up",
+    "Write components with templates, interpolation and event binding",
+    "Store changing data in signals and derive values with computed",
+    "Use @if, @for and property binding to render data",
+    "Pass data down with inputs and send events up with outputs",
+    "Share state across components with services and dependency injection"
+  ],
+  "lessons": [
+    {
+      "slug": "components-explorer",
+      "title": "Your first Angular component",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Meet Angular\n\n**Angular** is a big toolkit for building apps, made by a team at Google. You write it in **TypeScript**, the JavaScript-with-labels you already know.\n\nAngular apps are built from **components**. A component is one piece of the page, like a badge, a menu or a game score.\n\n### A component has two parts\n\n```ts\n@Component({\n  selector: 'app-root',\n  template: `<h1>Hello, {{ name }}!</h1>`,\n})\nexport class App {\n  name = 'Pixel';\n}\n```\n\n1. The **class** at the bottom holds the data: `name = 'Pixel'`.\n2. The **template** is the HTML the component shows.\n\n`@Component({ ... })` is a label on the class. It tells Angular \"this class is a component\". The `selector` is the tag where it goes. Here that's `<app-root>` in **index.html**.\n\n### Double curly braces\n\n`{{ name }}` means \"put the value of `name` here\". Angular swaps it for **Pixel** on the page. If you change `name`, the page changes too.\n\n### New words\n\n- **Angular**: a toolkit for building apps out of components.\n- **Component**: a piece of the page made of a class (the data) and a template (the HTML).\n- **Template**: the HTML a component shows.\n- **Selector**: the tag name where a component goes, like `app-root`.\n- **Interpolation**: showing a value in the template with `{{ }}`.\n",
+      "exampleMarkdown": "A Space Club welcome card. The class has two properties, and the template shows both with `{{ }}`. (In a real project the component and the start-up code live in separate files. Here it's all in one page so you can see everything at once.)",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Space Club</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      @Component({\n        selector: 'app-root',\n        template: `\n          <h1>🚀 {{ club }}</h1>\n          <p>Members: {{ members }}</p>\n        `,\n      })\n      class App {\n        club = 'Space Club';\n        members = 12;\n      }\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Make a name badge for Bolt the robot in **app.ts**.\n\n1. Change the heading to **Robot Badge**, and change `robotName` to `'Bolt'`.\n2. Show the name in the template: `<p>Name: {{ robotName }}</p>`\n3. Make a new property `power = 100;` and show it: `<p>Power: {{ power }}</p>`\n\nWatch the preview change as you type.",
+        "starterFiles": {
+          "app.ts": "import { Component } from '@angular/core';\n\n// The @Component label tells Angular: this class is a component.\n@Component({\n  selector: 'app-root', // the tag it fills in index.html: <app-root>\n  template: `\n    <h1>Hello!</h1>\n    <!-- 2. Show the name here: <p>Name: {{ robotName }}</p> -->\n\n    <!-- 3. Show the power here: <p>Power: {{ power }}</p> -->\n  `,\n})\nexport class App {\n  // 1. Change the name to 'Bolt'\n  robotName = 'Robot';\n\n  // 3. Make a new property called power, set to 100\n\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Robot Badge</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "app.ts": "import { Component } from '@angular/core';\n\n// The @Component label tells Angular: this class is a component.\n@Component({\n  selector: 'app-root', // the tag it fills in index.html: <app-root>\n  template: `\n    <h1>Robot Badge</h1>\n    <p>Name: {{ robotName }}</p>\n\n    <p>Power: {{ power }}</p>\n  `,\n})\nexport class App {\n  // 1. Change the name to 'Bolt'\n  robotName = 'Bolt';\n\n  // 3. Make a new property called power, set to 100\n  power = 100;\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Robot Badge</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The heading says Robot Badge",
+            "kind": "elementText",
+            "spec": {
+              "selector": "app-root h1",
+              "equals": "Robot Badge"
+            },
+            "failMessage": "Change the text between <h1> and </h1>."
+          },
+          {
+            "label": "The badge shows Bolt's name",
+            "kind": "elementText",
+            "spec": {
+              "selector": "app-root p:nth-of-type(1)",
+              "equals": "Name: Bolt"
+            },
+            "failMessage": "Set robotName = 'Bolt' and add <p>Name: {{ robotName }}</p> to the template."
+          },
+          {
+            "label": "The name comes from robotName",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\{\\{\\s*robotName\\s*\\}\\}/.test(window.__cgSources[\"app.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Use {{ robotName }} in the template, so the name comes from the class."
+          },
+          {
+            "label": "The badge shows the power",
+            "kind": "elementText",
+            "spec": {
+              "selector": "app-root p:nth-of-type(2)",
+              "equals": "Power: 100"
+            },
+            "failMessage": "Add power = 100; to the class and <p>Power: {{ power }}</p> to the template."
+          },
+          {
+            "label": "The power comes from a property",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\{\\{\\s*power\\s*\\}\\}/.test(window.__cgSources[\"app.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Show the power with {{ power }} in the template."
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "Look for a ⚠ Type error line in the Console: it names the file and line to fix."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The class has the data, and the template shows it. Where does `{{ robotName }}` need to go?",
+            "speechText": "The class has the data, and the template shows it. Where does robot name, in double curly braces, need to go?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Inside the backticks after `template:`, add `<p>Name: {{ robotName }}</p>` under the heading.",
+            "speechText": "Inside the backticks after template, add a p tag that says Name, then robot name in double curly braces.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "In the class, under `robotName`, write `power = 100;`. Then add `<p>Power: {{ power }}</p>` to the template.",
+            "speechText": "In the class, write power equals 100. Then add a p tag that shows power in double curly braces.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What are the two parts of an Angular component?",
+            "explanation": "The class holds the data and the template is the HTML that shows it.",
+            "options": [
+              {
+                "text": "A class and a template",
+                "correct": true
+              },
+              {
+                "text": "A heading and a paragraph",
+                "correct": false
+              },
+              {
+                "text": "A file and a folder",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does {{ name }} do in a template?",
+            "explanation": "Double curly braces show the value of a property on the page.",
+            "options": [
+              {
+                "text": "Shows the value of name on the page",
+                "correct": true
+              },
+              {
+                "text": "Makes name bold",
+                "correct": false
+              },
+              {
+                "text": "Deletes name",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the selector 'app-root' mean?",
+            "explanation": "The selector is the tag where the component appears, here <app-root>.",
+            "options": [
+              {
+                "text": "The component goes where <app-root> is",
+                "correct": true
+              },
+              {
+                "text": "The component is the root of a tree",
+                "correct": false
+              },
+              {
+                "text": "The component is hidden",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "components",
+      "title": "Components, templates and bootstrapping",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Why Angular?\n\nReact is a **library**: it renders components, and you choose other libraries for routing, forms and data. **Angular** is a **framework**: one toolkit from Google with all of those built in, plus strong opinions about how an app is organized. Large teams like that every Angular app looks alike, which is why it's common in big companies and government systems.\n\nAngular is written in **TypeScript**, so everything you learned about types applies here.\n\n### A component\n\n```ts\nimport { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-root',\n  templateUrl: './app.html',\n  styleUrl: './app.css',\n})\nexport class App {\n  title = 'Game Night';\n}\n```\n\n`@Component({ ... })` is a **decorator**: a function that attaches **metadata** (information about the class) to the class below it. Angular reads it to learn:\n\n- `selector`: the custom tag the component renders into, like `<app-root>`.\n- `templateUrl` / `template`: the HTML, either in its own file or inline in backticks.\n- `styleUrl` / `styles`: CSS that applies **only to this component**.\n\n### Templates and interpolation\n\nIn the template, `{{ expression }}` is **interpolation**: Angular evaluates the expression against the component instance and inserts the result as text. You can read properties (`{{ title }}`), call methods (`{{ total() }}`) and do simple maths, but not assignments.\n\n### How an Angular project starts\n\n| File | What it does |\n| --- | --- |\n| `index.html` | Contains one `<app-root>` tag and loads `main.ts` |\n| `main.ts` | `bootstrapApplication(App)` starts Angular and renders `App` into `<app-root>` |\n| `app.ts`, `app.html`, `app.css` | The root component: class, template and styles |\n\nA project made with the **Angular CLI** (`ng new`) also has an `app.config.ts` for app-wide settings. Here, `main.ts` is already written for you.\n\nOne difference from a real project: `ng build` compiles templates **ahead of time** and checks them for mistakes. In Codegrove the template is compiled in the browser when the page runs, so template typos show up as Console errors rather than red squiggles.\n\n### New words\n\n- **Framework**: a complete toolkit that decides the structure of your app. You fill in the parts.\n- **Decorator**: a function written with `@` above a class that attaches metadata to it.\n- **Metadata**: information about something, like a component's selector and template.\n- **Interpolation**: `{{ }}` in a template, which shows the value of an expression as text.\n- **Bootstrapping**: starting the app by rendering the root component into the page.\n- **CLI** (*Command-Line Interface*): a tool you run by typing commands, like `ng new` and `ng serve`.\n",
+      "exampleMarkdown": "A weather card with a property, a method and a bit of maths in the template. The CLI would split this into `app.ts`, `app.html` and `app.css`. Here the template and styles are inline so the whole example fits on one page.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Weather</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      @Component({\n        selector: 'app-root',\n        template: `\n          <h1>{{ city }}</h1>\n          <p>{{ celsius }}°C / {{ fahrenheit() }}°F</p>\n          <p>Bring a jacket: {{ celsius < 12 ? 'yes' : 'no' }}</p>\n        `,\n        styles: `h1 { color: teal; }`,\n      })\n      class App {\n        city = 'Shreveport';\n        celsius = 9;\n\n        fahrenheit(): number {\n          return Math.round(this.celsius * 9 / 5 + 32);\n        }\n      }\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Wire up the mission control panel. The component class is in **app.ts** and its template is in **app.html**.\n\n1. In **app.html**, show the mission in the heading so it reads **Artemis Mission Control**. Use `{{ mission }}`, don't type the name.\n2. Add `<p class=\"crew\">` showing **Crew: 4** from the `crew` property.\n3. In **app.ts**, add a method `fuelPercent(): number` that returns the fuel as a whole number (`Math.round` helps). Then show **Fuel: 85%** in `<p class=\"fuel\">` by calling it.",
+        "starterFiles": {
+          "app.ts": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-root',\n  templateUrl: './app.html',\n  styleUrl: './app.css',\n})\nexport class App {\n  mission = 'Artemis';\n  crew = 4;\n  fuel = 0.85; // 85% full\n\n  // 3. Add a fuelPercent() method that returns the fuel as a whole number, like 85.\n\n}\n",
+          "app.html": "<main>\n  <!-- 1. Show the mission name in the heading: \"Artemis Mission Control\" -->\n  <h1>Mission Control</h1>\n\n  <!-- 2. Add <p class=\"crew\">Crew: 4</p>, using the crew property -->\n\n  <!-- 3. Add <p class=\"fuel\">Fuel: 85%</p>, calling fuelPercent() -->\n</main>\n",
+          "app.css": "main {\n  font-family: system-ui, sans-serif;\n  max-width: 28rem;\n  margin: 2rem auto;\n  padding: 1rem 1.5rem;\n  background: #0f172a;\n  color: #e2e8f0;\n  border-radius: 12px;\n}\n\nh1 {\n  color: #38bdf8;\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Mission Control</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "app.ts": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-root',\n  templateUrl: './app.html',\n  styleUrl: './app.css',\n})\nexport class App {\n  mission = 'Artemis';\n  crew = 4;\n  fuel = 0.85; // 85% full\n\n  // 3. Add a fuelPercent() method that returns the fuel as a whole number, like 85.\n  fuelPercent(): number {\n    return Math.round(this.fuel * 100);\n  }\n}\n",
+          "app.html": "<main>\n  <!-- 1. Show the mission name in the heading: \"Artemis Mission Control\" -->\n  <h1>{{ mission }} Mission Control</h1>\n\n  <!-- 2. Add <p class=\"crew\">Crew: 4</p>, using the crew property -->\n  <p class=\"crew\">Crew: {{ crew }}</p>\n\n  <!-- 3. Add <p class=\"fuel\">Fuel: 85%</p>, calling fuelPercent() -->\n  <p class=\"fuel\">Fuel: {{ fuelPercent() }}%</p>\n</main>\n",
+          "app.css": "main {\n  font-family: system-ui, sans-serif;\n  max-width: 28rem;\n  margin: 2rem auto;\n  padding: 1rem 1.5rem;\n  background: #0f172a;\n  color: #e2e8f0;\n  border-radius: 12px;\n}\n\nh1 {\n  color: #38bdf8;\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Mission Control</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The heading says Artemis Mission Control",
+            "kind": "elementText",
+            "spec": {
+              "selector": "h1",
+              "equals": "Artemis Mission Control"
+            },
+            "failMessage": "The heading should read Artemis Mission Control."
+          },
+          {
+            "label": "The heading uses the mission property",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/<h1>\\s*\\{\\{\\s*mission\\s*\\}\\}/.test(window.__cgSources[\"app.html\"])",
+              "equals": true
+            },
+            "failMessage": "Start the heading with {{ mission }} instead of typing the name."
+          },
+          {
+            "label": "The crew line shows 4",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".crew",
+              "equals": "Crew: 4"
+            },
+            "failMessage": "Add <p class=\"crew\">Crew: {{ crew }}</p>."
+          },
+          {
+            "label": "The crew comes from the property",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\{\\{\\s*crew\\s*\\}\\}/.test(window.__cgSources[\"app.html\"])",
+              "equals": true
+            },
+            "failMessage": "Use {{ crew }} for the number."
+          },
+          {
+            "label": "The fuel line shows 85%",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".fuel",
+              "equals": "Fuel: 85%"
+            },
+            "failMessage": "Add <p class=\"fuel\">Fuel: {{ fuelPercent() }}%</p>, and make fuelPercent() return a whole number."
+          },
+          {
+            "label": "fuelPercent() is a typed method",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/fuelPercent\\s*\\(\\s*\\)\\s*:\\s*number\\s*\\{/.test(window.__cgSources[\"app.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Declare it as fuelPercent(): number { ... } in the class."
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error. The Console names the file and line."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something logged an error. Angular's messages start with a code like NG0303 and say what went wrong."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Everything inside `{{ }}` is evaluated against the component instance. Which property already holds `'Artemis'`?",
+            "speechText": "Everything inside double curly braces is evaluated against the component. Which property already holds the word Artemis?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "In app.html the heading becomes `{{ mission }} Mission Control`, and the crew line is `Crew: {{ crew }}` inside a `p` with the class `crew`.",
+            "speechText": "In the template, the heading becomes mission, in double curly braces, followed by Mission Control. The crew line works the same way, with the crew property.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "`this.fuel * 100` is 85.00000000000001 (floating-point maths), so wrap it in `Math.round(...)` and return that from `fuelPercent(): number`. Call it in the template with parentheses: `{{ fuelPercent() }}%`.",
+            "speechText": "Fuel times one hundred comes out a tiny bit over 85, so round it with Math dot round. Then call fuel percent with parentheses inside the template.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does the @Component decorator do?",
+            "explanation": "It attaches metadata (selector, template, styles) that tells Angular how to use the class.",
+            "options": [
+              {
+                "text": "Attaches metadata that tells Angular how to render the class",
+                "correct": true
+              },
+              {
+                "text": "Makes the class run faster",
+                "correct": false
+              },
+              {
+                "text": "Turns the class into a function",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Where does a component with selector: 'app-root' appear?",
+            "explanation": "Angular renders the component inside the matching custom element.",
+            "options": [
+              {
+                "text": "Inside the <app-root> element",
+                "correct": true
+              },
+              {
+                "text": "In a file named app-root.html",
+                "correct": false
+              },
+              {
+                "text": "At the top of every page automatically",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which is valid interpolation?",
+            "explanation": "Interpolation evaluates an expression; method calls are fine, assignments are not.",
+            "options": [
+              {
+                "text": "{{ total() }}",
+                "correct": true
+              },
+              {
+                "text": "{{ total = 5 }}",
+                "correct": false
+              },
+              {
+                "text": "{ total }",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does bootstrapApplication(App) do in main.ts?",
+            "explanation": "It starts Angular and renders the root component into the page.",
+            "options": [
+              {
+                "text": "Starts Angular and renders App into the page",
+                "correct": true
+              },
+              {
+                "text": "Downloads Angular from the internet",
+                "correct": false
+              },
+              {
+                "text": "Creates a new component file",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How is Angular different from React?",
+            "explanation": "Angular is a full framework with routing, forms, HTTP and DI built in; React is a rendering library.",
+            "options": [
+              {
+                "text": "Angular is a full framework with more built in",
+                "correct": true
+              },
+              {
+                "text": "Angular can't use components",
+                "correct": false
+              },
+              {
+                "text": "Angular only works with plain JavaScript",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "signals-explorer",
+      "title": "Signals and clicks",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Values that change\n\nA **signal** is a box that holds a value. Angular keeps an eye on the box. When the value inside changes, Angular updates the page for you.\n\n```ts\nscore = signal(0);\n```\n\n### Read, set and update\n\n- **Read** it by calling it like a function: `score()`. In the template: `{{ score() }}`\n- **Set** a new value: `this.score.set(10);`\n- **Update** it from the old value: `this.score.update((n) => n + 1);`\n\n`(n) => n + 1` means \"take the old number, give back one more\".\n\n### Clicks\n\nTo run a method when a button is clicked, put the event name in round brackets:\n\n```html\n<button (click)=\"addPoint()\">+1</button>\n```\n\nRound brackets mean \"when this happens, do that\".\n\n### New words\n\n- **Signal**: a box for a value that Angular watches, so the page updates when it changes.\n- **Event**: something that happens on the page, like a click.\n- **Event binding**: `(click)=\"...\"`, which runs code when the event happens.\n- **Method**: a function that belongs to a class, like `addPoint()`.\n",
+      "exampleMarkdown": "A cookie jar. Each click calls `eat()`, which updates the signal, and Angular redraws the number straight away.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Cookie Jar</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component, signal } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      @Component({\n        selector: 'app-root',\n        template: `\n          <h1>🍪 Cookie jar</h1>\n          <p>Cookies left: {{ cookies() }}</p>\n          <button (click)=\"eat()\">Eat one</button>\n        `,\n      })\n      class App {\n        cookies = signal(10);\n\n        eat() {\n          this.cookies.update((n) => n - 1);\n        }\n      }\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Nibbles the hamster is hungry. Make the buttons work in **app.ts**.\n\n1. Inside `feed()`, add 1 to the snacks: `this.snacks.update((n) => n + 1);`\n2. Make the Feed button call `feed()` when clicked: `(click)=\"feed()\"`\n3. Make a `reset()` method that sets snacks back to 0, and add a button `<button class=\"reset\" (click)=\"reset()\">Reset</button>`.\n\nClick the buttons in the preview to try them!",
+        "starterFiles": {
+          "app.ts": "import { Component, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-root',\n  template: `\n    <h1>🐹 Nibbles the hamster</h1>\n    <p class=\"snacks\">Snacks eaten: {{ snacks() }}</p>\n\n    <!-- 2. Make this button call feed() when it's clicked -->\n    <button class=\"feed\">Feed</button>\n\n    <!-- 3. Add a Reset button here -->\n  `,\n})\nexport class App {\n  // A signal is a box that holds a value. Angular watches it.\n  snacks = signal(0);\n\n  feed() {\n    // 1. Add 1 to snacks here\n  }\n\n  // 3. Make a reset() method that sets snacks back to 0\n\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Nibbles</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "app.ts": "import { Component, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-root',\n  template: `\n    <h1>🐹 Nibbles the hamster</h1>\n    <p class=\"snacks\">Snacks eaten: {{ snacks() }}</p>\n\n    <!-- 2. Make this button call feed() when it's clicked -->\n    <button class=\"feed\" (click)=\"feed()\">Feed</button>\n\n    <!-- 3. Add a Reset button here -->\n    <button class=\"reset\" (click)=\"reset()\">Reset</button>\n  `,\n})\nexport class App {\n  // A signal is a box that holds a value. Angular watches it.\n  snacks = signal(0);\n\n  feed() {\n    // 1. Add 1 to snacks here\n    this.snacks.update((n) => n + 1);\n  }\n\n  // 3. Make a reset() method that sets snacks back to 0\n  reset() {\n    this.snacks.set(0);\n  }\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Nibbles</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Nibbles starts with 0 snacks",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".snacks",
+              "equals": "Snacks eaten: 0"
+            },
+            "failMessage": "The page should start by showing Snacks eaten: 0."
+          },
+          {
+            "label": "Click Feed",
+            "kind": "interact",
+            "spec": {
+              "selector": ".feed",
+              "click": true
+            },
+            "failMessage": "Couldn't find .feed to click. Is it still on the page?"
+          },
+          {
+            "label": "Click Feed again",
+            "kind": "interact",
+            "spec": {
+              "selector": ".feed",
+              "click": true
+            },
+            "failMessage": "Couldn't find .feed to click. Is it still on the page?"
+          },
+          {
+            "label": "Two clicks means two snacks",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".snacks",
+              "equals": "Snacks eaten: 2"
+            },
+            "failMessage": "Check that the button has (click)=\"feed()\" and that feed() updates snacks."
+          },
+          {
+            "label": "Click Reset",
+            "kind": "interact",
+            "spec": {
+              "selector": ".reset",
+              "click": true
+            },
+            "failMessage": "Couldn't find .reset to click. Is it still on the page?"
+          },
+          {
+            "label": "Reset goes back to 0",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".snacks",
+              "equals": "Snacks eaten: 0"
+            },
+            "failMessage": "Add a Reset button with class=\"reset\" and (click)=\"reset()\", and make reset() call this.snacks.set(0)."
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "Look for a ⚠ Type error line in the Console: it names the file and line to fix."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Clicking Feed doesn't do anything yet. What has to be on the button so a click runs `feed()`?",
+            "speechText": "Clicking Feed doesn't do anything yet. What has to be on the button so a click runs feed?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Add `(click)=\"feed()\"` inside the Feed button's tag. Then fill in `feed()` with `this.snacks.update((n) => n + 1);`",
+            "speechText": "Add click in round brackets, equals feed, to the Feed button. Then make feed update snacks to one more.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "For reset, write `reset() { this.snacks.set(0); }` in the class, and copy the Feed button to make a Reset button with `class=\"reset\"` and `(click)=\"reset()\"`.",
+            "speechText": "Write a reset method that sets snacks to zero. Then make a Reset button with the reset class that calls reset when clicked.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "How do you read the value of a signal called score?",
+            "explanation": "You call a signal like a function to read it.",
+            "options": [
+              {
+                "text": "score()",
+                "correct": true
+              },
+              {
+                "text": "score.value",
+                "correct": false
+              },
+              {
+                "text": "read(score)",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does (click)=\"jump()\" do?",
+            "explanation": "Round brackets bind an event: when the button is clicked, jump() runs.",
+            "options": [
+              {
+                "text": "Runs jump() when it's clicked",
+                "correct": true
+              },
+              {
+                "text": "Makes the button jump",
+                "correct": false
+              },
+              {
+                "text": "Shows the word jump",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which line adds 1 to a signal called lives?",
+            "explanation": "update takes the old value and returns the new one.",
+            "options": [
+              {
+                "text": "this.lives.update((n) => n + 1);",
+                "correct": true
+              },
+              {
+                "text": "this.lives = this.lives + 1;",
+                "correct": false
+              },
+              {
+                "text": "lives++;",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "signals-and-events",
+      "title": "Signals, events and computed values",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## State with signals\n\n**State** is data that changes while the app runs: a score, a cart, whether a menu is open. In modern Angular, state lives in **signals**.\n\n```ts\nimport { signal } from '@angular/core';\n\ncount = signal(0);          // a WritableSignal<number>\n\nthis.count();               // read: 0\nthis.count.set(5);          // replace the value\nthis.count.update((n) => n + 1);  // new value from the old one\n```\n\nA signal is a **reactive** value: when you read `count()` inside a template, Angular records that the template depends on it. When the value changes, Angular re-renders exactly the parts that read it. This lets Angular skip checking the whole page after every click. The older approach, a library called **zone.js**, did check everything; Angular 21 and later run **zoneless** by default.\n\n### Derived values: computed\n\n```ts\nprice = signal(4);\nquantity = signal(3);\ntotal = computed(() => this.price() * this.quantity());\n```\n\nA **computed signal** is read-only and recalculates when a signal it reads changes. Use it for anything you could work out from other state, instead of keeping a second copy in sync by hand.\n\n### Event binding\n\n```html\n<button (click)=\"add()\">Add</button>\n<input (input)=\"search.set($any($event.target).value)\" />\n```\n\n`(event)=\"statement\"` runs the statement when the DOM event fires. `$event` is the event object. (`$any(...)` tells the template checker not to worry about the target's type.)\n\n### The gotcha: update immutably\n\nAngular compares a signal's old and new value with `===`. If you `push` into an array that's already in a signal, it's still the same array, so nothing re-renders. Always set a **new** array or object:\n\n```ts\nitems.update((list) => [...list, 'new item']);   // ✓ new array\n```\n\n### New words\n\n- **State**: data that changes while the app is running.\n- **Signal**: a reactive value. Read it by calling it; change it with `set` or `update`.\n- **Reactive**: automatically updating when the data it depends on changes.\n- **Computed signal**: a read-only signal derived from other signals.\n- **Event binding**: `(event)=\"...\"` in a template, which runs code when a DOM event fires.\n- **DOM** (*Document Object Model*): the browser's live tree of elements on the page.\n- **Zoneless**: Angular's mode where signals, not zone.js, tell it when to re-render.\n",
+      "exampleMarkdown": "A tip calculator. `bill` and `tipPercent` are writable signals, `tip` and `total` are computed from them, and each button updates one signal. Notice there's no code that says \"now redraw the total\": the computed signals take care of it.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Tip Calculator</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component, computed, signal } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      @Component({\n        selector: 'app-root',\n        template: `\n          <h1>Tip calculator</h1>\n          <p>Bill: {{ bill() }} dollars</p>\n          <p>\n            Tip: {{ tipPercent() }}%\n            <button (click)=\"tipPercent.set(10)\">10%</button>\n            <button (click)=\"tipPercent.set(20)\">20%</button>\n          </p>\n          <p>Tip amount: {{ tip() }} dollars</p>\n          <p><strong>Total: {{ total() }} dollars</strong></p>\n        `,\n      })\n      class App {\n        bill = signal(40);\n        tipPercent = signal(15);\n        tip = computed(() => (this.bill() * this.tipPercent()) / 100);\n        total = computed(() => this.bill() + this.tip());\n      }\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** The school play's ticket counter needs finishing.\n\n1. In **app.ts**, make `add()` add one ticket with `update`.\n2. Add `total`, a **computed** signal equal to `tickets × price`, and show it in **app.html** as `<p class=\"total\">Total: ${{ total() }}</p>`.\n3. Make `remove()` take one ticket away but never go below 0, and bind the −1 button's `(click)` to it.",
+        "starterFiles": {
+          "app.ts": "import { Component, computed, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-root',\n  templateUrl: './app.html',\n  styleUrl: './app.css',\n})\nexport class App {\n  readonly price = 5;\n  tickets = signal(0);\n\n  // 2. total: a computed signal that is always tickets × price\n\n  add() {\n    // 1. Add one ticket\n  }\n\n  remove() {\n    // 3. Take one ticket away, but never go below 0\n  }\n}\n",
+          "app.html": "<main>\n  <h1>School Play Tickets</h1>\n  <p class=\"count\">Tickets: {{ tickets() }}</p>\n  <!-- 2. Show the total here: <p class=\"total\">Total: $15</p> when there are 3 tickets -->\n\n  <button class=\"add\" (click)=\"add()\">+1</button>\n  <!-- 3. Make this button call remove() -->\n  <button class=\"remove\">−1</button>\n</main>\n",
+          "app.css": "main {\n  font-family: system-ui, sans-serif;\n  max-width: 24rem;\n  margin: 2rem auto;\n}\n\nbutton {\n  font-size: 1.25rem;\n  min-width: 3rem;\n  margin-right: 0.5rem;\n}\n\n.total {\n  font-weight: bold;\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Tickets</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "app.ts": "import { Component, computed, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-root',\n  templateUrl: './app.html',\n  styleUrl: './app.css',\n})\nexport class App {\n  readonly price = 5;\n  tickets = signal(0);\n\n  // 2. total: a computed signal that is always tickets × price\n  total = computed(() => this.tickets() * this.price);\n\n  add() {\n    // 1. Add one ticket\n    this.tickets.update((n) => n + 1);\n  }\n\n  remove() {\n    // 3. Take one ticket away, but never go below 0\n    this.tickets.update((n) => Math.max(0, n - 1));\n  }\n}\n",
+          "app.html": "<main>\n  <h1>School Play Tickets</h1>\n  <p class=\"count\">Tickets: {{ tickets() }}</p>\n  <!-- 2. Show the total here: <p class=\"total\">Total: $15</p> when there are 3 tickets -->\n  <p class=\"total\">Total: ${{ total() }}</p>\n\n  <button class=\"add\" (click)=\"add()\">+1</button>\n  <!-- 3. Make this button call remove() -->\n  <button class=\"remove\" (click)=\"remove()\">−1</button>\n</main>\n",
+          "app.css": "main {\n  font-family: system-ui, sans-serif;\n  max-width: 24rem;\n  margin: 2rem auto;\n}\n\nbutton {\n  font-size: 1.25rem;\n  min-width: 3rem;\n  margin-right: 0.5rem;\n}\n\n.total {\n  font-weight: bold;\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Tickets</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Click +1",
+            "kind": "interact",
+            "spec": {
+              "selector": ".add",
+              "click": true
+            },
+            "failMessage": "Couldn't find .add to click. Is it still on the page?"
+          },
+          {
+            "label": "Click +1 again",
+            "kind": "interact",
+            "spec": {
+              "selector": ".add",
+              "click": true
+            },
+            "failMessage": "Couldn't find .add to click. Is it still on the page?"
+          },
+          {
+            "label": "Click +1 a third time",
+            "kind": "interact",
+            "spec": {
+              "selector": ".add",
+              "click": true
+            },
+            "failMessage": "Couldn't find .add to click. Is it still on the page?"
+          },
+          {
+            "label": "Three tickets",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".count",
+              "equals": "Tickets: 3"
+            },
+            "failMessage": "add() should update tickets to one more each click."
+          },
+          {
+            "label": "The total is $15",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".total",
+              "equals": "Total: $15"
+            },
+            "failMessage": "Show <p class=\"total\">Total: ${{ total() }}</p>, with total = computed(() => this.tickets() * this.price)."
+          },
+          {
+            "label": "total is a computed signal",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/total\\s*=\\s*computed\\s*\\(/.test(window.__cgSources[\"app.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Make total with computed(() => ...) so it can never get out of sync."
+          },
+          {
+            "label": "Click −1",
+            "kind": "interact",
+            "spec": {
+              "selector": ".remove",
+              "click": true
+            },
+            "failMessage": "Couldn't find .remove to click. Is it still on the page?"
+          },
+          {
+            "label": "Click −1",
+            "kind": "interact",
+            "spec": {
+              "selector": ".remove",
+              "click": true
+            },
+            "failMessage": "Couldn't find .remove to click. Is it still on the page?"
+          },
+          {
+            "label": "Click −1",
+            "kind": "interact",
+            "spec": {
+              "selector": ".remove",
+              "click": true
+            },
+            "failMessage": "Couldn't find .remove to click. Is it still on the page?"
+          },
+          {
+            "label": "Click −1 once more than needed",
+            "kind": "interact",
+            "spec": {
+              "selector": ".remove",
+              "click": true
+            },
+            "failMessage": "Couldn't find .remove to click. Is it still on the page?"
+          },
+          {
+            "label": "Never below zero",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".count",
+              "equals": "Tickets: 0"
+            },
+            "failMessage": "Bind (click)=\"remove()\" on the −1 button, and stop at 0 (Math.max(0, n - 1))."
+          },
+          {
+            "label": "The total follows the tickets",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".total",
+              "equals": "Total: $0"
+            },
+            "failMessage": "The total should drop back to $0 by itself."
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error. The Console names the file and line."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something logged an error. Angular's messages start with a code like NG0303 and say what went wrong."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "If `total` were a plain number, who would have to update it every time `tickets` changes?",
+            "speechText": "If total were a plain number, who would have to update it every time tickets changes?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "`total = computed(() => this.tickets() * this.price);` reads `tickets()`, so Angular recalculates it whenever tickets changes. `add()` is `this.tickets.update((n) => n + 1);`",
+            "speechText": "Make total a computed signal that multiplies tickets by price. Because it reads tickets, Angular recalculates it automatically. For add, update tickets to one more.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "In `remove()`, `Math.max(0, n - 1)` returns whichever is bigger, so it stops at 0. In app.html, give the −1 button `(click)=\"remove()\"`.",
+            "speechText": "In remove, Math dot max of zero and n minus one stops at zero. Then bind the minus one button's click event to remove.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why doesn't items().push('x') update the page?",
+            "explanation": "The array is the same object, so Angular's === check sees no change. Set a new array instead.",
+            "options": [
+              {
+                "text": "The signal still holds the same array, so Angular sees no change",
+                "correct": true
+              },
+              {
+                "text": "push doesn't work on arrays",
+                "correct": false
+              },
+              {
+                "text": "Signals can't hold arrays",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What is a computed signal?",
+            "explanation": "A read-only signal derived from other signals; it recalculates when they change.",
+            "options": [
+              {
+                "text": "A read-only value worked out from other signals",
+                "correct": true
+              },
+              {
+                "text": "A signal that counts clicks",
+                "correct": false
+              },
+              {
+                "text": "A signal you set by hand",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How do you read a signal named name in a template?",
+            "explanation": "Signals are read by calling them.",
+            "options": [
+              {
+                "text": "{{ name() }}",
+                "correct": true
+              },
+              {
+                "text": "{{ name }}",
+                "correct": false
+              },
+              {
+                "text": "{{ name.get }}",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does (click)=\"save()\" do?",
+            "explanation": "Round brackets mean event binding: run the statement when the event fires.",
+            "options": [
+              {
+                "text": "Runs save() when the element is clicked",
+                "correct": true
+              },
+              {
+                "text": "Saves the page as a file",
+                "correct": false
+              },
+              {
+                "text": "Binds the click to a property called save",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does zoneless mean in Angular?",
+            "explanation": "Signals tell Angular what changed, instead of zone.js checking the whole app after every event.",
+            "options": [
+              {
+                "text": "Signals tell Angular exactly what changed",
+                "correct": true
+              },
+              {
+                "text": "Angular doesn't use time zones",
+                "correct": false
+              },
+              {
+                "text": "The app has no components",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "control-flow-explorer",
+      "title": "Show, hide and repeat",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Templates that think\n\nTemplates can make choices and repeat things. Angular has special blocks that start with `@`.\n\n### @if: show something only sometimes\n\n```html\n@if (lives() > 0) {\n  <p>Keep playing!</p>\n} @else {\n  <p>Game over</p>\n}\n```\n\nThe part in round brackets is a question. If the answer is **true**, Angular shows the first part. If not, it shows the `@else` part.\n\n### @for: repeat for every item\n\n```html\n<ul>\n  @for (fruit of fruits(); track $index) {\n    <li>{{ fruit }}</li>\n  }\n</ul>\n```\n\n`@for` makes one `<li>` for **each** fruit in the list. Inside, `fruit` is the item it's on right now.\n\n`track` tells Angular how to tell the items apart. `$index` means \"use the position in the list\": 0, 1, 2 and so on.\n\n### New words\n\n- **@if**: a block that only shows its HTML when a condition is true.\n- **@else**: what to show when the `@if` condition is false.\n- **@for**: a block that repeats its HTML once for every item in a list.\n- **Condition**: a question that's either true or false, like `lives() > 0`.\n",
+      "exampleMarkdown": "A snack list that hides itself when it's empty. Click **Eat all** and watch the `@else` part appear.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Snacks</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component, signal } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      @Component({\n        selector: 'app-root',\n        template: `\n          <h1>Snack box</h1>\n          @if (snacks().length > 0) {\n            <ul>\n              @for (snack of snacks(); track $index) {\n                <li>{{ snack }}</li>\n              }\n            </ul>\n            <button (click)=\"snacks.set([])\">Eat all</button>\n          } @else {\n            <p>The snack box is empty! 😢</p>\n          }\n        `,\n      })\n      class App {\n        snacks = signal(['apple', 'crackers', 'grapes']);\n      }\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Fill the treasure chest in **app.ts**.\n\n1. Inside the `<ul>`, use `@for (treasure of treasures(); track $index)` to show each treasure as an `<li>`.\n2. Under the list, use `@if` to show `<p class=\"rich\">You're rich!</p>` when there are **3 or more** treasures. (`treasures().length` is how many there are.)\n3. Add an `@else` that shows `<p class=\"keep-looking\">Keep looking!</p>`.\n\nThen click **Find a gem** in the preview!",
+        "starterFiles": {
+          "app.ts": "import { Component, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-root',\n  template: `\n    <h1>💰 Treasure chest</h1>\n\n    <ul>\n      <!-- 1. Show each treasure as an <li> here, with @for -->\n    </ul>\n\n    <!-- 2. When there are 3 or more treasures, show <p class=\"rich\">You're rich!</p> with @if -->\n    <!-- 3. Add an @else that shows <p class=\"keep-looking\">Keep looking!</p> -->\n\n    <button (click)=\"findGem()\">Find a gem</button>\n  `,\n})\nexport class App {\n  treasures = signal(['gold coin', 'silver cup']);\n\n  findGem() {\n    this.treasures.update((list) => [...list, 'gem']);\n  }\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Treasure</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "app.ts": "import { Component, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-root',\n  template: `\n    <h1>💰 Treasure chest</h1>\n\n    <ul>\n      <!-- 1. Show each treasure as an <li> here, with @for -->\n      @for (treasure of treasures(); track $index) {\n        <li>{{ treasure }}</li>\n      }\n    </ul>\n\n    <!-- 2. When there are 3 or more treasures, show <p class=\"rich\">You're rich!</p> with @if -->\n    <!-- 3. Add an @else that shows <p class=\"keep-looking\">Keep looking!</p> -->\n    @if (treasures().length >= 3) {\n      <p class=\"rich\">You're rich!</p>\n    } @else {\n      <p class=\"keep-looking\">Keep looking!</p>\n    }\n\n    <button (click)=\"findGem()\">Find a gem</button>\n  `,\n})\nexport class App {\n  treasures = signal(['gold coin', 'silver cup']);\n\n  findGem() {\n    this.treasures.update((list) => [...list, 'gem']);\n  }\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Treasure</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Two treasures to start",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "ul li",
+              "min": 2,
+              "max": 2
+            },
+            "failMessage": "Use @for to make one <li> for each treasure."
+          },
+          {
+            "label": "The first treasure is the gold coin",
+            "kind": "elementText",
+            "spec": {
+              "selector": "ul li:first-child",
+              "equals": "gold coin"
+            },
+            "failMessage": "Inside the @for, show {{ treasure }} in each <li>."
+          },
+          {
+            "label": "Keep looking at first",
+            "kind": "elementExists",
+            "spec": {
+              "selector": ".keep-looking"
+            },
+            "failMessage": "Add } @else { <p class=\"keep-looking\">Keep looking!</p> } after the @if."
+          },
+          {
+            "label": "Not rich yet",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".rich",
+              "max": 0
+            },
+            "failMessage": "Only show You're rich! when there are 3 or more treasures: @if (treasures().length >= 3)."
+          },
+          {
+            "label": "Find a gem",
+            "kind": "interact",
+            "spec": {
+              "selector": "button",
+              "click": true
+            },
+            "failMessage": "Couldn't find button to click. Is it still on the page?"
+          },
+          {
+            "label": "Three treasures now",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "ul li",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "The list should grow when you find a gem."
+          },
+          {
+            "label": "Now you're rich",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".rich",
+              "equals": "You're rich!"
+            },
+            "failMessage": "Show <p class=\"rich\">You're rich!</p> inside @if (treasures().length >= 3) { }."
+          },
+          {
+            "label": "Keep looking is gone",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".keep-looking",
+              "max": 0
+            },
+            "failMessage": "Keep looking! should only show in the @else part."
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "Look for a ⚠ Type error line in the Console: it names the file and line to fix."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "You want an `<li>` for every treasure. Which block repeats HTML once for each item in a list?",
+            "speechText": "You want a list item for every treasure. Which block repeats something once for each item in a list?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Inside the `<ul>`: `@for (treasure of treasures(); track $index) { <li>{{ treasure }}</li> }`",
+            "speechText": "Inside the list, write at for, treasure of treasures, track dollar index. In its curly braces, put a list item showing the treasure.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "After the list: `@if (treasures().length >= 3) {` then the rich paragraph, then `} @else {` then the keep-looking paragraph, then `}`.",
+            "speechText": "After the list, write at if, treasures length is at least three, with the rich paragraph. Then at else, with the keep looking paragraph.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does @for do?",
+            "explanation": "@for repeats its HTML once for every item in a list.",
+            "options": [
+              {
+                "text": "Repeats HTML for every item in a list",
+                "correct": true
+              },
+              {
+                "text": "Shows HTML only if something is true",
+                "correct": false
+              },
+              {
+                "text": "Makes the page load faster",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When does the @else part show?",
+            "explanation": "@else shows when the @if condition is false.",
+            "options": [
+              {
+                "text": "When the @if condition is false",
+                "correct": true
+              },
+              {
+                "text": "Always",
+                "correct": false
+              },
+              {
+                "text": "When you click it",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In @for (pet of pets(); track $index), what is pet?",
+            "explanation": "pet is the item the loop is on right now.",
+            "options": [
+              {
+                "text": "The item the loop is on right now",
+                "correct": true
+              },
+              {
+                "text": "The whole list",
+                "correct": false
+              },
+              {
+                "text": "The number of pets",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "control-flow-and-binding",
+      "title": "Control flow and property binding",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Built-in control flow\n\nAngular templates have **control flow blocks** for conditions and loops. They start with `@`.\n\n```html\n@if (user(); as u) {\n  <p>Welcome back, {{ u.name }}</p>\n} @else if (loading()) {\n  <p>Loading…</p>\n} @else {\n  <a href=\"/login\">Sign in</a>\n}\n```\n\n```html\n@for (task of tasks(); track task.id) {\n  <li>{{ $index + 1 }}. {{ task.title }}</li>\n} @empty {\n  <li>Nothing to do!</li>\n}\n```\n\n- `track` is **required**. It gives each item an identity, so when the list changes Angular can move, add or remove just the matching DOM elements instead of rebuilding the whole list. Track by a unique id when you have one. Use `$index` only for lists that never reorder.\n- Inside the loop you also get `$index`, `$count`, `$first`, `$last`, `$even` and `$odd`.\n- `@empty` renders when the list has no items.\n- `@switch (value) { @case ('a') { … } @default { … } }` picks one of several branches.\n\n(Older code uses `*ngIf` and `*ngFor` **directives** instead. You'll still meet them in existing projects; the blocks replaced them in Angular 17.)\n\n### Property binding\n\nSquare brackets bind a DOM **property** to an expression:\n\n```html\n<img [src]=\"avatarUrl()\" [alt]=\"name()\" />\n<button [disabled]=\"!canSave()\">Save</button>\n```\n\nWithout brackets, `disabled=\"false\"` would be the plain *text* \"false\", and the button would still be disabled. With brackets, the value is the expression's result.\n\nTwo shortcuts:\n\n```html\n<li [class.done]=\"task.done\">…</li>          <!-- adds/removes one class -->\n<div [style.width.%]=\"progress()\"></div>      <!-- one style, with a unit -->\n```\n\n### The binding cheat sheet\n\n| Syntax | Direction | Example |\n| --- | --- | --- |\n| `{{ }}` | data → text | `{{ name() }}` |\n| `[prop]` | data → property | `[disabled]=\"busy()\"` |\n| `(event)` | event → code | `(click)=\"save()\"` |\n\n### New words\n\n- **Control flow block**: `@if`, `@for`, `@switch` and friends, which decide what a template renders.\n- **Track expression**: the `track` part of `@for`, which gives every item an identity.\n- **Property binding**: `[property]=\"expression\"`, which sets a DOM property from data.\n- **Class binding**: `[class.name]=\"condition\"`, which adds the class only while the condition is true.\n- **Directive**: a class that adds behaviour to an element. `*ngIf` and `*ngFor` are the older directive versions of `@if` and `@for`.\n",
+      "exampleMarkdown": "A progress tracker that uses all three binding types plus `@for` with `@empty` and `$last`. Click the buttons and watch the bar's width (a style binding) and the button's `disabled` property follow the data.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Progress</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component, computed, signal } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      @Component({\n        selector: 'app-root',\n        template: `\n          <h1>Level {{ level() }}</h1>\n          <div style=\"background: #e5e7eb; height: 1rem; width: 16rem\">\n            <div style=\"background: teal; height: 100%\" [style.width.%]=\"progress()\"></div>\n          </div>\n          <button (click)=\"xp.update((n) => n + 25)\" [disabled]=\"progress() >= 100\">Earn XP</button>\n          <button (click)=\"levelUp()\" [disabled]=\"progress() < 100\">Level up</button>\n          <ul>\n            @for (badge of badges(); track badge) {\n              <li [class.newest]=\"$last\">{{ badge }}</li>\n            } @empty {\n              <li>No badges yet</li>\n            }\n          </ul>\n        `,\n        styles: `.newest { font-weight: bold; }`,\n      })\n      class App {\n        xp = signal(0);\n        level = signal(1);\n        badges = signal<string[]>([]);\n        progress = computed(() => Math.min(100, this.xp()));\n\n        levelUp() {\n          this.level.update((n) => n + 1);\n          this.badges.update((list) => [...list, 'Level ' + this.level()]);\n          this.xp.set(0);\n        }\n      }\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Render the playlist in **app.html**. The data is already in **app.ts**.\n\n1. Use `@for` to render one `<li>` per song, reading like **1. Pixel Rain**. Track by `song.id`, and bind the `liked` class with `[class.liked]`.\n2. Add an `@empty` block that renders `<li class=\"empty\">No songs yet</li>`.\n3. Bind the button's `disabled` property so it's disabled while the playlist is empty.",
+        "starterFiles": {
+          "app.ts": "import { Component, signal } from '@angular/core';\n\ninterface Song {\n  id: number;\n  title: string;\n  liked: boolean;\n}\n\n@Component({\n  selector: 'app-root',\n  templateUrl: './app.html',\n  styleUrl: './app.css',\n})\nexport class App {\n  songs = signal<Song[]>([\n    { id: 1, title: 'Pixel Rain', liked: true },\n    { id: 2, title: 'Lo-fi Lunch', liked: false },\n    { id: 3, title: 'Boss Fight', liked: true },\n  ]);\n\n  clear() {\n    this.songs.set([]);\n  }\n}\n",
+          "app.html": "<main>\n  <h1>My playlist</h1>\n  <ol class=\"songs\">\n    <!-- 1. One <li> per song, reading \"1. Pixel Rain\" (use $index). Track by song.id. -->\n    <!--    Liked songs get the CSS class \"liked\". -->\n\n    <!-- 2. When there are no songs, show <li class=\"empty\">No songs yet</li> -->\n  </ol>\n\n  <!-- 3. Disable this button when the playlist is empty -->\n  <button class=\"clear\" (click)=\"clear()\">Clear playlist</button>\n</main>\n",
+          "app.css": "main {\n  font-family: system-ui, sans-serif;\n  max-width: 26rem;\n  margin: 2rem auto;\n}\n\n.songs {\n  list-style: none;\n  padding: 0;\n}\n\n.songs li {\n  padding: 0.4rem 0.6rem;\n  border-bottom: 1px solid #e5e7eb;\n}\n\n.liked::after {\n  content: \" ♥\";\n  color: #db2777;\n}\n\n.empty {\n  color: #6b7280;\n  font-style: italic;\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Playlist</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "app.ts": "import { Component, signal } from '@angular/core';\n\ninterface Song {\n  id: number;\n  title: string;\n  liked: boolean;\n}\n\n@Component({\n  selector: 'app-root',\n  templateUrl: './app.html',\n  styleUrl: './app.css',\n})\nexport class App {\n  songs = signal<Song[]>([\n    { id: 1, title: 'Pixel Rain', liked: true },\n    { id: 2, title: 'Lo-fi Lunch', liked: false },\n    { id: 3, title: 'Boss Fight', liked: true },\n  ]);\n\n  clear() {\n    this.songs.set([]);\n  }\n}\n",
+          "app.html": "<main>\n  <h1>My playlist</h1>\n  <ol class=\"songs\">\n    <!-- 1. One <li> per song, reading \"1. Pixel Rain\" (use $index). Track by song.id. -->\n    <!--    Liked songs get the CSS class \"liked\". -->\n    @for (song of songs(); track song.id) {\n      <li [class.liked]=\"song.liked\">{{ $index + 1 }}. {{ song.title }}</li>\n    } @empty {\n      <!-- 2. When there are no songs, show <li class=\"empty\">No songs yet</li> -->\n      <li class=\"empty\">No songs yet</li>\n    }\n  </ol>\n\n  <!-- 3. Disable this button when the playlist is empty -->\n  <button class=\"clear\" (click)=\"clear()\" [disabled]=\"songs().length === 0\">Clear playlist</button>\n</main>\n",
+          "app.css": "main {\n  font-family: system-ui, sans-serif;\n  max-width: 26rem;\n  margin: 2rem auto;\n}\n\n.songs {\n  list-style: none;\n  padding: 0;\n}\n\n.songs li {\n  padding: 0.4rem 0.6rem;\n  border-bottom: 1px solid #e5e7eb;\n}\n\n.liked::after {\n  content: \" ♥\";\n  color: #db2777;\n}\n\n.empty {\n  color: #6b7280;\n  font-style: italic;\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Playlist</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Three songs",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".songs li",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "Render one <li> per song with @for."
+          },
+          {
+            "label": "Songs are numbered",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".songs li:nth-child(2)",
+              "equals": "2. Lo-fi Lunch"
+            },
+            "failMessage": "Each item should read like 2. Lo-fi Lunch: {{ $index + 1 }}. {{ song.title }}"
+          },
+          {
+            "label": "Two liked songs",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".songs li.liked",
+              "min": 2,
+              "max": 2
+            },
+            "failMessage": "Bind the class with [class.liked]=\"song.liked\"."
+          },
+          {
+            "label": "Tracked by id",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/track\\s+song\\.id/.test(window.__cgSources[\"app.html\"])",
+              "equals": true
+            },
+            "failMessage": "Use track song.id, so each song keeps its identity."
+          },
+          {
+            "label": "The button starts enabled",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "document.querySelector('.clear').disabled",
+              "equals": false
+            },
+            "failMessage": "The button should be enabled while there are songs."
+          },
+          {
+            "label": "Clear the playlist",
+            "kind": "interact",
+            "spec": {
+              "selector": ".clear",
+              "click": true
+            },
+            "failMessage": "Couldn't find .clear to click. Is it still on the page?"
+          },
+          {
+            "label": "The empty message shows",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".songs li.empty",
+              "equals": "No songs yet"
+            },
+            "failMessage": "Add } @empty { <li class=\"empty\">No songs yet</li> } to the @for."
+          },
+          {
+            "label": "The button is now disabled",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "document.querySelector('.clear').disabled",
+              "equals": true
+            },
+            "failMessage": "Bind [disabled]=\"songs().length === 0\" on the button."
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error. The Console names the file and line."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something logged an error. Angular's messages start with a code like NG0303 and say what went wrong."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Each `<li>` needs the song's number, but `songs` has no number field. What does `@for` give you inside the loop?",
+            "speechText": "Each list item needs the song's number, but songs have no number field. What does the for block give you inside the loop?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "`@for (song of songs(); track song.id) { … } @empty { … }`. `$index` starts at 0, so print `{{ $index + 1 }}. {{ song.title }}`.",
+            "speechText": "Write a for block over songs, tracking song dot id, followed by an empty block. Index starts at zero, so print index plus one before the title.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "On the `li`, add `[class.liked]=\"song.liked\"`. On the button, add `[disabled]=\"songs().length === 0\"`.",
+            "speechText": "On the list item, bind class dot liked to song dot liked. On the button, bind disabled to whether the songs list has length zero.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why does @for need a track expression?",
+            "explanation": "Tracking gives items an identity, so Angular updates only the elements that changed.",
+            "options": [
+              {
+                "text": "So Angular can match items to DOM elements when the list changes",
+                "correct": true
+              },
+              {
+                "text": "So the list is sorted",
+                "correct": false
+              },
+              {
+                "text": "So items can't be deleted",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does [disabled]=\"busy()\" do?",
+            "explanation": "Property binding sets the DOM property from the expression's value.",
+            "options": [
+              {
+                "text": "Sets the button's disabled property to the value of busy()",
+                "correct": true
+              },
+              {
+                "text": "Disables the button forever",
+                "correct": false
+              },
+              {
+                "text": "Calls busy() when clicked",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When does an @empty block render?",
+            "explanation": "@empty renders when the @for list has no items.",
+            "options": [
+              {
+                "text": "When the @for list has no items",
+                "correct": true
+              },
+              {
+                "text": "When the page is loading",
+                "correct": false
+              },
+              {
+                "text": "When an @if is false",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which binding adds the class done only while task.done is true?",
+            "explanation": "Class binding toggles one class from a condition.",
+            "options": [
+              {
+                "text": "[class.done]=\"task.done\"",
+                "correct": true
+              },
+              {
+                "text": "class=\"task.done\"",
+                "correct": false
+              },
+              {
+                "text": "(class)=\"done\"",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "You find *ngFor in an older project. What is it?",
+            "explanation": "*ngFor is the older directive that @for replaced in Angular 17.",
+            "options": [
+              {
+                "text": "The older directive version of @for",
+                "correct": true
+              },
+              {
+                "text": "A syntax error",
+                "correct": false
+              },
+              {
+                "text": "A React feature",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "inputs-explorer",
+      "title": "Make your own tags",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Components inside components\n\nYou can build your own tags! Make a component once, then use it as many times as you like, like LEGO bricks.\n\n```ts\n@Component({\n  selector: 'app-star',\n  template: `<span>⭐</span>`,\n})\nexport class Star {}\n```\n\nTo use `<app-star />` inside another component, add it to that component's `imports`:\n\n```ts\n@Component({\n  selector: 'app-root',\n  imports: [Star],\n  template: `<app-star /><app-star /><app-star />`,\n})\n```\n\n### Inputs: passing information in\n\nAn **input** lets the outside give a component information, like an attribute on a tag:\n\n```ts\nexport class Badge {\n  label = input('Hi');   // 'Hi' is used if nobody passes a label\n}\n```\n\n```html\n<app-badge label=\"Winner\" />\n```\n\nInside the component, read it like a signal: `{{ label() }}`.\n\n### New words\n\n- **Input**: a value the parent passes into a component, like `label=\"Winner\"`.\n- **Parent and child**: the component that uses another one is the parent; the one it uses is the child.\n- **imports**: the list of components a template is allowed to use.\n- **Reusable**: made once, used many times.\n",
+      "exampleMarkdown": "One `Medal` component used three times, each with a different input. The parent (`App`) lists `Medal` in its `imports`.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Medals</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component, input } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      @Component({\n        selector: 'app-medal',\n        template: `<p>🏅 {{ place() }} place</p>`,\n      })\n      class Medal {\n        place = input('first');\n      }\n\n      @Component({\n        selector: 'app-root',\n        imports: [Medal],\n        template: `\n          <h1>Sports day</h1>\n          <app-medal place=\"first\" />\n          <app-medal place=\"second\" />\n          <app-medal place=\"third\" />\n        `,\n      })\n      class App {}\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The pet shelter needs cards for its pets.\n\n1. In **pet-card.ts**, add an `animal` input, just like the `name` input: `animal = input('animal');`\n2. Show it in the card's template: `<p>{{ animal() }}</p>`\n3. In **app.ts**, add a second card for **Pip** the **hamster**: `<app-pet-card name=\"Pip\" animal=\"hamster\" />`",
+        "starterFiles": {
+          "pet-card.ts": "import { Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-pet-card',\n  template: `\n    <div class=\"card\">\n      <h2>{{ name() }}</h2>\n      <!-- 2. Show the animal here: <p>{{ animal() }}</p> -->\n    </div>\n  `,\n  styles: `.card { border: 2px solid #f59e0b; border-radius: 12px; padding: 0.5rem 1rem; margin: 0.5rem 0; }`,\n})\nexport class PetCard {\n  // An input is a value the parent component passes in, like an attribute on a tag.\n  name = input('Pet');\n\n  // 1. Add an animal input here, just like the name input above\n\n}\n",
+          "app.ts": "import { Component } from '@angular/core';\nimport { PetCard } from './pet-card';\n\n@Component({\n  selector: 'app-root',\n  imports: [PetCard], // lets this template use <app-pet-card>\n  template: `\n    <h1>🐾 Pet Shelter</h1>\n    <app-pet-card name=\"Mochi\" animal=\"cat\" />\n\n    <!-- 3. Add a second card for Pip the hamster -->\n  `,\n})\nexport class App {}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Shelter</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "pet-card.ts": "import { Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-pet-card',\n  template: `\n    <div class=\"card\">\n      <h2>{{ name() }}</h2>\n      <!-- 2. Show the animal here: <p>{{ animal() }}</p> -->\n      <p>{{ animal() }}</p>\n    </div>\n  `,\n  styles: `.card { border: 2px solid #f59e0b; border-radius: 12px; padding: 0.5rem 1rem; margin: 0.5rem 0; }`,\n})\nexport class PetCard {\n  // An input is a value the parent component passes in, like an attribute on a tag.\n  name = input('Pet');\n\n  // 1. Add an animal input here, just like the name input above\n  animal = input('animal');\n}\n",
+          "app.ts": "import { Component } from '@angular/core';\nimport { PetCard } from './pet-card';\n\n@Component({\n  selector: 'app-root',\n  imports: [PetCard], // lets this template use <app-pet-card>\n  template: `\n    <h1>🐾 Pet Shelter</h1>\n    <app-pet-card name=\"Mochi\" animal=\"cat\" />\n\n    <!-- 3. Add a second card for Pip the hamster -->\n    <app-pet-card name=\"Pip\" animal=\"hamster\" />\n  `,\n})\nexport class App {}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Shelter</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Mochi's card shows cat",
+            "kind": "elementText",
+            "spec": {
+              "selector": "app-pet-card:nth-of-type(1) p",
+              "equals": "cat"
+            },
+            "failMessage": "Add animal = input('animal'); to PetCard and <p>{{ animal() }}</p> to its template."
+          },
+          {
+            "label": "animal is an input",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/animal\\s*=\\s*input\\s*\\(/.test(window.__cgSources[\"pet-card.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Make animal with input(), like the name input."
+          },
+          {
+            "label": "Two pet cards",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "app-pet-card",
+              "min": 2,
+              "max": 2
+            },
+            "failMessage": "Add a second <app-pet-card /> in app.ts."
+          },
+          {
+            "label": "The second card is Pip",
+            "kind": "elementText",
+            "spec": {
+              "selector": "app-pet-card:nth-of-type(2) h2",
+              "equals": "Pip"
+            },
+            "failMessage": "Give the second card name=\"Pip\"."
+          },
+          {
+            "label": "Pip is a hamster",
+            "kind": "elementText",
+            "spec": {
+              "selector": "app-pet-card:nth-of-type(2) p",
+              "equals": "hamster"
+            },
+            "failMessage": "Give the second card animal=\"hamster\"."
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "Look for a ⚠ Type error line in the Console: it names the file and line to fix."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at how `name` is made in pet-card.ts. How could you make `animal` the same way?",
+            "speechText": "Look at how name is made in the pet card file. How could you make animal the same way?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Under the `name` line, write `animal = input('animal');`. Then add `<p>{{ animal() }}</p>` under the `h2` in the template.",
+            "speechText": "Under the name line, make animal with input. Then show animal in a p tag under the heading.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "In app.ts, copy Mochi's card and change it to `name=\"Pip\" animal=\"hamster\"`.",
+            "speechText": "In the app file, copy Mochi's card and change the name to Pip and the animal to hamster.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is an input?",
+            "explanation": "An input is a value the parent passes into a component.",
+            "options": [
+              {
+                "text": "A value passed into a component from outside",
+                "correct": true
+              },
+              {
+                "text": "A text box on the page",
+                "correct": false
+              },
+              {
+                "text": "A kind of button",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does App have imports: [PetCard]?",
+            "explanation": "A template can only use components listed in its imports.",
+            "options": [
+              {
+                "text": "So App's template can use <app-pet-card>",
+                "correct": true
+              },
+              {
+                "text": "So PetCard loads faster",
+                "correct": false
+              },
+              {
+                "text": "So PetCard can use App",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How do you show an input called color in the template?",
+            "explanation": "Inputs are signals, so you call them to read them.",
+            "options": [
+              {
+                "text": "{{ color() }}",
+                "correct": true
+              },
+              {
+                "text": "{{ input.color }}",
+                "correct": false
+              },
+              {
+                "text": "<color>",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "inputs-and-outputs",
+      "title": "Component inputs and outputs",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Data down, events up\n\nAngular apps are a **component tree**: `App` at the root, children inside it, their children inside them. Information flows in two directions:\n\n- **Inputs** carry data **down** from parent to child.\n- **Outputs** carry events **up** from child to parent.\n\nThe child never reaches into its parent. It announces \"something happened\", and the parent decides what to do. That keeps children reusable.\n\n### Inputs\n\n```ts\nexport class Avatar {\n  name = input.required<string>();   // parent must pass it\n  size = input(48);                  // optional, defaults to 48 (type: number)\n}\n```\n\n```html\n<app-avatar name=\"Sam\" />              <!-- a plain string -->\n<app-avatar [name]=\"user().name\" [size]=\"96\" />   <!-- an expression -->\n```\n\nInputs are **read-only signals** inside the child: call `name()` to read it. Without square brackets, the value is the literal text. With them, it's an expression.\n\n### Outputs\n\n```ts\nexport class LikeButton {\n  liked = output<number>();      // will send a number\n  click() { this.liked.emit(42); }\n}\n```\n\n```html\n<app-like-button (liked)=\"onLiked($event)\" />\n```\n\n`$event` in the parent is whatever the child passed to `emit`.\n\n### Using a component\n\nA standalone component lists what its template uses in `imports: [Avatar, LikeButton]`. If you forget, Angular reports **NG0303: Can't bind to 'name' since it isn't a known property of 'app-avatar'**. That message almost always means a missing import.\n\n(`model()` combines both: a writable input with a matching output, for two-way binding with `[(value)]`. Older code uses `@Input()` and `@Output()` decorators instead of these functions.)\n\n### New words\n\n- **Component tree**: the nesting of components, with the root component at the top.\n- **Input**: a value a parent passes down into a child, made with `input()` or `input.required<T>()`.\n- **Output**: an event a child sends up to its parent, made with `output<T>()` and sent with `emit`.\n- **Emit**: send an output's event, with a value, to whoever is listening.\n- **Standalone component**: a component that lists its own dependencies in `imports` (the default since Angular 19).\n",
+      "exampleMarkdown": "A star rating component with a required input and an output. The parent passes `max` down and listens for `rated` coming back up. The child doesn't know or care what the parent does with the rating.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Rating</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component, input, output, signal } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      @Component({\n        selector: 'app-stars',\n        template: `\n          @for (n of numbers(); track n) {\n            <button (click)=\"rated.emit(n)\">{{ n }}★</button>\n          }\n        `,\n      })\n      class Stars {\n        max = input.required<number>();\n        rated = output<number>();\n        numbers = () => Array.from({ length: this.max() }, (_, i) => i + 1);\n      }\n\n      @Component({\n        selector: 'app-root',\n        imports: [Stars],\n        template: `\n          <h1>Rate the movie</h1>\n          <app-stars [max]=\"5\" (rated)=\"rating.set($event)\" />\n          <p>You picked: {{ rating() }} / 5</p>\n        `,\n      })\n      class App {\n        rating = signal(0);\n      }\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** The class is voting for a class pet. The buttons show the votes but clicking does nothing yet.\n\n1. In **vote-button.ts**, add an output `voted` that sends a `string` (don't forget to import `output`).\n2. When the button is clicked, emit the button's own label.\n3. In **app.ts**, listen for `(voted)` on both buttons and pass `$event` to `addVote`.",
+        "starterFiles": {
+          "vote-button.ts": "import { Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-vote-button',\n  template: `<button class=\"vote\">{{ label() }}: {{ votes() }}</button>`,\n})\nexport class VoteButton {\n  label = input.required<string>();\n  votes = input(0);\n\n  // 1. Add an output called voted that sends a string.\n\n  // 2. When the button is clicked, emit this button's label.\n}\n",
+          "app.ts": "import { Component, computed, signal } from '@angular/core';\nimport { VoteButton } from './vote-button';\n\n@Component({\n  selector: 'app-root',\n  imports: [VoteButton],\n  template: `\n    <h1>Pick the class pet</h1>\n    <!-- 3. Listen for (voted) on both buttons and call addVote($event) -->\n    <app-vote-button label=\"Hamster\" [votes]=\"tally().Hamster\" />\n    <app-vote-button label=\"Turtle\" [votes]=\"tally().Turtle\" />\n    <p class=\"leader\">Leader: {{ leader() }}</p>\n  `,\n})\nexport class App {\n  tally = signal<Record<string, number>>({ Hamster: 0, Turtle: 0 });\n\n  leader = computed(() => {\n    const { Hamster = 0, Turtle = 0 } = this.tally();\n    if (Hamster === Turtle) return 'Tie';\n    return Hamster > Turtle ? 'Hamster' : 'Turtle';\n  });\n\n  addVote(choice: string) {\n    this.tally.update((t) => ({ ...t, [choice]: (t[choice] ?? 0) + 1 }));\n  }\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Class Pet Vote</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "vote-button.ts": "import { Component, input, output } from '@angular/core';\n\n@Component({\n  selector: 'app-vote-button',\n  template: `<button class=\"vote\" (click)=\"voted.emit(label())\">{{ label() }}: {{ votes() }}</button>`,\n})\nexport class VoteButton {\n  label = input.required<string>();\n  votes = input(0);\n\n  // 1. Add an output called voted that sends a string.\n  voted = output<string>();\n\n  // 2. When the button is clicked, emit this button's label.\n}\n",
+          "app.ts": "import { Component, computed, signal } from '@angular/core';\nimport { VoteButton } from './vote-button';\n\n@Component({\n  selector: 'app-root',\n  imports: [VoteButton],\n  template: `\n    <h1>Pick the class pet</h1>\n    <!-- 3. Listen for (voted) on both buttons and call addVote($event) -->\n    <app-vote-button label=\"Hamster\" [votes]=\"tally().Hamster\" (voted)=\"addVote($event)\" />\n    <app-vote-button label=\"Turtle\" [votes]=\"tally().Turtle\" (voted)=\"addVote($event)\" />\n    <p class=\"leader\">Leader: {{ leader() }}</p>\n  `,\n})\nexport class App {\n  tally = signal<Record<string, number>>({ Hamster: 0, Turtle: 0 });\n\n  leader = computed(() => {\n    const { Hamster = 0, Turtle = 0 } = this.tally();\n    if (Hamster === Turtle) return 'Tie';\n    return Hamster > Turtle ? 'Hamster' : 'Turtle';\n  });\n\n  addVote(choice: string) {\n    this.tally.update((t) => ({ ...t, [choice]: (t[choice] ?? 0) + 1 }));\n  }\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Class Pet Vote</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "It starts as a tie",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".leader",
+              "equals": "Leader: Tie"
+            },
+            "failMessage": "The leader line should start as Leader: Tie."
+          },
+          {
+            "label": "Vote Turtle",
+            "kind": "interact",
+            "spec": {
+              "selector": "app-vote-button:nth-of-type(2) button",
+              "click": true
+            },
+            "failMessage": "Couldn't find app-vote-button:nth-of-type(2) button to click. Is it still on the page?"
+          },
+          {
+            "label": "Vote Turtle again",
+            "kind": "interact",
+            "spec": {
+              "selector": "app-vote-button:nth-of-type(2) button",
+              "click": true
+            },
+            "failMessage": "Couldn't find app-vote-button:nth-of-type(2) button to click. Is it still on the page?"
+          },
+          {
+            "label": "Vote Hamster",
+            "kind": "interact",
+            "spec": {
+              "selector": "app-vote-button:nth-of-type(1) button",
+              "click": true
+            },
+            "failMessage": "Couldn't find app-vote-button:nth-of-type(1) button to click. Is it still on the page?"
+          },
+          {
+            "label": "Turtle has 2 votes",
+            "kind": "elementText",
+            "spec": {
+              "selector": "app-vote-button:nth-of-type(2) button",
+              "equals": "Turtle: 2"
+            },
+            "failMessage": "Emit the label on click: (click)=\"voted.emit(label())\", and listen with (voted)=\"addVote($event)\" in app.ts."
+          },
+          {
+            "label": "Hamster has 1 vote",
+            "kind": "elementText",
+            "spec": {
+              "selector": "app-vote-button:nth-of-type(1) button",
+              "equals": "Hamster: 1"
+            },
+            "failMessage": "Listen for (voted) on the Hamster button too."
+          },
+          {
+            "label": "Turtle is winning",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".leader",
+              "equals": "Leader: Turtle"
+            },
+            "failMessage": "Once the votes arrive, leader updates by itself."
+          },
+          {
+            "label": "voted is a typed output",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/voted\\s*=\\s*output\\s*<\\s*string\\s*>\\s*\\(/.test(window.__cgSources[\"vote-button.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Declare it as voted = output<string>();"
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error. The Console names the file and line."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something logged an error. Angular's messages start with a code like NG0303 and say what went wrong."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The child shouldn't change the tally itself. How can it tell the parent \"I was clicked\" instead?",
+            "speechText": "The child shouldn't change the tally itself. How can it tell the parent that it was clicked instead?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Import `output`, then add `voted = output<string>();`. In the template, `(click)=\"voted.emit(label())\"` sends the label up.",
+            "speechText": "Import output, then make voted an output of string. On click, emit the label.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "In app.ts, on each `app-vote-button`, add `(voted)=\"addVote($event)\"`. `$event` is the string the child emitted.",
+            "speechText": "In the app file, add a voted event binding to each vote button that calls add vote with dollar event. Dollar event is the string the child emitted.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which way do inputs and outputs carry information?",
+            "explanation": "Inputs carry data down; outputs carry events up.",
+            "options": [
+              {
+                "text": "Inputs go down to the child, outputs go up to the parent",
+                "correct": true
+              },
+              {
+                "text": "Both go down",
+                "correct": false
+              },
+              {
+                "text": "Both go up",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What is $event in (picked)=\"choose($event)\"?",
+            "explanation": "It's the value the child passed to emit.",
+            "options": [
+              {
+                "text": "The value the child passed to emit",
+                "correct": true
+              },
+              {
+                "text": "The DOM click event, always",
+                "correct": false
+              },
+              {
+                "text": "The parent component",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does NG0303 \"Can't bind to 'x' since it isn't a known property\" usually mean?",
+            "explanation": "The child component is usually missing from the parent's imports (or the input is misspelled).",
+            "options": [
+              {
+                "text": "The component isn't in the parent's imports",
+                "correct": true
+              },
+              {
+                "text": "The server is down",
+                "correct": false
+              },
+              {
+                "text": "The input has the wrong default",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's the difference between label=\"Hi\" and [label]=\"hi\"?",
+            "explanation": "Without brackets it's literal text; with brackets it's an expression.",
+            "options": [
+              {
+                "text": "The first passes the text Hi; the second passes the value of hi",
+                "correct": true
+              },
+              {
+                "text": "No difference",
+                "correct": false
+              },
+              {
+                "text": "The second is an output",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why is input.required<string>() useful?",
+            "explanation": "It makes the parent pass a value; leaving it out is an error.",
+            "options": [
+              {
+                "text": "The parent must pass a value, so there's no default to forget",
+                "correct": true
+              },
+              {
+                "text": "It makes the input optional",
+                "correct": false
+              },
+              {
+                "text": "It converts numbers to strings",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "services-explorer",
+      "title": "A shared toy box",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Sharing between components\n\nSometimes two components need the **same** information. A shelf shows the toys, and a button somewhere else adds toys. Where should the list of toys live?\n\nIn a **service**: a helper class that components can share.\n\n```ts\n@Injectable({ providedIn: 'root' })\nexport class ToyBox {\n  toys = signal(['yo-yo', 'kite']);\n}\n```\n\n`@Injectable` is a label that says \"Angular, you can hand this out\". `providedIn: 'root'` means the whole app shares **one** toy box.\n\n### Getting the service: inject\n\nAny component can ask Angular for the service:\n\n```ts\nexport class ToyShelf {\n  box = inject(ToyBox);\n}\n```\n\nNow the template can use `box.toys()`. Every component that injects `ToyBox` gets the **same** box, so when one adds a toy, the others see it straight away.\n\n### New words\n\n- **Service**: a helper class that holds data or does jobs for many components.\n- **inject**: asking Angular for a service, like `inject(ToyBox)`.\n- **@Injectable**: the label that lets Angular hand out a class as a service.\n- **Share**: when two components use the very same thing, not copies.\n",
+      "exampleMarkdown": "A scoreboard service shared by two components. The **Score** button and the scoreboard are separate components, but they inject the same `Scores` service, so they always agree.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Scores</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component, Injectable, inject, signal } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      @Injectable({ providedIn: 'root' })\n      class Scores {\n        points = signal(0);\n      }\n\n      @Component({\n        selector: 'app-board',\n        template: `<p>Points: {{ scores.points() }}</p>`,\n      })\n      class Board {\n        scores = inject(Scores);\n      }\n\n      @Component({\n        selector: 'app-root',\n        imports: [Board],\n        template: `\n          <h1>Goal!</h1>\n          <button (click)=\"scores.points.update((n) => n + 1)\">Score</button>\n          <app-board />\n        `,\n      })\n      class App {\n        scores = inject(Scores);\n      }\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The toy box service is ready in **toy-box.ts**. Connect it to the room.\n\n1. In **toy-shelf.ts**, get the box with `box = inject(ToyBox);` (add `inject` to the first import). Then use `@for` to show every toy in `box.toys()` as an `<li>`.\n2. In **app.ts**, inject the same box, and make the button call `box.add('robot')` when clicked.\n3. Show how many toys there are: `<p class=\"count\">Toys: {{ box.toys().length }}</p>`",
+        "starterFiles": {
+          "toy-box.ts": "import { Injectable, signal } from '@angular/core';\n\n// A service: a helper class that many components can share.\n// providedIn: 'root' means the whole app shares ONE toy box.\n@Injectable({ providedIn: 'root' })\nexport class ToyBox {\n  toys = signal(['yo-yo', 'kite']);\n\n  add(toy: string) {\n    this.toys.update((list) => [...list, toy]);\n  }\n}\n",
+          "toy-shelf.ts": "import { Component } from '@angular/core';\nimport { ToyBox } from './toy-box';\n\n@Component({\n  selector: 'app-toy-shelf',\n  template: `\n    <h2>Shelf</h2>\n    <ul class=\"shelf\">\n      <!-- 1. Show each toy from the box as an <li> -->\n    </ul>\n  `,\n})\nexport class ToyShelf {\n  // 1. Get the shared toy box here: box = inject(ToyBox);\n\n}\n",
+          "app.ts": "import { Component } from '@angular/core';\nimport { ToyBox } from './toy-box';\nimport { ToyShelf } from './toy-shelf';\n\n@Component({\n  selector: 'app-root',\n  imports: [ToyShelf],\n  template: `\n    <h1>🧸 Toy room</h1>\n    <!-- 3. Show how many toys there are: <p class=\"count\">Toys: 2</p> -->\n\n    <!-- 2. Make this button add a 'robot' to the box -->\n    <button class=\"add\">Add a robot</button>\n\n    <app-toy-shelf />\n  `,\n})\nexport class App {\n  // 2. Get the same toy box here too\n\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Toy Room</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "toy-box.ts": "import { Injectable, signal } from '@angular/core';\n\n// A service: a helper class that many components can share.\n// providedIn: 'root' means the whole app shares ONE toy box.\n@Injectable({ providedIn: 'root' })\nexport class ToyBox {\n  toys = signal(['yo-yo', 'kite']);\n\n  add(toy: string) {\n    this.toys.update((list) => [...list, toy]);\n  }\n}\n",
+          "toy-shelf.ts": "import { Component, inject } from '@angular/core';\nimport { ToyBox } from './toy-box';\n\n@Component({\n  selector: 'app-toy-shelf',\n  template: `\n    <h2>Shelf</h2>\n    <ul class=\"shelf\">\n      <!-- 1. Show each toy from the box as an <li> -->\n      @for (toy of box.toys(); track $index) {\n        <li>{{ toy }}</li>\n      }\n    </ul>\n  `,\n})\nexport class ToyShelf {\n  // 1. Get the shared toy box here: box = inject(ToyBox);\n  box = inject(ToyBox);\n}\n",
+          "app.ts": "import { Component, inject } from '@angular/core';\nimport { ToyBox } from './toy-box';\nimport { ToyShelf } from './toy-shelf';\n\n@Component({\n  selector: 'app-root',\n  imports: [ToyShelf],\n  template: `\n    <h1>🧸 Toy room</h1>\n    <!-- 3. Show how many toys there are: <p class=\"count\">Toys: 2</p> -->\n    <p class=\"count\">Toys: {{ box.toys().length }}</p>\n\n    <!-- 2. Make this button add a 'robot' to the box -->\n    <button class=\"add\" (click)=\"box.add('robot')\">Add a robot</button>\n\n    <app-toy-shelf />\n  `,\n})\nexport class App {\n  // 2. Get the same toy box here too\n  box = inject(ToyBox);\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Toy Room</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The shelf shows two toys",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".shelf li",
+              "min": 2,
+              "max": 2
+            },
+            "failMessage": "In toy-shelf.ts, inject the box and use @for over box.toys()."
+          },
+          {
+            "label": "The shelf injects the toy box",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/inject\\s*\\(\\s*ToyBox\\s*\\)/.test(window.__cgSources[\"toy-shelf.ts\"])",
+              "equals": true
+            },
+            "failMessage": "In ToyShelf, write box = inject(ToyBox);"
+          },
+          {
+            "label": "The count shows 2",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".count",
+              "equals": "Toys: 2"
+            },
+            "failMessage": "Add <p class=\"count\">Toys: {{ box.toys().length }}</p> to app.ts."
+          },
+          {
+            "label": "Add a robot",
+            "kind": "interact",
+            "spec": {
+              "selector": ".add",
+              "click": true
+            },
+            "failMessage": "Couldn't find .add to click. Is it still on the page?"
+          },
+          {
+            "label": "Now there are three toys on the shelf",
+            "kind": "elementCount",
+            "spec": {
+              "selector": ".shelf li",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "In app.ts, inject the box and give the button (click)=\"box.add('robot')\"."
+          },
+          {
+            "label": "The robot is on the shelf",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".shelf li:last-child",
+              "equals": "robot"
+            },
+            "failMessage": "The button should add 'robot' to the box."
+          },
+          {
+            "label": "The count went up too",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".count",
+              "equals": "Toys: 3"
+            },
+            "failMessage": "Both components share one box, so the count follows along."
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "Look for a ⚠ Type error line in the Console: it names the file and line to fix."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The shelf and the button are in different components. What could they both ask Angular for?",
+            "speechText": "The shelf and the button are in different components. What could they both ask Angular for?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "In both classes, write `box = inject(ToyBox);` and add `inject` to the import from '@angular/core'. Now both templates can use `box`.",
+            "speechText": "In both classes, make box with inject of ToyBox, and import inject. Now both templates can use box.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "On the shelf: `@for (toy of box.toys(); track $index) { <li>{{ toy }}</li> }`. On the button: `(click)=\"box.add('robot')\"`.",
+            "speechText": "On the shelf, loop over box dot toys and show each toy in a list item. On the button, call box dot add with robot when it's clicked.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is a service?",
+            "explanation": "A service is a helper class that components share.",
+            "options": [
+              {
+                "text": "A helper class that many components can share",
+                "correct": true
+              },
+              {
+                "text": "A kind of button",
+                "correct": false
+              },
+              {
+                "text": "A page of the app",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How does a component get a service?",
+            "explanation": "Components ask Angular for it with inject.",
+            "options": [
+              {
+                "text": "box = inject(ToyBox);",
+                "correct": true
+              },
+              {
+                "text": "box = ToyBox;",
+                "correct": false
+              },
+              {
+                "text": "box = new Component();",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Two components inject the same service. What do they get?",
+            "explanation": "With providedIn: 'root', the whole app shares one instance.",
+            "options": [
+              {
+                "text": "The very same service, so they share its data",
+                "correct": true
+              },
+              {
+                "text": "Two separate copies",
+                "correct": false
+              },
+              {
+                "text": "Nothing",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "services-and-di",
+      "title": "Services and dependency injection",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Where shared state lives\n\nComponents should be about **showing** things and handling the user. Logic and state that several components need (a cart, the signed-in user, data from a server) belong in a **service**: a plain class, usually one per job.\n\n```ts\n@Injectable({ providedIn: 'root' })\nexport class CartService {\n  private readonly items = signal<Snack[]>([]);\n  readonly snacks = this.items.asReadonly();\n  readonly count = computed(() => this.items().length);\n\n  add(snack: Snack) {\n    this.items.update((list) => [...list, snack]);\n  }\n}\n```\n\nThe pattern above is common in real code: the writable signal is `private`, the outside world gets a **read-only** view with `asReadonly()`, and changes go through methods. Only the service can change its state, so bugs have one place to look.\n\n### Dependency injection\n\nA class's **dependencies** are the other objects it needs to work. Instead of building them itself, a class **asks for them**, and Angular's **injector** supplies them. This is **dependency injection** (DI):\n\n```ts\nexport class CartSummary {\n  private readonly cart = inject(CartService);\n}\n```\n\n`providedIn: 'root'` registers the service with the app's root injector, which creates it once, the first time anyone asks. Every component that injects `CartService` gets that same **instance** (this is called a **singleton**).\n\nWhy not `new CartService()`? Because each `new` makes a separate cart, so the menu would fill one cart and the summary would read another. DI also makes testing easier: a test can give the component a fake service instead of the real one.\n\n`inject()` only works while Angular is creating the class (in a field initializer or the constructor), not later inside a click handler. (Older code asks for dependencies as constructor parameters instead: `constructor(private cart: CartService) {}`.)\n\n### New words\n\n- **Service**: a class that holds shared state or logic, used by components.\n- **Dependency**: something a class needs in order to work.\n- **DI** (*Dependency Injection*): a class asks for its dependencies and the framework supplies them.\n- **Injector**: the part of Angular that creates services and hands them out.\n- **Singleton**: a class with exactly one instance shared by the whole app.\n- **Encapsulation**: hiding a class's internals (like a private signal) behind methods.\n",
+      "exampleMarkdown": "A notification service with private state and a read-only view. Two separate components inject it: one sends messages, the other lists them. Neither knows the other exists.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Notifications</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component, Injectable, computed, inject, signal } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      @Injectable({ providedIn: 'root' })\n      class Notifications {\n        private readonly list = signal<string[]>([]);\n        readonly messages = this.list.asReadonly();\n        readonly unread = computed(() => this.list().length);\n\n        push(message: string) {\n          this.list.update((all) => [...all, message]);\n        }\n      }\n\n      @Component({\n        selector: 'app-sender',\n        template: `<button (click)=\"send()\">Send a message</button>`,\n      })\n      class Sender {\n        private readonly notifications = inject(Notifications);\n        private n = 0;\n\n        send() {\n          this.n++;\n          this.notifications.push('Message #' + this.n);\n        }\n      }\n\n      @Component({\n        selector: 'app-inbox',\n        template: `\n          <h2>Inbox ({{ notifications.unread() }})</h2>\n          @for (m of notifications.messages(); track $index) {\n            <p>{{ m }}</p>\n          }\n        `,\n      })\n      class Inbox {\n        protected readonly notifications = inject(Notifications);\n      }\n\n      @Component({\n        selector: 'app-root',\n        imports: [Sender, Inbox],\n        template: `<app-sender /><app-inbox />`,\n      })\n      class App {}\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** The snack stand has a menu and a cart summary, and they don't share anything yet.\n\n1. In **cart.service.ts**, add `count`: a computed signal with the number of snacks.\n2. Add `total`: a computed signal that adds up the prices (`reduce` helps).\n3. In **cart-summary.ts**, inject `CartService` and show `<p class=\"count\">Snacks: …</p>` and `<p class=\"total\">Total: … coins</p>`.\n\nThe menu already injects the service and calls `cart.add(snack)`.",
+        "starterFiles": {
+          "cart.service.ts": "import { Injectable, computed, signal } from '@angular/core';\n\nexport interface Snack {\n  name: string;\n  price: number;\n}\n\n@Injectable({ providedIn: 'root' })\nexport class CartService {\n  // Private and writable inside the service; everyone else gets a read-only view.\n  private readonly items = signal<Snack[]>([]);\n  readonly snacks = this.items.asReadonly();\n\n  // 1. count: a computed signal with the number of snacks in the cart\n\n  // 2. total: a computed signal that adds up the prices (reduce helps)\n\n  add(snack: Snack) {\n    this.items.update((list) => [...list, snack]);\n  }\n}\n",
+          "cart-summary.ts": "import { Component } from '@angular/core';\nimport { CartService } from './cart.service';\n\n@Component({\n  selector: 'app-cart-summary',\n  template: `\n    <section class=\"summary\">\n      <h2>Your cart</h2>\n      <!-- 3. Show <p class=\"count\">Snacks: 2</p> and <p class=\"total\">Total: 7 coins</p> from the cart -->\n    </section>\n  `,\n})\nexport class CartSummary {\n  // 3. Inject the CartService here\n\n}\n",
+          "menu.ts": "import { Component, inject } from '@angular/core';\nimport { CartService, Snack } from './cart.service';\n\n@Component({\n  selector: 'app-menu',\n  template: `\n    <ul class=\"menu\">\n      @for (snack of snacks; track snack.name) {\n        <li>\n          {{ snack.name }} ({{ snack.price }} coins)\n          <button (click)=\"cart.add(snack)\">Add</button>\n        </li>\n      }\n    </ul>\n  `,\n})\nexport class Menu {\n  protected readonly cart = inject(CartService);\n\n  readonly snacks: Snack[] = [\n    { name: 'Popcorn', price: 3 },\n    { name: 'Pretzel', price: 4 },\n    { name: 'Lemonade', price: 2 },\n  ];\n}\n",
+          "app.ts": "import { Component } from '@angular/core';\nimport { CartSummary } from './cart-summary';\nimport { Menu } from './menu';\n\n@Component({\n  selector: 'app-root',\n  imports: [Menu, CartSummary],\n  template: `\n    <h1>Snack stand</h1>\n    <app-menu />\n    <app-cart-summary />\n  `,\n})\nexport class App {}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Snack Stand</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "cart.service.ts": "import { Injectable, computed, signal } from '@angular/core';\n\nexport interface Snack {\n  name: string;\n  price: number;\n}\n\n@Injectable({ providedIn: 'root' })\nexport class CartService {\n  // Private and writable inside the service; everyone else gets a read-only view.\n  private readonly items = signal<Snack[]>([]);\n  readonly snacks = this.items.asReadonly();\n\n  // 1. count: a computed signal with the number of snacks in the cart\n  readonly count = computed(() => this.items().length);\n\n  // 2. total: a computed signal that adds up the prices (reduce helps)\n  readonly total = computed(() => this.items().reduce((sum, snack) => sum + snack.price, 0));\n\n  add(snack: Snack) {\n    this.items.update((list) => [...list, snack]);\n  }\n}\n",
+          "cart-summary.ts": "import { Component, inject } from '@angular/core';\nimport { CartService } from './cart.service';\n\n@Component({\n  selector: 'app-cart-summary',\n  template: `\n    <section class=\"summary\">\n      <h2>Your cart</h2>\n      <!-- 3. Show <p class=\"count\">Snacks: 2</p> and <p class=\"total\">Total: 7 coins</p> from the cart -->\n      <p class=\"count\">Snacks: {{ cart.count() }}</p>\n      <p class=\"total\">Total: {{ cart.total() }} coins</p>\n    </section>\n  `,\n})\nexport class CartSummary {\n  // 3. Inject the CartService here\n  protected readonly cart = inject(CartService);\n}\n",
+          "menu.ts": "import { Component, inject } from '@angular/core';\nimport { CartService, Snack } from './cart.service';\n\n@Component({\n  selector: 'app-menu',\n  template: `\n    <ul class=\"menu\">\n      @for (snack of snacks; track snack.name) {\n        <li>\n          {{ snack.name }} ({{ snack.price }} coins)\n          <button (click)=\"cart.add(snack)\">Add</button>\n        </li>\n      }\n    </ul>\n  `,\n})\nexport class Menu {\n  protected readonly cart = inject(CartService);\n\n  readonly snacks: Snack[] = [\n    { name: 'Popcorn', price: 3 },\n    { name: 'Pretzel', price: 4 },\n    { name: 'Lemonade', price: 2 },\n  ];\n}\n",
+          "app.ts": "import { Component } from '@angular/core';\nimport { CartSummary } from './cart-summary';\nimport { Menu } from './menu';\n\n@Component({\n  selector: 'app-root',\n  imports: [Menu, CartSummary],\n  template: `\n    <h1>Snack stand</h1>\n    <app-menu />\n    <app-cart-summary />\n  `,\n})\nexport class App {}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Snack Stand</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The cart starts empty",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".count",
+              "equals": "Snacks: 0"
+            },
+            "failMessage": "Inject CartService in CartSummary and show <p class=\"count\">Snacks: {{ cart.count() }}</p>."
+          },
+          {
+            "label": "Add Popcorn",
+            "kind": "interact",
+            "spec": {
+              "selector": ".menu li:nth-child(1) button",
+              "click": true
+            },
+            "failMessage": "Couldn't find .menu li:nth-child(1) button to click. Is it still on the page?"
+          },
+          {
+            "label": "Add a Pretzel",
+            "kind": "interact",
+            "spec": {
+              "selector": ".menu li:nth-child(2) button",
+              "click": true
+            },
+            "failMessage": "Couldn't find .menu li:nth-child(2) button to click. Is it still on the page?"
+          },
+          {
+            "label": "Two snacks in the cart",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".count",
+              "equals": "Snacks: 2"
+            },
+            "failMessage": "count should be computed(() => this.items().length)."
+          },
+          {
+            "label": "The total is 7 coins",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".total",
+              "equals": "Total: 7 coins"
+            },
+            "failMessage": "total should add up the prices with reduce, and the summary should show <p class=\"total\">Total: {{ cart.total() }} coins</p>."
+          },
+          {
+            "label": "count and total are computed",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/count\\s*=\\s*computed[\\s\\S]*total\\s*=\\s*computed|total\\s*=\\s*computed[\\s\\S]*count\\s*=\\s*computed/.test(window.__cgSources[\"cart.service.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Make both count and total computed signals in the service."
+          },
+          {
+            "label": "The summary injects the service",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/inject\\s*\\(\\s*CartService\\s*\\)/.test(window.__cgSources[\"cart-summary.ts\"])",
+              "equals": true
+            },
+            "failMessage": "In CartSummary: private readonly cart = inject(CartService); (or protected, so the template can use it)."
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error. The Console names the file and line."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something logged an error. Angular's messages start with a code like NG0303 and say what went wrong."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The menu adds to the cart through the service. If the summary made its own `new CartService()`, which cart would it be reading?",
+            "speechText": "The menu adds to the cart through the service. If the summary made its own new cart service, which cart would it be reading?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "In the service: `readonly count = computed(() => this.items().length);` and for the total, `this.items().reduce((sum, snack) => sum + snack.price, 0)` inside another `computed`.",
+            "speechText": "In the service, make count a computed signal of the items length. For total, reduce the items into a sum of their prices, starting from zero, inside another computed signal.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "In CartSummary, import `inject` and add `protected readonly cart = inject(CartService);`. Then the template can call `cart.count()` and `cart.total()`.",
+            "speechText": "In the cart summary, import inject and make cart with inject of CartService. Then the template can call cart dot count and cart dot total.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why not write cart = new CartService() in each component?",
+            "explanation": "Each new creates a separate instance, so components wouldn't share state.",
+            "options": [
+              {
+                "text": "Each component would get its own separate cart",
+                "correct": true
+              },
+              {
+                "text": "new is not allowed in TypeScript",
+                "correct": false
+              },
+              {
+                "text": "It would be slower to type",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does providedIn: 'root' do?",
+            "explanation": "It registers the service with the root injector, which creates one shared instance.",
+            "options": [
+              {
+                "text": "Makes one instance that the whole app shares",
+                "correct": true
+              },
+              {
+                "text": "Puts the service in index.html",
+                "correct": false
+              },
+              {
+                "text": "Makes the service private",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why expose items.asReadonly() instead of the writable signal?",
+            "explanation": "Only the service can change the state, so changes go through its methods.",
+            "options": [
+              {
+                "text": "So only the service can change the state",
+                "correct": true
+              },
+              {
+                "text": "So the data loads faster",
+                "correct": false
+              },
+              {
+                "text": "Because computed needs it",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Where can you call inject()?",
+            "explanation": "inject works while Angular creates the class: field initializers or the constructor.",
+            "options": [
+              {
+                "text": "In a field initializer or the constructor",
+                "correct": true
+              },
+              {
+                "text": "Anywhere, at any time",
+                "correct": false
+              },
+              {
+                "text": "Only inside templates",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "project-explorer",
+      "title": "Project: Pet Shelter app",
+      "sortOrder": 6,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 8,
+      "isPublished": true,
+      "learnMarkdown": "## Put it all together\n\nTime to build a real little app! You'll use everything from this course:\n\n- a **component** with a template\n- a **signal** that holds a list\n- **@for** to repeat a card for every pet\n- an **input** to pass each pet's name into its card\n- a **service** that keeps the list of pets\n- a **click** that adds a new pet\n\n### One new trick: naming a text box\n\nPut `#` and a name on a tag, and the template can use that name:\n\n```html\n<input #nickname />\n<button (click)=\"greet(nickname.value)\">Say hi</button>\n```\n\n`#nickname` is a **template reference**. `nickname.value` is whatever is typed in the box.\n\n### Passing an input from a loop\n\nTo give each card a different name, use square brackets:\n\n```html\n@for (pet of pets(); track $index) {\n  <app-pet-card [name]=\"pet\" />\n}\n```\n\nSquare brackets mean \"use the value of `pet`\", not the word \"pet\".\n\n### New words\n\n- **Template reference**: a `#name` on a tag, so the template can use that element.\n- **Property binding**: `[name]=\"pet\"`, which passes a value instead of plain text.\n- **App**: a program made of components that work together.\n",
+      "exampleMarkdown": "A tiny guest book: a text box with a template reference, a button that reads it, and a list made with `@for`.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Guest Book</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component, signal } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      @Component({\n        selector: 'app-root',\n        template: `\n          <h1>Guest book</h1>\n          <input #guest placeholder=\"Your name\" />\n          <button (click)=\"sign(guest.value); guest.value = ''\">Sign</button>\n          <ul>\n            @for (name of names(); track $index) {\n              <li>{{ name }} was here!</li>\n            }\n          </ul>\n        `,\n      })\n      class App {\n        names = signal(['Juni']);\n\n        sign(name: string) {\n          if (name.trim()) {\n            this.names.update((list) => [...list, name.trim()]);\n          }\n        }\n      }\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Finish the Pet Shelter app in **app.ts**. The shelter service and the pet card are ready.\n\n1. Make the **Add pet** button call `addPet(petName.value)` when clicked.\n2. Use `@for` to show one `<app-pet-card [name]=\"pet\" />` for each pet in `shelter.pets()`.\n3. Show how many pets are waiting: `<p class=\"waiting\">Pets waiting: {{ shelter.pets().length }}</p>`\n\nThen type a name in the preview and add your own pet!",
+        "starterFiles": {
+          "app.ts": "import { Component, inject } from '@angular/core';\nimport { PetCard } from './pet-card';\nimport { Shelter } from './shelter';\n\n@Component({\n  selector: 'app-root',\n  imports: [PetCard],\n  template: `\n    <h1>🐾 Pet Shelter</h1>\n\n    <!-- 3. Show <p class=\"waiting\">Pets waiting: 2</p> here -->\n\n    <!-- #petName gives the text box a name, so the button can read petName.value -->\n    <input #petName class=\"new-pet\" placeholder=\"New pet's name\" />\n    <!-- 1. Make this button call addPet(petName.value) -->\n    <button class=\"add\">Add pet</button>\n\n    <!-- 2. Show one <app-pet-card> for each pet, with @for -->\n  `,\n})\nexport class App {\n  shelter = inject(Shelter);\n\n  addPet(name: string) {\n    this.shelter.add(name);\n  }\n}\n",
+          "shelter.ts": "import { Injectable, signal } from '@angular/core';\n\n@Injectable({ providedIn: 'root' })\nexport class Shelter {\n  pets = signal(['Mochi', 'Pip']);\n\n  add(name: string) {\n    const clean = name.trim();\n    if (clean) {\n      this.pets.update((list) => [...list, clean]);\n    }\n  }\n}\n",
+          "pet-card.ts": "import { Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-pet-card',\n  template: `\n    <div class=\"card\">\n      <h2>{{ name() }}</h2>\n      <p>Looking for a home 🏡</p>\n    </div>\n  `,\n  styles: `.card { border: 2px solid #f59e0b; border-radius: 12px; padding: 0.25rem 1rem; margin: 0.5rem 0; }`,\n})\nexport class PetCard {\n  name = input('Pet');\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Shelter</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "app.ts": "import { Component, inject } from '@angular/core';\nimport { PetCard } from './pet-card';\nimport { Shelter } from './shelter';\n\n@Component({\n  selector: 'app-root',\n  imports: [PetCard],\n  template: `\n    <h1>🐾 Pet Shelter</h1>\n\n    <!-- 3. Show <p class=\"waiting\">Pets waiting: 2</p> here -->\n    <p class=\"waiting\">Pets waiting: {{ shelter.pets().length }}</p>\n\n    <!-- #petName gives the text box a name, so the button can read petName.value -->\n    <input #petName class=\"new-pet\" placeholder=\"New pet's name\" />\n    <!-- 1. Make this button call addPet(petName.value) -->\n    <button class=\"add\" (click)=\"addPet(petName.value)\">Add pet</button>\n\n    <!-- 2. Show one <app-pet-card> for each pet, with @for -->\n    @for (pet of shelter.pets(); track $index) {\n      <app-pet-card [name]=\"pet\" />\n    }\n  `,\n})\nexport class App {\n  shelter = inject(Shelter);\n\n  addPet(name: string) {\n    this.shelter.add(name);\n  }\n}\n",
+          "shelter.ts": "import { Injectable, signal } from '@angular/core';\n\n@Injectable({ providedIn: 'root' })\nexport class Shelter {\n  pets = signal(['Mochi', 'Pip']);\n\n  add(name: string) {\n    const clean = name.trim();\n    if (clean) {\n      this.pets.update((list) => [...list, clean]);\n    }\n  }\n}\n",
+          "pet-card.ts": "import { Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-pet-card',\n  template: `\n    <div class=\"card\">\n      <h2>{{ name() }}</h2>\n      <p>Looking for a home 🏡</p>\n    </div>\n  `,\n  styles: `.card { border: 2px solid #f59e0b; border-radius: 12px; padding: 0.25rem 1rem; margin: 0.5rem 0; }`,\n})\nexport class PetCard {\n  name = input('Pet');\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Pet Shelter</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "Two pet cards to start",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "app-pet-card",
+              "min": 2,
+              "max": 2
+            },
+            "failMessage": "Use @for (pet of shelter.pets(); track $index) to show an <app-pet-card> for each pet."
+          },
+          {
+            "label": "The first card is Mochi",
+            "kind": "elementText",
+            "spec": {
+              "selector": "app-pet-card:first-of-type h2",
+              "equals": "Mochi"
+            },
+            "failMessage": "Pass each pet's name in with square brackets: <app-pet-card [name]=\"pet\" />"
+          },
+          {
+            "label": "Two pets waiting",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".waiting",
+              "equals": "Pets waiting: 2"
+            },
+            "failMessage": "Add <p class=\"waiting\">Pets waiting: {{ shelter.pets().length }}</p>."
+          },
+          {
+            "label": "Type a new pet's name",
+            "kind": "interact",
+            "spec": {
+              "selector": ".new-pet",
+              "type": "Biscuit"
+            },
+            "failMessage": "Couldn't find .new-pet to type into."
+          },
+          {
+            "label": "Click Add pet",
+            "kind": "interact",
+            "spec": {
+              "selector": ".add",
+              "click": true
+            },
+            "failMessage": "Couldn't find .add to click. Is it still on the page?"
+          },
+          {
+            "label": "Now there are three cards",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "app-pet-card",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "Give the button (click)=\"addPet(petName.value)\"."
+          },
+          {
+            "label": "Biscuit has a card",
+            "kind": "elementText",
+            "spec": {
+              "selector": "app-pet-card:last-of-type h2",
+              "equals": "Biscuit"
+            },
+            "failMessage": "The new card should show the name you typed."
+          },
+          {
+            "label": "Three pets waiting",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".waiting",
+              "equals": "Pets waiting: 3"
+            },
+            "failMessage": "The count should go up by itself."
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "Look for a ⚠ Type error line in the Console: it names the file and line to fix."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something caused an error. Check the Console under the preview: it names the file and line."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The text box is named `#petName`. How can the button send what's typed in it to `addPet`?",
+            "speechText": "The text box is named pet name. How can the button send what's typed in it to add pet?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "On the button: `(click)=\"addPet(petName.value)\"`. For the cards: `@for (pet of shelter.pets(); track $index) { … }`.",
+            "speechText": "On the button, call add pet with pet name dot value when it's clicked. For the cards, loop over the shelter's pets with a for block.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "Inside the `@for`, put `<app-pet-card [name]=\"pet\" />`. Above the text box, add the waiting paragraph with `{{ shelter.pets().length }}`.",
+            "speechText": "Inside the loop, put a pet card with its name bound to pet. Above the text box, show how many pets there are with the list's length.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does #petName on an input do?",
+            "explanation": "It's a template reference, so the template can use that element by name.",
+            "options": [
+              {
+                "text": "Gives the input a name the template can use",
+                "correct": true
+              },
+              {
+                "text": "Makes the input bold",
+                "correct": false
+              },
+              {
+                "text": "Turns it into a hashtag",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why [name]=\"pet\" with square brackets?",
+            "explanation": "Square brackets pass the value of pet instead of the word pet.",
+            "options": [
+              {
+                "text": "To pass the value of pet, not the word pet",
+                "correct": true
+              },
+              {
+                "text": "To make the name bigger",
+                "correct": false
+              },
+              {
+                "text": "Because names need brackets",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Where does the list of pets live in this app?",
+            "explanation": "The Shelter service holds the list, so any component can share it.",
+            "options": [
+              {
+                "text": "In the Shelter service",
+                "correct": true
+              },
+              {
+                "text": "In index.html",
+                "correct": false
+              },
+              {
+                "text": "In each pet card",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "project-quest-board",
+      "title": "Project: Quest Board",
+      "sortOrder": 6,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": true,
+      "learnMarkdown": "## A small, real Angular app\n\nThis project is laid out the way an Angular team would build it:\n\n| File | Job |\n| --- | --- |\n| `quest.ts` | The `Quest` **model**: an interface describing one quest |\n| `quest.service.ts` | All the state and rules: add, toggle, count what's left |\n| `quest-item.ts` | A **presentational** component: shows one quest, emits `toggled` |\n| `app.ts`, `app.html`, `app.css` | The **container**: injects the service and wires everything together |\n\n**Presentational** components only take inputs and emit outputs, so they're easy to reuse and test. **Container** components know about services. Splitting them this way is a common Angular habit.\n\n### Immutable updates with map and filter\n\nSignals notice a change when the value is a new object. To change one item in a list, build a new list:\n\n```ts\nthis.list.update((all) =>\n  all.map((q) => (q.id === id ? { ...q, done: !q.done } : q)),\n);\n```\n\n`map` returns a new array; the spread `{ ...q, done: … }` makes a new object for the one quest that changed and reuses the others. Counting works the same way: `filter` returns a new array of matching items, and `.length` counts them.\n\n### Forms and template references\n\n```html\n<form (submit)=\"$event.preventDefault(); addQuest(newQuest)\">\n  <input #newQuest />\n</form>\n```\n\n`#newQuest` is a **template reference variable**: it points at the input element itself, so the component method receives an `HTMLInputElement`. Pressing Enter or clicking the button submits the form; `preventDefault()` stops the browser from reloading the page. (For bigger forms, Angular has **reactive forms** in `@angular/forms`, with validation built in.)\n\n### New words\n\n- **Model**: a type that describes the app's data, like `Quest`.\n- **Presentational component**: a component that only uses inputs and outputs, with no services.\n- **Container component**: a component that injects services and passes data to presentational children.\n- **Immutable update**: changing data by making a new copy instead of editing the original.\n- **Template reference variable**: `#name` on an element, giving the template a reference to it.\n",
+      "exampleMarkdown": "A shopping list with the same shape as the project, squeezed into one file: an interface, a service with immutable updates, a presentational row component and a container. Removing an item uses `filter` to build a new array.",
+      "exampleCode": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Shopping List</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"text/typescript\">\n      import { Component, Injectable, computed, inject, input, output, signal } from '@angular/core';\n      import { bootstrapApplication } from '@angular/platform-browser';\n\n      interface Item {\n        id: number;\n        name: string;\n      }\n\n      @Injectable({ providedIn: 'root' })\n      class ShoppingList {\n        private readonly list = signal<Item[]>([\n          { id: 1, name: 'Bread' },\n          { id: 2, name: 'Apples' },\n        ]);\n        private nextId = 3;\n        readonly items = this.list.asReadonly();\n        readonly count = computed(() => this.list().length);\n\n        add(name: string) {\n          if (name.trim()) this.list.update((all) => [...all, { id: this.nextId++, name: name.trim() }]);\n        }\n\n        remove(id: number) {\n          this.list.update((all) => all.filter((item) => item.id !== id));\n        }\n      }\n\n      @Component({\n        selector: 'app-row',\n        template: `<li>{{ item().name }} <button (click)=\"removed.emit(item().id)\">✕</button></li>`,\n      })\n      class Row {\n        item = input.required<Item>();\n        removed = output<number>();\n      }\n\n      @Component({\n        selector: 'app-root',\n        imports: [Row],\n        template: `\n          <h1>Shopping ({{ shopping.count() }})</h1>\n          <form (submit)=\"$event.preventDefault(); shopping.add(box.value); box.value = ''\">\n            <input #box placeholder=\"Add an item\" />\n          </form>\n          <ul>\n            @for (item of shopping.items(); track item.id) {\n              <app-row [item]=\"item\" (removed)=\"shopping.remove($event)\" />\n            }\n          </ul>\n        `,\n      })\n      class App {\n        protected readonly shopping = inject(ShoppingList);\n      }\n\n      bootstrapApplication(App);\n    </script>\n  </body>\n</html>\n",
+      "challenge": {
+        "kind": "Angular",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Finish the Quest Board. The model, the `QuestItem` component and the form are done.\n\nIn **quest.service.ts**:\n\n1. `add(title)`: trim the title and ignore it if it's empty. Otherwise append `{ id: this.nextId++, title, done: false }`.\n2. `toggle(id)`: flip `done` for that quest, with an immutable update (`map`).\n3. `remaining`: a computed signal counting the quests that aren't done.\n\nIn **app.html**:\n\n4. Render an `<app-quest-item>` per quest, tracked by `id`, passing `[quest]` and handling `(toggled)` with `quests.toggle($event)`. Add an `@empty` block with `<li class=\"empty\">No quests yet. Add one above!</li>`.",
+        "starterFiles": {
+          "quest.service.ts": "import { Injectable, computed, signal } from '@angular/core';\nimport { Quest } from './quest';\n\n@Injectable({ providedIn: 'root' })\nexport class QuestService {\n  private readonly list = signal<Quest[]>([]);\n  private nextId = 1;\n\n  readonly quests = this.list.asReadonly();\n\n  // 3. remaining: a computed signal with how many quests are NOT done yet\n\n  add(title: string) {\n    // 1. Trim the title. Ignore it if it's empty.\n    //    Otherwise add { id: this.nextId++, title, done: false } to the end of the list.\n  }\n\n  toggle(id: number) {\n    // 2. Flip done for the quest with this id. Make a new array (map helps), don't change the old one.\n  }\n}\n",
+          "app.html": "<main>\n  <h1>⚔️ Quest board</h1>\n\n  <form (submit)=\"$event.preventDefault(); addQuest(newQuest)\">\n    <input #newQuest class=\"new-quest\" placeholder=\"A new quest…\" />\n    <button class=\"add\">Add</button>\n  </form>\n\n  <ul class=\"quests\">\n    <!-- 4. Render an <app-quest-item> per quest (track by id), passing [quest] and\n            listening for (toggled). When there are none, show\n            <li class=\"empty\">No quests yet. Add one above!</li> -->\n  </ul>\n\n  <p class=\"left\">{{ quests.remaining() }} {{ quests.remaining() === 1 ? 'quest' : 'quests' }} left</p>\n</main>\n",
+          "app.ts": "import { Component, inject } from '@angular/core';\nimport { QuestItem } from './quest-item';\nimport { QuestService } from './quest.service';\n\n@Component({\n  selector: 'app-root',\n  imports: [QuestItem],\n  templateUrl: './app.html',\n  styleUrl: './app.css',\n})\nexport class App {\n  protected readonly quests = inject(QuestService);\n\n  addQuest(input: HTMLInputElement) {\n    this.quests.add(input.value);\n    input.value = '';\n  }\n}\n",
+          "quest-item.ts": "import { Component, input, output } from '@angular/core';\nimport { Quest } from './quest';\n\n@Component({\n  selector: 'app-quest-item',\n  template: `\n    <li [class.done]=\"quest().done\">\n      <button class=\"toggle\" (click)=\"toggled.emit(quest().id)\" [attr.aria-label]=\"'Mark ' + quest().title + ' done'\">\n        {{ quest().done ? '✔' : '○' }}\n      </button>\n      <span class=\"title\">{{ quest().title }}</span>\n    </li>\n  `,\n  styles: `\n    li { list-style: none; padding: 0.25rem 0; }\n    .done .title { text-decoration: line-through; color: #6b7280; }\n  `,\n})\nexport class QuestItem {\n  quest = input.required<Quest>();\n  toggled = output<number>();\n}\n",
+          "quest.ts": "export interface Quest {\n  id: number;\n  title: string;\n  done: boolean;\n}\n",
+          "app.css": "main {\n  font-family: system-ui, sans-serif;\n  max-width: 28rem;\n  margin: 2rem auto;\n}\n\n.quests {\n  padding: 0;\n}\n\n.empty {\n  list-style: none;\n  color: #6b7280;\n  font-style: italic;\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Quest Board</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "quest.service.ts": "import { Injectable, computed, signal } from '@angular/core';\nimport { Quest } from './quest';\n\n@Injectable({ providedIn: 'root' })\nexport class QuestService {\n  private readonly list = signal<Quest[]>([]);\n  private nextId = 1;\n\n  readonly quests = this.list.asReadonly();\n\n  // 3. remaining: a computed signal with how many quests are NOT done yet\n  readonly remaining = computed(() => this.list().filter((q) => !q.done).length);\n\n  add(title: string) {\n    // 1. Trim the title. Ignore it if it's empty.\n    //    Otherwise add { id: this.nextId++, title, done: false } to the end of the list.\n    const clean = title.trim();\n    if (!clean) return;\n    this.list.update((all) => [...all, { id: this.nextId++, title: clean, done: false }]);\n  }\n\n  toggle(id: number) {\n    // 2. Flip done for the quest with this id. Make a new array (map helps), don't change the old one.\n    this.list.update((all) => all.map((q) => (q.id === id ? { ...q, done: !q.done } : q)));\n  }\n}\n",
+          "app.html": "<main>\n  <h1>⚔️ Quest board</h1>\n\n  <form (submit)=\"$event.preventDefault(); addQuest(newQuest)\">\n    <input #newQuest class=\"new-quest\" placeholder=\"A new quest…\" />\n    <button class=\"add\">Add</button>\n  </form>\n\n  <ul class=\"quests\">\n    <!-- 4. Render an <app-quest-item> per quest (track by id), passing [quest] and\n            listening for (toggled). When there are none, show\n            <li class=\"empty\">No quests yet. Add one above!</li> -->\n    @for (quest of quests.quests(); track quest.id) {\n      <app-quest-item [quest]=\"quest\" (toggled)=\"quests.toggle($event)\" />\n    } @empty {\n      <li class=\"empty\">No quests yet. Add one above!</li>\n    }\n  </ul>\n\n  <p class=\"left\">{{ quests.remaining() }} {{ quests.remaining() === 1 ? 'quest' : 'quests' }} left</p>\n</main>\n",
+          "app.ts": "import { Component, inject } from '@angular/core';\nimport { QuestItem } from './quest-item';\nimport { QuestService } from './quest.service';\n\n@Component({\n  selector: 'app-root',\n  imports: [QuestItem],\n  templateUrl: './app.html',\n  styleUrl: './app.css',\n})\nexport class App {\n  protected readonly quests = inject(QuestService);\n\n  addQuest(input: HTMLInputElement) {\n    this.quests.add(input.value);\n    input.value = '';\n  }\n}\n",
+          "quest-item.ts": "import { Component, input, output } from '@angular/core';\nimport { Quest } from './quest';\n\n@Component({\n  selector: 'app-quest-item',\n  template: `\n    <li [class.done]=\"quest().done\">\n      <button class=\"toggle\" (click)=\"toggled.emit(quest().id)\" [attr.aria-label]=\"'Mark ' + quest().title + ' done'\">\n        {{ quest().done ? '✔' : '○' }}\n      </button>\n      <span class=\"title\">{{ quest().title }}</span>\n    </li>\n  `,\n  styles: `\n    li { list-style: none; padding: 0.25rem 0; }\n    .done .title { text-decoration: line-through; color: #6b7280; }\n  `,\n})\nexport class QuestItem {\n  quest = input.required<Quest>();\n  toggled = output<number>();\n}\n",
+          "quest.ts": "export interface Quest {\n  id: number;\n  title: string;\n  done: boolean;\n}\n",
+          "app.css": "main {\n  font-family: system-ui, sans-serif;\n  max-width: 28rem;\n  margin: 2rem auto;\n}\n\n.quests {\n  padding: 0;\n}\n\n.empty {\n  list-style: none;\n  color: #6b7280;\n  font-style: italic;\n}\n",
+          "main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { App } from './app';\n\n// Starts Angular and draws the App component inside <app-root> in index.html.\nbootstrapApplication(App).catch((err) => console.error(err));\n",
+          "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Quest Board</title>\n  </head>\n  <body>\n    <app-root></app-root>\n    <script type=\"module\" src=\"main.ts\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "The board starts empty",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".quests .empty",
+              "equals": "No quests yet. Add one above!"
+            },
+            "failMessage": "Add an @empty block with <li class=\"empty\">No quests yet. Add one above!</li>."
+          },
+          {
+            "label": "Type a quest",
+            "kind": "interact",
+            "spec": {
+              "selector": ".new-quest",
+              "type": "Feed the dragon"
+            },
+            "failMessage": "Couldn't find .new-quest to type into."
+          },
+          {
+            "label": "Add it",
+            "kind": "interact",
+            "spec": {
+              "selector": ".add",
+              "click": true
+            },
+            "failMessage": "Couldn't find .add to click. Is it still on the page?"
+          },
+          {
+            "label": "Type another quest",
+            "kind": "interact",
+            "spec": {
+              "selector": ".new-quest",
+              "type": "Polish the sword"
+            },
+            "failMessage": "Couldn't find .new-quest to type into."
+          },
+          {
+            "label": "Add it",
+            "kind": "interact",
+            "spec": {
+              "selector": ".add",
+              "click": true
+            },
+            "failMessage": "Couldn't find .add to click. Is it still on the page?"
+          },
+          {
+            "label": "Type only spaces",
+            "kind": "interact",
+            "spec": {
+              "selector": ".new-quest",
+              "type": "   "
+            },
+            "failMessage": "Couldn't find .new-quest to type into."
+          },
+          {
+            "label": "Try to add the blank quest",
+            "kind": "interact",
+            "spec": {
+              "selector": ".add",
+              "click": true
+            },
+            "failMessage": "Couldn't find .add to click. Is it still on the page?"
+          },
+          {
+            "label": "Two quests (the blank one is ignored)",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "app-quest-item",
+              "min": 2,
+              "max": 2
+            },
+            "failMessage": "add() should append a quest, and ignore titles that are empty after trim()."
+          },
+          {
+            "label": "The second quest is Polish the sword",
+            "kind": "elementText",
+            "spec": {
+              "selector": "app-quest-item:nth-of-type(2) .title",
+              "equals": "Polish the sword"
+            },
+            "failMessage": "Pass each quest in with [quest]=\"quest\"."
+          },
+          {
+            "label": "Two quests left",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".left",
+              "equals": "2 quests left"
+            },
+            "failMessage": "remaining should count quests where done is false."
+          },
+          {
+            "label": "Complete the first quest",
+            "kind": "interact",
+            "spec": {
+              "selector": "app-quest-item:nth-of-type(1) .toggle",
+              "click": true
+            },
+            "failMessage": "Couldn't find app-quest-item:nth-of-type(1) .toggle to click. Is it still on the page?"
+          },
+          {
+            "label": "One quest is done",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "app-quest-item li.done",
+              "min": 1,
+              "max": 1
+            },
+            "failMessage": "Handle (toggled)=\"quests.toggle($event)\", and make toggle() flip done with map."
+          },
+          {
+            "label": "One quest left",
+            "kind": "elementText",
+            "spec": {
+              "selector": ".left",
+              "equals": "1 quest left"
+            },
+            "failMessage": "remaining should go down when a quest is done."
+          },
+          {
+            "label": "Un-complete it",
+            "kind": "interact",
+            "spec": {
+              "selector": "app-quest-item:nth-of-type(1) .toggle",
+              "click": true
+            },
+            "failMessage": "Couldn't find app-quest-item:nth-of-type(1) .toggle to click. Is it still on the page?"
+          },
+          {
+            "label": "Toggling again undoes it",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "app-quest-item li.done",
+              "max": 0
+            },
+            "failMessage": "toggle() should flip done both ways: { ...q, done: !q.done }."
+          },
+          {
+            "label": "Tracked by id",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/track\\s+quest\\.id/.test(window.__cgSources[\"app.html\"])",
+              "equals": true
+            },
+            "failMessage": "Track the quests by id: track quest.id"
+          },
+          {
+            "label": "toggle makes a new array",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "/\\.map\\s*\\(/.test(window.__cgSources[\"quest.service.ts\"])",
+              "equals": true
+            },
+            "failMessage": "Use map to build a new array in toggle()."
+          },
+          {
+            "label": "No type errors",
+            "kind": "typeCheck",
+            "spec": {},
+            "failMessage": "TypeScript still reports a type error. The Console names the file and line."
+          },
+          {
+            "label": "No errors in the Console",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Something logged an error. Angular's messages start with a code like NG0303 and say what went wrong."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Signals only notice a new value. In `toggle`, how can you get a new array where just one quest has changed?",
+            "speechText": "Signals only notice a new value. In toggle, how can you get a new array where just one quest has changed?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "`add`: `const clean = title.trim(); if (!clean) return;` then `update` with `[...all, { id: this.nextId++, title: clean, done: false }]`. `toggle`: `all.map((q) => (q.id === id ? { ...q, done: !q.done } : q))`. `remaining`: `computed` over `filter((q) => !q.done).length`.",
+            "speechText": "In add, trim the title and return early if it's empty, then append a new quest object. In toggle, map over the list and replace only the matching quest with a copy where done is flipped. Remaining is a computed signal that filters out done quests and takes the length.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "In app.html: `@for (quest of quests.quests(); track quest.id) { <app-quest-item [quest]=\"quest\" (toggled)=\"quests.toggle($event)\" /> } @empty { … }`",
+            "speechText": "In the template, loop over quests dot quests, tracking quest dot id. Render a quest item, bind its quest input, and send its toggled event to quests dot toggle. Then add the empty block.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why does toggle use map instead of changing q.done directly?",
+            "explanation": "Signals compare old and new values; a new array (and a new object for the changed quest) is a visible change.",
+            "options": [
+              {
+                "text": "So the signal gets a new array and Angular sees the change",
+                "correct": true
+              },
+              {
+                "text": "Because map is faster than a loop",
+                "correct": false
+              },
+              {
+                "text": "Because done is read-only in TypeScript",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What makes QuestItem a presentational component?",
+            "explanation": "It only uses inputs and outputs; it doesn't inject services.",
+            "options": [
+              {
+                "text": "It only has inputs and outputs, no services",
+                "correct": true
+              },
+              {
+                "text": "It has CSS styles",
+                "correct": false
+              },
+              {
+                "text": "It's in its own file",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In the form, what does #newQuest refer to?",
+            "explanation": "A template reference variable points at the element it's on.",
+            "options": [
+              {
+                "text": "The input element itself",
+                "correct": true
+              },
+              {
+                "text": "The quest's id",
+                "correct": false
+              },
+              {
+                "text": "A CSS id selector",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why call $event.preventDefault() on submit?",
+            "explanation": "It stops the browser's default form submission, which would reload the page.",
+            "options": [
+              {
+                "text": "To stop the browser reloading the page",
+                "correct": true
+              },
+              {
+                "text": "To clear the input",
+                "correct": false
+              },
+              {
+                "text": "To validate the form",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why track quests by id rather than $index?",
+            "explanation": "Ids stay with their quest when items are added, removed or reordered.",
+            "options": [
+              {
+                "text": "An id stays with the same quest when the list changes",
+                "correct": true
+              },
+              {
+                "text": "$index doesn't exist in @for",
+                "correct": false
+              },
+              {
+                "text": "Tracking by id sorts the list",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

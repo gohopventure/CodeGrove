@@ -17,6 +17,7 @@
  * have their types stripped by Sucrase, exactly like Vite does, so code with type errors still runs.
  * Type errors are found separately (typeCheck.ts) and reported by the typeCheck/typeError tests.
  */
+import { DecoratorError, lowerDecorators } from './angular';
 import { installModuleLoader } from './moduleLoader';
 import { protectLoops } from './loopProtect';
 
@@ -68,7 +69,8 @@ export function hasTypeScript(files: Files): boolean {
 
 type Sucrase = typeof import('sucrase');
 let compiler: Promise<Sucrase> | null = null;
-let reactRuntime: Promise<string> | null = null;
+/** Framework runtimes (big strings of JavaScript for the frame), each downloaded on first use. */
+const runtimes: Record<'react' | 'angular', Promise<string> | null> = { react: null, angular: null };
 
 /** Sucrase transforms by file type. Types are stripped, never checked: checking is typeCheck.ts's job. */
 function transformsFor(fileName: string): ('jsx' | 'typescript' | 'imports')[] {
@@ -77,27 +79,37 @@ function transformsFor(fileName: string): ('jsx' | 'typescript' | 'imports')[] {
   return ['jsx', 'imports'];
 }
 
+/** Downloads a runtime chunk once; a failed download is forgotten, so the next run can retry it. */
+function once(key: keyof typeof runtimes, load: () => Promise<{ default: string }>): Promise<string> {
+  runtimes[key] ??= load()
+    .then((m) => m.default)
+    .catch((error: unknown) => {
+      runtimes[key] = null;
+      throw error;
+    });
+  return runtimes[key];
+}
+
 /**
- * Loads what a compiled page needs, once each: Sucrase always, React's runtime only when asked.
- * A failed download is forgotten, so the next run can retry it.
+ * Loads what a compiled page needs, once each: Sucrase always; React's or Angular's runtime only when
+ * asked. A failed download is forgotten, so the next run can retry it.
+ *
+ * TypeScript files go through lowerDecorators (angular.ts) before Sucrase, so Angular's
+ * `@Component(...)` classes become plain JavaScript; files without decorators are untouched.
  */
-export function loadToolkit({ react }: { react: boolean }): Promise<ReactToolkit> {
+export function loadToolkit({ react, angular = false }: { react: boolean; angular?: boolean }): Promise<ReactToolkit> {
   compiler ??= import('sucrase').catch((error: unknown) => {
     compiler = null;
     throw error;
   });
-  if (react) {
-    reactRuntime ??= import('virtual:cg-react-runtime')
-      .then((m) => m.default)
-      .catch((error: unknown) => {
-        reactRuntime = null;
-        throw error;
-      });
-  }
-  return Promise.all([compiler, react ? reactRuntime! : Promise.resolve('')]).then(([sucrase, runtime]) => ({
-    runtime,
+  return Promise.all([
+    compiler,
+    react ? once('react', () => import('virtual:cg-react-runtime')) : Promise.resolve(''),
+    angular ? once('angular', () => import('virtual:cg-angular-runtime')) : Promise.resolve(''),
+  ]).then(([sucrase, reactCode, angularCode]) => ({
+    runtime: reactCode + (reactCode && angularCode ? '\n' : '') + angularCode,
     compile: (code: string, fileName: string) =>
-      sucrase.transform(code, {
+      sucrase.transform(TS_FILE.test(fileName) ? lowerDecorators(code, fileName) : code, {
         transforms: transformsFor(fileName),
         jsxRuntime: 'automatic', // like Vite and create-react-app: no `import React` needed for JSX
         production: false, // jsxDEV keeps file/line info for React's warnings
@@ -191,6 +203,8 @@ function defineModule(name: string, source: string, kit: ReactToolkit): string {
 
 /** "Unexpected token (3:12)" → "App.jsx, line 3: Unexpected token. …" */
 export function friendlySyntaxError(error: unknown, fileName: string): string {
+  // Decorator problems (angular.ts) are already written in the learner's terms, file and line included.
+  if (error instanceof DecoratorError) return error.message;
   const e = error as { message?: string; loc?: { line: number; column: number } };
   const raw = String(e?.message ?? error)
     .replace(/^Error transforming [^:]+:\s*/, '') // Sucrase names the file; we say it our way below

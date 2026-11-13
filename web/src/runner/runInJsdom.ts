@@ -4,6 +4,7 @@
  * results. Used by the content checks and the runner tests; never bundled into the app.
  */
 import { JSDOM, VirtualConsole } from 'jsdom';
+import { ANGULAR_RUN_OPTIONS, needsAngular } from './angular';
 import { buildRunDocument, composeFiles, REACT_RUN_OPTIONS, type Files } from './compose';
 import { hasTypeScript, loadToolkit, needsReact, needsReactRuntime } from './react';
 import { nodeTypeChecker } from './typeCheckNode';
@@ -19,10 +20,11 @@ export async function runInJsdom(files: Files, tests: TestSpec[]): Promise<Jsdom
   const runId = 'content-check';
   const compiled = needsReact(files);
   const react = needsReactRuntime(files);
-  const kit = compiled ? await loadToolkit({ react }) : undefined;
+  const angular = needsAngular(files);
+  const kit = compiled ? await loadToolkit({ react, angular }) : undefined;
   // TypeScript pages are type-checked first, like the app does (with the `typescript` package here).
   const typeDiagnostics = hasTypeScript(files) ? await nodeTypeChecker(files) : undefined;
-  const options = { ...(react ? REACT_RUN_OPTIONS : {}), typeDiagnostics };
+  const options = { ...(react ? REACT_RUN_OPTIONS : angular ? ANGULAR_RUN_OPTIONS : {}), typeDiagnostics };
   const dom = new JSDOM(buildRunDocument(composeFiles(files, kit), runId, tests, options), {
     runScripts: 'dangerously',
     pretendToBeVisual: true,
