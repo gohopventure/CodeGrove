@@ -78,6 +78,28 @@ public class Lesson
 
     public Challenge? Challenge { get; set; }
     public Quiz? Quiz { get; set; }
+
+    /// <summary>What the tutor says: a spoken-style intro and recap (see <see cref="LessonScript"/>).</summary>
+    public List<LessonScript> Scripts { get; set; } = [];
+}
+
+/// <summary>
+/// One line of the tutor's spoken script for a lesson: plain sentences written to be read aloud.
+/// Today the lesson player shows them as text in the tutor panel; later a Tutor service can voice them
+/// (pre-rendered intro/recap clips first, live avatar later) by reading this table. Exercise hints live
+/// in <see cref="Hint"/>, one row per level.
+/// </summary>
+public class LessonScript
+{
+    public int Id { get; set; }
+    public int LessonId { get; set; }
+    public Lesson Lesson { get; set; } = null!;
+    public LessonScriptKind Kind { get; set; }
+
+    /// <summary>Order within the kind, from 0. Lets a script be split into separately voiced segments.</summary>
+    public int SortOrder { get; set; }
+
+    public string Text { get; set; } = "";
 }
 
 public class Challenge

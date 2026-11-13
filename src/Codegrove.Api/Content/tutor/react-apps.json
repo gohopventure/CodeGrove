@@ -1,0 +1,85 @@
+{
+  "course": "react-apps",
+  "lessons": {
+    "conditional-explorer": {
+      "intro": [
+        "Sometimes you want to show something, and sometimes you don't. Today you'll learn how React shows and hides things with double ampersand, the question mark and colon, and the exclamation mark. Then you'll hide a secret message behind a button."
+      ],
+      "recap": [
+        "Secret safe! Double ampersand means only show this if something is true, and the question mark and colon pick between two things. Next, we'll make boxes you can type in."
+      ]
+    },
+    "conditional-rendering": {
+      "intro": [
+        "Most interfaces change based on state. In this lesson you'll learn three ways to render conditionally, the zero gotcha with double ampersand, early returns, and deriving conditions from state. Then you'll finish a quiz card."
+      ],
+      "recap": [
+        "Nicely done. Your quiz card works out whether an answer was given and whether it's correct, without adding extra state. Watch out for a zero showing up when you use double ampersand with a number. Next, we'll build controlled forms."
+      ]
+    },
+    "forms-explorer": {
+      "intro": [
+        "Let's make boxes that React can read as you type! Today you'll learn on change, which runs every time the box changes, and on submit for forms. Then you'll build a pet name maker."
+      ],
+      "recap": [
+        "Hello, new pet! Your box is connected to state, so React always knows what you typed. Next, we'll ask the internet for data."
+      ]
+    },
+    "forms": {
+      "intro": [
+        "In React, form fields usually get their value from state. These are called controlled components. In this lesson you'll learn controlled inputs and selects, submitting without a page reload, validation, and resetting a form. Then you'll build a team sign-up form."
+      ],
+      "recap": [
+        "Great work. Your form keeps one source of truth in state, validates the trimmed name, and resets after a good submission. Controlled fields make forms predictable. Next, we'll fetch data with effects."
+      ]
+    },
+    "fetch-explorer": {
+      "intro": [
+        "Let's get some data from a server and show it in React! Today you'll learn use effect, which runs code after your component appears. Then you'll show every planet from Codegrove's practice server."
+      ],
+      "recap": [
+        "Planets loaded! Use effect fetched the data once, and state put it on the screen. Next, we'll share state between components."
+      ]
+    },
+    "effects-and-fetch": {
+      "intro": [
+        "Rendering should stay pure, so things like fetching data go in effects. In this lesson you'll learn use effect, the dependency array, cleanup functions and race conditions. Then you'll build an adoption page with loading and error states."
+      ],
+      "recap": [
+        "Well done. Your page fetches once, checks the response, and shows loading, ready or error states. The cleanup flag stops old requests from overwriting new data. Next, we'll lift state up so components can share it."
+      ]
+    },
+    "sharing-explorer": {
+      "intro": [
+        "What if two components need the same number? You move it up to their parent! Today you'll learn lifting state up and callback props. Then you'll fix a broken thermostat."
+      ],
+      "recap": [
+        "Thermostat fixed! The temperature lives in App, and the buttons change it through a callback prop. Next, it's project time!"
+      ]
+    },
+    "sharing-state": {
+      "intro": [
+        "When two components need the same data, the state belongs in their closest common parent. In this lesson you'll learn lifting state up, naming callbacks, updating objects in state, and why you shouldn't copy props into state. Then you'll connect a merch shop's product list and cart."
+      ],
+      "recap": [
+        "Nicely done. The cart lives in App, the product list adds to it through a callback, and the summary reads it. Keep state in one place and pass it down. Next is your end-of-course project."
+      ]
+    },
+    "project-explorer": {
+      "intro": [
+        "Project time! You'll build a wish list app that uses everything you've learned: state, forms, lists and keys. You'll also learn to remove items with filter."
+      ],
+      "recap": [
+        "What a wish list! You added wishes with a form, counted them in the heading, and removed them with filter. You've finished React Apps. Amazing work!"
+      ]
+    },
+    "project-task-tracker": {
+      "intro": [
+        "Time for your end-of-course project. You'll build a task tracker across three files. You'll plan the minimal state, split it into components, update state immutably and drive the interface from data."
+      ],
+      "recap": [
+        "Great project. Your task tracker adds, completes, filters and clears tasks, with state that lives in one place. That's how real React apps are built. You've completed React Apps."
+      ]
+    }
+  }
+}

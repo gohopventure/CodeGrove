@@ -43,6 +43,12 @@ public enum ConsentStatus { Pending = 0, Granted = 1, Revoked = 2, Expired = 3 }
 /// </summary>
 public enum ChallengeKind { Html = 0, Css = 1, Js = 2, Sql = 3, CSharp = 4, React = 5, TypeScript = 6 }
 
+/// <summary>
+/// Which part of a lesson the tutor says a line in. Intro plays before the lesson, Recap after it.
+/// Stored as a string, so adding a kind later (e.g. a "stuck" pep talk) needs no migration.
+/// </summary>
+public enum LessonScriptKind { Intro = 0, Recap = 1 }
+
 public enum SubmissionCheckedBy { Client = 0, Server = 1 }
 
 public enum XpSourceType { Challenge = 0, Quiz = 1, Lesson = 2, Course = 3 }

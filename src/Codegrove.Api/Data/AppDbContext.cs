@@ -29,6 +29,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Challenge> Challenges => Set<Challenge>();
     public DbSet<TestCase> TestCases => Set<TestCase>();
     public DbSet<Hint> Hints => Set<Hint>();
+    public DbSet<LessonScript> LessonScripts => Set<LessonScript>();
     public DbSet<Quiz> Quizzes => Set<Quiz>();
     public DbSet<QuizQuestion> QuizQuestions => Set<QuizQuestion>();
     public DbSet<QuizOption> QuizOptions => Set<QuizOption>();
@@ -181,6 +182,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         {
             e.HasIndex(x => new { x.ChallengeId, x.Level }).IsUnique();
             e.HasOne(x => x.Challenge).WithMany(c => c.Hints).HasForeignKey(x => x.ChallengeId);
+        });
+
+        b.Entity<LessonScript>(e =>
+        {
+            e.HasIndex(x => new { x.LessonId, x.Kind, x.SortOrder }).IsUnique();
+            e.Property(x => x.Kind).HasConversion<string>().HasMaxLength(16);
+            e.Property(x => x.Text).HasMaxLength(1000);
+            e.HasOne(x => x.Lesson).WithMany(l => l.Scripts).HasForeignKey(x => x.LessonId).OnDelete(DeleteBehavior.Cascade);
         });
 
         b.Entity<Quiz>(e =>

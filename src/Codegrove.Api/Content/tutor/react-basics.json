@@ -1,0 +1,85 @@
+{
+  "course": "react-basics",
+  "lessons": {
+    "components-explorer": {
+      "intro": [
+        "Welcome to React! React lets you build pages out of bricks called components. Each one is a little function that returns what to show. Today you'll make your very first component, the front page of a pet shop."
+      ],
+      "recap": [
+        "Your first React component is on the screen! A component is a function that returns JSX, which looks a lot like HTML. You can use your component just like a tag. Next, we'll learn the magic of curly braces."
+      ]
+    },
+    "components": {
+      "intro": [
+        "React is a library for building user interfaces out of components. In this lesson you'll learn why the declarative approach helps, how a React project fits together, and how to put one component per file with export and import. Then you'll split a game night page into components."
+      ],
+      "recap": [
+        "Well done. You split a page into components, each in its own module, and put them together in App. Small components with clear names make big interfaces manageable. Next, we'll look closely at JSX."
+      ]
+    },
+    "jsx-explorer": {
+      "intro": [
+        "JSX is like HTML with superpowers. Put curly braces around something, and JavaScript runs right inside your page! Today you'll learn three JSX rules, and then you'll finish a player card."
+      ],
+      "recap": [
+        "Superpowers unlocked! You showed variables with curly braces and used class name instead of class. Next, we'll give components information with props."
+      ]
+    },
+    "jsx": {
+      "intro": [
+        "JSX looks like HTML, but it compiles to JavaScript. In this lesson you'll learn what JSX really is, how expressions go in curly braces, why attributes use camel case, how inline styles take an object, and when to use fragments. Then you'll build a weather card."
+      ],
+      "recap": [
+        "Nice work. You calculated values before the return and dropped them into JSX with curly braces. Once you see JSX as JavaScript, its rules make sense. Next, we'll make components reusable with props."
+      ]
+    },
+    "props-explorer": {
+      "intro": [
+        "What if you want the same component, but with different words on it? That's what props are for. They're like stickers on the same brick. Today you'll give pet cards their own names and sounds."
+      ],
+      "recap": [
+        "Pet cards galore! You passed props into one component to make lots of different cards. Props flow down from parent to child. Next, we'll turn a whole list of data into a list on the screen."
+      ]
+    },
+    "props": {
+      "intro": [
+        "Props are a component's inputs. In this lesson you'll learn to destructure props, give them default values, pass content with children, and how data flows one way. Then you'll build a reusable product card for a skate shop."
+      ],
+      "recap": [
+        "Great job. Your product card takes props, has sensible defaults and works for any product. One-way data flow keeps your app predictable. Next, we'll render lists with map and keys."
+      ]
+    },
+    "lists-explorer": {
+      "intro": [
+        "Got a list of snacks? With map, one line of code can turn the whole list into list items on the page! Today you'll learn map, and why every item needs a key."
+      ],
+      "recap": [
+        "Snack list served! Map turned each snack into a list item, and keys help React keep track of them. Next, we'll make components that remember things with state."
+      ]
+    },
+    "lists-and-keys": {
+      "intro": [
+        "Real apps show lists of data. In this lesson you'll render lists with map, prepare data with filter and reduce, and learn why stable keys matter. Then you'll build a reading tracker from an array of books."
+      ],
+      "recap": [
+        "Nicely done. Your tracker renders every book with a stable key and works out its totals from the data. Use an id for keys, not the array index, when items can move. Next, we'll add state."
+      ]
+    },
+    "state-explorer": {
+      "intro": [
+        "Right now your components always show the same thing. State lets them remember and change! Today you'll learn use state and click handlers. Then you'll fix a bakery button that won't count."
+      ],
+      "recap": [
+        "The bakery button counts! State remembers a value, and calling the setter makes React draw the page again. That's the end of React Basics. Next comes React Apps, where you'll build forms and fetch data."
+      ]
+    },
+    "state": {
+      "intro": [
+        "State is data that changes over time and makes React re-render. In this lesson you'll learn use state, why each render is a snapshot, updater functions, never mutating state, and deriving values instead of storing them. Then you'll build a scoreboard with a running log of every point."
+      ],
+      "recap": [
+        "Well done. Your scoreboard adds to its log without mutating it, and works out the leader during render instead of storing it. Never mutate state, and derive what you can. That completes React Basics, and next comes React Apps."
+      ]
+    }
+  }
+}

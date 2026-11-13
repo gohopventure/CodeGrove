@@ -44,7 +44,16 @@ const HINT_NAMES: Record<number, string> = { 1: 'Give me a nudge', 2: 'More help
  * Hints unlock one at a time. The solution asks "are you sure?" first, because trying is how
  * learning sticks. Hints never cost XP.
  */
-export function HintLadder({ challenge, onSolution }: { challenge: Challenge; onSolution: (files: Files) => void }) {
+export function HintLadder({
+  challenge,
+  onSolution,
+  embedded = false,
+}: {
+  challenge: Challenge;
+  onSolution: (files: Files) => void;
+  /** Inside the tutor panel: no card of its own, and the panel provides the heading. */
+  embedded?: boolean;
+}) {
   const [revealed, setRevealed] = useState(challenge.revealedHints);
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -69,8 +78,8 @@ export function HintLadder({ challenge, onSolution }: { challenge: Challenge; on
   }
 
   return (
-    <section aria-labelledby="hints-heading" className="card space-y-3">
-      <h3 id="hints-heading" className="text-lg font-bold">Stuck? Hints are free.</h3>
+    <section aria-labelledby="hints-heading" className={embedded ? 'space-y-3' : 'card space-y-3'}>
+      <h3 id="hints-heading" className={embedded ? 'font-bold' : 'text-lg font-bold'}>Stuck? Hints are free.</h3>
       <ol className="space-y-3">
         {revealed.map((h) => (
           <li key={h.level} className="rounded-card bg-surface-2 p-3">

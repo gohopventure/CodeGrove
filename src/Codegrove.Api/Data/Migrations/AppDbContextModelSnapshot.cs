@@ -502,6 +502,38 @@ namespace Codegrove.Api.Data.Migrations
                     b.ToTable("LessonProgress");
                 });
 
+            modelBuilder.Entity("Codegrove.Api.Data.Entities.LessonScript", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<int>("LessonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LessonId", "Kind", "SortOrder")
+                        .IsUnique();
+
+                    b.ToTable("LessonScripts");
+                });
+
             modelBuilder.Entity("Codegrove.Api.Data.Entities.ParentChildLink", b =>
                 {
                     b.Property<Guid>("ParentUserId")
@@ -1127,6 +1159,17 @@ namespace Codegrove.Api.Data.Migrations
                     b.Navigation("Lesson");
                 });
 
+            modelBuilder.Entity("Codegrove.Api.Data.Entities.LessonScript", b =>
+                {
+                    b.HasOne("Codegrove.Api.Data.Entities.Lesson", "Lesson")
+                        .WithMany("Scripts")
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Lesson");
+                });
+
             modelBuilder.Entity("Codegrove.Api.Data.Entities.ParentChildLink", b =>
                 {
                     b.HasOne("Codegrove.Api.Data.Entities.AppUser", "Child")
@@ -1382,6 +1425,8 @@ namespace Codegrove.Api.Data.Migrations
                     b.Navigation("Challenge");
 
                     b.Navigation("Quiz");
+
+                    b.Navigation("Scripts");
                 });
 
             modelBuilder.Entity("Codegrove.Api.Data.Entities.Quiz", b =>

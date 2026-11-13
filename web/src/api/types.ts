@@ -110,6 +110,8 @@ export interface Lesson {
   progress: { learnViewed: boolean; challengePassed: boolean; quizPassed: boolean; completed: boolean };
   previousLessonId: number | null;
   nextLessonId: number | null;
+  /** The tutor's spoken-style lines; empty when not written yet. */
+  tutor: { intro: string[]; recap: string[] };
 }
 
 export interface AwardedBadge {

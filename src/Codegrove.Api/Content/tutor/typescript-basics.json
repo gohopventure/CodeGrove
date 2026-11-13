@@ -1,0 +1,101 @@
+{
+  "course": "typescript-basics",
+  "lessons": {
+    "types-explorer": {
+      "intro": [
+        "TypeScript is JavaScript with labels. The labels say what kind of value something is, like a number or a word. Today you'll see how TypeScript spots mistakes before your code even runs. Then you'll fix a robot's info card."
+      ],
+      "recap": [
+        "Nice fixing! You used type labels and let TypeScript catch values that didn't match. Those red squiggles are TypeScript helping, not scolding. Next, we'll put labels on functions."
+      ]
+    },
+    "types-and-inference": {
+      "intro": [
+        "TypeScript adds static types to JavaScript, so a whole class of bugs shows up in your editor instead of in front of your users. In this lesson you'll learn the basic types, annotations, inference, strict mode, and why any is an escape hatch. Then you'll fix a bake sale receipt."
+      ],
+      "recap": [
+        "Great work. You fixed type errors that plain JavaScript would have let slide. Let inference do the work where it can, and annotate where it can't guess. Next, we'll type functions, where types pay off the most."
+      ]
+    },
+    "functions-explorer": {
+      "intro": [
+        "Functions get labels too. They say what goes in and what comes out. Today you'll learn to label a function's parameters and its return value. Then TypeScript can check every time the function is used."
+      ],
+      "recap": [
+        "Labeled and checked! Now TypeScript warns you if someone passes the wrong kind of value into your function. Next, we'll describe the shape of objects."
+      ]
+    },
+    "typed-functions": {
+      "intro": [
+        "A function's signature is its contract. In this lesson you'll learn to type parameters and return values, use optional and default parameters, and write function types for arrow functions. Then you'll type a set of game helpers."
+      ],
+      "recap": [
+        "Nicely done. Every helper now has a clear contract, so TypeScript can check every call. Typing function boundaries gives you the most safety for the least effort. Next, we'll type arrays, objects and interfaces."
+      ]
+    },
+    "objects-explorer": {
+      "intro": [
+        "What does a pet look like in code? It might have a name and a number of legs. Today you'll learn to describe an object's shape with a type. Then TypeScript can check a whole list of pets for you."
+      ],
+      "recap": [
+        "Shape described! Your Pet type tells TypeScript what every pet needs, so typos and missing facts get caught. Next, we'll let a value be one of a few choices."
+      ]
+    },
+    "objects-and-interfaces": {
+      "intro": [
+        "Most of an app's data is objects and arrays. In this lesson you'll learn interfaces and type aliases, optional and readonly properties, and how excess property checks catch typos. Then you'll type an adventurer's inventory."
+      ],
+      "recap": [
+        "Great work. Your inventory has an interface with an optional property, and TypeScript checks every item in the array. Describing your data once pays off everywhere it's used. Next, we'll cover unions and narrowing."
+      ]
+    },
+    "unions-explorer": {
+      "intro": [
+        "Sometimes a value can only be one of a few choices, like a pet's mood. Today you'll learn union types, which list the allowed choices. Then you'll add a new mood and fix a typo TypeScript caught."
+      ],
+      "recap": [
+        "Mood fixed! Union types keep values to a short list of allowed choices, so typos can't sneak in. Next, we'll make blueprints for objects with classes."
+      ]
+    },
+    "unions-and-narrowing": {
+      "intro": [
+        "Real data comes in different shapes, and sometimes it's missing. In this lesson you'll learn union types, narrowing, null and undefined, discriminated unions, and checking every case with never. Then you'll finish a shape calculator."
+      ],
+      "recap": [
+        "Well done. Your calculator handles every kind of shape and copes with a missing element without forcing it. When you add a new case, TypeScript now points to every place that needs updating. Next, we'll look at classes."
+      ]
+    },
+    "classes-explorer": {
+      "intro": [
+        "A class is a blueprint for making objects. Build the blueprint once, then make as many pets as you like! Today you'll learn constructors, methods and the new keyword. Then you'll teach a pet called Sparky how to play."
+      ],
+      "recap": [
+        "Sparky can play! Your class makes pets that remember their own energy, and TypeScript knows exactly what each pet can do. Next, you'll build a whole project across several files."
+      ]
+    },
+    "classes-and-interfaces": {
+      "intro": [
+        "Classes bundle data with the methods that change it. In this lesson you'll learn parameter properties, private and readonly, getters, and how implements makes a class keep a promise. Then you'll lock down a wallet so nobody can cheat."
+      ],
+      "recap": [
+        "Nicely done. Your wallet keeps its balance private and only changes it through methods that check the rules. That's encapsulation, and TypeScript enforces it for you. Next is your project."
+      ]
+    },
+    "project-explorer": {
+      "intro": [
+        "Project time! You'll build a monster card deck across three files, using everything you've learned. You'll also learn how files share code with export and import."
+      ],
+      "recap": [
+        "What a deck! You split code across files, shared types with export and import, and fixed what TypeScript spotted. That's the end of TypeScript Basics. You're officially a type tamer!"
+      ]
+    },
+    "project-quest-log": {
+      "intro": [
+        "Time to put it all together. You'll build a quest log as a class in its own module, with import type, a generic helper and readonly arrays. It's a small version of how real TypeScript projects are organized."
+      ],
+      "recap": [
+        "Great project. Your quest log is typed from end to end, and your generic helper works with any kind of list. Real projects check types just like this, file by file. That completes TypeScript Basics."
+      ]
+    }
+  }
+}

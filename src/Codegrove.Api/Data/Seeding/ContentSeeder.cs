@@ -15,6 +15,15 @@ public sealed record TrackFile(
     string Slug, string Title, string Description, AgeBand AgeBand, int SortOrder, bool IsPublished,
     List<string> Courses, List<string>? Prerequisites);
 
+/// <summary>
+/// Content/tutor/&lt;course&gt;.json: the tutor's spoken intro and recap for each lesson of one course, keyed by
+/// lesson slug. Kept apart from the course files so scripts can be written and revised (and later voiced)
+/// on their own. Each list is one or more segments, in order.
+/// </summary>
+public sealed record TutorScriptFile(string Course, Dictionary<string, LessonScriptFile> Lessons);
+
+public sealed record LessonScriptFile(List<string> Intro, List<string> Recap);
+
 public sealed record BadgeFile(
     string Code, string Name, string Description, string IconUrl, BadgeRuleType RuleType, int? RuleValue, string? RuleCourseSlug);
 
@@ -73,6 +82,21 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
             await UpsertCourseAsync(file, ct);
         }
 
+        var tutorDir = Path.Combine(contentRoot, "tutor");
+        var tutorFiles = Directory.Exists(tutorDir) ? Directory.GetFiles(tutorDir, "*.json").Order().ToList() : [];
+        foreach (var path in tutorFiles)
+            await UpsertTutorScriptsAsync(await Read<TutorScriptFile>(path, ct), path, ct);
+
+        // Every published lesson should have an intro and a recap. The web content check fails on a missing
+        // one; here it's a warning, so a course in progress doesn't stop the API from starting.
+        var unscripted = await db.Lessons
+            .Where(l => l.IsPublished && l.Course.IsPublished
+                && (!l.Scripts.Any(s => s.Kind == LessonScriptKind.Intro) || !l.Scripts.Any(s => s.Kind == LessonScriptKind.Recap)))
+            .Select(l => l.Course.Slug + "/" + l.Slug).ToListAsync(ct);
+        if (unscripted.Count > 0)
+            logger.LogWarning("{Count} published lessons have no tutor intro/recap yet: {Lessons}",
+                unscripted.Count, string.Join(", ", unscripted.Take(10)));
+
         var catalog = await Read<CatalogFile>(Path.Combine(contentRoot, "catalog.json"), ct);
         await UpsertTracksAsync(catalog.Tracks, ct);
         await UpsertBadgesAsync(catalog.Badges, ct);
@@ -127,6 +151,38 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
             UpsertQuiz(lesson, lf.Quiz);
         }
 
+        await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>Replaces the tutor scripts of one course's lessons with the file's contents.</summary>
+    private async Task UpsertTutorScriptsAsync(TutorScriptFile f, string path, CancellationToken ct)
+    {
+        InvalidDataException Bad(string msg) => new($"{Path.GetFileName(path)}: {msg}");
+
+        var lessons = await db.Lessons.Include(l => l.Scripts)
+            .Where(l => l.Course.Slug == f.Course).ToListAsync(ct);
+        if (lessons.Count == 0) throw Bad($"unknown course '{f.Course}'.");
+
+        foreach (var slug in f.Lessons.Keys.Where(k => lessons.All(l => l.Slug != k)))
+            throw Bad($"lesson '{slug}' isn't in course '{f.Course}'.");
+
+        foreach (var lesson in lessons)
+        {
+            db.LessonScripts.RemoveRange(lesson.Scripts);
+            lesson.Scripts.Clear();
+            if (!f.Lessons.TryGetValue(lesson.Slug, out var script)) continue;
+
+            foreach (var (kind, lines) in new[] { (LessonScriptKind.Intro, script.Intro), (LessonScriptKind.Recap, script.Recap) })
+            {
+                if (lines is null || lines.Count == 0 || lines.Any(string.IsNullOrWhiteSpace))
+                    throw Bad($"lesson '{lesson.Slug}' needs a non-empty {kind.ToString().ToLowerInvariant()}.");
+                for (var i = 0; i < lines.Count; i++)
+                {
+                    if (lines[i].Length > 1000) throw Bad($"lesson '{lesson.Slug}': {kind} segment {i + 1} is over 1000 characters.");
+                    lesson.Scripts.Add(new LessonScript { Kind = kind, SortOrder = i, Text = lines[i].Trim() });
+                }
+            }
+        }
         await db.SaveChangesAsync(ct);
     }
 

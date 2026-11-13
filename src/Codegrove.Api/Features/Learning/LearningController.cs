@@ -26,10 +26,14 @@ public sealed record QuizDto(int Id, int PassPercent, IReadOnlyList<QuizQuestion
 
 public sealed record LessonStateDto(bool LearnViewed, bool ChallengePassed, bool QuizPassed, bool Completed);
 
+/// <summary>The tutor's spoken-style lines for a lesson, in order. Empty lists when none are written yet.</summary>
+public sealed record TutorScriptDto(IReadOnlyList<string> Intro, IReadOnlyList<string> Recap);
+
 public sealed record LessonDto(
     int Id, string Slug, string Title, string CourseSlug, string CourseTitle, AgeBand AgeBand, int EstimatedMinutes,
     string LearnMarkdown, string? VideoUrl, string? CaptionsUrl, string ExampleMarkdown, string? ExampleCode,
-    ChallengeDto? Challenge, QuizDto? Quiz, LessonStateDto Progress, int? PreviousLessonId, int? NextLessonId);
+    ChallengeDto? Challenge, QuizDto? Quiz, LessonStateDto Progress, int? PreviousLessonId, int? NextLessonId,
+    TutorScriptDto Tutor);
 
 // ---- Requests / responses ---------------------------------------------------------------------
 
@@ -71,6 +75,7 @@ public sealed class LearningController(AppDbContext db, ProgressService progress
             .Include(l => l.Challenge!).ThenInclude(c => c.TestCases)
             .Include(l => l.Challenge!).ThenInclude(c => c.Hints)
             .Include(l => l.Quiz!).ThenInclude(q => q.Questions).ThenInclude(q => q.Options)
+            .Include(l => l.Scripts)
             .AsSplitQuery()
             .SingleOrDefaultAsync(l => l.Id == id && l.IsPublished && l.Course.IsPublished, ct);
         if (lesson is null) return NotFound();
@@ -115,8 +120,12 @@ public sealed class LearningController(AppDbContext db, ProgressService progress
             new LessonStateDto(state?.LearnViewedAt != null, state?.ChallengePassedAt != null,
                 state?.QuizPassedAt != null, state?.CompletedAt != null),
             index > 0 ? siblings[index - 1] : null,
-            index >= 0 && index < siblings.Count - 1 ? siblings[index + 1] : null);
+            index >= 0 && index < siblings.Count - 1 ? siblings[index + 1] : null,
+            new TutorScriptDto(ScriptLines(lesson, LessonScriptKind.Intro), ScriptLines(lesson, LessonScriptKind.Recap)));
     }
+
+    private static List<string> ScriptLines(Lesson lesson, LessonScriptKind kind) =>
+        lesson.Scripts.Where(s => s.Kind == kind).OrderBy(s => s.SortOrder).Select(s => s.Text).ToList();
 
     [HttpPost("lessons/{id:int}/viewed")]
     public async Task<IActionResult> Viewed(int id, CancellationToken ct)

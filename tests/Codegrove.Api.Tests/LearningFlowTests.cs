@@ -269,6 +269,23 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task Lessons_carry_the_tutors_intro_and_recap()
+    {
+        var (_, child, _) = await FamilyWithConsentedExplorer("ScriptOwl");
+        var course = await child.GetJson("/api/courses/javascript-basics");
+        var id = course.GetProperty("lessons").EnumerateArray()
+            .First(l => l.GetProperty("slug").GetString() == "variables-explorer").GetProperty("id").GetInt32();
+
+        var tutor = (await child.GetJson($"/api/lessons/{id}")).GetProperty("tutor");
+        var intro = tutor.GetProperty("intro").EnumerateArray().Select(x => x.GetString()).ToList();
+        var recap = tutor.GetProperty("recap").EnumerateArray().Select(x => x.GetString()).ToList();
+        Assert.Single(intro);
+        Assert.Contains("labeled boxes", intro[0]);
+        Assert.Single(recap);
+        Assert.Contains("console dot log", recap[0]);
+    }
+
+    [Fact]
     public async Task Every_published_course_has_a_completion_badge()
     {
         var (_, child, _) = await FamilyWithConsentedExplorer("ShelfOwl");

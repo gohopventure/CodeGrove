@@ -10,6 +10,7 @@ import { CodeEditor } from './CodeEditor';
 import { LivePreview, type LivePreviewHandle } from './LivePreview';
 import { monacoTypeChecker } from './typeCheckMonaco';
 import { CelebrationToast, HintLadder, QuizCard, TestResultList, useHeartbeat } from './parts';
+import { TutorPanel } from '../tutor/TutorPanel';
 
 // Blockly is big, so it only downloads for lessons that offer blocks.
 const BlocksEditor = lazy(() => import('./blocks/BlocksEditor'));
@@ -126,17 +127,21 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
       </nav>
 
       {step === 'learn' && (
-        <section className="card space-y-6">
-          <h2 ref={headingRef} tabIndex={-1} className="sr-only">Learn</h2>
-          {lesson.videoUrl && (
-            <video controls preload="metadata" className="w-full rounded-card">
-              <source src={lesson.videoUrl} />
-              {lesson.captionsUrl && <track kind="captions" src={lesson.captionsUrl} srcLang="en" label="English" default />}
-            </video>
-          )}
-          <Markdown>{lesson.learnMarkdown}</Markdown>
-          <button type="button" className="btn-primary" onClick={() => setStep('example')}>See an example →</button>
-        </section>
+        // The tutor's intro sits beside the lesson on wide screens and above it on phones.
+        <div className={lesson.tutor.intro.length ? 'grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]' : undefined}>
+          <TutorPanel label="Before you start" lines={lesson.tutor.intro} className="lg:sticky lg:top-4 lg:order-2" />
+          <section className="card space-y-6 lg:order-1">
+            <h2 ref={headingRef} tabIndex={-1} className="sr-only">Learn</h2>
+            {lesson.videoUrl && (
+              <video controls preload="metadata" className="w-full rounded-card">
+                <source src={lesson.videoUrl} />
+                {lesson.captionsUrl && <track kind="captions" src={lesson.captionsUrl} srcLang="en" label="English" default />}
+              </video>
+            )}
+            <Markdown>{lesson.learnMarkdown}</Markdown>
+            <button type="button" className="btn-primary" onClick={() => setStep('example')}>See an example →</button>
+          </section>
+        </div>
       )}
 
       {step === 'example' && (
@@ -172,7 +177,9 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
       {step === 'done' && (
         <section className="card space-y-4 text-center">
           <h2 ref={headingRef} tabIndex={-1} className="text-3xl font-bold">Lesson complete!</h2>
-          <p>You learned something new today. That's how every developer started.</p>
+          {lesson.tutor.recap.length > 0
+            ? <TutorPanel label="What you learned" lines={lesson.tutor.recap} className="mx-auto max-w-2xl text-left" />
+            : <p>You learned something new today. That's how every developer started.</p>}
           <div className="flex flex-wrap justify-center gap-3">
             {lesson.nextLessonId ? (
               <Link to={`/lessons/${lesson.nextLessonId}`} className="btn-primary">Next lesson →</Link>
@@ -424,7 +431,9 @@ function ChallengeStep({
       <ErrorNote error={error} />
       <TestResultList challenge={challenge} results={results} />
 
-      <HintLadder challenge={challenge} onSolution={onSolution} />
+      <TutorPanel label="Here to help">
+        <HintLadder challenge={challenge} onSolution={onSolution} embedded />
+      </TutorPanel>
 
       {solution && (
         <section aria-labelledby="solution-heading" className="card space-y-2">

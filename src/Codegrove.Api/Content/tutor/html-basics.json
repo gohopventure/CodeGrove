@@ -1,0 +1,101 @@
+{
+  "course": "html-basics",
+  "lessons": {
+    "tags-are-labels": {
+      "intro": [
+        "Welcome to HTML! A web page is really a bunch of labeled boxes, and tags are the labels. Today you'll learn how tags wrap around words to tell the browser what they are. Then you'll turn plain words into a real heading and paragraph."
+      ],
+      "recap": [
+        "You did it! You wrapped words in tags and made a heading and a paragraph. Remember, most tags come in pairs, an opening tag and a closing tag with a slash. Next, we'll make lists and learn about heading sizes."
+      ]
+    },
+    "tags-and-elements": {
+      "intro": [
+        "HTML is the markup language that gives every web page its structure. In this lesson you'll learn the difference between tags and elements, how nesting works, and why screen readers care about good structure. Then you'll turn a plain file into a well-structured page."
+      ],
+      "recap": [
+        "Nice work. You built a page with a clear skeleton, properly nested elements and a main region. Clean structure makes pages easier to style, easier to script, and easier for everyone to use. Next, we'll organize content with headings, paragraphs and lists."
+      ]
+    },
+    "lists-explorer": {
+      "intro": [
+        "Lists are everywhere: top tens, shopping lists, steps in a recipe. Today you'll learn how to make bullet lists and numbered lists in HTML, and how headings come in six sizes. Then you'll make a list of your top games."
+      ],
+      "recap": [
+        "Great list! You used a u l for bullets and l i tags for each item, and now you know about numbered lists too. Lists help people scan a page fast. Next, we'll add links and pictures to your pages."
+      ]
+    },
+    "headings-paragraphs-lists": {
+      "intro": [
+        "Headings and lists give a page its outline, the way chapters give a book its shape. In this lesson you'll learn how heading levels work, when to use bullets versus numbered steps, and what counts as a direct child. Then you'll build a recipe page for galaxy pancakes."
+      ],
+      "recap": [
+        "Nicely done. Your recipe page has a clear heading outline, an ingredient list and numbered steps. Screen reader users jump between headings, so a good outline really helps them. Next, we'll learn attributes, links and images."
+      ]
+    },
+    "links-images-explorer": {
+      "intro": [
+        "Links and pictures make the web feel like the web. Today you'll learn that tags can carry extra information called attributes. You'll use them to add a picture and a link to a page about penguins."
+      ],
+      "recap": [
+        "Waddle-ful work! You added a picture with an image tag and a link with an a tag, and you gave the picture alt text so everyone knows what it shows. Next, we'll learn how to split a page into rooms."
+      ]
+    },
+    "links-images-attributes": {
+      "intro": [
+        "Attributes add the details that make elements useful, like where a link goes or what an image shows. In this lesson you'll learn absolute and relative URLs, links that jump to a section, and how to describe images well. Then you'll finish a page about a nebula."
+      ],
+      "recap": [
+        "Great job. You added an image with useful alt text and size attributes, plus links that point inside and outside the page. Those details make pages faster, clearer and more accessible. Next, we'll talk about semantic HTML."
+      ]
+    },
+    "page-rooms-explorer": {
+      "intro": [
+        "A house has rooms like a kitchen and a bedroom, and a web page has rooms too! Today you'll learn tags like header, main and footer that name each part of a page. Then you'll swap plain boxes for the right rooms."
+      ],
+      "recap": [
+        "Your page has proper rooms now! Header goes at the top, main holds the important stuff, and footer goes at the bottom. Screen readers use those rooms to help people jump around. Next, we'll build forms people can type into."
+      ]
+    },
+    "semantic-html": {
+      "intro": [
+        "Semantic HTML means choosing tags for what content is, not how it looks. In this lesson you'll learn landmark elements like nav, article and aside, and why they matter to search engines and assistive technology. Then you'll refactor a page built entirely from divs."
+      ],
+      "recap": [
+        "Well done. You turned a pile of divs into a page with real landmarks. Semantic structure costs nothing extra and makes your pages easier to navigate, maintain and style. Next, we'll build forms that everyone can use."
+      ]
+    },
+    "forms-explorer": {
+      "intro": [
+        "Forms are how websites ask you questions, like your name or your favorite planet. Today you'll learn about input boxes and labels, and how to connect them so everyone knows what to type. Then you'll fix a sign-up form."
+      ],
+      "recap": [
+        "Nice fixing! You added labels and connected each one to its box with for and id. Now anyone can tell what each box is for, even with a screen reader. Next, we'll learn how to make pages that work for everyone."
+      ]
+    },
+    "forms": {
+      "intro": [
+        "Forms are where users give you information, so they need to be clear and hard to get wrong. In this lesson you'll learn input types, proper labels, grouping with fieldset and legend, and built-in validation. Then you'll fix an RSVP form so it's accessible and checks its input."
+      ],
+      "recap": [
+        "Great work. Your form now has labeled controls, the right input types, grouped radio buttons and built-in validation. Those habits prevent bad data and frustrated users. Next, we'll cover accessibility basics you can use on every page."
+      ]
+    },
+    "everyone-explorer": {
+      "intro": [
+        "The web is for everyone, including people who use screen readers or can't use a mouse. Today you'll learn a few simple habits that make pages work for more people. Then you'll go on a bug hunt to find and fix three problems."
+      ],
+      "recap": [
+        "Bugs squashed! You added the page language, alt text for the picture and a label for the box. Small fixes like these help lots of people. That's the end of the HTML course, so next up is CSS, where we make pages look amazing."
+      ]
+    },
+    "accessibility-basics": {
+      "intro": [
+        "Accessibility means people with disabilities can use what you build, and it often makes things better for everyone else too. In this lesson you'll learn a practical checklist and how to test with a keyboard and a screen reader. Then you'll audit a report and fix five real bugs."
+      ],
+      "recap": [
+        "Nice work. You found and fixed five common accessibility bugs, from a missing page language to a vague link. Run that checklist on every page you build. That finishes the HTML course, and next comes CSS."
+      ]
+    }
+  }
+}

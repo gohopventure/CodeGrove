@@ -129,6 +129,20 @@ track (How the Web Works, HTML, CSS), the JavaScript track (`javascript-basics`)
 Frameworks track (`react-basics`, `react-apps`), each lesson in an Explorer and a Builder version. `npm test` in `web/` runs every published challenge through the real
 harness: each solution must pass all its tests and each starter must fail at least one.
 
+### Tutor scripts (intro, recap, hints)
+
+Every lesson has spoken-style lines for the tutor, stored as data so a future avatar tutor can voice them.
+
+- `Content/tutor/<course>.json`: `{ "course": "<slug>", "lessons": { "<lesson-slug>": { "intro": ["…"], "recap": ["…"] } } }`.
+  Each list is one or more segments in order. Seeded into the `LessonScripts` table
+  (`LessonId`, `Kind` Intro/Recap, `SortOrder`, `Text`) and sent as `lesson.tutor`.
+- Exercise hints are the challenge's `hints` (level 1 nudge, level 2 near-answer, level 3 solution), in the `Hints` table.
+- Style, enforced by `web/src/tutor/tutorScripts.test.ts`: 2–4 sentences and at most 75 words each, written to be
+  heard (no markdown, code symbols or URLs; say "console dot log", "the h1 tag"). Intro: hook, what you'll learn,
+  what you'll build. Recap: what you did, the key takeaway, what's next. Explorer lines are playful; Builder lines
+  are direct. Never write the tutor's name; it lives in `web/src/tutor/character.ts` with the picture.
+- The API logs a warning (it doesn't fail) when a published lesson has no script; `npm test` fails.
+
 ### Blocks mode (Explorer JavaScript lessons)
 
 A JS challenge can add `"blocks": { "toolbox": [...], "starter": {...}, "solution": {...} }`. Learners then get a

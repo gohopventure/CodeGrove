@@ -1,0 +1,85 @@
+{
+  "course": "how-the-web-works",
+  "lessons": {
+    "pizza-order-explorer": {
+      "intro": [
+        "Hey there! Ever wonder what happens between typing a website's name and seeing the page? It's a lot like ordering a pizza. Today you'll meet the browser, the server and the friendly helper that finds addresses, and then you'll put the steps of a page visit back in order."
+      ],
+      "recap": [
+        "Awesome job! You followed a web page from your keyboard all the way to your screen. The browser asks, the server answers, and DNS finds the address in between. Next, we'll take a web address apart, piece by piece."
+      ]
+    },
+    "visiting-a-website": {
+      "intro": [
+        "Every page you've ever opened went through the same quick journey, in less time than a blink. In this lesson you'll trace it step by step: DNS lookups, IP addresses, a secure connection, a request, a response, and finally rendering. Then you'll put seven scrambled steps back in the right order."
+      ],
+      "recap": [
+        "Nice work. You can now walk through what happens from the moment someone enters a URL to the moment pixels show up. Knowing that path makes slow pages and broken sites much easier to figure out. Up next, we'll break URLs and domain names into their parts."
+      ]
+    },
+    "web-address-explorer": {
+      "intro": [
+        "Web addresses are a lot like home addresses. They tell your browser exactly where to go. In this lesson you'll learn the three main parts of an address: the protocol, the domain and the path. Then you'll take a real one apart like a detective."
+      ],
+      "recap": [
+        "Great detective work! You split a web address into its protocol, its domain and its path. Now every link you see makes a little more sense. Next up, we'll find out what a server says back when your browser asks for a page."
+      ]
+    },
+    "urls-and-domains": {
+      "intro": [
+        "A URL packs a lot of information into one line. Today you'll learn every part of it, from the protocol and subdomain to the port, the query string and the fragment at the end. Then you'll take apart a long, real-world URL piece by piece."
+      ],
+      "recap": [
+        "Well done. You broke a URL into all seven of its parts, and you know how domain names point to servers through DNS. That skill pays off every time you debug a link or call an API. Next, we'll look at HTTP requests, responses and status codes."
+      ]
+    },
+    "server-reply-explorer": {
+      "intro": [
+        "When your browser asks a server for a page, the server always writes back. Its reply comes with a number called a status code that says how things went. Today you'll learn the three codes you'll see most, and then you'll be a status code detective."
+      ],
+      "recap": [
+        "Case closed! You know that two hundred means everything went fine, four oh four means the page wasn't found, and five hundred means the server had a problem. Those numbers will pop up everywhere. Next, we'll learn how websites are made of files and folders."
+      ]
+    },
+    "http-and-status-codes": {
+      "intro": [
+        "HTTP is the language browsers and servers use to talk. In this lesson you'll look inside a request and a response, learn the status code families, and find out why HTTP is stateless and how cookies help. Then you'll match six status codes to real situations."
+      ],
+      "recap": [
+        "Nice job. You can read the method, headers and status code of an HTTP exchange, and you know what each status code family means. You'll lean on this whenever you build or debug anything on the web. Next, we'll look at files, folders and relative paths."
+      ]
+    },
+    "folders-explorer": {
+      "intro": [
+        "Websites are made of files, and files live in folders, just like stuff in drawers. Today you'll learn how to write a path, which is directions to a file. Then you'll fix a broken picture and a broken link by giving them the right directions."
+      ],
+      "recap": [
+        "You fixed them both! Paths tell the browser which folder to open and which file to grab, and one small mistake breaks a picture or a link. Now you know how to spot and fix that. Next, you'll build your very first web page from scratch."
+      ]
+    },
+    "files-and-folders": {
+      "intro": [
+        "Broken images and missing stylesheets are almost always path problems. In this lesson you'll learn relative paths, root-relative paths and absolute paths, plus the dot dot that means go up a folder. Then you'll repair the links in a page that lives inside a subfolder."
+      ],
+      "recap": [
+        "Well done. You fixed every path in a page that lives one folder down, and you know when to reach for dot dot. Good folder habits like lowercase names and no spaces will save you from a lot of bugs. Next, you'll build a complete web page from an empty file."
+      ]
+    },
+    "first-page-explorer": {
+      "intro": [
+        "Time for something exciting: your very first web page, starting from a totally blank file! You'll learn the skeleton every page needs, with a head and a body. Then you'll fill it with a page about your favorite animal."
+      ],
+      "recap": [
+        "You built a whole web page from nothing! It has a doctype, an html tag, a head with a title, and a body with a heading and a fact. That skeleton is the start of every page on the web. You've finished How the Web Works, so next up is the HTML course."
+      ]
+    },
+    "first-web-page": {
+      "intro": [
+        "Every professional web page starts with the same skeleton. In this lesson you'll write one that's ready for the real world, with character encoding, a viewport tag for phones, and metadata that search engines read. Then you'll build the home page for a robotics club from an empty file."
+      ],
+      "recap": [
+        "Great work. You wrote a complete, standards-ready page skeleton and learned why each line in the head matters. You'll start almost every page this way from now on. That wraps up How the Web Works, and next comes the HTML course."
+      ]
+    }
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "course": "javascript-basics",
+  "lessons": {
+    "variables-explorer": {
+      "intro": [
+        "So far your pages look great, but they can't think yet. JavaScript changes that! Today you'll learn about variables, which are like labeled boxes that hold numbers and words. Then you'll make a game hero who collects coins."
+      ],
+      "recap": [
+        "You made your first variables! Use let when a box's value will change, and const when it stays the same. You also printed messages with console dot log. Next, we'll teach your code to make choices."
+      ]
+    },
+    "variables": {
+      "intro": [
+        "JavaScript is what gives a web page behavior. In this lesson you'll learn to declare variables with const and let, the main value types, template literals, and a classic bug called type coercion. Then you'll build a stats line for a game character."
+      ],
+      "recap": [
+        "Nice work. You converted text to a number, used let only where a value changes, and built a message with a template literal. Watch out for strings sneaking into math, because plus will join them instead of adding. Next up, comparisons and if else."
+      ]
+    },
+    "if-else-explorer": {
+      "intro": [
+        "Games make choices all the time, like whether you scored enough points. Today you'll learn how JavaScript compares things and how if and else pick what happens next. Then you'll build a ride checker for an amusement park."
+      ],
+      "recap": [
+        "You built a ride checker! A comparison gives true or false, and if and else choose which code runs. Don't forget that one equals sign stores a value, and triple equals compares. Next, we'll make code repeat itself with loops."
+      ]
+    },
+    "if-else": {
+      "intro": [
+        "Programs are full of decisions. In this lesson you'll learn strict equality, logical operators, truthy and falsy values, else if chains and the ternary operator. Then you'll write a grade reporter that handles every case."
+      ],
+      "recap": [
+        "Well done. Your grade reporter checks the highest grade first, combines conditions with and and not, and picks a word with a ternary. Always use triple equals so JavaScript doesn't convert types behind your back. Next, we'll look at loops."
+      ]
+    },
+    "loops-explorer": {
+      "intro": [
+        "What if you needed to count to a hundred? You wouldn't want to write a hundred lines! Loops repeat code for you. Today you'll learn the for loop, and then you'll build a countdown for a rocket launch."
+      ],
+      "recap": [
+        "Liftoff! Your for loop counted down from ten to one all by itself. Remember the three parts: where to start, when to keep going, and how to step. Next, we'll write our own functions, which are like recipes."
+      ]
+    },
+    "loops": {
+      "intro": [
+        "Loops let your code do the same work again and again without copying it. In this lesson you'll learn for, while and for of, along with break, continue and the accumulator pattern. Then you'll solve two loop puzzles with numbers and letters."
+      ],
+      "recap": [
+        "Nicely done. You summed multiples with a for loop and counted vowels with for of. When a loop gives you the wrong answer, check for an off by one error first. Next, we'll write functions."
+      ]
+    },
+    "functions-explorer": {
+      "intro": [
+        "A function is like a recipe. You write the steps once, give it a name, and use it whenever you want. Today you'll learn how to make functions, give them ingredients and get results back. Then you'll plan a pizza party."
+      ],
+      "recap": [
+        "Pizza party planned! Your functions take in ingredients called parameters and hand back a result with return. Write it once, use it lots. Next, we'll keep lots of things in one place with arrays."
+      ]
+    },
+    "functions": {
+      "intro": [
+        "Functions are how you organize code into reusable pieces. In this lesson you'll learn three ways to write them, parameters and default values, the difference between return and console dot log, scope, and pure functions. Then you'll write temperature helpers that get tested with different values."
+      ],
+      "recap": [
+        "Great work. Your helpers return values instead of just logging them, and one of them is an arrow function. Small, pure functions are easy to test and reuse. Next, we'll work with arrays."
+      ]
+    },
+    "arrays-explorer": {
+      "intro": [
+        "A variable holds one thing, but an array holds a whole list! Today you'll learn how to make a list, get things out of it and add new things. Then you'll pack a backpack for a hike."
+      ],
+      "recap": [
+        "Backpack packed! Remember, arrays start counting at zero, so the first item is at index zero. Push adds to the end, and length tells you how many items there are. Next, we'll use objects to describe things."
+      ]
+    },
+    "arrays": {
+      "intro": [
+        "Arrays are the workhorse of JavaScript data. In this lesson you'll learn which methods change an array and which return something new, plus map, filter, reduce, find and the sort trap. Then you'll analyze a high-score table without changing the original data."
+      ],
+      "recap": [
+        "Nicely done. You filtered, reduced, sorted a copy and mapped labels, and the original scores never changed. Reach for methods that return new arrays, and remember that sort needs a comparator for numbers. Next, we'll dig into objects."
+      ]
+    },
+    "objects-explorer": {
+      "intro": [
+        "An array is a list, but an object describes one thing with lots of labeled facts. Today you'll learn how to make objects and how to read and change their properties. Then you'll make a profile for a pet."
+      ],
+      "recap": [
+        "Happy birthday to your pet! You made an object, changed a property with a dot, and added a brand new property. Next, JavaScript gets to change your actual web page through the DOM."
+      ]
+    },
+    "objects": {
+      "intro": [
+        "Objects group related data and behavior under named keys. In this lesson you'll learn dot and bracket notation, methods and this, looping over objects, destructuring, and why copying an object isn't automatic. Then you'll upgrade a hero's inventory."
+      ],
+      "recap": [
+        "Great job. Your hero has a method that uses this, you destructured stats, and you made a copy with spread instead of changing the original. Remember, two variables can point at the same object. Next, we'll use the DOM to change the page."
+      ]
+    },
+    "dom-explorer": {
+      "intro": [
+        "Until now your code talked to the Console. Now it's going to change the page itself! Today you'll learn about the DOM, which is the browser's family tree of your page. Then you'll use JavaScript to update a page about a dragon."
+      ],
+      "recap": [
+        "You changed a page with JavaScript! You found elements with query selector, changed their text and color, and added a new list item. Next, we'll make the page react when you click things."
+      ]
+    },
+    "the-dom": {
+      "intro": [
+        "The DOM is the live tree of objects the browser builds from your HTML. In this lesson you'll learn to select elements, change their content safely, toggle classes, and create and remove elements. Then you'll render a reading list from an array of data."
+      ],
+      "recap": [
+        "Well done. You turned data into list items, toggled classes from the data, and built the summary from a count. Using text content instead of inner HTML keeps user text from running as code. Next, we'll handle events."
+      ]
+    },
+    "events-explorer": {
+      "intro": [
+        "Pages feel alive when they react to you. A click is called an event, and today you'll learn how to listen for it. Then you'll build a cookie clicker, so get ready to click a lot!"
+      ],
+      "recap": [
+        "Cookies everywhere! You added event listeners that change a number and show it on the page. The function inside waits until the click happens. Next, we'll get data from the internet with an API."
+      ]
+    },
+    "events": {
+      "intro": [
+        "Interactive pages are event-driven. Your code sets up listeners and then waits. In this lesson you'll learn the event object, common events, handling form submits, and event delegation. Then you'll make a to-do list with adding and deleting."
+      ],
+      "recap": [
+        "Great work. Your to-do list handles submit, ignores empty tasks, and uses one delegated listener for every delete button, even ones added later. That pattern scales to big lists. Next, we'll fetch data from APIs."
+      ]
+    },
+    "fetch-explorer": {
+      "intro": [
+        "Weather apps don't know the weather by themselves. They ask a server! Today you'll learn about APIs, JSON and fetch, and why the answer takes a moment to arrive. Then you'll finish a weather card using Codegrove's practice API."
+      ],
+      "recap": [
+        "Your weather card works! Fetch asks a server for data, and then turns the answer into JavaScript you can show on the page. That's the last lesson in the JavaScript course. You did amazing!"
+      ]
+    },
+    "fetch-and-apis": {
+      "intro": [
+        "Almost every real app talks to an API. In this lesson you'll learn HTTP methods and status codes, JSON, promises, async and await, and why fetch doesn't fail on a four oh four. Then you'll build a planet explorer that handles errors."
+      ],
+      "recap": [
+        "Well done. Your planet explorer awaits each response, checks response dot ok, and shows a friendly message when something goes wrong. Always plan for the loading, success and error states. That completes the JavaScript course."
+      ]
+    }
+  }
+}
