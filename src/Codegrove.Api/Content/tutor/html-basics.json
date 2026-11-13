@@ -3,98 +3,194 @@
   "lessons": {
     "tags-are-labels": {
       "intro": [
-        "Welcome to HTML! A web page is really a bunch of labeled boxes, and tags are the labels. Today you'll learn how tags wrap around words to tell the browser what they are. Then you'll turn plain words into a real heading and paragraph."
+        {
+          "displayText": "Welcome to HTML! A web page is a bunch of labeled boxes, and tags are the labels. Today you'll wrap plain words in tags to make a real heading and paragraph.",
+          "speechText": "Welcome to H-T-M-L! A web page is a bunch of labeled boxes, and tags are the labels. Today you'll wrap plain words in tags to make a real heading and paragraph.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "You did it! You wrapped words in tags and made a heading and a paragraph. Remember, most tags come in pairs, an opening tag and a closing tag with a slash. Next, we'll make lists and learn about heading sizes."
+        {
+          "displayText": "You did it! You wrapped words in tags and made a heading and a paragraph. Your new word is closing tag, the partner tag with a slash, like `</h1>`.",
+          "speechText": "You did it! You wrapped words in tags and made a heading and a paragraph. Your new word is closing tag, the partner tag with a slash in it.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "tags-and-elements": {
       "intro": [
-        "HTML is the markup language that gives every web page its structure. In this lesson you'll learn the difference between tags and elements, how nesting works, and why screen readers care about good structure. Then you'll turn a plain file into a well-structured page."
+        {
+          "displayText": "HTML is the markup language that gives every web page its structure. You'll learn the difference between tags and elements, how nesting works, and why screen readers care about good structure. Clean structure is what makes a page easy to style and script later. Then you'll turn a plain file into a well-structured page.",
+          "speechText": "H-T-M-L is the markup language that gives every web page its structure. You'll learn the difference between tags and elements, how nesting works, and why screen readers care about good structure. Clean structure is what makes a page easy to style and script later. Then you'll turn a plain file into a well-structured page.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nice work. You built a page with a clear skeleton, properly nested elements and a main region. Clean structure makes pages easier to style, easier to script, and easier for everyone to use. Next, we'll organize content with headings, paragraphs and lists."
+        {
+          "displayText": "Nice work. You built a page with a clear skeleton, properly nested elements and a `main` region. The gotcha to watch for is overlapping tags: an element must close before its parent closes. Next, we'll organize content with headings, paragraphs and lists.",
+          "speechText": "Nice work. You built a page with a clear skeleton, properly nested elements and a main region. The gotcha to watch for is overlapping tags: an element must close before its parent closes. Next, we'll organize content with headings, paragraphs and lists.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "lists-explorer": {
       "intro": [
-        "Lists are everywhere: top tens, shopping lists, steps in a recipe. Today you'll learn how to make bullet lists and numbered lists in HTML, and how headings come in six sizes. Then you'll make a list of your top games."
+        {
+          "displayText": "Lists are everywhere: top tens, shopping lists, steps in a recipe. Today you'll make a bullet list of your top games.",
+          "speechText": "Lists are everywhere: top tens, shopping lists, steps in a recipe. Today you'll make a bullet list of your top games.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Great list! You used a u l for bullets and l i tags for each item, and now you know about numbered lists too. Lists help people scan a page fast. Next, we'll add links and pictures to your pages."
+        {
+          "displayText": "Great list! You used `<ul>` for the bullets and `<li>` for each item. Your new word is list item, one thing in a list.",
+          "speechText": "Great list! You used a u-l tag for the bullets and an l-i tag for each item. Your new word is list item, one thing in a list.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "headings-paragraphs-lists": {
       "intro": [
-        "Headings and lists give a page its outline, the way chapters give a book its shape. In this lesson you'll learn how heading levels work, when to use bullets versus numbered steps, and what counts as a direct child. Then you'll build a recipe page for galaxy pancakes."
+        {
+          "displayText": "Headings and lists give a page its outline, the way chapters give a book its shape. You'll learn how heading levels work, when to use bullets versus numbered steps, and what counts as a direct child. Screen reader users jump between headings, so a good outline really helps them. Then you'll build a recipe page for galaxy pancakes.",
+          "speechText": "Headings and lists give a page its outline, the way chapters give a book its shape. You'll learn how heading levels work, when to use bullets versus numbered steps, and what counts as a direct child. Screen reader users jump between headings, so a good outline really helps them. Then you'll build a recipe page for galaxy pancakes.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nicely done. Your recipe page has a clear heading outline, an ingredient list and numbered steps. Screen reader users jump between headings, so a good outline really helps them. Next, we'll learn attributes, links and images."
+        {
+          "displayText": "Nicely done. Your recipe page has a clear heading outline, an ingredient list and numbered steps. The gotcha is picking a heading level for its size: choose it for the outline, and let CSS handle the size. Next, we'll learn attributes, links and images.",
+          "speechText": "Nicely done. Your recipe page has a clear heading outline, an ingredient list and numbered steps. The gotcha is picking a heading level for its size: choose it for the outline, and let C-S-S handle the size. Next, we'll learn attributes, links and images.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "links-images-explorer": {
       "intro": [
-        "Links and pictures make the web feel like the web. Today you'll learn that tags can carry extra information called attributes. You'll use them to add a picture and a link to a page about penguins."
+        {
+          "displayText": "Links and pictures make the web feel like the web. Today you'll use attributes, extra information inside a tag, to add a picture and a link to a page about penguins.",
+          "speechText": "Links and pictures make the web feel like the web. Today you'll use attributes, extra information inside a tag, to add a picture and a link to a page about penguins.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Waddle-ful work! You added a picture with an image tag and a link with an a tag, and you gave the picture alt text so everyone knows what it shows. Next, we'll learn how to split a page into rooms."
+        {
+          "displayText": "Waddle-ful work! You added a picture and a link, and you gave the picture alt text so everyone knows what it shows. Your new word is attribute, extra information inside an opening tag.",
+          "speechText": "Waddle-ful work! You added a picture and a link, and you gave the picture alt text so everyone knows what it shows. Your new word is attribute, extra information inside an opening tag.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "links-images-attributes": {
       "intro": [
-        "Attributes add the details that make elements useful, like where a link goes or what an image shows. In this lesson you'll learn absolute and relative URLs, links that jump to a section, and how to describe images well. Then you'll finish a page about a nebula."
+        {
+          "displayText": "Attributes add the details that make elements useful, like where a link goes or what an image shows. You'll learn absolute and relative URLs, links that jump to a section, and how to describe images well. These details make pages faster, clearer and more accessible. Then you'll finish a page about a nebula.",
+          "speechText": "Attributes add the details that make elements useful, like where a link goes or what an image shows. You'll learn absolute and relative U-R-Ls, links that jump to a section, and how to describe images well. These details make pages faster, clearer and more accessible. Then you'll finish a page about a nebula.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great job. You added an image with useful alt text and size attributes, plus links that point inside and outside the page. Those details make pages faster, clearer and more accessible. Next, we'll talk about semantic HTML."
+        {
+          "displayText": "Great job. You added an image with useful alt text and size attributes, plus links inside and outside the page. One gotcha: a link that opens a new tab should also get `rel=\"noopener\"`, so the new page can't control yours. Next, we'll talk about semantic HTML.",
+          "speechText": "Great job. You added an image with useful alt text and size attributes, plus links inside and outside the page. One gotcha: a link that opens a new tab should also get rel no-opener, so the new page can't control yours. Next, we'll talk about semantic H-T-M-L.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "page-rooms-explorer": {
       "intro": [
-        "A house has rooms like a kitchen and a bedroom, and a web page has rooms too! Today you'll learn tags like header, main and footer that name each part of a page. Then you'll swap plain boxes for the right rooms."
+        {
+          "displayText": "A house has rooms, and a web page has rooms too! Today you'll swap plain boxes for header, main and footer, the tags that name each part of a page.",
+          "speechText": "A house has rooms, and a web page has rooms too! Today you'll swap plain boxes for header, main and footer, the tags that name each part of a page.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Your page has proper rooms now! Header goes at the top, main holds the important stuff, and footer goes at the bottom. Screen readers use those rooms to help people jump around. Next, we'll build forms people can type into."
+        {
+          "displayText": "Your page has proper rooms now! Screen readers use those rooms to help people jump around. Your new word is landmark, a tag that names a part of the page.",
+          "speechText": "Your page has proper rooms now! Screen readers use those rooms to help people jump around. Your new word is landmark, a tag that names a part of the page.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "semantic-html": {
       "intro": [
-        "Semantic HTML means choosing tags for what content is, not how it looks. In this lesson you'll learn landmark elements like nav, article and aside, and why they matter to search engines and assistive technology. Then you'll refactor a page built entirely from divs."
+        {
+          "displayText": "Semantic HTML means choosing tags for what content is, not how it looks. You'll learn landmark elements like nav, article and aside, and why search engines and assistive technology care about them. Semantic structure costs nothing extra and makes pages easier to navigate and maintain. Then you'll refactor a page built entirely from divs.",
+          "speechText": "Semantic H-T-M-L means choosing tags for what content is, not how it looks. You'll learn landmark elements like nav, article and aside, and why search engines and assistive technology care about them. Semantic structure costs nothing extra and makes pages easier to navigate and maintain. Then you'll refactor a page built entirely from divs.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Well done. You turned a pile of divs into a page with real landmarks. Semantic structure costs nothing extra and makes your pages easier to navigate, maintain and style. Next, we'll build forms that everyone can use."
+        {
+          "displayText": "Well done. You turned a pile of divs into a page with real landmarks. The gotcha is using section or article as a styling wrapper: if it's only for looks, a div is still the honest choice. Next, we'll build forms that everyone can use.",
+          "speechText": "Well done. You turned a pile of divs into a page with real landmarks. The gotcha is using section or article as a styling wrapper: if it's only for looks, a div is still the honest choice. Next, we'll build forms that everyone can use.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "forms-explorer": {
       "intro": [
-        "Forms are how websites ask you questions, like your name or your favorite planet. Today you'll learn about input boxes and labels, and how to connect them so everyone knows what to type. Then you'll fix a sign-up form."
+        {
+          "displayText": "Forms are how websites ask you questions, like your name or your favorite planet. Today you'll connect labels to input boxes so everyone knows what to type.",
+          "speechText": "Forms are how websites ask you questions, like your name or your favorite planet. Today you'll connect labels to input boxes so everyone knows what to type.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Nice fixing! You added labels and connected each one to its box with for and id. Now anyone can tell what each box is for, even with a screen reader. Next, we'll learn how to make pages that work for everyone."
+        {
+          "displayText": "Nice fixing! Each label now points to its box with `for` and `id`, so anyone can tell what to type, even with a screen reader. Your new word is label, the words that name a box.",
+          "speechText": "Nice fixing! Each label now points to its box with for and I-D, so anyone can tell what to type, even with a screen reader. Your new word is label, the words that name a box.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "forms": {
       "intro": [
-        "Forms are where users give you information, so they need to be clear and hard to get wrong. In this lesson you'll learn input types, proper labels, grouping with fieldset and legend, and built-in validation. Then you'll fix an RSVP form so it's accessible and checks its input."
+        {
+          "displayText": "Forms are where users give you information, so they need to be clear and hard to get wrong. You'll learn input types, proper labels, grouping with fieldset and legend, and built-in validation. These habits prevent bad data and frustrated users. Then you'll fix an RSVP form so it's accessible and checks its input.",
+          "speechText": "Forms are where users give you information, so they need to be clear and hard to get wrong. You'll learn input types, proper labels, grouping with fieldset and legend, and built-in validation. These habits prevent bad data and frustrated users. Then you'll fix an RSVP form so it's accessible and checks its input.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great work. Your form now has labeled controls, the right input types, grouped radio buttons and built-in validation. Those habits prevent bad data and frustrated users. Next, we'll cover accessibility basics you can use on every page."
+        {
+          "displayText": "Great work. Your form now has labeled controls, the right input types, grouped radio buttons and built-in validation. The gotcha: browser validation is a convenience, so the server must always check the data again. Next, we'll cover accessibility basics you can use on every page.",
+          "speechText": "Great work. Your form now has labeled controls, the right input types, grouped radio buttons and built-in validation. The gotcha: browser validation is a convenience, so the server must always check the data again. Next, we'll cover accessibility basics you can use on every page.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "everyone-explorer": {
       "intro": [
-        "The web is for everyone, including people who use screen readers or can't use a mouse. Today you'll learn a few simple habits that make pages work for more people. Then you'll go on a bug hunt to find and fix three problems."
+        {
+          "displayText": "The web is for everyone, including people who use screen readers or can't use a mouse. Today you'll go on a bug hunt and fix three problems that make a page hard to use.",
+          "speechText": "The web is for everyone, including people who use screen readers or can't use a mouse. Today you'll go on a bug hunt and fix three problems that make a page hard to use.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Bugs squashed! You added the page language, alt text for the picture and a label for the box. Small fixes like these help lots of people. That's the end of the HTML course, so next up is CSS, where we make pages look amazing."
+        {
+          "displayText": "Bugs squashed! Small fixes like these help lots of people. Your new word is accessibility, making pages that everyone can use.",
+          "speechText": "Bugs squashed! Small fixes like these help lots of people. Your new word is accessibility, making pages that everyone can use.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "accessibility-basics": {
       "intro": [
-        "Accessibility means people with disabilities can use what you build, and it often makes things better for everyone else too. In this lesson you'll learn a practical checklist and how to test with a keyboard and a screen reader. Then you'll audit a report and fix five real bugs."
+        {
+          "displayText": "Accessibility means people with disabilities can use what you build, and it often makes things better for everyone else too. You'll learn a practical checklist and how to test with a keyboard and a screen reader. Teams ship accessibility bugs all the time, so knowing how to find them is a real job skill. Then you'll audit a report and fix five real bugs.",
+          "speechText": "Accessibility means people with disabilities can use what you build, and it often makes things better for everyone else too. You'll learn a practical checklist and how to test with a keyboard and a screen reader. Teams ship accessibility bugs all the time, so knowing how to find them is a real job skill. Then you'll audit a report and fix five real bugs.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nice work. You found and fixed five common accessibility bugs, from a missing page language to a vague link. Run that checklist on every page you build. That finishes the HTML course, and next comes CSS."
+        {
+          "displayText": "Nice work. You found and fixed five common accessibility bugs, from a missing page language to a vague link. The gotcha is that automated checkers miss things like bad alt text, so always test with a keyboard too. That finishes the HTML course, and next comes CSS.",
+          "speechText": "Nice work. You found and fixed five common accessibility bugs, from a missing page language to a vague link. The gotcha is that automated checkers miss things like bad alt text, so always test with a keyboard too. That finishes the H-T-M-L course, and next comes C-S-S.",
+          "mood": "Encouraging"
+        }
       ]
     }
   }

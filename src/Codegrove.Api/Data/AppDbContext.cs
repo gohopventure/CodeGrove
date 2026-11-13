@@ -30,6 +30,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<TestCase> TestCases => Set<TestCase>();
     public DbSet<Hint> Hints => Set<Hint>();
     public DbSet<LessonScript> LessonScripts => Set<LessonScript>();
+    public DbSet<TutorCharacter> TutorCharacters => Set<TutorCharacter>();
+    public DbSet<TutorLine> TutorLines => Set<TutorLine>();
     public DbSet<Quiz> Quizzes => Set<Quiz>();
     public DbSet<QuizQuestion> QuizQuestions => Set<QuizQuestion>();
     public DbSet<QuizOption> QuizOptions => Set<QuizOption>();
@@ -37,6 +39,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     // Learner activity
     public DbSet<Submission> Submissions => Set<Submission>();
     public DbSet<HintReveal> HintReveals => Set<HintReveal>();
+    public DbSet<SolutionReveal> SolutionReveals => Set<SolutionReveal>();
     public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
     public DbSet<LessonProgress> LessonProgress => Set<LessonProgress>();
     public DbSet<DailyActivity> DailyActivity => Set<DailyActivity>();
@@ -181,6 +184,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         b.Entity<Hint>(e =>
         {
             e.HasIndex(x => new { x.ChallengeId, x.Level }).IsUnique();
+            e.Property(x => x.SpeechText).HasMaxLength(1000);
+            e.Property(x => x.Mood).HasConversion<string>().HasMaxLength(16);
             e.HasOne(x => x.Challenge).WithMany(c => c.Hints).HasForeignKey(x => x.ChallengeId);
         });
 
@@ -188,8 +193,32 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         {
             e.HasIndex(x => new { x.LessonId, x.Kind, x.SortOrder }).IsUnique();
             e.Property(x => x.Kind).HasConversion<string>().HasMaxLength(16);
-            e.Property(x => x.Text).HasMaxLength(1000);
+            e.Property(x => x.DisplayText).HasMaxLength(1000);
+            e.Property(x => x.SpeechText).HasMaxLength(1000);
+            e.Property(x => x.Mood).HasConversion<string>().HasMaxLength(16);
             e.HasOne(x => x.Lesson).WithMany(l => l.Scripts).HasForeignKey(x => x.LessonId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<TutorCharacter>(e =>
+        {
+            e.HasIndex(x => x.Slug).IsUnique();
+            e.HasIndex(x => x.Band).IsUnique();
+            e.Property(x => x.Slug).HasMaxLength(64);
+            e.Property(x => x.Name).HasMaxLength(64);
+            e.Property(x => x.Band).HasConversion<string>().HasMaxLength(16);
+            e.Property(x => x.VoiceId).HasMaxLength(128);
+            e.Property(x => x.PortraitUrl).HasMaxLength(256);
+            e.Property(x => x.PersonaPrompt).HasMaxLength(4000);
+        });
+
+        b.Entity<TutorLine>(e =>
+        {
+            e.HasIndex(x => new { x.CharacterId, x.Event, x.SortOrder }).IsUnique();
+            e.Property(x => x.Event).HasConversion<string>().HasMaxLength(16);
+            e.Property(x => x.Mood).HasConversion<string>().HasMaxLength(16);
+            e.Property(x => x.DisplayText).HasMaxLength(500);
+            e.Property(x => x.SpeechText).HasMaxLength(500);
+            e.HasOne(x => x.Character).WithMany(c => c.Lines).HasForeignKey(x => x.CharacterId).OnDelete(DeleteBehavior.Cascade);
         });
 
         b.Entity<Quiz>(e =>
@@ -217,6 +246,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasKey(x => new { x.UserId, x.HintId });
             e.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(x => x.Hint).WithMany().HasForeignKey(x => x.HintId);
+        });
+
+        b.Entity<SolutionReveal>(e =>
+        {
+            e.HasKey(x => new { x.UserId, x.ChallengeId });
+            e.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Challenge).WithMany().HasForeignKey(x => x.ChallengeId);
         });
 
         b.Entity<QuizAttempt>(e =>

@@ -13,7 +13,7 @@ namespace Codegrove.Api.Features.Learning;
 
 public sealed record TestSpecDto(int Id, string Label, string Kind, JsonElement Spec, string FailMessage);
 
-public sealed record RevealedHintDto(int Level, string Markdown);
+public sealed record RevealedHintDto(int Level, string Markdown, string SpeechText, TutorMood Mood);
 
 public sealed record ChallengeDto(
     int Id, ChallengeKind Kind, string InstructionsMarkdown, IReadOnlyDictionary<string, string> StarterFiles,
@@ -26,14 +26,25 @@ public sealed record QuizDto(int Id, int PassPercent, IReadOnlyList<QuizQuestion
 
 public sealed record LessonStateDto(bool LearnViewed, bool ChallengePassed, bool QuizPassed, bool Completed);
 
-/// <summary>The tutor's spoken-style lines for a lesson, in order. Empty lists when none are written yet.</summary>
-public sealed record TutorScriptDto(IReadOnlyList<string> Intro, IReadOnlyList<string> Recap);
+/// <summary>One thing the tutor says: a caption for the screen and the same line written for a voice.</summary>
+public sealed record TutorLineDto(string DisplayText, string SpeechText, TutorMood Mood);
+
+/// <summary>Who the tutor is for this learner's band. <c>PortraitUrl</c> has a <c>{mood}</c> placeholder.</summary>
+public sealed record TutorCharacterDto(string Slug, string Name, string PortraitUrl);
+
+/// <summary>
+/// Everything the tutor panel needs for one lesson: the character for the learner's band, the lesson's intro and
+/// recap, and the character's reusable lines keyed by event ("firstFail", "stuckOffer", "pass").
+/// </summary>
+public sealed record TutorDto(
+    TutorCharacterDto? Character, IReadOnlyList<TutorLineDto> Intro, IReadOnlyList<TutorLineDto> Recap,
+    IReadOnlyDictionary<string, IReadOnlyList<TutorLineDto>> Lines);
 
 public sealed record LessonDto(
     int Id, string Slug, string Title, string CourseSlug, string CourseTitle, AgeBand AgeBand, int EstimatedMinutes,
     string LearnMarkdown, string? VideoUrl, string? CaptionsUrl, string ExampleMarkdown, string? ExampleCode,
     ChallengeDto? Challenge, QuizDto? Quiz, LessonStateDto Progress, int? PreviousLessonId, int? NextLessonId,
-    TutorScriptDto Tutor);
+    TutorDto Tutor);
 
 // ---- Requests / responses ---------------------------------------------------------------------
 
@@ -45,7 +56,9 @@ public sealed record SubmissionResponse(bool Passed, ProgressOutcome Outcome);
 
 public sealed record LatestSubmissionResponse(IReadOnlyDictionary<string, string> Files, bool Passed, DateTime CreatedAt);
 
-public sealed record HintResponse(int Level, string Markdown, IReadOnlyDictionary<string, string>? SolutionFiles);
+public sealed record HintResponse(int Level, string Markdown, string SpeechText, TutorMood Mood);
+
+public sealed record SolutionResponse(IReadOnlyDictionary<string, string> SolutionFiles);
 
 public sealed record QuizAttemptRequest([Required] Dictionary<int, int> Answers);
 
@@ -88,14 +101,15 @@ public sealed class LearningController(AppDbContext db, ProgressService progress
             var revealedIds = await db.HintReveals.Where(r => r.UserId == userId && r.Hint.ChallengeId == c.Id)
                 .Select(r => r.HintId).ToListAsync(ct);
             var revealed = c.Hints.Where(h => revealedIds.Contains(h.Id)).OrderBy(h => h.Level).ToList();
-            var solutionUnlocked = revealed.Any(h => h.Level == 3) || state?.ChallengePassedAt != null;
+            var solutionUnlocked = state?.ChallengePassedAt != null
+                || await db.SolutionReveals.AnyAsync(r => r.UserId == userId && r.ChallengeId == c.Id, ct);
 
             challenge = new ChallengeDto(c.Id, c.Kind, c.InstructionsMarkdown, Files(c.StarterFilesJson),
                 c.TestCases.OrderBy(t => t.SortOrder)
                     .Select(t => new TestSpecDto(t.Id, t.Label, t.Kind, JsonDocument.Parse(t.SpecJson).RootElement, t.FailMessage))
                     .ToList(),
                 c.Hints.Select(h => h.Level).OrderBy(l => l).ToList(),
-                revealed.Select(h => new RevealedHintDto(h.Level, h.Markdown)).ToList(),
+                revealed.Select(h => new RevealedHintDto(h.Level, h.Markdown, h.SpeechText, h.Mood)).ToList(),
                 solutionUnlocked ? Files(c.SolutionFilesJson) : null,
                 c.XpReward,
                 c.BlocksJson is null ? null : JsonDocument.Parse(c.BlocksJson).RootElement);
@@ -121,11 +135,25 @@ public sealed class LearningController(AppDbContext db, ProgressService progress
                 state?.QuizPassedAt != null, state?.CompletedAt != null),
             index > 0 ? siblings[index - 1] : null,
             index >= 0 && index < siblings.Count - 1 ? siblings[index + 1] : null,
-            new TutorScriptDto(ScriptLines(lesson, LessonScriptKind.Intro), ScriptLines(lesson, LessonScriptKind.Recap)));
+            await TutorFor(lesson, band, ct));
     }
 
-    private static List<string> ScriptLines(Lesson lesson, LessonScriptKind kind) =>
-        lesson.Scripts.Where(s => s.Kind == kind).OrderBy(s => s.SortOrder).Select(s => s.Text).ToList();
+    private async Task<TutorDto> TutorFor(Lesson lesson, AgeBand band, CancellationToken ct)
+    {
+        var character = await db.TutorCharacters.AsNoTracking().Include(c => c.Lines)
+            .SingleOrDefaultAsync(c => c.Band == band, ct);
+
+        List<TutorLineDto> Script(LessonScriptKind kind) => lesson.Scripts.Where(s => s.Kind == kind).OrderBy(s => s.SortOrder)
+            .Select(s => new TutorLineDto(s.DisplayText, s.SpeechText, s.Mood)).ToList();
+
+        var lines = (character?.Lines ?? []).GroupBy(l => l.Event).ToDictionary(
+            g => JsonNamingPolicy.CamelCase.ConvertName(g.Key.ToString()),
+            g => (IReadOnlyList<TutorLineDto>)g.OrderBy(l => l.SortOrder).Select(l => new TutorLineDto(l.DisplayText, l.SpeechText, l.Mood)).ToList());
+
+        return new TutorDto(
+            character is null ? null : new TutorCharacterDto(character.Slug, character.Name, character.PortraitUrl),
+            Script(LessonScriptKind.Intro), Script(LessonScriptKind.Recap), lines);
+    }
 
     [HttpPost("lessons/{id:int}/viewed")]
     public async Task<IActionResult> Viewed(int id, CancellationToken ct)
@@ -162,14 +190,15 @@ public sealed class LearningController(AppDbContext db, ProgressService progress
     }
 
     /// <summary>
-    /// Reveals the next hint. Hints unlock in order (a nudge, then more help, then the solution)
-    /// and cost no XP; parents and teachers can see how many were used.
+    /// Reveals the next hint. Hints unlock in order (a guiding question, a pointer, then nearly the answer)
+    /// and cost no XP; parents and teachers can see how many were used. The solution is never a hint: see
+    /// <see cref="RevealSolution"/>.
     /// </summary>
     [HttpPost("challenges/{id:int}/hints/{level:int}")]
     public async Task<ActionResult<HintResponse>> RevealHint(int id, int level, CancellationToken ct)
     {
         var userId = User.UserId();
-        var hints = await db.Hints.Where(h => h.ChallengeId == id).OrderBy(h => h.Level).ToListAsync(ct);
+        var hints = await db.Hints.Where(h => h.ChallengeId == id && h.Challenge.Lesson.IsPublished).OrderBy(h => h.Level).ToListAsync(ct);
         var hint = hints.SingleOrDefault(h => h.Level == level);
         if (hint is null) return NotFound();
 
@@ -185,14 +214,35 @@ public sealed class LearningController(AppDbContext db, ProgressService progress
             await db.SaveChangesAsync(ct);
         }
 
-        IReadOnlyDictionary<string, string>? solution = null;
-        if (level == hints.Max(h => h.Level))
+        return new HintResponse(hint.Level, hint.Markdown, hint.SpeechText, hint.Mood);
+    }
+
+    /// <summary>
+    /// Shows the full solution. Only after every hint is open (or the challenge is passed), because trying with
+    /// the hints first is how learning sticks. A reveal before passing is recorded.
+    /// </summary>
+    [HttpPost("challenges/{id:int}/solution")]
+    public async Task<ActionResult<SolutionResponse>> RevealSolution(int id, CancellationToken ct)
+    {
+        var userId = User.UserId();
+        var challenge = await db.Challenges.AsNoTracking().Include(c => c.Hints)
+            .SingleOrDefaultAsync(c => c.Id == id && c.Lesson.IsPublished, ct);
+        if (challenge is null) return NotFound();
+
+        var passed = await db.LessonProgress.AnyAsync(p => p.UserId == userId && p.LessonId == challenge.LessonId && p.ChallengePassedAt != null, ct);
+        if (!passed)
         {
-            var json = await db.Challenges.Where(c => c.Id == id).Select(c => c.SolutionFilesJson).SingleAsync(ct);
-            solution = Files(json);
+            var opened = await db.HintReveals.CountAsync(r => r.UserId == userId && r.Hint.ChallengeId == id, ct);
+            if (opened < challenge.Hints.Count) return Problem(statusCode: 409, title: "Try all three hints first.");
+
+            if (!await db.SolutionReveals.AnyAsync(r => r.UserId == userId && r.ChallengeId == id, ct))
+            {
+                db.SolutionReveals.Add(new SolutionReveal { UserId = userId, ChallengeId = id, RevealedAt = clock.GetUtcNow().UtcDateTime });
+                await db.SaveChangesAsync(ct);
+            }
         }
 
-        return new HintResponse(hint.Level, hint.Markdown, solution);
+        return new SolutionResponse(Files(challenge.SolutionFilesJson));
     }
 
     [HttpPost("quizzes/{id:int}/attempts")]

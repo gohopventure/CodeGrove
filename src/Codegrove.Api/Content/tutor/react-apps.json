@@ -3,82 +3,162 @@
   "lessons": {
     "conditional-explorer": {
       "intro": [
-        "Sometimes you want to show something, and sometimes you don't. Today you'll learn how React shows and hides things with double ampersand, the question mark and colon, and the exclamation mark. Then you'll hide a secret message behind a button."
+        {
+          "displayText": "Sometimes you want to show something, and sometimes you don't. Today you'll hide a secret message behind a button.",
+          "speechText": "Sometimes you want to show something, and sometimes you don't. Today you'll hide a secret message behind a button.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Secret safe! Double ampersand means only show this if something is true, and the question mark and colon pick between two things. Next, we'll make boxes you can type in."
+        {
+          "displayText": "Secret safe! `&&` shows something only when it's true, and `? :` picks between two things. Your new word is condition, the true or false question that decides what shows.",
+          "speechText": "Secret safe! Double ampersand shows something only when it's true, and the question mark and colon pick between two things. Your new word is condition, the true or false question that decides what shows.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "conditional-rendering": {
       "intro": [
-        "Most interfaces change based on state. In this lesson you'll learn three ways to render conditionally, the zero gotcha with double ampersand, early returns, and deriving conditions from state. Then you'll finish a quiz card."
+        {
+          "displayText": "Most interfaces change based on state. You'll learn three ways to render conditionally, the zero gotcha with double ampersand, early returns, and deriving conditions from state. Every loading spinner, error message and empty state you've seen is conditional rendering. Then you'll finish a quiz card.",
+          "speechText": "Most interfaces change based on state. You'll learn three ways to render conditionally, the zero gotcha with double ampersand, early returns, and deriving conditions from state. Every loading spinner, error message and empty state you've seen is conditional rendering. Then you'll finish a quiz card.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nicely done. Your quiz card works out whether an answer was given and whether it's correct, without adding extra state. Watch out for a zero showing up when you use double ampersand with a number. Next, we'll build controlled forms."
+        {
+          "displayText": "Nicely done. Your quiz card works out whether an answer was given and whether it's correct, without extra state. The gotcha: a count of zero followed by double ampersand renders a zero on the page, so compare it to zero first. Next, we'll build controlled forms.",
+          "speechText": "Nicely done. Your quiz card works out whether an answer was given and whether it's correct, without extra state. The gotcha: a count of zero followed by double ampersand renders a zero on the page, so compare it to zero first. Next, we'll build controlled forms.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "forms-explorer": {
       "intro": [
-        "Let's make boxes that React can read as you type! Today you'll learn on change, which runs every time the box changes, and on submit for forms. Then you'll build a pet name maker."
+        {
+          "displayText": "Let's make boxes that React can read as you type! Today you'll build a pet name maker.",
+          "speechText": "Let's make boxes that React can read as you type! Today you'll build a pet name maker.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Hello, new pet! Your box is connected to state, so React always knows what you typed. Next, we'll ask the internet for data."
+        {
+          "displayText": "Hello, new pet! Your box is connected to state, so React always knows what you typed. Your new word is `onChange`, the event that runs every time a box changes.",
+          "speechText": "Hello, new pet! Your box is connected to state, so React always knows what you typed. Your new word is on change, the event that runs every time a box changes.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "forms": {
       "intro": [
-        "In React, form fields usually get their value from state. These are called controlled components. In this lesson you'll learn controlled inputs and selects, submitting without a page reload, validation, and resetting a form. Then you'll build a team sign-up form."
+        {
+          "displayText": "In React, form fields usually get their value from state. These are called controlled components. You'll learn controlled inputs and selects, submitting without a reload, validation and resetting a form. Then you'll build a team sign-up form.",
+          "speechText": "In React, form fields usually get their value from state. These are called controlled components. You'll learn controlled inputs and selects, submitting without a reload, validation and resetting a form. Then you'll build a team sign-up form.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great work. Your form keeps one source of truth in state, validates the trimmed name, and resets after a good submission. Controlled fields make forms predictable. Next, we'll fetch data with effects."
+        {
+          "displayText": "Great work. Your form keeps one source of truth in state, validates the trimmed name and resets after a good submission. The gotcha: a select gets its value on the select itself, not by marking an option as selected. Next, we'll fetch data with effects.",
+          "speechText": "Great work. Your form keeps one source of truth in state, validates the trimmed name and resets after a good submission. The gotcha: a select gets its value on the select itself, not by marking an option as selected. Next, we'll fetch data with effects.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "fetch-explorer": {
       "intro": [
-        "Let's get some data from a server and show it in React! Today you'll learn use effect, which runs code after your component appears. Then you'll show every planet from Codegrove's practice server."
+        {
+          "displayText": "Let's get data from a server and show it in React! Today you'll show every planet from Codegrove's practice server.",
+          "speechText": "Let's get data from a server and show it in React! Today you'll show every planet from Codegrove's practice server.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Planets loaded! Use effect fetched the data once, and state put it on the screen. Next, we'll share state between components."
+        {
+          "displayText": "Planets loaded! The effect fetched the data once, and state put it on the screen. Your new word is `useEffect`, a hook that runs code after your component appears.",
+          "speechText": "Planets loaded! The effect fetched the data once, and state put it on the screen. Your new word is use effect, a hook that runs code after your component appears.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "effects-and-fetch": {
       "intro": [
-        "Rendering should stay pure, so things like fetching data go in effects. In this lesson you'll learn use effect, the dependency array, cleanup functions and race conditions. Then you'll build an adoption page with loading and error states."
+        {
+          "displayText": "Rendering should stay pure, so side effects like fetching data go in effects. You'll learn use effect, the dependency array, cleanup functions and race conditions. Every data-driven screen needs loading, ready and error states. Then you'll build an adoption page.",
+          "speechText": "Rendering should stay pure, so side effects like fetching data go in effects. You'll learn use effect, the dependency array, cleanup functions and race conditions. Every data-driven screen needs loading, ready and error states. Then you'll build an adoption page.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Well done. Your page fetches once, checks the response, and shows loading, ready or error states. The cleanup flag stops old requests from overwriting new data. Next, we'll lift state up so components can share it."
+        {
+          "displayText": "Well done. Your page fetches once, checks the response and shows loading, ready or error states. The gotcha is the race: without the ignore flag, a slow old response can overwrite newer data. Next, we'll lift state up so components can share it.",
+          "speechText": "Well done. Your page fetches once, checks the response and shows loading, ready or error states. The gotcha is the race: without the ignore flag, a slow old response can overwrite newer data. Next, we'll lift state up so components can share it.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "sharing-explorer": {
       "intro": [
-        "What if two components need the same number? You move it up to their parent! Today you'll learn lifting state up and callback props. Then you'll fix a broken thermostat."
+        {
+          "displayText": "What if two components need the same number? Today you'll move it up to their parent to fix a broken thermostat.",
+          "speechText": "What if two components need the same number? Today you'll move it up to their parent to fix a broken thermostat.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Thermostat fixed! The temperature lives in App, and the buttons change it through a callback prop. Next, it's project time!"
+        {
+          "displayText": "Thermostat fixed! The temperature lives in App, and the buttons change it through a callback prop. Your new word is lifting state up, moving state to the parent that shares it.",
+          "speechText": "Thermostat fixed! The temperature lives in App, and the buttons change it through a callback prop. Your new word is lifting state up, moving state to the parent that shares it.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "sharing-state": {
       "intro": [
-        "When two components need the same data, the state belongs in their closest common parent. In this lesson you'll learn lifting state up, naming callbacks, updating objects in state, and why you shouldn't copy props into state. Then you'll connect a merch shop's product list and cart."
+        {
+          "displayText": "When two components need the same data, the state belongs in their closest common parent. You'll learn lifting state up, naming callbacks, updating objects in state, and why you shouldn't copy props into state. Getting state ownership right is most of designing a React app. Then you'll connect a merch shop's product list and cart.",
+          "speechText": "When two components need the same data, the state belongs in their closest common parent. You'll learn lifting state up, naming callbacks, updating objects in state, and why you shouldn't copy props into state. Getting state ownership right is most of designing a React app. Then you'll connect a merch shop's product list and cart.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nicely done. The cart lives in App, the product list adds to it through a callback, and the summary reads it. Keep state in one place and pass it down. Next is your end-of-course project."
+        {
+          "displayText": "Nicely done. The cart lives in App, the product list adds to it through a callback, and the summary reads it. The gotcha: copying a prop into state makes a second source of truth that quietly goes stale. Next is your end-of-course project.",
+          "speechText": "Nicely done. The cart lives in App, the product list adds to it through a callback, and the summary reads it. The gotcha: copying a prop into state makes a second source of truth that quietly goes stale. Next is your end-of-course project.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "project-explorer": {
       "intro": [
-        "Project time! You'll build a wish list app that uses everything you've learned: state, forms, lists and keys. You'll also learn to remove items with filter."
+        {
+          "displayText": "Project time! You'll build a wish list app with state, forms, lists and keys, and learn to remove items with filter.",
+          "speechText": "Project time! You'll build a wish list app with state, forms, lists and keys, and learn to remove items with filter.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "What a wish list! You added wishes with a form, counted them in the heading, and removed them with filter. You've finished React Apps. Amazing work!"
+        {
+          "displayText": "What a wish list, and you've finished React Apps! You added wishes, counted them and removed them. Your new word is filter, which keeps only the items you want.",
+          "speechText": "What a wish list, and you've finished React Apps! You added wishes, counted them and removed them. Your new word is filter, which keeps only the items you want.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "project-task-tracker": {
       "intro": [
-        "Time for your end-of-course project. You'll build a task tracker across three files. You'll plan the minimal state, split it into components, update state immutably and drive the interface from data."
+        {
+          "displayText": "Time for your end-of-course project: a task tracker across three files. You'll plan the minimal state, split it into components, update state immutably and drive the interface from data. This is the same shape as real production React apps. Let's build it.",
+          "speechText": "Time for your end-of-course project: a task tracker across three files. You'll plan the minimal state, split it into components, update state immutably and drive the interface from data. This is the same shape as real production React apps. Let's build it.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great project. Your task tracker adds, completes, filters and clears tasks, with state that lives in one place. That's how real React apps are built. You've completed React Apps."
+        {
+          "displayText": "Great project. Your task tracker adds, completes, filters and clears tasks, with state in one place. The gotcha to keep in mind is storing what you can derive, like a separate count of tasks left, which always drifts out of sync. You've completed React Apps.",
+          "speechText": "Great project. Your task tracker adds, completes, filters and clears tasks, with state in one place. The gotcha to keep in mind is storing what you can derive, like a separate count of tasks left, which always drifts out of sync. You've completed React Apps.",
+          "mood": "Encouraging"
+        }
       ]
     }
   }

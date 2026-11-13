@@ -1,6 +1,7 @@
 using System.Reflection;
 using Codegrove.Api.Data;
 using Codegrove.Api.Data.Entities;
+using Codegrove.Api.Data.Seeding;
 using Codegrove.Api.Services;
 
 namespace Codegrove.Api.Tests;
@@ -141,5 +142,52 @@ public class QuizGraderTests
     {
         var grade = QuizGrader.Grade(TwoQuestionQuiz(), new Dictionary<int, int> { [10] = 111, [11] = 111 });
         Assert.Equal(50, grade.ScorePercent);
+    }
+}
+
+public class TutorRulesTests
+{
+    private static readonly Dictionary<string, string> Solution = new() { ["index.html"] = "<h1>Welcome to my page</h1>\n<p>Otters hold hands while they sleep.</p>" };
+
+    [Theory]
+    [InlineData("Wrap it in u-l tags. Then add an l-i for each game.", null)]
+    [InlineData("Use <ul> tags.", "\"<\"")]
+    [InlineData("Add a semicolon; then run it.", "\";\"")]
+    [InlineData("Try `console.log` next.", "\"`\"")]
+    [InlineData("See https://example.com for more.", "\"https:\"")]
+    [InlineData("Use a tag, e.g. the h1.", "\"e.g.\"")]
+    public void Speech_must_be_plain_words(string speech, string? expected)
+    {
+        var error = TutorRules.CheckSpeech(speech, 1, 3);
+        if (expected is null) Assert.Null(error);
+        else Assert.Contains(expected, error);
+    }
+
+    [Theory]
+    [InlineData("One. Two.", AgeBand.Explorer, true)]
+    [InlineData("One. Two. Three. Four.", AgeBand.Explorer, false)]
+    [InlineData("One. Two.", AgeBand.Builder, false)]
+    [InlineData("One version 1.5 is out. Two! Three?", AgeBand.Builder, true)]
+    public void Intro_length_depends_on_band(string speech, AgeBand band, bool ok)
+    {
+        var (min, max) = TutorRules.ScriptSentences(band);
+        Assert.Equal(ok, TutorRules.CheckSpeech(speech, min, max) is null);
+    }
+
+    [Fact]
+    public void Hint_one_must_be_a_question() =>
+        Assert.NotNull(TutorRules.CheckHint(1, "Look at line 4.", "Look at line 4.", AgeBand.Explorer, Solution));
+
+    [Fact]
+    public void A_hint_cannot_contain_the_whole_solution() =>
+        Assert.Contains("whole solution", TutorRules.CheckHint(3,
+            "Here it is:\n```html\n<h1>Welcome to my page</h1>\n  <p>Otters hold hands while they sleep.</p>\n```",
+            "Copy this.", AgeBand.Builder, Solution));
+
+    [Fact]
+    public void A_good_hint_ladder_passes()
+    {
+        Assert.Null(TutorRules.CheckHint(1, "What does every opening tag need a partner for?", "What does every opening tag need a partner for?", AgeBand.Explorer, Solution));
+        Assert.Null(TutorRules.CheckHint(3, "Add `</p>` after the text on line 4.", "Add a closing p tag right after the text on line 4.", AgeBand.Explorer, Solution));
     }
 }

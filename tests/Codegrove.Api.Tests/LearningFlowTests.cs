@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using Codegrove.Api.Data.Seeding;
 
 namespace Codegrove.Api.Tests;
 
@@ -116,20 +117,42 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Hints_unlock_in_order_and_the_last_one_includes_the_solution()
+    public async Task Hints_unlock_in_order_and_the_solution_is_a_separate_step_after_them()
     {
-        var (_, child, _) = await FamilyWithConsentedExplorer("SwiftPuffin12");
+        var (parent, child, childId) = await FamilyWithConsentedExplorer("SwiftPuffin12");
         var lesson = await ExplorerLesson(child);
         var id = lesson.GetProperty("challenge").GetProperty("id").GetInt32();
 
         Assert.Equal(HttpStatusCode.Conflict, (await child.PostJson($"/api/challenges/{id}/hints/2")).StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, (await child.PostJson($"/api/challenges/{id}/solution")).StatusCode);
 
+        // Hint 1 is a guiding question, written twice: for the screen and for a voice.
         var h1 = await (await child.PostJson($"/api/challenges/{id}/hints/1")).Json();
-        Assert.Equal(JsonValueKind.Null, h1.GetProperty("solutionFiles").ValueKind);
-        Assert.Equal(HttpStatusCode.OK, (await child.PostJson($"/api/challenges/{id}/hints/2")).StatusCode);
+        Assert.EndsWith("?", h1.GetProperty("markdown").GetString()!.TrimEnd());
+        Assert.EndsWith("?", h1.GetProperty("speechText").GetString()!.TrimEnd());
+        Assert.False(string.IsNullOrEmpty(h1.GetProperty("mood").GetString()));
+        Assert.False(h1.TryGetProperty("solutionFiles", out _));
 
+        Assert.Equal(HttpStatusCode.OK, (await child.PostJson($"/api/challenges/{id}/hints/2")).StatusCode);
         var h3 = await (await child.PostJson($"/api/challenges/{id}/hints/3")).Json();
-        Assert.Contains("<h1>Welcome to my page</h1>", h3.GetProperty("solutionFiles").GetProperty("index.html").GetString());
+        Assert.False(h3.TryGetProperty("solutionFiles", out _)); // hint 3 is nearly the answer, never the answer
+        Assert.Equal(JsonValueKind.Null, (await ExplorerLesson(child)).GetProperty("challenge").GetProperty("solutionFiles").ValueKind);
+
+        // After all three hints the learner can ask for the solution, and it stays unlocked.
+        var solution = await child.PostJson($"/api/challenges/{id}/solution");
+        Assert.Equal(HttpStatusCode.OK, solution.StatusCode);
+        Assert.Contains("<h1>Welcome to my page</h1>", (await solution.Json()).GetProperty("solutionFiles").GetProperty("index.html").GetString());
+        var reloaded = (await ExplorerLesson(child)).GetProperty("challenge");
+        Assert.Equal(3, reloaded.GetProperty("revealedHints").GetArrayLength());
+        Assert.Equal(JsonValueKind.Object, reloaded.GetProperty("solutionFiles").ValueKind);
+        Assert.Equal(HttpStatusCode.OK, (await child.PostJson($"/api/challenges/{id}/solution")).StatusCode); // idempotent
+
+        // The parent still sees how many hints were used (the parent view lists courses the child has started).
+        await child.PostJson($"/api/lessons/{lesson.GetProperty("id").GetInt32()}/viewed");
+        var progress = await parent.GetJson($"/api/parent/children/{childId}/progress");
+        var used = progress.GetProperty("courses").EnumerateArray().SelectMany(c => c.GetProperty("lessons").EnumerateArray())
+            .Sum(l => l.GetProperty("hintsUsed").GetInt32());
+        Assert.Equal(3, used);
     }
 
     [Fact]
@@ -269,7 +292,7 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Lessons_carry_the_tutors_intro_and_recap()
+    public async Task Explorers_get_Juni_with_the_lessons_intro_recap_and_event_lines()
     {
         var (_, child, _) = await FamilyWithConsentedExplorer("ScriptOwl");
         var course = await child.GetJson("/api/courses/javascript-basics");
@@ -277,12 +300,41 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
             .First(l => l.GetProperty("slug").GetString() == "variables-explorer").GetProperty("id").GetInt32();
 
         var tutor = (await child.GetJson($"/api/lessons/{id}")).GetProperty("tutor");
-        var intro = tutor.GetProperty("intro").EnumerateArray().Select(x => x.GetString()).ToList();
-        var recap = tutor.GetProperty("recap").EnumerateArray().Select(x => x.GetString()).ToList();
-        Assert.Single(intro);
-        Assert.Contains("labeled boxes", intro[0]);
-        Assert.Single(recap);
-        Assert.Contains("console dot log", recap[0]);
+        Assert.Equal("Juni", tutor.GetProperty("character").GetProperty("name").GetString());
+        Assert.Contains("{mood}", tutor.GetProperty("character").GetProperty("portraitUrl").GetString());
+        Assert.False(tutor.GetProperty("character").TryGetProperty("personaPrompt", out _)); // stays on the server
+
+        var intro = tutor.GetProperty("intro").EnumerateArray().ToList();
+        var recap = tutor.GetProperty("recap").EnumerateArray().ToList();
+        Assert.NotEmpty(intro);
+        Assert.NotEmpty(recap);
+        // The caption can show code; the voice line says it in words.
+        var recapDisplay = string.Join(" ", recap.Select(r => r.GetProperty("displayText").GetString()));
+        var recapSpeech = string.Join(" ", recap.Select(r => r.GetProperty("speechText").GetString()));
+        Assert.Contains("`console.log`", recapDisplay);
+        Assert.Contains("console dot log", recapSpeech);
+        Assert.Contains(recap, r => r.GetProperty("mood").GetString() is "Neutral" or "Encouraging" or "Thinking" or "Celebrating");
+
+        var lines = tutor.GetProperty("lines");
+        Assert.InRange(lines.GetProperty("pass").GetArrayLength(), 8, 10);
+        Assert.True(lines.GetProperty("firstFail").GetArrayLength() >= 3);
+        Assert.All(lines.GetProperty("stuckOffer").EnumerateArray(), l => Assert.EndsWith("?", l.GetProperty("speechText").GetString()));
+    }
+
+    [Fact]
+    public async Task Builders_get_Rowan()
+    {
+        var teen = _factory.NewClient();
+        var reg = await teen.PostJson("/api/auth/register-teen",
+            new { userName = "RowanFan15", email = "rowanfan@example.com", password = "longenough", birthYear = ThisYear - 15, birthMonth = 1 });
+        Assert.Equal(HttpStatusCode.OK, reg.StatusCode);
+
+        var course = await teen.GetJson("/api/courses/html-basics");
+        var id = course.GetProperty("lessons").EnumerateArray()
+            .First(l => l.GetProperty("slug").GetString() == "tags-and-elements").GetProperty("id").GetInt32();
+        var tutor = (await teen.GetJson($"/api/lessons/{id}")).GetProperty("tutor");
+        Assert.Equal("Rowan", tutor.GetProperty("character").GetProperty("name").GetString());
+        Assert.InRange(TutorRules.Sentences(string.Join(" ", tutor.GetProperty("intro").EnumerateArray().Select(l => l.GetProperty("speechText").GetString()))), 3, 4);
     }
 
     [Fact]

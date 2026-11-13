@@ -3,98 +3,194 @@
   "lessons": {
     "types-explorer": {
       "intro": [
-        "TypeScript is JavaScript with labels. The labels say what kind of value something is, like a number or a word. Today you'll see how TypeScript spots mistakes before your code even runs. Then you'll fix a robot's info card."
+        {
+          "displayText": "TypeScript is JavaScript with labels that say what kind of value something is. Today you'll let TypeScript spot the mistakes on a robot's info card before the code even runs.",
+          "speechText": "TypeScript is JavaScript with labels that say what kind of value something is. Today you'll let TypeScript spot the mistakes on a robot's info card before the code even runs.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Nice fixing! You used type labels and let TypeScript catch values that didn't match. Those red squiggles are TypeScript helping, not scolding. Next, we'll put labels on functions."
+        {
+          "displayText": "Nice fixing! Those red squiggles are TypeScript helping, not scolding. Your new word is type, a label that says what kind of value something is.",
+          "speechText": "Nice fixing! Those red squiggles are TypeScript helping, not scolding. Your new word is type, a label that says what kind of value something is.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "types-and-inference": {
       "intro": [
-        "TypeScript adds static types to JavaScript, so a whole class of bugs shows up in your editor instead of in front of your users. In this lesson you'll learn the basic types, annotations, inference, strict mode, and why any is an escape hatch. Then you'll fix a bake sale receipt."
+        {
+          "displayText": "TypeScript adds static types to JavaScript, so a whole class of bugs shows up in your editor instead of in front of users. You'll learn the basic types, annotations, inference, strict mode, and why any is an escape hatch. Most teams that write JavaScript at scale use TypeScript for exactly this reason. Then you'll fix a bake sale receipt.",
+          "speechText": "TypeScript adds static types to JavaScript, so a whole class of bugs shows up in your editor instead of in front of users. You'll learn the basic types, annotations, inference, strict mode, and why any is an escape hatch. Most teams that write JavaScript at scale use TypeScript for exactly this reason. Then you'll fix a bake sale receipt.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great work. You fixed type errors that plain JavaScript would have let slide. Let inference do the work where it can, and annotate where it can't guess. Next, we'll type functions, where types pay off the most."
+        {
+          "displayText": "Great work. You fixed type errors that plain JavaScript would have let slide. The gotcha is any: it switches checking off for that value and everything it touches, so reach for it last. Next, we'll type functions, where types pay off the most.",
+          "speechText": "Great work. You fixed type errors that plain JavaScript would have let slide. The gotcha is any: it switches checking off for that value and everything it touches, so reach for it last. Next, we'll type functions, where types pay off the most.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "functions-explorer": {
       "intro": [
-        "Functions get labels too. They say what goes in and what comes out. Today you'll learn to label a function's parameters and its return value. Then TypeScript can check every time the function is used."
+        {
+          "displayText": "Functions get labels too, for what goes in and what comes out. Today you'll label a function so TypeScript can check every time it's used.",
+          "speechText": "Functions get labels too, for what goes in and what comes out. Today you'll label a function so TypeScript can check every time it's used.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Labeled and checked! Now TypeScript warns you if someone passes the wrong kind of value into your function. Next, we'll describe the shape of objects."
+        {
+          "displayText": "Labeled and checked! Now TypeScript warns you if someone passes the wrong kind of value into your function. Your new word is parameter, a value a function takes in.",
+          "speechText": "Labeled and checked! Now TypeScript warns you if someone passes the wrong kind of value into your function. Your new word is parameter, a value a function takes in.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "typed-functions": {
       "intro": [
-        "A function's signature is its contract. In this lesson you'll learn to type parameters and return values, use optional and default parameters, and write function types for arrow functions. Then you'll type a set of game helpers."
+        {
+          "displayText": "A function's signature is its contract. You'll learn to type parameters and return values, use optional and default parameters, and write types for arrow functions. Typing function boundaries gives you the most safety for the least effort. Then you'll type a set of game helpers.",
+          "speechText": "A function's signature is its contract. You'll learn to type parameters and return values, use optional and default parameters, and write types for arrow functions. Typing function boundaries gives you the most safety for the least effort. Then you'll type a set of game helpers.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nicely done. Every helper now has a clear contract, so TypeScript can check every call. Typing function boundaries gives you the most safety for the least effort. Next, we'll type arrays, objects and interfaces."
+        {
+          "displayText": "Nicely done. Every helper now has a clear contract, so TypeScript can check every call. The gotcha: a default value already makes a parameter optional, so you don't need a question mark as well. Next, we'll type arrays, objects and interfaces.",
+          "speechText": "Nicely done. Every helper now has a clear contract, so TypeScript can check every call. The gotcha: a default value already makes a parameter optional, so you don't need a question mark as well. Next, we'll type arrays, objects and interfaces.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "objects-explorer": {
       "intro": [
-        "What does a pet look like in code? It might have a name and a number of legs. Today you'll learn to describe an object's shape with a type. Then TypeScript can check a whole list of pets for you."
+        {
+          "displayText": "What does a pet look like in code? Today you'll describe an object's shape with a type, so TypeScript can check a whole list of pets.",
+          "speechText": "What does a pet look like in code? Today you'll describe an object's shape with a type, so TypeScript can check a whole list of pets.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Shape described! Your Pet type tells TypeScript what every pet needs, so typos and missing facts get caught. Next, we'll let a value be one of a few choices."
+        {
+          "displayText": "Shape described! Your Pet type tells TypeScript what every pet needs. Your new word is shape, the list of facts an object must have.",
+          "speechText": "Shape described! Your Pet type tells TypeScript what every pet needs. Your new word is shape, the list of facts an object must have.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "objects-and-interfaces": {
       "intro": [
-        "Most of an app's data is objects and arrays. In this lesson you'll learn interfaces and type aliases, optional and readonly properties, and how excess property checks catch typos. Then you'll type an adventurer's inventory."
+        {
+          "displayText": "Most of an app's data is objects and arrays. You'll learn interfaces and type aliases, optional and readonly properties, and how excess property checks catch typos. Describing your data once pays off everywhere it's used. Then you'll type an adventurer's inventory.",
+          "speechText": "Most of an app's data is objects and arrays. You'll learn interfaces and type aliases, optional and readonly properties, and how excess property checks catch typos. Describing your data once pays off everywhere it's used. Then you'll type an adventurer's inventory.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great work. Your inventory has an interface with an optional property, and TypeScript checks every item in the array. Describing your data once pays off everywhere it's used. Next, we'll cover unions and narrowing."
+        {
+          "displayText": "Great work. Your inventory has an interface with an optional property, and TypeScript checks every item. The gotcha: an optional property might be undefined, so check it before you use it. Next, we'll cover unions and narrowing.",
+          "speechText": "Great work. Your inventory has an interface with an optional property, and TypeScript checks every item. The gotcha: an optional property might be undefined, so check it before you use it. Next, we'll cover unions and narrowing.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "unions-explorer": {
       "intro": [
-        "Sometimes a value can only be one of a few choices, like a pet's mood. Today you'll learn union types, which list the allowed choices. Then you'll add a new mood and fix a typo TypeScript caught."
+        {
+          "displayText": "Sometimes a value can only be one of a few choices, like a pet's mood. Today you'll add a new mood and fix a typo TypeScript caught.",
+          "speechText": "Sometimes a value can only be one of a few choices, like a pet's mood. Today you'll add a new mood and fix a typo TypeScript caught.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Mood fixed! Union types keep values to a short list of allowed choices, so typos can't sneak in. Next, we'll make blueprints for objects with classes."
+        {
+          "displayText": "Mood fixed! Union types keep values to a short list, so typos can't sneak in. Your new word is union, a type that lists the allowed choices.",
+          "speechText": "Mood fixed! Union types keep values to a short list, so typos can't sneak in. Your new word is union, a type that lists the allowed choices.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "unions-and-narrowing": {
       "intro": [
-        "Real data comes in different shapes, and sometimes it's missing. In this lesson you'll learn union types, narrowing, null and undefined, discriminated unions, and checking every case with never. Then you'll finish a shape calculator."
+        {
+          "displayText": "Real data comes in different shapes, and sometimes it's missing. You'll learn union types, narrowing, null and undefined, discriminated unions, and checking every case with never. This is how TypeScript makes adding a new case safe in a big codebase. Then you'll finish a shape calculator.",
+          "speechText": "Real data comes in different shapes, and sometimes it's missing. You'll learn union types, narrowing, null and undefined, discriminated unions, and checking every case with never. This is how TypeScript makes adding a new case safe in a big codebase. Then you'll finish a shape calculator.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Well done. Your calculator handles every kind of shape and copes with a missing element without forcing it. When you add a new case, TypeScript now points to every place that needs updating. Next, we'll look at classes."
+        {
+          "displayText": "Well done. Your calculator handles every shape and copes with a missing element without forcing it. The gotcha is the exclamation mark: it tells TypeScript to trust you, so it hides exactly the bugs narrowing would catch. Next, we'll look at classes.",
+          "speechText": "Well done. Your calculator handles every shape and copes with a missing element without forcing it. The gotcha is the exclamation mark: it tells TypeScript to trust you, so it hides exactly the bugs narrowing would catch. Next, we'll look at classes.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "classes-explorer": {
       "intro": [
-        "A class is a blueprint for making objects. Build the blueprint once, then make as many pets as you like! Today you'll learn constructors, methods and the new keyword. Then you'll teach a pet called Sparky how to play."
+        {
+          "displayText": "A class is a blueprint: build it once, then make as many pets as you like! Today you'll teach a pet called Sparky how to play.",
+          "speechText": "A class is a blueprint: build it once, then make as many pets as you like! Today you'll teach a pet called Sparky how to play.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Sparky can play! Your class makes pets that remember their own energy, and TypeScript knows exactly what each pet can do. Next, you'll build a whole project across several files."
+        {
+          "displayText": "Sparky can play! Your class makes pets that remember their own energy. Your new word is method, something an object can do, like `play()`.",
+          "speechText": "Sparky can play! Your class makes pets that remember their own energy. Your new word is method, something an object can do, like play.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "classes-and-interfaces": {
       "intro": [
-        "Classes bundle data with the methods that change it. In this lesson you'll learn parameter properties, private and readonly, getters, and how implements makes a class keep a promise. Then you'll lock down a wallet so nobody can cheat."
+        {
+          "displayText": "Classes bundle data with the methods that change it. You'll learn parameter properties, private and readonly, getters, and how implements makes a class keep a promise. Encapsulation like this is how libraries stop their users from breaking them. Then you'll lock down a wallet so nobody can cheat.",
+          "speechText": "Classes bundle data with the methods that change it. You'll learn parameter properties, private and readonly, getters, and how implements makes a class keep a promise. Encapsulation like this is how libraries stop their users from breaking them. Then you'll lock down a wallet so nobody can cheat.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nicely done. Your wallet keeps its balance private and only changes it through methods that check the rules. That's encapsulation, and TypeScript enforces it for you. Next is your project."
+        {
+          "displayText": "Nicely done. Your wallet keeps its balance private and only changes it through methods that check the rules. The gotcha: private is checked by TypeScript, not at runtime, so plain JavaScript could still reach in. Next is your project.",
+          "speechText": "Nicely done. Your wallet keeps its balance private and only changes it through methods that check the rules. The gotcha: private is checked by TypeScript, not at runtime, so plain JavaScript could still reach in. Next is your project.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "project-explorer": {
       "intro": [
-        "Project time! You'll build a monster card deck across three files, using everything you've learned. You'll also learn how files share code with export and import."
+        {
+          "displayText": "Project time! You'll build a monster card deck across three files and learn how files share code with export and import.",
+          "speechText": "Project time! You'll build a monster card deck across three files and learn how files share code with export and import.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "What a deck! You split code across files, shared types with export and import, and fixed what TypeScript spotted. That's the end of TypeScript Basics. You're officially a type tamer!"
+        {
+          "displayText": "What a deck, and you're officially a type tamer! You shared types between files and fixed what TypeScript spotted. Your new word is export, which lets other files use your code.",
+          "speechText": "What a deck, and you're officially a type tamer! You shared types between files and fixed what TypeScript spotted. Your new word is export, which lets other files use your code.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "project-quest-log": {
       "intro": [
-        "Time to put it all together. You'll build a quest log as a class in its own module, with import type, a generic helper and readonly arrays. It's a small version of how real TypeScript projects are organized."
+        {
+          "displayText": "Time to put it all together. You'll build a quest log as a class in its own module, with import type, a generic helper and readonly arrays. It's a small version of how real TypeScript projects are organized. Let's build it.",
+          "speechText": "Time to put it all together. You'll build a quest log as a class in its own module, with import type, a generic helper and readonly arrays. It's a small version of how real TypeScript projects are organized. Let's build it.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great project. Your quest log is typed from end to end, and your generic helper works with any kind of list. Real projects check types just like this, file by file. That completes TypeScript Basics."
+        {
+          "displayText": "Great project. Your quest log is typed from end to end, and your generic helper works with any kind of list. The gotcha: find returns undefined when nothing matches, so TypeScript makes you handle that case. That completes TypeScript Basics.",
+          "speechText": "Great project. Your quest log is typed from end to end, and your generic helper works with any kind of list. The gotcha: find returns undefined when nothing matches, so TypeScript makes you handle that case. That completes TypeScript Basics.",
+          "mood": "Encouraging"
+        }
       ]
     }
   }

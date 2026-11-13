@@ -3,7 +3,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import { Link, useParams } from 'react-router-dom';
 import { api, ApiError } from '../api/client';
 import { keys, useLesson, useMe } from '../api/queries';
-import type { Files, Lesson, ProgressOutcome, SubmissionResponse, TestResult } from '../api/types';
+import type { Files, Lesson, ProgressOutcome, RevealedHint, SubmissionResponse, TestResult, TutorMood } from '../api/types';
 import { Markdown } from '../components/Markdown';
 import { ErrorNote, Spinner } from '../components/ui';
 import { CodeEditor } from './CodeEditor';
@@ -11,6 +11,8 @@ import { LivePreview, type LivePreviewHandle } from './LivePreview';
 import { monacoTypeChecker } from './typeCheckMonaco';
 import { CelebrationToast, HintLadder, QuizCard, TestResultList, useHeartbeat } from './parts';
 import { TutorPanel } from '../tutor/TutorPanel';
+import { useQuietMode } from '../tutor/quietMode';
+import { useChallengeTutor } from '../tutor/tutorEvents';
 
 // Blockly is big, so it only downloads for lessons that offer blocks.
 const BlocksEditor = lazy(() => import('./blocks/BlocksEditor'));
@@ -66,9 +68,13 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const limitReached = useHeartbeat();
   const headingRef = useRef<HTMLHeadingElement>(null);
 
-  // Mark the learn step as seen once.
+  // Mark the learn step as seen once. The ref stops React's dev-mode double effects (StrictMode) from sending two
+  // POSTs at the same moment; the server handles that race anyway, but EF logs the losing insert as an error.
+  const viewedSentFor = useRef<number | null>(null);
   useEffect(() => {
-    if (!lesson.progress.learnViewed) void api.post(`/api/lessons/${lesson.id}/viewed`).catch(() => undefined);
+    if (lesson.progress.learnViewed || viewedSentFor.current === lesson.id) return;
+    viewedSentFor.current = lesson.id;
+    void api.post(`/api/lessons/${lesson.id}/viewed`).catch(() => undefined);
   }, [lesson.id, lesson.progress.learnViewed]);
 
   // Move focus to the step heading on step change, so keyboard and screen-reader users land in the new content.
@@ -129,7 +135,12 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
       {step === 'learn' && (
         // The tutor's intro sits beside the lesson on wide screens and above it on phones.
         <div className={lesson.tutor.intro.length ? 'grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]' : undefined}>
-          <TutorPanel label="Before you start" lines={lesson.tutor.intro} className="lg:sticky lg:top-4 lg:order-2" />
+          <TutorPanel
+            character={lesson.tutor.character}
+            label="Before you start"
+            lines={lesson.tutor.intro}
+            className="lg:sticky lg:top-4 lg:order-2"
+          />
           <section className="card space-y-6 lg:order-1">
             <h2 ref={headingRef} tabIndex={-1} className="sr-only">Learn</h2>
             {lesson.videoUrl && (
@@ -178,7 +189,7 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
         <section className="card space-y-4 text-center">
           <h2 ref={headingRef} tabIndex={-1} className="text-3xl font-bold">Lesson complete!</h2>
           {lesson.tutor.recap.length > 0
-            ? <TutorPanel label="What you learned" lines={lesson.tutor.recap} className="mx-auto max-w-2xl text-left" />
+            ? <TutorPanel character={lesson.tutor.character} label="What you learned" lines={lesson.tutor.recap} className="mx-auto max-w-2xl text-left" />
             : <p>You learned something new today. That's how every developer started.</p>}
           <div className="flex flex-wrap justify-center gap-3">
             {lesson.nextLessonId ? (
@@ -243,6 +254,18 @@ function ChallengeStep({
   const [solution, setSolution] = useState<Files | null>(null);
   const checkingRef = useRef(false); // a live re-render must not cancel a check in progress
 
+  // The tutor: event lines (first fail, stuck offer, pass) and the mood of the latest hint.
+  const [quiet] = useQuietMode();
+  const tutor = useChallengeTutor(lesson.tutor, { quiet, alreadyPassed: passed });
+  const [hintMood, setHintMood] = useState<TutorMood | undefined>(undefined);
+  const [hintRequest, setHintRequest] = useState(0);
+  const bestPassing = useRef(0);
+  const { typed } = tutor;
+  const onEdit = useCallback((f: Files) => {
+    typed();
+    setFiles(f);
+  }, [typed]);
+
   // Blocks mode (Explorer JS lessons). The blocks write script.js; Text mode edits it directly.
   // Workspace state and the chosen mode are kept for this tab session only, like drafts.
   const blocks = challenge.blocks;
@@ -261,11 +284,12 @@ function ChallengeStep({
   }, [modeKey]);
 
   const onBlocksChange = useCallback((state: object, script: string) => {
+    typed();
     blocksState.current = state;
     lastGenerated.current = script;
     sessionStorage.setItem(blocksKey, JSON.stringify(state));
     setFiles((f) => (f['script.js'] === script ? f : { ...f, 'script.js': script }));
-  }, [blocksKey]);
+  }, [blocksKey, typed]);
 
   function switchToBlocks() {
     const script = files['script.js'];
@@ -320,11 +344,17 @@ function ChallengeStep({
         return;
       }
       setResults(res);
+      const passing = res.filter((r) => r.passed).length;
+      if (passing > bestPassing.current) {
+        bestPassing.current = passing;
+        tutor.progressed();
+      }
       const submittedFiles = mode === 'blocks' && blocksState.current
         ? { ...files, [BLOCKS_FILE]: JSON.stringify(blocksState.current) }
         : files;
       const submitted = await api.post<SubmissionResponse>(`/api/challenges/${challenge.id}/submissions`, { files: submittedFiles, results: res });
       onOutcome(submitted.outcome);
+      tutor.checked(submitted.passed);
       if (submitted.passed) onPassed();
     } catch (e) {
       setError(e);
@@ -334,7 +364,16 @@ function ChallengeStep({
     }
   }
 
-  const onSolution = useCallback((f: Files) => setSolution(f), []);
+  const { dismiss, helped } = tutor;
+  const onSolution = useCallback((f: Files) => {
+    setSolution(f);
+    helped();
+  }, [helped]);
+  const onHint = useCallback((h: RevealedHint) => {
+    setHintMood(h.mood);
+    dismiss();
+    helped();
+  }, [dismiss, helped]);
 
   return (
     <section className="space-y-4">
@@ -396,7 +435,7 @@ function ChallengeStep({
           </div>
         ) : (
           <div className={blocks ? 'h-[38rem]' : 'h-[28rem]'}>
-            <CodeEditor files={files} onChange={setFiles} dark={dark} />
+            <CodeEditor files={files} onChange={onEdit} dark={dark} />
           </div>
         )}
         <div className={blocks ? 'h-[38rem]' : 'h-[28rem]'}>
@@ -431,8 +470,22 @@ function ChallengeStep({
       <ErrorNote error={error} />
       <TestResultList challenge={challenge} results={results} />
 
-      <TutorPanel label="Here to help">
-        <HintLadder challenge={challenge} onSolution={onSolution} embedded />
+      <TutorPanel
+        character={lesson.tutor.character}
+        label="Here to help"
+        lines={tutor.current ? [tutor.current.line] : []}
+        mood={tutor.current ? undefined : hintMood}
+        live
+        actions={tutor.current?.event === 'stuckOffer' ? (
+          <>
+            <button type="button" className="btn-primary" onClick={() => setHintRequest((n) => n + 1)}>Yes, a hint please</button>
+            <button type="button" className="btn-secondary" onClick={tutor.dismiss}>No thanks</button>
+          </>
+        ) : tutor.current ? (
+          <button type="button" className="btn-secondary" onClick={tutor.dismiss}>OK</button>
+        ) : undefined}
+      >
+        <HintLadder challenge={challenge} onSolution={onSolution} onHint={onHint} hintRequest={hintRequest} embedded />
       </TutorPanel>
 
       {solution && (

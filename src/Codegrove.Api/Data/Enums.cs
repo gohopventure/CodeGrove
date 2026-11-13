@@ -49,6 +49,26 @@ public enum ChallengeKind { Html = 0, Css = 1, Js = 2, Sql = 3, CSharp = 4, Reac
 /// </summary>
 public enum LessonScriptKind { Intro = 0, Recap = 1 }
 
+/// <summary>
+/// The tutor's expression for a line. In the MVP it picks the portrait shown next to the text; later it drives the
+/// avatar's face. Stored as a string.
+/// </summary>
+public enum TutorMood { Neutral = 0, Encouraging = 1, Thinking = 2, Celebrating = 3 }
+
+/// <summary>
+/// Moments in a lesson when the tutor says one of its reusable lines (<see cref="Entities.TutorLine"/>). The lesson's
+/// own intro and recap (<see cref="Entities.LessonScript"/>) cover the start and end of a lesson. Stored as a string.
+/// </summary>
+public enum TutorEvent
+{
+    /// <summary>The first failed check in a challenge: a short reassurance, never a hint.</summary>
+    FirstFail = 0,
+    /// <summary>After 3 failed checks or about 4 minutes without progress: offers a hint, never gives one.</summary>
+    StuckOffer = 1,
+    /// <summary>The challenge passes: a short celebration of the work, not the kid.</summary>
+    Pass = 2,
+}
+
 public enum SubmissionCheckedBy { Client = 0, Server = 1 }
 
 public enum XpSourceType { Challenge = 0, Quiz = 1, Lesson = 2, Course = 3 }

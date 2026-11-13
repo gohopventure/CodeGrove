@@ -16,13 +16,27 @@ public sealed record TrackFile(
     List<string> Courses, List<string>? Prerequisites);
 
 /// <summary>
-/// Content/tutor/&lt;course&gt;.json: the tutor's spoken intro and recap for each lesson of one course, keyed by
+/// Content/tutor/&lt;course&gt;.json: the tutor's intro and recap for each lesson of one course, keyed by
 /// lesson slug. Kept apart from the course files so scripts can be written and revised (and later voiced)
 /// on their own. Each list is one or more segments, in order.
 /// </summary>
 public sealed record TutorScriptFile(string Course, Dictionary<string, LessonScriptFile> Lessons);
 
-public sealed record LessonScriptFile(List<string> Intro, List<string> Recap);
+public sealed record LessonScriptFile(List<SpokenLineFile> Intro, List<SpokenLineFile> Recap);
+
+/// <summary>
+/// One thing the tutor says, written twice: <paramref name="DisplayText"/> for the screen (may use `code`) and
+/// <paramref name="SpeechText"/> for the voice (plain words only).
+/// </summary>
+public sealed record SpokenLineFile(string DisplayText, string SpeechText, TutorMood Mood);
+
+/// <summary>Content/tutors.json: one tutor character per learner band, with its reusable event lines.</summary>
+public sealed record TutorsFile(List<TutorCharacterFile> Characters);
+
+/// <summary><paramref name="Lines"/> is keyed by <see cref="TutorEvent"/> name, e.g. "pass".</summary>
+public sealed record TutorCharacterFile(
+    string Slug, string Name, AgeBand Band, string VoiceId, string PortraitUrl, string PersonaPrompt,
+    Dictionary<string, List<SpokenLineFile>> Lines);
 
 public sealed record BadgeFile(
     string Code, string Name, string Description, string IconUrl, BadgeRuleType RuleType, int? RuleValue, string? RuleCourseSlug);
@@ -49,7 +63,8 @@ public sealed record BlocksFile(List<string> Toolbox, JsonElement? Starter, Json
 
 public sealed record TestFile(string Label, string Kind, JsonElement Spec, string FailMessage);
 
-public sealed record HintFile(int Level, string Markdown);
+/// <summary>A hint: markdown for the screen, plus speechText and mood for the tutor's voice.</summary>
+public sealed record HintFile(int Level, string Markdown, string? SpeechText = null, TutorMood? Mood = null);
 
 public sealed record QuizFile(int PassPercent, List<QuestionFile> Questions);
 
@@ -87,15 +102,16 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
         foreach (var path in tutorFiles)
             await UpsertTutorScriptsAsync(await Read<TutorScriptFile>(path, ct), path, ct);
 
-        // Every published lesson should have an intro and a recap. The web content check fails on a missing
-        // one; here it's a warning, so a course in progress doesn't stop the API from starting.
+        // Every published lesson needs an intro and a recap. Unpublished lessons (a course in progress) don't.
         var unscripted = await db.Lessons
             .Where(l => l.IsPublished && l.Course.IsPublished
                 && (!l.Scripts.Any(s => s.Kind == LessonScriptKind.Intro) || !l.Scripts.Any(s => s.Kind == LessonScriptKind.Recap)))
             .Select(l => l.Course.Slug + "/" + l.Slug).ToListAsync(ct);
         if (unscripted.Count > 0)
-            logger.LogWarning("{Count} published lessons have no tutor intro/recap yet: {Lessons}",
-                unscripted.Count, string.Join(", ", unscripted.Take(10)));
+            throw new InvalidDataException(
+                $"{unscripted.Count} published lessons have no tutor intro/recap in Content/tutor: {string.Join(", ", unscripted.Take(10))}");
+
+        await UpsertTutorsAsync(await Read<TutorsFile>(Path.Combine(contentRoot, "tutors.json"), ct), ct);
 
         var catalog = await Read<CatalogFile>(Path.Combine(contentRoot, "catalog.json"), ct);
         await UpsertTracksAsync(catalog.Tracks, ct);
@@ -174,13 +190,92 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
 
             foreach (var (kind, lines) in new[] { (LessonScriptKind.Intro, script.Intro), (LessonScriptKind.Recap, script.Recap) })
             {
-                if (lines is null || lines.Count == 0 || lines.Any(string.IsNullOrWhiteSpace))
-                    throw Bad($"lesson '{lesson.Slug}' needs a non-empty {kind.ToString().ToLowerInvariant()}.");
+                var name = kind.ToString().ToLowerInvariant();
+                if (lines is null || lines.Count == 0) throw Bad($"lesson '{lesson.Slug}' needs a non-empty {name}.");
+
+                // Length rules apply to the whole intro or recap, however many segments it's split into.
+                var (min, max) = TutorRules.ScriptSentences(lesson.AgeBand);
+                var problem = lines.Select(l => TutorRules.CheckDisplay(l.DisplayText) ?? TutorRules.CheckSpeech(l.SpeechText, 1, max)).FirstOrDefault(p => p is not null)
+                    ?? TutorRules.CheckSpeech(string.Join(" ", lines.Select(l => l.SpeechText)), min, max);
+                if (problem is not null) throw Bad($"lesson '{lesson.Slug}' {name}: {problem}");
+
+                for (var i = 0; i < lines.Count; i++)
+                    lesson.Scripts.Add(new LessonScript
+                    {
+                        Kind = kind, SortOrder = i, Mood = lines[i].Mood,
+                        DisplayText = lines[i].DisplayText.Trim(), SpeechText = lines[i].SpeechText.Trim(),
+                    });
+            }
+        }
+        await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>Minimum and maximum pool sizes per event. Pass has the most lines so praise doesn't repeat.</summary>
+    private static readonly IReadOnlyDictionary<TutorEvent, (int Min, int Max)> PoolSizes = new Dictionary<TutorEvent, (int, int)>
+    {
+        [TutorEvent.FirstFail] = (3, 10),
+        [TutorEvent.StuckOffer] = (3, 10),
+        [TutorEvent.Pass] = (8, 10),
+    };
+
+    /// <summary>Upserts the tutor characters by slug and replaces their event lines.</summary>
+    private async Task UpsertTutorsAsync(TutorsFile f, CancellationToken ct)
+    {
+        static InvalidDataException Bad(string msg) => new($"tutors.json: {msg}");
+
+        foreach (var band in new[] { AgeBand.Explorer, AgeBand.Builder })
+            if (f.Characters.Count(c => c.Band == band) != 1) throw Bad($"needs exactly one {band} tutor.");
+        if (f.Characters.FirstOrDefault(c => c.Band is not (AgeBand.Explorer or AgeBand.Builder)) is { } odd)
+            throw Bad($"tutor '{odd.Slug}' must be for Explorer or Builder.");
+
+        var existing = await db.TutorCharacters.Include(c => c.Lines).ToListAsync(ct);
+        // Band is unique: drop characters that are no longer in the file before adding a replacement.
+        foreach (var gone in existing.Where(e => f.Characters.All(c => c.Slug != e.Slug)))
+            db.TutorCharacters.Remove(gone);
+        await db.SaveChangesAsync(ct);
+
+        foreach (var cf in f.Characters)
+        {
+            if (string.IsNullOrWhiteSpace(cf.Name) || !cf.PortraitUrl.Contains("{mood}"))
+                throw Bad($"tutor '{cf.Slug}' needs a name and a portraitUrl with a {{mood}} placeholder.");
+
+            var character = existing.SingleOrDefault(e => e.Slug == cf.Slug);
+            if (character is null)
+            {
+                character = new TutorCharacter { Slug = cf.Slug };
+                db.TutorCharacters.Add(character);
+            }
+            character.Name = cf.Name;
+            character.Band = cf.Band;
+            character.VoiceId = cf.VoiceId;
+            character.PortraitUrl = cf.PortraitUrl;
+            character.PersonaPrompt = cf.PersonaPrompt;
+
+            db.TutorLines.RemoveRange(character.Lines);
+            character.Lines.Clear();
+            foreach (var (key, lines) in cf.Lines)
+            {
+                if (!Enum.TryParse<TutorEvent>(key, ignoreCase: true, out var ev) || !Enum.IsDefined(ev))
+                    throw Bad($"tutor '{cf.Slug}': unknown event '{key}'. Known: {string.Join(", ", Enum.GetNames<TutorEvent>())}.");
                 for (var i = 0; i < lines.Count; i++)
                 {
-                    if (lines[i].Length > 1000) throw Bad($"lesson '{lesson.Slug}': {kind} segment {i + 1} is over 1000 characters.");
-                    lesson.Scripts.Add(new LessonScript { Kind = kind, SortOrder = i, Text = lines[i].Trim() });
+                    var line = lines[i];
+                    if ((TutorRules.CheckDisplay(line.DisplayText) ?? TutorRules.CheckSpeech(line.SpeechText, 1, TutorRules.MaxLineSentences(cf.Band))) is { } p)
+                        throw Bad($"tutor '{cf.Slug}' {key} line {i + 1}: {p}");
+                    // StuckOffer only offers: it asks, it never gives the hint itself.
+                    if (ev == TutorEvent.StuckOffer && !line.SpeechText.TrimEnd().EndsWith('?'))
+                        throw Bad($"tutor '{cf.Slug}' stuckOffer line {i + 1} should be a question that offers a hint.");
+                    character.Lines.Add(new TutorLine
+                    {
+                        Event = ev, SortOrder = i, Mood = line.Mood,
+                        DisplayText = line.DisplayText.Trim(), SpeechText = line.SpeechText.Trim(),
+                    });
                 }
+            }
+            foreach (var (ev, (min, max)) in PoolSizes)
+            {
+                var n = character.Lines.Count(l => l.Event == ev);
+                if (n < min || n > max) throw Bad($"tutor '{cf.Slug}' needs {min}–{max} {ev} lines, not {n}.");
             }
         }
         await db.SaveChangesAsync(ct);
@@ -213,8 +308,10 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
         foreach (var hf in f.Hints)
         {
             var hint = c.Hints.SingleOrDefault(h => h.Level == hf.Level);
-            if (hint is null) c.Hints.Add(new Hint { Level = hf.Level, Markdown = hf.Markdown });
-            else hint.Markdown = hf.Markdown;
+            if (hint is null) c.Hints.Add(hint = new Hint { Level = hf.Level });
+            hint.Markdown = hf.Markdown;
+            hint.SpeechText = hf.SpeechText?.Trim() ?? "";
+            hint.Mood = hf.Mood ?? TutorMood.Thinking;
         }
     }
 
@@ -336,6 +433,11 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
                 else if (c.Tests.Any(t => t.Kind is "typeCheck" or "typeError"))
                     Fail("typeCheck and typeError tests only work in TypeScript challenges.");
                 if (c.Hints.Select(h => h.Level).Order().SequenceEqual([1, 2, 3]) is false) Fail("a challenge needs hints at levels 1, 2 and 3.");
+                foreach (var h in c.Hints)
+                {
+                    if (h.Mood is null) Fail($"hint {h.Level} needs a mood.");
+                    if (TutorRules.CheckHint(h.Level, h.Markdown, h.SpeechText, l.AgeBand, c.SolutionFiles) is { } bad) Fail(bad);
+                }
             }
             if (l.Quiz is { } q && q.Questions.Any(x => x.Options.Count(o => o.Correct) != 1))
                 Fail("every quiz question needs exactly one correct option.");

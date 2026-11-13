@@ -66,6 +66,33 @@ export interface CourseDetail {
   lessons: LessonSummary[];
 }
 
+export type TutorMood = 'Neutral' | 'Encouraging' | 'Thinking' | 'Celebrating';
+
+/** One thing the tutor says: `displayText` for the screen (may have `code`), `speechText` for a voice later. */
+export interface TutorLine {
+  displayText: string;
+  speechText: string;
+  mood: TutorMood;
+}
+
+export type TutorEvent = 'firstFail' | 'stuckOffer' | 'pass';
+
+export interface Tutor {
+  /** The character for the learner's band. `portraitUrl` has a `{mood}` placeholder. Null if none is set up. */
+  character: { slug: string; name: string; portraitUrl: string } | null;
+  intro: TutorLine[];
+  recap: TutorLine[];
+  /** Reusable lines by event; the player picks one at random. */
+  lines: Partial<Record<TutorEvent, TutorLine[]>>;
+}
+
+export interface RevealedHint {
+  level: number;
+  markdown: string;
+  speechText: string;
+  mood: TutorMood;
+}
+
 export interface Challenge {
   id: number;
   kind: 'Html' | 'Css' | 'Js' | 'React' | 'TypeScript' | 'Sql' | 'CSharp';
@@ -73,7 +100,8 @@ export interface Challenge {
   starterFiles: Files;
   tests: TestSpec[];
   hintLevels: number[];
-  revealedHints: { level: number; markdown: string }[];
+  revealedHints: RevealedHint[];
+  /** Only after the learner asked for it (after all three hints) or passed. */
   solutionFiles: Files | null;
   xpReward: number;
   /** Present when the challenge can be built with blocks (Explorer JavaScript lessons). */
@@ -110,8 +138,7 @@ export interface Lesson {
   progress: { learnViewed: boolean; challengePassed: boolean; quizPassed: boolean; completed: boolean };
   previousLessonId: number | null;
   nextLessonId: number | null;
-  /** The tutor's spoken-style lines; empty when not written yet. */
-  tutor: { intro: string[]; recap: string[] };
+  tutor: Tutor;
 }
 
 export interface AwardedBadge {
@@ -136,10 +163,10 @@ export interface SubmissionResponse {
   outcome: ProgressOutcome;
 }
 
-export interface HintResponse {
-  level: number;
-  markdown: string;
-  solutionFiles: Files | null;
+export type HintResponse = RevealedHint;
+
+export interface SolutionResponse {
+  solutionFiles: Files;
 }
 
 export interface QuizAttemptResponse {

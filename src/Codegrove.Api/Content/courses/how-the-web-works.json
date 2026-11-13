@@ -82,15 +82,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Think about the pizza table in the lesson. Which website step matches each pizza step?"
+            "markdown": "Think about the pizza order in the lesson. Which website step matches the very first pizza step?",
+            "speechText": "Think about the pizza order in the lesson. Which website step matches the very first pizza step?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "The first two steps are:\n\n1. You type a web address into the browser.\n2. The browser asks a DNS server where that website lives.\n\nNext comes the request, then the server answering."
+            "markdown": "The first two steps are typing the address and asking DNS where the website lives. After that comes the request, then the server's answer.",
+            "speechText": "The first two steps are typing the address and asking D-N-S where the website lives. After that comes the request, then the server's answer.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here are all five steps in order."
+            "markdown": "Start like this, then add the request, the reply and the page showing up:\n\n1. You type a web address into the browser.\n2. The browser asks a DNS server where that website lives.",
+            "speechText": "Start with typing the address, then asking D-N-S where the site lives. Next comes the request, the reply, and the page showing up.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -233,15 +239,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Anchor the ends first: what must happen first, and what can only happen last? Then ask, for each middle step, what it depends on."
+            "markdown": "What has to happen first, and what can only happen last? For each middle step, what does it depend on?",
+            "speechText": "What has to happen first, and what can only happen last? For each middle step, what does it depend on?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Dependencies: DNS gives the IP address → you need the IP address to connect → you need a connection to send a request → the response contains the HTML → the HTML names the extra files."
+            "markdown": "Follow the dependencies: DNS gives the IP address, the IP address lets you connect, the connection carries the request, and the response holds the HTML that names the extra files.",
+            "speechText": "Follow the dependencies: D-N-S gives the I-P address, the I-P address lets you connect, the connection carries the request, and the response holds the H-T-M-L that names the extra files.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The steps in order."
+            "markdown": "The first three steps:\n\n1. The user enters a URL in the browser.\n2. The browser asks DNS to turn the domain name into an IP address.\n3. The browser opens a secure connection to the server at that IP address.\n\nNow the request, the response, the extra files and the rendering.",
+            "speechText": "The first three are entering the U-R-L, the D-N-S lookup, and opening a secure connection. After that comes the request, the response, fetching the extra files, and rendering.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -375,15 +387,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Find the `://` and the first `/` after it. Those are the dividers between the three parts."
+            "markdown": "Can you spot the `://` and the first `/` after it?",
+            "speechText": "Can you spot the colon slash slash, and the first slash after it?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Protocol: everything before `://`. Domain: from after `://` up to the next `/`. Path: from that `/` to the end."
+            "markdown": "Those two marks are the dividers. The protocol comes before `://`, the domain sits between the dividers, and the path is everything from that `/` to the end.",
+            "speechText": "Those two marks are the dividers. The protocol comes first, the domain sits in the middle, and the path is the rest.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the address taken apart."
+            "markdown": "The protocol is `https`. Now find the domain: start right after `://` and stop at the next `/`.",
+            "speechText": "The protocol is H-T-T-P-S. For the domain, start right after the colon slash slash and stop at the next slash.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -535,15 +553,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Split on the separators in order: `://`, then `:`, then the first `/`, then `?`, then `#`."
+            "markdown": "Which separators split a URL, and in what order do they appear?",
+            "speechText": "Which separators split a U-R-L, and in what order do they appear?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Host `shop.example.com` splits into subdomain `shop` and domain `example.com`. The port is `8443`. Query: `sort=new&amp;page=2` (escaped in HTML)."
+            "markdown": "Split on `://`, then `:`, then the first `/`, then `?`, then `#`. The host `shop.example.com` holds two parts: the subdomain and the registered domain.",
+            "speechText": "Split on the colon slash slash, then the colon, then the first slash, then the question mark, then the hash. The host holds two parts: the subdomain and the registered domain.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The full breakdown."
+            "markdown": "Subdomain `shop`, domain `example.com`, port `8443`. Now the path starts at the first `/`, and the query sits between `?` and `#`, with `&` written as `&amp;`.",
+            "speechText": "Subdomain shop, domain example dot com, port 8443. The path starts at the first slash, and the query sits between the question mark and the hash, with the ampersand escaped.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -695,15 +719,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Look at the table in the lesson. Which code means everything is OK? Which one is \"not found\"?"
+            "markdown": "Look at the table in the lesson. Which code means everything went fine?",
+            "speechText": "Look at the table in the lesson. Which code means everything went fine?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "200 = OK, 404 = not found, 500 = the server had a problem."
+            "markdown": "200 means OK, 404 means the page wasn't found, and 500 means the server had a problem.",
+            "speechText": "Two hundred means OK, four oh four means not found, and five hundred means the server had a problem.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the solved table."
+            "markdown": "The page that was found gets `200`. Which code fits a page that doesn't exist, and which fits a broken server?",
+            "speechText": "The page that was found gets two hundred. Now pick the codes for a missing page and a broken server.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -846,15 +876,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Sort each situation into a family first: success (2xx), redirect (3xx), the request's fault (4xx) or the server's fault (5xx)."
+            "markdown": "Which family does each situation belong to: success, redirect, the request's fault or the server's fault?",
+            "speechText": "Which family does each situation belong to: success, redirect, the request's fault or the server's fault?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Success: 200 for a normal read, 201 when something new was created. Redirect: 301. Client errors: 401 (not signed in), 404 (not there). Server error: 500."
+            "markdown": "Success codes start with 2, redirects with 3, client errors with 4 and server errors with 5. Sort the six situations into those families first.",
+            "speechText": "Success codes start with two, redirects with three, client errors with four, and server errors with five. Sort the six situations into those families first.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The completed table."
+            "markdown": "Success: `200` for a normal read, `201` when something new was created. Redirect: `301`. That leaves `401`, `404` and `500` for the other three.",
+            "speechText": "Two hundred is a normal read, two oh one means something was created, and three oh one is the redirect. That leaves four oh one, four oh four and five hundred for the other three.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1008,15 +1044,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Look at the folder map. Which folder is `cat.png` in? Put that folder's name and a `/` in front of the file name."
+            "markdown": "Look at the folder map. Which folder is `cat.png` in?",
+            "speechText": "Look at the folder map. Which folder is the cat picture in?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "The paths should be:\n\n- `images/cat.png`\n- `pages/about.html`"
+            "markdown": "A path names the folder, then a `/`, then the file. The picture lives in **images** and the page lives in **pages**.",
+            "speechText": "A path names the folder, then a slash, then the file. The picture lives in images, and the page lives in pages.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the page with both paths fixed."
+            "markdown": "The picture's path is `images/cat.png`. Write the link's path the same way, with the **pages** folder.",
+            "speechText": "The picture's path is images slash cat dot png. Write the link's path the same way, with the pages folder.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1139,15 +1181,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "For each path, ask: is the target inside `pages/`, or do I need to climb up first with `..`?"
+            "markdown": "For each path, is the target inside `pages/`, or do you need to climb up a folder first?",
+            "speechText": "For each path, is the target inside the pages folder, or do you need to climb up a folder first?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Three of the four need `../` in front: `../css/site.css`, `../images/logo.png`, `../index.html`."
+            "markdown": "`..` means go up one folder. Three of the four targets are outside `pages/`, and `jobs.html` sits right next to `team.html`.",
+            "speechText": "Dot dot means go up one folder. Three of the four targets are outside the pages folder, and the jobs page sits right next to the team page.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The corrected page."
+            "markdown": "The stylesheet becomes `../css/site.css`. Do the same for the logo and the Home link, and leave the Jobs link alone.",
+            "speechText": "The stylesheet path becomes dot dot slash C-S-S slash site dot C-S-S. Do the same for the logo and the Home link, and leave the Jobs link alone.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1289,15 +1337,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Look at the skeleton in the lesson. Type it line by line, then fill in your animal's title, heading and fact."
+            "markdown": "Look at the skeleton in the lesson. What's the very first line every page starts with?",
+            "speechText": "Look at the skeleton in the lesson. What's the very first line every page starts with?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```html\n<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>…</title>\n  </head>\n  <body>\n    <h1>…</h1>\n    <p>…</p>\n  </body>\n</html>\n```"
+            "markdown": "After `<!DOCTYPE html>` comes `<html lang=\"en\">`, which holds two parts: the `<head>` with the title and the `<body>` with what you see.",
+            "speechText": "After the doctype line comes the html tag, which holds two parts: the head with the title, and the body with what you see.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's a complete page. Make yours about your own favorite animal!"
+            "markdown": "Fill in the dots:\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>…</title>\n  </head>\n  <body>\n    <h1>…</h1>\n    <p>…</p>\n  </body>\n</html>\n```",
+            "speechText": "Type the skeleton from the lesson, then fill in a title, a heading, and a fact about your animal.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1453,15 +1507,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Write the skeleton first (doctype, html, head, body), then fill the head top to bottom in the order from the lesson's table, then the three landmarks."
+            "markdown": "What goes in the head, and in what order does the lesson's table list it?",
+            "speechText": "What goes in the head, and in what order does the lesson's table list it?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "The head, in order:\n\n```html\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"…\">\n<title>…</title>\n<link rel=\"stylesheet\" href=\"css/site.css\">\n```"
+            "markdown": "Write the skeleton first, then the head from top to bottom: charset, viewport, description, title, stylesheet. Finish the body with three landmarks: `header`, `main` and `footer`.",
+            "speechText": "Write the skeleton first, then the head from top to bottom: charset, viewport, description, title, stylesheet. Finish the body with three landmarks: header, main and footer.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "A complete page."
+            "markdown": "The head, in order:\n\n```html\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"…\">\n<title>…</title>\n<link rel=\"stylesheet\" href=\"css/site.css\">\n```",
+            "speechText": "Here's the head in order. Fill in the description and title, then add the header, main and footer in the body.",
+            "mood": "Encouraging"
           }
         ]
       },

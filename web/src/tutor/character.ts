@@ -1,22 +1,28 @@
-/**
- * The tutor character, in one place. The lesson player shows this name and picture next to the tutor's
- * lines (intro, hints, recap). When the character is chosen, change it here; scripts in
- * Content/tutor/*.json never say the tutor's name, so they don't need to change.
- *
- * Later, the avatar tutor can replace `picture` with live or pre-rendered video in TutorPanel; nothing
- * else in the app needs to know.
- */
-export interface TutorCharacter {
-  /** Shown as "<name> says". */
-  name: string;
-  /** Square image under /public. Decorative: the name is always shown as text. */
-  picture: string;
-  /** True until the real character is chosen. */
-  placeholder: boolean;
-}
+import type { Tutor, TutorMood } from '../api/types';
 
-export const TUTOR: TutorCharacter = {
+/**
+ * Who the tutor is comes from the API (Content/tutors.json): Juni for Explorers, Rowan for Builders. Scripts never
+ * say the tutor's name, so renaming a character only changes that file.
+ *
+ * Later, the avatar tutor can replace the portrait with pre-rendered or live video in TutorPanel; nothing else in the
+ * app needs to know.
+ */
+export type TutorCharacter = NonNullable<Tutor['character']>;
+
+/** Used only if no character is set up for the learner's band. */
+export const FALLBACK_CHARACTER: TutorCharacter = {
+  slug: 'guide',
   name: 'Your guide',
-  picture: '/tutor/placeholder.svg',
-  placeholder: true,
+  portraitUrl: '/tutor/placeholder.svg',
 };
+
+/**
+ * Shown under the name everywhere the tutor appears. The tutor is a character, never a person, and the UI says so
+ * (Character & Behavior Spec, shared rules).
+ */
+export const AI_CHARACTER_LABEL = 'Your tutor (AI character)';
+
+/** The portrait for a mood, e.g. "/tutor/juni-{mood}.svg" + Celebrating → "/tutor/juni-celebrating.svg". */
+export function portraitFor(character: TutorCharacter, mood: TutorMood = 'Neutral'): string {
+  return character.portraitUrl.replace('{mood}', mood.toLowerCase());
+}

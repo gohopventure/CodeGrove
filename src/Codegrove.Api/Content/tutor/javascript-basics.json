@@ -3,146 +3,290 @@
   "lessons": {
     "variables-explorer": {
       "intro": [
-        "So far your pages look great, but they can't think yet. JavaScript changes that! Today you'll learn about variables, which are like labeled boxes that hold numbers and words. Then you'll make a game hero who collects coins."
+        {
+          "displayText": "Your pages look great, but they can't think yet, and JavaScript changes that! Today you'll use variables, labeled boxes that hold numbers and words, to make a game hero who collects coins.",
+          "speechText": "Your pages look great, but they can't think yet, and JavaScript changes that! Today you'll use variables, labeled boxes that hold numbers and words, to make a game hero who collects coins.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "You made your first variables! Use let when a box's value will change, and const when it stays the same. You also printed messages with console dot log. Next, we'll teach your code to make choices."
+        {
+          "displayText": "You made your first variables, and you printed a message with `console.log`. Your new word is variable, a labeled box that holds a value.",
+          "speechText": "You made your first variables, and you printed a message with console dot log. Your new word is variable, a labeled box that holds a value.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "variables": {
       "intro": [
-        "JavaScript is what gives a web page behavior. In this lesson you'll learn to declare variables with const and let, the main value types, template literals, and a classic bug called type coercion. Then you'll build a stats line for a game character."
+        {
+          "displayText": "JavaScript is what gives a web page behavior. You'll learn const and let, the main value types, template literals, and a classic bug called type coercion. Form inputs always arrive as strings, so this bug shows up in real apps constantly. Then you'll build a stats line for a game character.",
+          "speechText": "JavaScript is what gives a web page behavior. You'll learn const and let, the main value types, template literals, and a classic bug called type coercion. Form inputs always arrive as strings, so this bug shows up in real apps constantly. Then you'll build a stats line for a game character.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nice work. You converted text to a number, used let only where a value changes, and built a message with a template literal. Watch out for strings sneaking into math, because plus will join them instead of adding. Next up, comparisons and if else."
+        {
+          "displayText": "Nice work. You converted text to a number, used let only where a value changes, and built a message with a template literal. The gotcha: plus joins strings instead of adding them, so seven plus one can turn into seventy one. Next up, comparisons and if else.",
+          "speechText": "Nice work. You converted text to a number, used let only where a value changes, and built a message with a template literal. The gotcha: plus joins strings instead of adding them, so seven plus one can turn into seventy one. Next up, comparisons and if else.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "if-else-explorer": {
       "intro": [
-        "Games make choices all the time, like whether you scored enough points. Today you'll learn how JavaScript compares things and how if and else pick what happens next. Then you'll build a ride checker for an amusement park."
+        {
+          "displayText": "Games make choices all the time, like whether you scored enough points. Today you'll use if and else to build a ride checker for an amusement park.",
+          "speechText": "Games make choices all the time, like whether you scored enough points. Today you'll use if and else to build a ride checker for an amusement park.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "You built a ride checker! A comparison gives true or false, and if and else choose which code runs. Don't forget that one equals sign stores a value, and triple equals compares. Next, we'll make code repeat itself with loops."
+        {
+          "displayText": "You built a ride checker! A comparison gives true or false, and if and else pick which code runs. Your new word is condition, the true or false question inside an if.",
+          "speechText": "You built a ride checker! A comparison gives true or false, and if and else pick which code runs. Your new word is condition, the true or false question inside an if.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "if-else": {
       "intro": [
-        "Programs are full of decisions. In this lesson you'll learn strict equality, logical operators, truthy and falsy values, else if chains and the ternary operator. Then you'll write a grade reporter that handles every case."
+        {
+          "displayText": "Programs are full of decisions. You'll learn strict equality, logical operators, truthy and falsy values, else if chains and the ternary operator. Getting conditions right is the difference between an app that works and one with weird edge cases. Then you'll write a grade reporter that handles every case.",
+          "speechText": "Programs are full of decisions. You'll learn strict equality, logical operators, truthy and falsy values, else if chains and the ternary operator. Getting conditions right is the difference between an app that works and one with weird edge cases. Then you'll write a grade reporter that handles every case.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Well done. Your grade reporter checks the highest grade first, combines conditions with and and not, and picks a word with a ternary. Always use triple equals so JavaScript doesn't convert types behind your back. Next, we'll look at loops."
+        {
+          "displayText": "Well done. Your grade reporter checks the highest grade first, combines conditions with and and not, and picks a word with a ternary. The gotcha is order: an else if chain stops at the first true condition, so put the strictest test first. Next, we'll look at loops.",
+          "speechText": "Well done. Your grade reporter checks the highest grade first, combines conditions with and and not, and picks a word with a ternary. The gotcha is order: an else if chain stops at the first true condition, so put the strictest test first. Next, we'll look at loops.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "loops-explorer": {
       "intro": [
-        "What if you needed to count to a hundred? You wouldn't want to write a hundred lines! Loops repeat code for you. Today you'll learn the for loop, and then you'll build a countdown for a rocket launch."
+        {
+          "displayText": "What if you needed to count to a hundred? Loops repeat code for you, and today you'll build a countdown for a rocket launch.",
+          "speechText": "What if you needed to count to a hundred? Loops repeat code for you, and today you'll build a countdown for a rocket launch.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Liftoff! Your for loop counted down from ten to one all by itself. Remember the three parts: where to start, when to keep going, and how to step. Next, we'll write our own functions, which are like recipes."
+        {
+          "displayText": "Liftoff! Your for loop counted down from ten to one all by itself. Your new word is loop, code that repeats.",
+          "speechText": "Liftoff! Your for loop counted down from ten to one all by itself. Your new word is loop, code that repeats.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "loops": {
       "intro": [
-        "Loops let your code do the same work again and again without copying it. In this lesson you'll learn for, while and for of, along with break, continue and the accumulator pattern. Then you'll solve two loop puzzles with numbers and letters."
+        {
+          "displayText": "Loops let your code do the same work again and again without copying it. You'll learn for, while and for of, along with break, continue and the accumulator pattern. Almost every data job, from totals to searches, is a loop underneath. Then you'll solve two loop puzzles with numbers and letters.",
+          "speechText": "Loops let your code do the same work again and again without copying it. You'll learn for, while and for of, along with break, continue and the accumulator pattern. Almost every data job, from totals to searches, is a loop underneath. Then you'll solve two loop puzzles with numbers and letters.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nicely done. You summed multiples with a for loop and counted vowels with for of. When a loop gives you the wrong answer, check for an off by one error first. Next, we'll write functions."
+        {
+          "displayText": "Nicely done. You summed multiples with a for loop and counted vowels with for of. The classic gotcha is the off by one error, like stopping at ninety nine when you meant a hundred. Next, we'll write functions.",
+          "speechText": "Nicely done. You summed multiples with a for loop and counted vowels with for of. The classic gotcha is the off by one error, like stopping at ninety nine when you meant a hundred. Next, we'll write functions.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "functions-explorer": {
       "intro": [
-        "A function is like a recipe. You write the steps once, give it a name, and use it whenever you want. Today you'll learn how to make functions, give them ingredients and get results back. Then you'll plan a pizza party."
+        {
+          "displayText": "A function is like a recipe: you write the steps once and use them whenever you want. Today you'll write functions to plan a pizza party.",
+          "speechText": "A function is like a recipe: you write the steps once and use them whenever you want. Today you'll write functions to plan a pizza party.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Pizza party planned! Your functions take in ingredients called parameters and hand back a result with return. Write it once, use it lots. Next, we'll keep lots of things in one place with arrays."
+        {
+          "displayText": "Pizza party planned! Your functions take in ingredients and hand back a result. Your new word is return, how a function gives back its answer.",
+          "speechText": "Pizza party planned! Your functions take in ingredients and hand back a result. Your new word is return, how a function gives back its answer.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "functions": {
       "intro": [
-        "Functions are how you organize code into reusable pieces. In this lesson you'll learn three ways to write them, parameters and default values, the difference between return and console dot log, scope, and pure functions. Then you'll write temperature helpers that get tested with different values."
+        {
+          "displayText": "Functions are how you organize code into reusable pieces. You'll learn three ways to write them, default parameters, return versus console dot log, scope, and pure functions. Small, pure functions are what make code easy to test, and the checks here call yours with different values. Then you'll write temperature helpers.",
+          "speechText": "Functions are how you organize code into reusable pieces. You'll learn three ways to write them, default parameters, return versus console dot log, scope, and pure functions. Small, pure functions are what make code easy to test, and the checks here call yours with different values. Then you'll write temperature helpers.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great work. Your helpers return values instead of just logging them, and one of them is an arrow function. Small, pure functions are easy to test and reuse. Next, we'll work with arrays."
+        {
+          "displayText": "Great work. Your helpers return values instead of just logging them, and one of them is an arrow function. The gotcha: a function that only logs gives back undefined, so nothing else can use its answer. Next, we'll work with arrays.",
+          "speechText": "Great work. Your helpers return values instead of just logging them, and one of them is an arrow function. The gotcha: a function that only logs gives back undefined, so nothing else can use its answer. Next, we'll work with arrays.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "arrays-explorer": {
       "intro": [
-        "A variable holds one thing, but an array holds a whole list! Today you'll learn how to make a list, get things out of it and add new things. Then you'll pack a backpack for a hike."
+        {
+          "displayText": "A variable holds one thing, but an array holds a whole list! Today you'll pack a backpack for a hike.",
+          "speechText": "A variable holds one thing, but an array holds a whole list! Today you'll pack a backpack for a hike.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Backpack packed! Remember, arrays start counting at zero, so the first item is at index zero. Push adds to the end, and length tells you how many items there are. Next, we'll use objects to describe things."
+        {
+          "displayText": "Backpack packed! Push adds to the end, and length tells you how many items there are. Your new word is index, an item's place in the list, starting from zero.",
+          "speechText": "Backpack packed! Push adds to the end, and length tells you how many items there are. Your new word is index, an item's place in the list, starting from zero.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "arrays": {
       "intro": [
-        "Arrays are the workhorse of JavaScript data. In this lesson you'll learn which methods change an array and which return something new, plus map, filter, reduce, find and the sort trap. Then you'll analyze a high-score table without changing the original data."
+        {
+          "displayText": "Arrays are the workhorse of JavaScript data. You'll learn which methods change an array and which return something new, plus map, filter, reduce, find and the sort trap. Not changing your original data is a habit that prevents a whole family of bugs. Then you'll analyze a high-score table without touching the original.",
+          "speechText": "Arrays are the workhorse of JavaScript data. You'll learn which methods change an array and which return something new, plus map, filter, reduce, find and the sort trap. Not changing your original data is a habit that prevents a whole family of bugs. Then you'll analyze a high-score table without touching the original.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nicely done. You filtered, reduced, sorted a copy and mapped labels, and the original scores never changed. Reach for methods that return new arrays, and remember that sort needs a comparator for numbers. Next, we'll dig into objects."
+        {
+          "displayText": "Nicely done. You filtered, reduced, sorted a copy and mapped labels, and the original scores never changed. The gotcha is sort: it changes the array in place and compares numbers as text unless you give it a comparator. Next, we'll dig into objects.",
+          "speechText": "Nicely done. You filtered, reduced, sorted a copy and mapped labels, and the original scores never changed. The gotcha is sort: it changes the array in place and compares numbers as text unless you give it a comparator. Next, we'll dig into objects.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "objects-explorer": {
       "intro": [
-        "An array is a list, but an object describes one thing with lots of labeled facts. Today you'll learn how to make objects and how to read and change their properties. Then you'll make a profile for a pet."
+        {
+          "displayText": "An array is a list, but an object describes one thing with lots of labeled facts. Today you'll make a profile for a pet.",
+          "speechText": "An array is a list, but an object describes one thing with lots of labeled facts. Today you'll make a profile for a pet.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Happy birthday to your pet! You made an object, changed a property with a dot, and added a brand new property. Next, JavaScript gets to change your actual web page through the DOM."
+        {
+          "displayText": "Happy birthday to your pet! You made an object, changed a property with a dot and added a brand new one. Your new word is property, one labeled fact inside an object.",
+          "speechText": "Happy birthday to your pet! You made an object, changed a property with a dot and added a brand new one. Your new word is property, one labeled fact inside an object.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "objects": {
       "intro": [
-        "Objects group related data and behavior under named keys. In this lesson you'll learn dot and bracket notation, methods and this, looping over objects, destructuring, and why copying an object isn't automatic. Then you'll upgrade a hero's inventory."
+        {
+          "displayText": "Objects group related data and behavior under named keys. You'll learn dot and bracket notation, methods and this, destructuring, and why copying an object isn't automatic. Almost all the data an app gets from an API arrives as objects. Then you'll upgrade a hero's inventory.",
+          "speechText": "Objects group related data and behavior under named keys. You'll learn dot and bracket notation, methods and this, destructuring, and why copying an object isn't automatic. Almost all the data an app gets from an A-P-I arrives as objects. Then you'll upgrade a hero's inventory.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great job. Your hero has a method that uses this, you destructured stats, and you made a copy with spread instead of changing the original. Remember, two variables can point at the same object. Next, we'll use the DOM to change the page."
+        {
+          "displayText": "Great job. Your hero has a method that uses this, you destructured stats, and you made a copy with spread. The gotcha: two variables can point at the same object, so changing one changes both unless you copy first. Next, we'll use the DOM to change the page.",
+          "speechText": "Great job. Your hero has a method that uses this, you destructured stats, and you made a copy with spread. The gotcha: two variables can point at the same object, so changing one changes both unless you copy first. Next, we'll use the D-O-M to change the page.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "dom-explorer": {
       "intro": [
-        "Until now your code talked to the Console. Now it's going to change the page itself! Today you'll learn about the DOM, which is the browser's family tree of your page. Then you'll use JavaScript to update a page about a dragon."
+        {
+          "displayText": "Until now your code talked to the Console, and now it's going to change the page itself! Today you'll use the DOM, the browser's family tree of your page, to update a page about a dragon.",
+          "speechText": "Until now your code talked to the Console, and now it's going to change the page itself! Today you'll use the D-O-M, the browser's family tree of your page, to update a page about a dragon.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "You changed a page with JavaScript! You found elements with query selector, changed their text and color, and added a new list item. Next, we'll make the page react when you click things."
+        {
+          "displayText": "You changed a page with JavaScript! You found elements, changed their text and color, and added a new list item. Your new word is DOM, the browser's family tree of your page.",
+          "speechText": "You changed a page with JavaScript! You found elements, changed their text and color, and added a new list item. Your new word is D-O-M, the browser's family tree of your page.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "the-dom": {
       "intro": [
-        "The DOM is the live tree of objects the browser builds from your HTML. In this lesson you'll learn to select elements, change their content safely, toggle classes, and create and remove elements. Then you'll render a reading list from an array of data."
+        {
+          "displayText": "The DOM is the live tree of objects the browser builds from your HTML. You'll learn to select elements, change content safely, toggle classes, and create and remove elements. Turning data into elements is exactly what frameworks like React do for you later. Then you'll render a reading list from an array of data.",
+          "speechText": "The D-O-M is the live tree of objects the browser builds from your H-T-M-L. You'll learn to select elements, change content safely, toggle classes, and create and remove elements. Turning data into elements is exactly what frameworks like React do for you later. Then you'll render a reading list from an array of data.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Well done. You turned data into list items, toggled classes from the data, and built the summary from a count. Using text content instead of inner HTML keeps user text from running as code. Next, we'll handle events."
+        {
+          "displayText": "Well done. You turned data into list items, toggled classes from the data and built the summary from a count. The gotcha is inner HTML: putting user text there can run it as code, so text content is the safe default. Next, we'll handle events.",
+          "speechText": "Well done. You turned data into list items, toggled classes from the data and built the summary from a count. The gotcha is inner H-T-M-L: putting user text there can run it as code, so text content is the safe default. Next, we'll handle events.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "events-explorer": {
       "intro": [
-        "Pages feel alive when they react to you. A click is called an event, and today you'll learn how to listen for it. Then you'll build a cookie clicker, so get ready to click a lot!"
+        {
+          "displayText": "Pages feel alive when they react to you, and a click is called an event. Today you'll build a cookie clicker, so get ready to click a lot!",
+          "speechText": "Pages feel alive when they react to you, and a click is called an event. Today you'll build a cookie clicker, so get ready to click a lot!",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Cookies everywhere! You added event listeners that change a number and show it on the page. The function inside waits until the click happens. Next, we'll get data from the internet with an API."
+        {
+          "displayText": "Cookies everywhere! Your listeners wait for a click and then change the number on the page. Your new word is event, something that happens on the page, like a click.",
+          "speechText": "Cookies everywhere! Your listeners wait for a click and then change the number on the page. Your new word is event, something that happens on the page, like a click.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "events": {
       "intro": [
-        "Interactive pages are event-driven. Your code sets up listeners and then waits. In this lesson you'll learn the event object, common events, handling form submits, and event delegation. Then you'll make a to-do list with adding and deleting."
+        {
+          "displayText": "Interactive pages are event-driven: your code sets up listeners and then waits. You'll learn the event object, common events, form submits and event delegation. Delegation is how real apps handle big lists without a listener on every item. Then you'll make a to-do list with adding and deleting.",
+          "speechText": "Interactive pages are event-driven: your code sets up listeners and then waits. You'll learn the event object, common events, form submits and event delegation. Delegation is how real apps handle big lists without a listener on every item. Then you'll make a to-do list with adding and deleting.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great work. Your to-do list handles submit, ignores empty tasks, and uses one delegated listener for every delete button, even ones added later. That pattern scales to big lists. Next, we'll fetch data from APIs."
+        {
+          "displayText": "Great work. Your to-do list handles submit, ignores empty tasks and uses one delegated listener for every delete button. The gotcha: listeners added to individual buttons miss buttons created later, which is exactly why delegation exists. Next, we'll fetch data from APIs.",
+          "speechText": "Great work. Your to-do list handles submit, ignores empty tasks and uses one delegated listener for every delete button. The gotcha: listeners added to individual buttons miss buttons created later, which is exactly why delegation exists. Next, we'll fetch data from A-P-Is.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "fetch-explorer": {
       "intro": [
-        "Weather apps don't know the weather by themselves. They ask a server! Today you'll learn about APIs, JSON and fetch, and why the answer takes a moment to arrive. Then you'll finish a weather card using Codegrove's practice API."
+        {
+          "displayText": "Weather apps don't know the weather by themselves: they ask a server! Today you'll finish a weather card with data from Codegrove's practice API.",
+          "speechText": "Weather apps don't know the weather by themselves: they ask a server! Today you'll finish a weather card with data from Codegrove's practice A-P-I.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Your weather card works! Fetch asks a server for data, and then turns the answer into JavaScript you can show on the page. That's the last lesson in the JavaScript course. You did amazing!"
+        {
+          "displayText": "Your weather card works, and that's the last lesson in the JavaScript course! Your new word is API, a way for your code to ask a server for data.",
+          "speechText": "Your weather card works, and that's the last lesson in the JavaScript course! Your new word is A-P-I, a way for your code to ask a server for data.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "fetch-and-apis": {
       "intro": [
-        "Almost every real app talks to an API. In this lesson you'll learn HTTP methods and status codes, JSON, promises, async and await, and why fetch doesn't fail on a four oh four. Then you'll build a planet explorer that handles errors."
+        {
+          "displayText": "Almost every real app talks to an API. You'll learn HTTP methods and status codes, JSON, promises, async and await, and why fetch doesn't fail on a four oh four. Every screen that loads data needs loading, success and error states. Then you'll build a planet explorer that handles errors.",
+          "speechText": "Almost every real app talks to an A-P-I. You'll learn H-T-T-P methods and status codes, jay-son, promises, async and await, and why fetch doesn't fail on a four oh four. Every screen that loads data needs loading, success and error states. Then you'll build a planet explorer that handles errors.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Well done. Your planet explorer awaits each response, checks response dot ok, and shows a friendly message when something goes wrong. Always plan for the loading, success and error states. That completes the JavaScript course."
+        {
+          "displayText": "Well done. Your planet explorer awaits each response, checks response dot ok and shows a friendly message when something goes wrong. The gotcha: fetch only rejects when the network fails, so a four oh four looks like success unless you check ok. That completes the JavaScript course.",
+          "speechText": "Well done. Your planet explorer awaits each response, checks response dot ok and shows a friendly message when something goes wrong. The gotcha: fetch only rejects when the network fails, so a four oh four looks like success unless you check ok. That completes the JavaScript course.",
+          "mood": "Encouraging"
+        }
       ]
     }
   }

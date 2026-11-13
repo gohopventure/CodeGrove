@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, ApiError } from '../api/client';
-import type { Challenge, Files, HintResponse, ProgressOutcome, Quiz, QuizAttemptResponse, TestResult } from '../api/types';
+import type { Challenge, Files, HintResponse, ProgressOutcome, Quiz, QuizAttemptResponse, RevealedHint, SolutionResponse, TestResult } from '../api/types';
 import { Markdown } from '../components/Markdown';
 import { ErrorNote } from '../components/ui';
 
@@ -38,38 +38,56 @@ export function TestResultList({ challenge, results }: { challenge: Challenge; r
 
 // ---- Hints ----------------------------------------------------------------------------------------
 
-const HINT_NAMES: Record<number, string> = { 1: 'Give me a nudge', 2: 'More help, please', 3: 'Show me a solution' };
+const HINT_NAMES: Record<number, string> = { 1: 'Give me a nudge', 2: 'More help, please', 3: 'Almost there…' };
 
 /**
- * Hints unlock one at a time. The solution asks "are you sure?" first, because trying is how
- * learning sticks. Hints never cost XP.
+ * The hint ladder: a guiding question, then a pointer, then nearly the answer. Hints unlock one at a time and never
+ * cost XP. The full solution is not a hint: it's a separate step after all three, and it asks "are you sure?" first,
+ * because trying is how learning sticks.
  */
 export function HintLadder({
   challenge,
   onSolution,
+  onHint,
+  hintRequest = 0,
   embedded = false,
 }: {
   challenge: Challenge;
   onSolution: (files: Files) => void;
+  /** Called with each newly revealed hint, so the tutor's face can match its mood. */
+  onHint?: (hint: RevealedHint) => void;
+  /** Increase to reveal the next hint from outside, e.g. when the learner says yes to the tutor's offer. */
+  hintRequest?: number;
   /** Inside the tutor panel: no card of its own, and the panel provides the heading. */
   embedded?: boolean;
 }) {
   const [revealed, setRevealed] = useState(challenge.revealedHints);
   const [confirming, setConfirming] = useState(false);
+  const [hasSolution, setHasSolution] = useState(challenge.solutionFiles !== null);
   const [error, setError] = useState<unknown>(null);
   const next = challenge.hintLevels.find((l) => !revealed.some((h) => h.level === l));
-  const last = Math.max(...challenge.hintLevels);
 
   useEffect(() => {
     if (challenge.solutionFiles) onSolution(challenge.solutionFiles);
   }, [challenge.solutionFiles, onSolution]);
 
-  async function reveal(level: number) {
+  const reveal = useCallback(async (level: number) => {
     setError(null);
     try {
       const hint = await api.post<HintResponse>(`/api/challenges/${challenge.id}/hints/${level}`);
-      setRevealed((r) => [...r, { level: hint.level, markdown: hint.markdown }]);
-      if (hint.solutionFiles) onSolution(hint.solutionFiles);
+      setRevealed((r) => (r.some((h) => h.level === hint.level) ? r : [...r, hint]));
+      onHint?.(hint);
+    } catch (e) {
+      setError(e);
+    }
+  }, [challenge.id, onHint]);
+
+  async function showSolution() {
+    setError(null);
+    try {
+      const res = await api.post<SolutionResponse>(`/api/challenges/${challenge.id}/solution`);
+      setHasSolution(true);
+      onSolution(res.solutionFiles);
     } catch (e) {
       setError(e);
     } finally {
@@ -77,10 +95,18 @@ export function HintLadder({
     }
   }
 
+  // A "yes" to the tutor's offer opens the next hint (never the solution).
+  const handled = useRef(hintRequest);
+  useEffect(() => {
+    if (hintRequest === handled.current) return;
+    handled.current = hintRequest;
+    if (next !== undefined) void reveal(next);
+  }, [hintRequest, next, reveal]);
+
   return (
     <section aria-labelledby="hints-heading" className={embedded ? 'space-y-3' : 'card space-y-3'}>
       <h3 id="hints-heading" className={embedded ? 'font-bold' : 'text-lg font-bold'}>Stuck? Hints are free.</h3>
-      <ol className="space-y-3">
+      <ol className="space-y-3" aria-live="polite">
         {revealed.map((h) => (
           <li key={h.level} className="rounded-card bg-surface-2 p-3">
             <p className="text-sm font-bold text-muted">Hint {h.level}</p>
@@ -89,16 +115,19 @@ export function HintLadder({
         ))}
       </ol>
       <ErrorNote error={error} />
-      {next !== undefined && !confirming && (
-        <button type="button" className="btn-secondary" onClick={() => (next === last ? setConfirming(true) : reveal(next))}>
+      {next !== undefined && (
+        <button type="button" className="btn-secondary" onClick={() => void reveal(next)}>
           {HINT_NAMES[next] ?? `Hint ${next}`}
         </button>
       )}
-      {confirming && next !== undefined && (
+      {next === undefined && !hasSolution && !confirming && (
+        <button type="button" className="btn-secondary" onClick={() => setConfirming(true)}>Show me the solution</button>
+      )}
+      {confirming && (
         <div role="alertdialog" aria-labelledby="sol-q" className="space-y-2 rounded-card border border-accent p-3">
-          <p id="sol-q" className="font-bold">Have you tried the other hints? Seeing the answer is OK, but trying first helps your brain remember.</p>
+          <p id="sol-q" className="font-bold">Did hint 3 get you close? Seeing the answer is OK, but one more try helps your brain remember.</p>
           <div className="flex gap-2">
-            <button type="button" className="btn-primary" onClick={() => reveal(next)}>Show the solution</button>
+            <button type="button" className="btn-primary" onClick={() => void showSolution()}>Show the solution</button>
             <button type="button" className="btn-secondary" onClick={() => setConfirming(false)}>I'll keep trying</button>
           </div>
         </div>

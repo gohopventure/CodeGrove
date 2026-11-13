@@ -3,98 +3,194 @@
   "lessons": {
     "css-paint-explorer": {
       "intro": [
-        "Welcome to CSS! If HTML builds the house, CSS is the paint and the furniture. Today you'll learn how a CSS rule works, with a selector, a property and a value. Then you'll give a page about a pet dragon some color."
+        {
+          "displayText": "Welcome to CSS! If HTML builds the house, CSS is the paint. Today you'll write rules that give a page about a pet dragon some color.",
+          "speechText": "Welcome to C-S-S! If H-T-M-L builds the house, C-S-S is the paint. Today you'll write rules that give a page about a pet dragon some color.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Looking good! You wrote CSS rules that changed colors and sizes for every heading and paragraph. Remember, the selector picks what to style and the property says what to change. Next, we'll learn classes, so you can style just some things."
+        {
+          "displayText": "Looking good! Your rules changed the colors and sizes on the whole page. Your new word is selector, the part of a rule that picks what to style.",
+          "speechText": "Looking good! Your rules changed the colors and sizes on the whole page. Your new word is selector, the part of a rule that picks what to style.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "selectors-properties": {
       "intro": [
-        "CSS controls how everything on a page looks. In this lesson you'll learn the parts of a rule, units like pixels and rems, and how inheritance and the cascade decide which styles win. Then you'll style a band's web page."
+        {
+          "displayText": "CSS controls how everything on a page looks. You'll learn the parts of a rule, units like pixels and rems, and how inheritance and the cascade decide which styles win. Understanding the cascade will save you lots of confusion on real projects. Then you'll style a band's web page.",
+          "speechText": "C-S-S controls how everything on a page looks. You'll learn the parts of a rule, units like pixels and rems, and how inheritance and the cascade decide which styles win. Understanding the cascade will save you lots of confusion on real projects. Then you'll style a band's web page.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Well done. You styled a page with fonts, colors and rem-based sizes, and you know why some properties flow down to child elements. Understanding the cascade will save you lots of confusion later. Next, we'll target elements precisely with classes and IDs."
+        {
+          "displayText": "Well done. You styled a page with fonts, colors and rem-based sizes, and you know why some properties flow down to child elements. The gotcha: not everything inherits, so a border or padding on the body won't show up on the paragraphs. Next, we'll target elements precisely with classes and IDs.",
+          "speechText": "Well done. You styled a page with fonts, colors and rem-based sizes, and you know why some properties flow down to child elements. The gotcha: not everything inherits, so a border or padding on the body won't show up on the paragraphs. Next, we'll target elements precisely with classes and I-Ds.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "classes-explorer": {
       "intro": [
-        "What if you only want to style some things, not all of them? That's what classes are for. They're like team jerseys. Today you'll learn class selectors and rounded corners, and then you'll style a set of trading cards."
+        {
+          "displayText": "What if you only want to style some things, not all of them? Classes are like team jerseys, and today you'll use one to style a set of trading cards.",
+          "speechText": "What if you only want to style some things, not all of them? Classes are like team jerseys, and today you'll use one to style a set of trading cards.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Nice cards! You used a class selector with a dot to style only the cards and gave them rounded corners. Classes let you reuse the same look anywhere you want. Next, we'll learn that every element is really a box."
+        {
+          "displayText": "Nice cards! You used a class selector to style only the cards and gave them rounded corners. Your new word is class, a name you give elements so you can style them together.",
+          "speechText": "Nice cards! You used a class selector to style only the cards and gave them rounded corners. Your new word is class, a name you give elements so you can style them together.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "classes-and-ids": {
       "intro": [
-        "Real pages need precise styling, and that's where classes, IDs and specificity come in. In this lesson you'll learn how the browser decides which rule wins when two rules disagree. Then you'll fix a stubborn bug on a space camp page without reaching for important."
+        {
+          "displayText": "Real pages need precise styling, and that's where classes, IDs and specificity come in. You'll learn how the browser decides which rule wins when two rules disagree. Teams lose hours to specificity fights, so this is worth getting right. Then you'll fix a stubborn bug on a space camp page without reaching for important.",
+          "speechText": "Real pages need precise styling, and that's where classes, I-Ds and specificity come in. You'll learn how the browser decides which rule wins when two rules disagree. Teams lose hours to specificity fights, so this is worth getting right. Then you'll fix a stubborn bug on a space camp page without reaching for important.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great debugging. You fixed a specificity conflict the right way and styled elements with classes and descendant selectors. Keeping specificity low makes your CSS much easier to change. Next, we'll dig into the box model."
+        {
+          "displayText": "Great debugging. You fixed a specificity conflict the right way and styled elements with classes and IDs. The gotcha is that an ID selector outweighs any number of classes, which is why many teams style with classes only. Next, we'll dig into the box model.",
+          "speechText": "Great debugging. You fixed a specificity conflict the right way and styled elements with classes and I-Ds. The gotcha is that an I-D selector outweighs any number of classes, which is why many teams style with classes only. Next, we'll dig into the box model.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "box-explorer": {
       "intro": [
-        "Every element on a page is a box, even the words! Today you'll learn about padding, borders and margins, the three layers around every box. Then you'll give some squished recipe cards room to breathe."
+        {
+          "displayText": "Every element on a page is a box, even the words! Today you'll give some squished recipe cards room to breathe with padding, borders and margins.",
+          "speechText": "Every element on a page is a box, even the words! Today you'll give some squished recipe cards room to breathe with padding, borders and margins.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Much better! Your recipe cards have padding inside, a border around them and margin outside. Once you see the boxes, you'll see them everywhere. Next, we'll line things up with Flexbox."
+        {
+          "displayText": "Much better! Your cards have padding inside, a border around them and margin outside. Your new word is padding, the space inside a box's border.",
+          "speechText": "Much better! Your cards have padding inside, a border around them and margin outside. Your new word is padding, the space inside a box's border.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "box-model": {
       "intro": [
-        "Layout bugs usually come down to the box model. In this lesson you'll learn how content, padding, border and margin add up, why box sizing border box makes life easier, and why margins sometimes collapse. Then you'll make a profile card exactly three hundred pixels wide and center it."
+        {
+          "displayText": "Layout bugs usually come down to the box model. You'll learn how content, padding, border and margin add up, why border-box sizing makes life easier, and why margins sometimes collapse. Once you can do this math in your head, layouts stop surprising you. Then you'll make a profile card exactly three hundred pixels wide and center it.",
+          "speechText": "Layout bugs usually come down to the box model. You'll learn how content, padding, border and margin add up, why border-box sizing makes life easier, and why margins sometimes collapse. Once you can do this math in your head, layouts stop surprising you. Then you'll make a profile card exactly three hundred pixels wide and center it.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nicely done. Your card is exactly the width you asked for, and it's centered. Most developers turn on border box sizing for every element for exactly that reason. Next, we'll lay things out in a row with Flexbox."
+        {
+          "displayText": "Nicely done. Your card is exactly the width you asked for, and it's centered. The gotcha: auto margins only center a block that has a width, because a full-width box has nothing left to share. Next, we'll lay things out in a row with Flexbox.",
+          "speechText": "Nicely done. Your card is exactly the width you asked for, and it's centered. The gotcha: auto margins only center a block that has a width, because a full-width box has nothing left to share. Next, we'll lay things out in a row with Flexbox.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "flexbox-explorer": {
       "intro": [
-        "Lining things up used to be tricky, but Flexbox makes it easy. It's like arranging toys on a shelf. Today you'll learn to turn on Flexbox and center things. Then you'll put a launch button right in the middle of a launch pad."
+        {
+          "displayText": "Lining things up used to be tricky, but Flexbox makes it easy. Today you'll put a launch button right in the middle of a launch pad.",
+          "speechText": "Lining things up used to be tricky, but Flexbox makes it easy. Today you'll put a launch button right in the middle of a launch pad.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Three, two, one, liftoff! You centered the button with display flex, justify content and align items. That trick is one of the most useful in all of CSS. Next, we'll build grids, like a tic tac toe board."
+        {
+          "displayText": "Three, two, one, liftoff! You centered the button with Flexbox, one of the most useful tricks in CSS. Your new word is Flexbox, a way to line up the boxes inside a box.",
+          "speechText": "Three, two, one, liftoff! You centered the button with Flexbox, one of the most useful tricks in C-S-S. Your new word is Flexbox, a way to line up the boxes inside a box.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "flexbox": {
       "intro": [
-        "Flexbox is the go-to tool for laying things out in one direction, a row or a column. In this lesson you'll learn the main axis and cross axis, container properties like justify content and gap, and how items grow and wrap. Then you'll lay out a game studio's page."
+        {
+          "displayText": "Flexbox is the go-to tool for laying things out in one direction, a row or a column. You'll learn the main and cross axes, container properties like justify content and gap, and how items grow and wrap. Navigation bars, toolbars and card rows on real sites are almost always Flexbox. Then you'll lay out a game studio's page.",
+          "speechText": "Flexbox is the go-to tool for laying things out in one direction, a row or a column. You'll learn the main and cross axes, container properties like justify content and gap, and how items grow and wrap. Navigation bars, toolbars and card rows on real sites are almost always Flexbox. Then you'll lay out a game studio's page.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Well done. You built a navigation bar, a menu with gaps and a row of cards that wraps. Thinking in main and cross axes makes Flexbox predictable. Next, we'll learn CSS Grid for two-dimensional layouts."
+        {
+          "displayText": "Well done. You built a navigation bar, a menu with gaps and a row of cards that wraps. The gotcha: justify content works along the main axis, so it switches direction when you change flex direction to column. Next, we'll learn CSS Grid for two-dimensional layouts.",
+          "speechText": "Well done. You built a navigation bar, a menu with gaps and a row of cards that wraps. The gotcha: justify content works along the main axis, so it switches direction when you change flex direction to column. Next, we'll learn C-S-S Grid for two-dimensional layouts.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "grid-explorer": {
       "intro": [
-        "Sometimes you want rows and columns, like a tic tac toe board. That's what CSS Grid is for. Today you'll learn how to make columns and add gaps between them. Then you'll turn a bug collection into a neat grid."
+        {
+          "displayText": "Sometimes you want rows and columns, like a tic tac toe board. Today you'll use CSS Grid to turn a bug collection into a neat grid.",
+          "speechText": "Sometimes you want rows and columns, like a tic tac toe board. Today you'll use C-S-S Grid to turn a bug collection into a neat grid.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Your bug collection looks great! You turned on Grid, made three equal columns with f r units and added a gap. Next, we'll make pages that stretch and shrink for phones, tablets and laptops."
+        {
+          "displayText": "Your bug collection looks great! You turned on Grid, made three equal columns and added a gap. Your new word is column, a line of boxes going up and down.",
+          "speechText": "Your bug collection looks great! You turned on Grid, made three equal columns and added a gap. Your new word is column, a line of boxes going up and down.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "grid": {
       "intro": [
-        "CSS Grid handles rows and columns at the same time. In this lesson you'll learn how to define tracks with repeat and fr units, place items on grid lines, and span items across cells. Then you'll build a photo wall with a featured photo and a tall one."
+        {
+          "displayText": "CSS Grid handles rows and columns at the same time. You'll learn how to define tracks with repeat and fr units, place items on grid lines, and span items across cells. Most full-page layouts you'll build are a grid at heart. Then you'll build a photo wall with a featured photo and a tall one.",
+          "speechText": "C-S-S Grid handles rows and columns at the same time. You'll learn how to define tracks with repeat and fr units, place items on grid lines, and span items across cells. Most full-page layouts you'll build are a grid at heart. Then you'll build a photo wall with a featured photo and a tall one.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great work. Your photo wall has three columns, a wide featured photo and a tall photo spanning two rows. A good rule of thumb is Flexbox for rows of things and Grid for whole layouts. Next, we'll make pages responsive."
+        {
+          "displayText": "Great work. Your photo wall has three columns, a wide featured photo and a tall photo spanning two rows. The gotcha: spanning items can leave holes, and grid auto flow dense is the setting that fills them. Next, we'll make pages responsive.",
+          "speechText": "Great work. Your photo wall has three columns, a wide featured photo and a tall photo spanning two rows. The gotcha: spanning items can leave holes, and grid auto flow dense is the setting that fills them. Next, we'll make pages responsive.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "responsive-explorer": {
       "intro": [
-        "People visit websites on phones, tablets and big screens. Today you'll learn how media queries change styles when the screen is small. Then you'll make three squished planet cards stack nicely on a phone."
+        {
+          "displayText": "People visit websites on phones, tablets and big screens. Today you'll make three squished planet cards stack nicely on a phone.",
+          "speechText": "People visit websites on phones, tablets and big screens. Today you'll make three squished planet cards stack nicely on a phone.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Out of this world! Your planet cards stack on small screens, and your pictures never spill out of their boxes. That's the end of the CSS course. You've finished Web Foundations, so next comes JavaScript, where your pages start to move."
+        {
+          "displayText": "Out of this world! Your cards stack on small screens, and your pictures never spill out of their boxes. Your new word is media query, a rule that only works on some screen sizes.",
+          "speechText": "Out of this world! Your cards stack on small screens, and your pictures never spill out of their boxes. Your new word is media query, a rule that only works on some screen sizes.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "responsive-design": {
       "intro": [
-        "Most people will see your site on a phone first. In this lesson you'll learn the viewport meta tag, fluid sizing, media queries, breakpoints and the mobile-first approach. Then you'll make a hackathon page work from phone to desktop."
+        {
+          "displayText": "Most people will see your site on a phone first. You'll learn the viewport meta tag, fluid sizing, media queries, breakpoints and the mobile-first approach. Mobile-first CSS is usually shorter and easier to maintain. Then you'll make a hackathon page work from phone to desktop.",
+          "speechText": "Most people will see your site on a phone first. You'll learn the viewport meta tag, fluid sizing, media queries, breakpoints and the mobile-first approach. Mobile-first C-S-S is usually shorter and easier to maintain. Then you'll make a hackathon page work from phone to desktop.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nicely done. Your page adapts from phone to desktop with fluid sizes and a mobile-first media query. Test at many widths, not just one. That completes the CSS course and Web Foundations, and next up is JavaScript."
+        {
+          "displayText": "Nicely done. Your page adapts from phone to desktop with fluid sizes and a mobile-first media query. The gotcha: without the viewport tag, phones ignore your media queries and zoom out instead. That completes the CSS course and Web Foundations, and next up is JavaScript.",
+          "speechText": "Nicely done. Your page adapts from phone to desktop with fluid sizes and a mobile-first media query. The gotcha: without the viewport tag, phones ignore your media queries and zoom out instead. That completes the C-S-S course and Web Foundations, and next up is JavaScript.",
+          "mood": "Encouraging"
+        }
       ]
     }
   }

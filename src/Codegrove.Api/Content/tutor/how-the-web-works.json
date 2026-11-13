@@ -3,82 +3,162 @@
   "lessons": {
     "pizza-order-explorer": {
       "intro": [
-        "Hey there! Ever wonder what happens between typing a website's name and seeing the page? It's a lot like ordering a pizza. Today you'll meet the browser, the server and the friendly helper that finds addresses, and then you'll put the steps of a page visit back in order."
+        {
+          "displayText": "Ever wonder what happens between typing a website's name and seeing the page? It's a lot like ordering a pizza. Today you'll meet the browser, the server and DNS, then put the steps of a page visit back in order.",
+          "speechText": "Ever wonder what happens between typing a website's name and seeing the page? It's a lot like ordering a pizza. Today you'll meet the browser, the server and D-N-S, then put the steps of a page visit back in order.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Awesome job! You followed a web page from your keyboard all the way to your screen. The browser asks, the server answers, and DNS finds the address in between. Next, we'll take a web address apart, piece by piece."
+        {
+          "displayText": "Awesome job! You followed a page from your keyboard all the way to your screen. Your new word is DNS, the helper that finds a website's address.",
+          "speechText": "Awesome job! You followed a page from your keyboard all the way to your screen. Your new word is D-N-S, the helper that finds a website's address.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "visiting-a-website": {
       "intro": [
-        "Every page you've ever opened went through the same quick journey, in less time than a blink. In this lesson you'll trace it step by step: DNS lookups, IP addresses, a secure connection, a request, a response, and finally rendering. Then you'll put seven scrambled steps back in the right order."
+        {
+          "displayText": "Every page you've ever opened made the same quick journey, faster than a blink. You'll trace it step by step: DNS lookup, IP address, a secure connection, the request, the response and rendering. Knowing this path is how developers figure out why a page is slow or broken. Then you'll put seven scrambled steps back in order.",
+          "speechText": "Every page you've ever opened made the same quick journey, faster than a blink. You'll trace it step by step: D-N-S lookup, I-P address, a secure connection, the request, the response and rendering. Knowing this path is how developers figure out why a page is slow or broken. Then you'll put seven scrambled steps back in order.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nice work. You can now walk through what happens from the moment someone enters a URL to the moment pixels show up. Knowing that path makes slow pages and broken sites much easier to figure out. Up next, we'll break URLs and domain names into their parts."
+        {
+          "displayText": "Nice work. You can now walk through everything between entering a URL and seeing pixels. One gotcha: the first HTML response isn't the whole page, because the browser still has to fetch the CSS, JavaScript and images it links to. Next, we'll break URLs and domain names into their parts.",
+          "speechText": "Nice work. You can now walk through everything between entering a U-R-L and seeing pixels. One gotcha: the first H-T-M-L response isn't the whole page, because the browser still has to fetch the C-S-S, JavaScript and images it links to. Next, we'll break U-R-Ls and domain names into their parts.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "web-address-explorer": {
       "intro": [
-        "Web addresses are a lot like home addresses. They tell your browser exactly where to go. In this lesson you'll learn the three main parts of an address: the protocol, the domain and the path. Then you'll take a real one apart like a detective."
+        {
+          "displayText": "Web addresses are like home addresses: they tell your browser exactly where to go. Today you'll take a real one apart into its protocol, domain and path.",
+          "speechText": "Web addresses are like home addresses: they tell your browser exactly where to go. Today you'll take a real one apart into its protocol, domain and path.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Great detective work! You split a web address into its protocol, its domain and its path. Now every link you see makes a little more sense. Next up, we'll find out what a server says back when your browser asks for a page."
+        {
+          "displayText": "Great detective work! You split a web address into its three parts. Your new word is domain, the website's name in the address.",
+          "speechText": "Great detective work! You split a web address into its three parts. Your new word is domain, the website's name in the address.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "urls-and-domains": {
       "intro": [
-        "A URL packs a lot of information into one line. Today you'll learn every part of it, from the protocol and subdomain to the port, the query string and the fragment at the end. Then you'll take apart a long, real-world URL piece by piece."
+        {
+          "displayText": "A URL packs a lot of information into one line. You'll learn every part of it, from the protocol and subdomain to the port, query string and fragment. Reading URLs fluently pays off every time you debug a link or call an API. Then you'll take apart a long, real-world URL.",
+          "speechText": "A U-R-L packs a lot of information into one line. You'll learn every part of it, from the protocol and subdomain to the port, query string and fragment. Reading U-R-Ls fluently pays off every time you debug a link or call an A-P-I. Then you'll take apart a long, real-world U-R-L.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Well done. You broke a URL into all seven of its parts, and you know how domain names point to servers through DNS. That skill pays off every time you debug a link or call an API. Next, we'll look at HTTP requests, responses and status codes."
+        {
+          "displayText": "Well done. You broke a URL into all seven parts and saw how domain names point to servers through DNS. Watch out for one gotcha: an ampersand inside HTML has to be written as an entity, or the browser may misread it. Next, we'll look at HTTP requests, responses and status codes.",
+          "speechText": "Well done. You broke a U-R-L into all seven parts and saw how domain names point to servers through D-N-S. Watch out for one gotcha: an ampersand inside H-T-M-L has to be written as an entity, or the browser may misread it. Next, we'll look at H-T-T-P requests, responses and status codes.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "server-reply-explorer": {
       "intro": [
-        "When your browser asks a server for a page, the server always writes back. Its reply comes with a number called a status code that says how things went. Today you'll learn the three codes you'll see most, and then you'll be a status code detective."
+        {
+          "displayText": "When your browser asks a server for a page, the server always writes back. Its reply has a number called a status code, and today you'll be a status code detective.",
+          "speechText": "When your browser asks a server for a page, the server always writes back. Its reply has a number called a status code, and today you'll be a status code detective.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "Case closed! You know that two hundred means everything went fine, four oh four means the page wasn't found, and five hundred means the server had a problem. Those numbers will pop up everywhere. Next, we'll learn how websites are made of files and folders."
+        {
+          "displayText": "Case closed! Two hundred means OK, four oh four means not found, and five hundred means the server had a problem. Your new word is status code.",
+          "speechText": "Case closed! Two hundred means OK, four oh four means not found, and five hundred means the server had a problem. Your new word is status code.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "http-and-status-codes": {
       "intro": [
-        "HTTP is the language browsers and servers use to talk. In this lesson you'll look inside a request and a response, learn the status code families, and find out why HTTP is stateless and how cookies help. Then you'll match six status codes to real situations."
+        {
+          "displayText": "HTTP is the language browsers and servers use to talk. You'll look inside a request and a response, learn the status code families, and see why HTTP forgets you between requests. Every API you build or call later speaks this language. Then you'll match six status codes to real situations.",
+          "speechText": "H-T-T-P is the language browsers and servers use to talk. You'll look inside a request and a response, learn the status code families, and see why H-T-T-P forgets you between requests. Every A-P-I you build or call later speaks this language. Then you'll match six status codes to real situations.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Nice job. You can read the method, headers and status code of an HTTP exchange, and you know what each status code family means. You'll lean on this whenever you build or debug anything on the web. Next, we'll look at files, folders and relative paths."
+        {
+          "displayText": "Nice job. You can read the method, headers and status code of an HTTP exchange, and you know what each family of codes means. A common gotcha is mixing up four oh one and four oh three: one means not signed in, the other means signed in but not allowed. Next, we'll look at files, folders and relative paths.",
+          "speechText": "Nice job. You can read the method, headers and status code of an H-T-T-P exchange, and you know what each family of codes means. A common gotcha is mixing up four oh one and four oh three: one means not signed in, the other means signed in but not allowed. Next, we'll look at files, folders and relative paths.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "folders-explorer": {
       "intro": [
-        "Websites are made of files, and files live in folders, just like stuff in drawers. Today you'll learn how to write a path, which is directions to a file. Then you'll fix a broken picture and a broken link by giving them the right directions."
+        {
+          "displayText": "Websites are made of files, and files live in folders, like stuff in drawers. Today you'll write paths, which are directions to a file, and fix a broken picture and a broken link.",
+          "speechText": "Websites are made of files, and files live in folders, like stuff in drawers. Today you'll write paths, which are directions to a file, and fix a broken picture and a broken link.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "You fixed them both! Paths tell the browser which folder to open and which file to grab, and one small mistake breaks a picture or a link. Now you know how to spot and fix that. Next, you'll build your very first web page from scratch."
+        {
+          "displayText": "You fixed them both! One small mistake in a path breaks a picture or a link, and now you can spot it. Your new word is path, the directions to a file.",
+          "speechText": "You fixed them both! One small mistake in a path breaks a picture or a link, and now you can spot it. Your new word is path, the directions to a file.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "files-and-folders": {
       "intro": [
-        "Broken images and missing stylesheets are almost always path problems. In this lesson you'll learn relative paths, root-relative paths and absolute paths, plus the dot dot that means go up a folder. Then you'll repair the links in a page that lives inside a subfolder."
+        {
+          "displayText": "Broken images and missing stylesheets are almost always path problems. You'll learn relative, root-relative and absolute paths, plus the dot dot that means go up a folder. Getting paths right is one of those small skills that saves hours of confused debugging. Then you'll repair the links in a page that lives inside a subfolder.",
+          "speechText": "Broken images and missing stylesheets are almost always path problems. You'll learn relative, root-relative and absolute paths, plus the dot dot that means go up a folder. Getting paths right is one of those small skills that saves hours of confused debugging. Then you'll repair the links in a page that lives inside a subfolder.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Well done. You fixed every path in a page that lives one folder down, and you know when to reach for dot dot. Good folder habits like lowercase names and no spaces will save you from a lot of bugs. Next, you'll build a complete web page from an empty file."
+        {
+          "displayText": "Well done. You fixed every path in a page that lives one folder down. The gotcha to remember is that relative paths start from the file that contains them, not from the project root. Next, you'll build a complete web page from an empty file.",
+          "speechText": "Well done. You fixed every path in a page that lives one folder down. The gotcha to remember is that relative paths start from the file that contains them, not from the project root. Next, you'll build a complete web page from an empty file.",
+          "mood": "Encouraging"
+        }
       ]
     },
     "first-page-explorer": {
       "intro": [
-        "Time for something exciting: your very first web page, starting from a totally blank file! You'll learn the skeleton every page needs, with a head and a body. Then you'll fill it with a page about your favorite animal."
+        {
+          "displayText": "Time for your very first web page, starting from a totally blank file! You'll write the skeleton every page needs, then fill it with a page about your favorite animal.",
+          "speechText": "Time for your very first web page, starting from a totally blank file! You'll write the skeleton every page needs, then fill it with a page about your favorite animal.",
+          "mood": "Encouraging"
+        }
       ],
       "recap": [
-        "You built a whole web page from nothing! It has a doctype, an html tag, a head with a title, and a body with a heading and a fact. That skeleton is the start of every page on the web. You've finished How the Web Works, so next up is the HTML course."
+        {
+          "displayText": "You built a whole web page from nothing! That skeleton starts every page on the web. Your new word is head, the part of a page that holds its title.",
+          "speechText": "You built a whole web page from nothing! That skeleton starts every page on the web. Your new word is head, the part of a page that holds its title.",
+          "mood": "Celebrating"
+        }
       ]
     },
     "first-web-page": {
       "intro": [
-        "Every professional web page starts with the same skeleton. In this lesson you'll write one that's ready for the real world, with character encoding, a viewport tag for phones, and metadata that search engines read. Then you'll build the home page for a robotics club from an empty file."
+        {
+          "displayText": "Every professional web page starts with the same skeleton. You'll write one that's ready for the real world, with character encoding, a viewport tag for phones and metadata that search engines read. Then you'll build the home page for a robotics club from an empty file.",
+          "speechText": "Every professional web page starts with the same skeleton. You'll write one that's ready for the real world, with character encoding, a viewport tag for phones and metadata that search engines read. Then you'll build the home page for a robotics club from an empty file.",
+          "mood": "Neutral"
+        }
       ],
       "recap": [
-        "Great work. You wrote a complete, standards-ready page skeleton and learned why each line in the head matters. You'll start almost every page this way from now on. That wraps up How the Web Works, and next comes the HTML course."
+        {
+          "displayText": "Great work. You wrote a complete, standards-ready page skeleton and learned why each line in the head matters. The gotcha: forget the viewport tag and phones shrink your page to a tiny desktop view. That wraps up How the Web Works, and next comes the HTML course.",
+          "speechText": "Great work. You wrote a complete, standards-ready page skeleton and learned why each line in the head matters. The gotcha: forget the viewport tag and phones shrink your page to a tiny desktop view. That wraps up How the Web Works, and next comes the H-T-M-L course.",
+          "mood": "Encouraging"
+        }
       ]
     }
   }

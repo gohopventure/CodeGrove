@@ -73,15 +73,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Making a box looks like `let label = value;`. Use `const` for `heroName` and `let` for `coins`."
+            "markdown": "Which box will change during the game, and which one stays the same?",
+            "speechText": "Which box will change during the game, and which one stays the same?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nconst heroName = \"…\";\nlet coins = 5;\ncoins = coins + 10;\nconsole.log(heroName + \" has \" + …);\n```\nDon't forget the spaces inside the quotes."
+            "markdown": "Use `const` for `heroName`, because it never changes, and `let` for `coins`, because it does. Making a box looks like `let label = value;`.",
+            "speechText": "Use const for the hero name, because it never changes, and let for coins, because it does. Making a box is the keyword, the label, an equals sign, and the value.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The first two lines:\n\n```js\nconst heroName = \"…\";\nlet coins = 5;\n```\n\nNow add 10 to `coins`, then log `heroName + \" has \" + …`.",
+            "speechText": "Make the name with const and the coins with let, starting at five. Then add ten to coins, and log the name, the word has, and the coins.",
+            "mood": "Encouraging"
           }
         ],
         "blocks": {
@@ -376,15 +382,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "`Number(\"7\")` gives `7`. `health` needs `let` because you change it; everything else can be `const`."
+            "markdown": "`level` is the string \"7\". What happens if you multiply or add it without converting it first?",
+            "speechText": "The level arrives as the string seven. What happens if you add to it without converting it first?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nconst levelNumber = Number(level);\nlet health = 100;\nhealth = health - 35;\nconst xpToNext = levelNumber * 150;\nconsole.log(`${playerName} (level ${…}) has ${…} HP …`);\n```"
+            "markdown": "`Number(level)` gives you a real number. Only `health` changes, so it's the only `let`, and the message uses backticks with placeholders.",
+            "speechText": "Calling Number on the level gives you a real number. Only health changes, so it's the only let, and the message uses a template literal with placeholders.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The numbers:\n\n```js\nconst levelNumber = Number(level);\nlet health = 100;\nhealth = health - 35;\n```\n\nNow `xpToNext`, then the template literal with `${playerName}` and friends.",
+            "speechText": "Here are the level number and health. Now multiply for the X-P needed, then build the message with a template literal.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -525,15 +537,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "120 *or more* is `height >= 120`. Don't write `let` again for `canRide`: the box already exists."
+            "markdown": "How do you write \"120 or more\" as a comparison?",
+            "speechText": "How do you write a hundred and twenty or more as a comparison?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nif (height >= 120) {\n  canRide = true;\n  console.log(\"…\");\n} else {\n  …\n}\n```"
+            "markdown": "Use `>=`, which means greater than or equal to. Don't write `let` again for `canRide`, because the box already exists.",
+            "speechText": "Use greater than or equal to. And don't write let again for can ride, because the box already exists.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "Fill in the rest:\n\n```js\nif (height >= 120) {\n  canRide = true;\n  console.log(\"You can ride!\");\n} else {\n  …\n}\n```",
+            "speechText": "The if part sets can ride to true and logs you can ride. Fill in the else part with false and the sorry message.",
+            "mood": "Encouraging"
           }
         ],
         "blocks": {
@@ -874,15 +892,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Order matters: if you test `score >= 70` first, an 87 would stop there and get a C."
+            "markdown": "If you test `score >= 70` first, which grade would an 87 get?",
+            "speechText": "If you test seventy or more first, which grade would an eighty seven get?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nif (score >= 90) {\n  grade = \"A\";\n} else if (score >= 80) {\n  …\n}\nconst passed = score >= 70 && !isLate;\nconsole.log(`Score ${score}: ${grade} (${passed ? \"passed\" : \"not passed\"})`);\n```"
+            "markdown": "Start the chain at 90 and work down, ending with a plain `else`. `passed` combines two conditions with `&&` and uses `!` for not late.",
+            "speechText": "Start the chain at ninety and work down, ending with a plain else. Passed combines two conditions with and, and uses not for the late flag.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The first two branches:\n\n```js\nif (score >= 90) {\n  grade = \"A\";\n} else if (score >= 80) {\n  grade = \"B\";\n}\n```\n\nAdd the C branch and the else, then `const passed = score >= 70 && !isLate;`.",
+            "speechText": "Here are the A and B branches. Add the C branch and the else, then set passed to score at least seventy and not late.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1023,15 +1047,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Counting *down* means the counter starts big and gets smaller: start at `10` and use `i--`."
+            "markdown": "When you count down, does the counter start big or small?",
+            "speechText": "When you count down, does the counter start big or small?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nfor (let i = 10; i >= 1; i--) {\n  countdown = countdown + i + \" \";\n}\n```\nThat's the whole loop. Check each part matches."
+            "markdown": "Start `i` at `10`, keep going while `i >= 1`, and use `i--` to step down. Inside the loop, add `i` and a space to `countdown`.",
+            "speechText": "Start i at ten, keep going while i is at least one, and step down with minus minus. Inside the loop, add i and a space to the countdown.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The loop's first line is `for (let i = 10; i >= 1; i--) {`. Inside, put `countdown = countdown + i + \" \";` and close the brace.",
+            "speechText": "The loop starts at ten, runs while i is at least one, and counts down. Inside, add i and a space to the countdown, then close the brace.",
+            "mood": "Encouraging"
           }
         ],
         "blocks": {
@@ -1396,15 +1426,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "If you get 2318, your loop stops at 99: use `n <= 100`. For vowels, `for (const letter of phrase)` gives you one character at a time."
+            "markdown": "What's the remainder when a number divides evenly by 3, and which operator gives you remainders?",
+            "speechText": "What's the remainder when a number divides evenly by three, and which operator gives you remainders?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nfor (let n = 1; n <= 100; n++) {\n  if (n % 3 === 0 || n % 5 === 0) sum += n;\n}\nfor (const letter of phrase) {\n  if (\"aeiou\".includes(letter)) vowelCount++;\n}\n```"
+            "markdown": "`n % 3 === 0` means divisible by 3; combine two checks with `||`. Count up to `n <= 100`, not `< 100`. For vowels, `for (const letter of phrase)` gives one character at a time.",
+            "speechText": "The modulo operator gives the remainder, so a remainder of zero means divisible. Combine two checks with or, and count up to and including a hundred. For vowels, a for of loop gives you one letter at a time.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The first loop:\n\n```js\nfor (let n = 1; n <= 100; n++) {\n  if (n % 3 === 0 || n % 5 === 0) sum += n;\n}\n```\n\nNow count vowels with `\"aeiou\".includes(letter)`.",
+            "speechText": "Here's the first loop. Now loop over the phrase, and add one to the vowel count whenever the vowel string includes the letter.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1572,15 +1608,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "A function gives back a value with `return`. Without `return`, you get `undefined` (nothing)."
+            "markdown": "What keyword does a function use to give back its answer?",
+            "speechText": "What keyword does a function use to give back its answer?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nfunction slicesFor(people) {\n  return people * 3;\n}\n```\n`greet` works the same way, but glues strings with `+`."
+            "markdown": "Use `return`. Without it, a function gives back `undefined`, which means nothing. `slicesFor` multiplies, and `greet` joins strings with `+`.",
+            "speechText": "Use return, or the function gives back undefined, which means nothing. Slices for multiplies, and greet joins words together with plus.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The first function:\n\n```js\nfunction slicesFor(people) {\n  return people * 3;\n}\n```\n\n`greet` returns `\"Hi, \" + name + \"!\"`.",
+            "speechText": "Slices for returns people times three. Greet returns hi, plus the name, plus an exclamation mark.",
+            "mood": "Encouraging"
           }
         ],
         "blocks": {
@@ -1965,15 +2007,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Every function needs a `return`. For the arrow function, `(celsius) => celsius <= 0` returns the comparison's result automatically."
+            "markdown": "The checks call your functions with different temperatures. What must each function do with its answer?",
+            "speechText": "The checks call your functions with different temperatures. What must each function do with its answer?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nconst isFreezing = (celsius) => celsius <= 0;\n\nfunction formatTemp(celsius, unit = \"C\") {\n  if (unit === \"F\") return `${toFahrenheit(celsius)}°F`;\n  return `${celsius}°C`;\n}\n```"
+            "markdown": "Every function needs a `return`. An arrow function with no braces, like `(celsius) => celsius <= 0`, returns its expression automatically.",
+            "speechText": "Every function needs a return. An arrow function with no curly braces returns its expression automatically.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "Two of the three:\n\n```js\nfunction toFahrenheit(celsius) {\n  return (celsius * 9) / 5 + 32;\n}\nconst isFreezing = (celsius) => celsius <= 0;\n```\n\n`formatTemp` checks `unit === \"F\"` and calls `toFahrenheit`.",
+            "speechText": "Here are the Fahrenheit converter and the freezing check. Format temp checks whether the unit is F, and calls the converter if it is.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -2128,15 +2176,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Counting starts at 0, so the first item is `backpack[0]`. Do the pushes **before** you count with `.length`."
+            "markdown": "Arrays start counting at zero. So what's the index of the first item?",
+            "speechText": "Arrays start counting at zero. So what's the index of the first item?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nbackpack.push(\"snacks\");\nconst firstItem = backpack[0];\nconst itemCount = backpack.length;\nfor (const item of backpack) {\n  console.log(\"Packed: \" + item);\n}\n```"
+            "markdown": "The first item is `backpack[0]`. Do both pushes before you count with `.length`, then loop with `for…of`.",
+            "speechText": "The first item is at index zero. Do both pushes before you count with length, then loop with for of.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The start:\n\n```js\nbackpack.push(\"snacks\");\nbackpack.push(\"flashlight\");\nconst firstItem = backpack[0];\n```\n\nNow `itemCount` with `.length`, and a loop that logs `\"Packed: \" + item`.",
+            "speechText": "Push snacks and flashlight, then get the first item at index zero. Now count with length, and loop to log packed, plus each item.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -2311,15 +2365,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Each line is one method call on `scores` (or on `passing`, for the labels). If `scores` came out sorted, you sorted the original instead of a copy."
+            "markdown": "If `scores` came out sorted after your code ran, which method changed it?",
+            "speechText": "If the scores came out sorted after your code ran, which method changed them?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nconst passing = scores.filter((s) => s >= 60);\nconst total = scores.reduce((sum, s) => sum + s, 0);\nconst topThree = [...scores].sort((a, b) => b - a).slice(0, 3);\n```"
+            "markdown": "Each result is one method call: `filter` for passing, `reduce` for the total, and `map` for the labels. Copy with `[...scores]` before you sort.",
+            "speechText": "Each result is one method call: filter for passing, reduce for the total, and map for the labels. Copy the array with the spread syntax before you sort.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "Two of them:\n\n```js\nconst passing = scores.filter((s) => s >= 60);\nconst total = scores.reduce((sum, s) => sum + s, 0);\n```\n\nFor `topThree`, sort a copy with `(a, b) => b - a`, then `slice(0, 3)`.",
+            "speechText": "Here are passing and total. For the top three, sort a copy with b minus a, then slice zero to three.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -2487,15 +2547,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "An object looks like `{ key: value, key: value }`. Use commas between properties."
+            "markdown": "What goes between the curly braces of an object, and what separates each fact?",
+            "speechText": "What goes between the curly braces of an object, and what separates each fact?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nconst pet = {\n  name: \"…\",\n  species: \"…\",\n  age: 2,\n};\npet.age = pet.age + 1;\npet.favoriteToy = \"…\";\n```"
+            "markdown": "An object is `{ key: value, key: value }`, with commas between properties. Change one later with a dot, like `pet.age`.",
+            "speechText": "An object holds key colon value pairs, with commas between them. Change one later with a dot, like pet dot age.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The object:\n\n```js\nconst pet = {\n  name: \"…\",\n  species: \"…\",\n  age: 2,\n};\n```\n\nNow add 1 to `pet.age`, add `pet.favoriteToy`, and log the name, \" is \", and the age.",
+            "speechText": "Make the pet with a name, a species, and an age of two. Then add one to the age, add a favorite toy, and log the name, is, and the age.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -2675,15 +2741,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "A method is just a property whose value is a function: `hero.describe = function () { … }`. Inside, `this` is `hero`. For the copy, spread `hero.stats` into a new `{ }` and set `magic` after it."
+            "markdown": "A method is a property whose value is what?",
+            "speechText": "A method is a property whose value is what?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nhero.describe = function () {\n  return `${this.name} carries ${this.inventory.length} items`;\n};\nconst { strength, speed } = hero.stats;\nconst upgraded = { ...hero.stats, magic: 10 };\n```"
+            "markdown": "Inside `describe`, `this` is the hero, so `this.inventory.length` counts items. Destructure with `const { strength, speed } = hero.stats;`.",
+            "speechText": "Inside describe, this is the hero, so this dot inventory dot length counts the items. Destructure strength and speed from the hero's stats.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The method:\n\n```js\nhero.describe = function () {\n  return `${this.name} carries ${this.inventory.length} items`;\n};\n```\n\nFor `upgraded`, spread `hero.stats` into a new object and set `magic` after it.",
+            "speechText": "Here's the describe method. For upgraded, spread the hero's stats into a new object, and set magic to ten after the spread.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -2853,15 +2925,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Every change has the same shape: find the element with `document.querySelector(\"#…\")`, then change `.textContent` or `.style.something`."
+            "markdown": "Before you can change an element, what do you need to do first?",
+            "speechText": "Before you can change an element, what do you need to do first?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\ntitle.textContent = \"Ember the Dragon\";\ndocument.querySelector(\"#mood\").style.color = \"orange\";\nconst snack = document.createElement(\"li\");\nsnack.textContent = \"marshmallows\";\ndocument.querySelector(\"#snacks\").append(snack);\n```"
+            "markdown": "Find it with `document.querySelector(\"#…\")`, then change `.textContent` for words or `.style.color` for color. A new item comes from `document.createElement(\"li\")`.",
+            "speechText": "Find it with query selector and its I-D, then change text content for words, or style dot color for color. A new item comes from create element.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The first two changes:\n\n```js\ntitle.textContent = \"Ember the Dragon\";\ndocument.querySelector(\"#mood\").style.color = \"orange\";\n```\n\nNow create an `li`, set its text to marshmallows, and `append` it to `#snacks`.",
+            "speechText": "Change the title's text, and make the mood paragraph orange. Then create an l-i, set its text to marshmallows, and append it to the snacks list.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -3024,15 +3102,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Inside a `for…of` loop: `createElement(\"li\")`, set its `textContent` with a template literal, `classList.toggle(\"done\", book.finished)`, then `list.append(li)`."
+            "markdown": "For each book, which four steps turn the data into a list item on the page?",
+            "speechText": "For each book, which four steps turn the data into a list item on the page?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nfor (const book of books) {\n  const li = document.createElement(\"li\");\n  li.textContent = `${book.title} (${book.pages} pages)`;\n  li.classList.toggle(\"done\", book.finished);\n  list.append(li);\n}\nconst finishedCount = books.filter((b) => b.finished).length;\n```"
+            "markdown": "In a `for…of` loop: `createElement(\"li\")`, set `textContent` with a template literal, `classList.toggle(\"done\", book.finished)`, then `append`. Count finished books with `filter`.",
+            "speechText": "In a for of loop: create the l-i, set its text with a template literal, toggle the done class from the data, then append it. Count the finished books with filter.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The loop:\n\n```js\nfor (const book of books) {\n  const li = document.createElement(\"li\");\n  li.textContent = `${book.title} (${book.pages} pages)`;\n  // toggle \"done\", then append\n}\n```\n\nThen set `#summary` from a count, not a typed-in 2.",
+            "speechText": "Here's most of the loop. Toggle the done class and append, then set the summary from a count instead of typing in two.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -3177,15 +3261,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "The shape is `thing.addEventListener(\"click\", function () { … });`. Put the code that should happen on each click inside the `{ }`."
+            "markdown": "Where does the code that should run on each click go?",
+            "speechText": "Where does the code that should run on each click go?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\ncookieButton.addEventListener(\"click\", function () {\n  cookies = cookies + 1;\n  count.textContent = cookies;\n});\n```\nThe reset button works the same way, with `cookies = 0`."
+            "markdown": "Inside the function you give to `addEventListener(\"click\", …)`. Add 1 to `cookies`, then show it in `count`.",
+            "speechText": "Inside the function you give to add event listener for click. Add one to cookies, then show the number in count.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The cookie button:\n\n```js\ncookieButton.addEventListener(\"click\", function () {\n  cookies = cookies + 1;\n  count.textContent = cookies;\n});\n```\n\nThe reset button works the same way, with `cookies = 0`.",
+            "speechText": "Here's the cookie button's listener. The reset button works the same way, but sets cookies back to zero.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -3359,15 +3449,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Two listeners total: `form.addEventListener(\"submit\", …)` and `list.addEventListener(\"click\", …)`. In the second, `event.target.closest(\"button.delete\")` is the delete button, or `null` if the click was elsewhere."
+            "markdown": "How many listeners do you need in total, and which elements do they go on?",
+            "speechText": "How many listeners do you need in total, and which elements do they go on?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nform.addEventListener(\"submit\", (event) => {\n  event.preventDefault();\n  const text = input.value.trim();\n  if (!text) return;\n  // create li, span, button.delete; append; clear input\n});\n\nlist.addEventListener(\"click\", (event) => {\n  const button = event.target.closest(\"button.delete\");\n  if (button) button.closest(\"li\").remove();\n});\n```"
+            "markdown": "One `submit` listener on the form, which calls `preventDefault()`, and one `click` listener on `#todos`. In the second, `event.target.closest(\"button.delete\")` finds the delete button, or `null`.",
+            "speechText": "One submit listener on the form, which prevents the default, and one click listener on the to-do list. In the second, closest finds the delete button, or null if the click was elsewhere.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The submit handler's start:\n\n```js\nform.addEventListener(\"submit\", (event) => {\n  event.preventDefault();\n  const text = input.value.trim();\n  if (!text) return;\n  // create li, span, button.delete; append; clear input\n});\n```",
+            "speechText": "Here's the start of the submit handler. Build the l-i with a span and a delete button, append it, and clear the input.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -3509,15 +3605,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "The data only exists **inside** the last `.then`. Write your three lines there, using `document.querySelector(\"#…\").textContent = data.…;`."
+            "markdown": "Where in the code does `data` exist?",
+            "speechText": "Where in the code does the data exist?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\ndocument.querySelector(\"#town\").textContent = data.town;\ndocument.querySelector(\"#temp\").textContent = data.tempC + \"°C\";\n```\nOne more line for `#conditions`."
+            "markdown": "Only inside the last `.then`. Write three lines there, each with `document.querySelector(\"#…\").textContent = data.…;`.",
+            "speechText": "Only inside the last then. Write three lines there, each finding an element and setting its text content from the data.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The first two:\n\n```js\ndocument.querySelector(\"#town\").textContent = data.town;\ndocument.querySelector(\"#temp\").textContent = data.tempC + \"°C\";\n```\n\nOne more for `#conditions`.",
+            "speechText": "Set the town, then the temperature with degrees C after it. One more line for the conditions.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -3678,15 +3780,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Inside an `async` function: `const response = await fetch(…)`, check `response.ok`, then `const data = await response.json()`. `fetch` doesn't throw on a 404, so the `ok` check is how you notice it."
+            "markdown": "`fetch` doesn't throw on a 404. So how will your code notice the request failed?",
+            "speechText": "Fetch doesn't throw on a four oh four. So how will your code notice the request failed?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```js\nasync function loadPlanets() {\n  try {\n    const response = await fetch(`${API}/planets`);\n    if (!response.ok) throw new Error(`HTTP ${response.status}`);\n    const ringed = (await response.json()).filter((p) => p.hasRings);\n    // render, then set status\n  } catch (error) {\n    status.textContent = \"Couldn't load planets\";\n  }\n}\n```"
+            "markdown": "Inside an `async` function: `await fetch(…)`, check `response.ok` and throw if it's false, then `await response.json()`. Wrap it all in `try`/`catch` for the error message.",
+            "speechText": "Inside an async function, await the fetch, check response dot ok, and throw if it's false. Then await the jay-son, and wrap it all in try and catch for the error message.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished script.js."
+            "markdown": "The shape:\n\n```js\nasync function loadPlanets() {\n  try {\n    const response = await fetch(`${API}/planets`);\n    if (!response.ok) throw new Error(`HTTP ${response.status}`);\n    // json, filter ringed, render, set status\n  } catch (error) {\n    status.textContent = \"Couldn't load planets\";\n  }\n}\n```",
+            "speechText": "Here's the shape of load planets. Fill in the middle: read the jay-son, keep the ringed planets, render them, and set the status from the count.",
+            "mood": "Encouraging"
           }
         ]
       },

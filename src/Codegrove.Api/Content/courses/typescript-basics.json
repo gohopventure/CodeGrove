@@ -80,15 +80,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Text goes in quotes, numbers and booleans don't. `100` is a number; `\"100\"` is text."
+            "markdown": "`batteryLevel` is labeled `number`. Is `\"full\"` a number?",
+            "speechText": "The battery level is labeled number. Is the word full a number?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```ts\nlet batteryLevel: number = 100;\nlet canFly: boolean = true;\nlet favoriteSnack: string = \"popcorn\";\n```"
+            "markdown": "Words go in quotes, but numbers and booleans don't. A `boolean` can only be `true` or `false`.",
+            "speechText": "Words go in quotes, but numbers and booleans don't. A boolean can only be true or false.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished main.ts."
+            "markdown": "The battery line becomes:\n\n```ts\nlet batteryLevel: number = 100;\n```\n\nFix `canFly` the same way, then add `let favoriteSnack: string = \"…\";`.",
+            "speechText": "Set the battery level to the number one hundred. Fix can fly the same way, then add a favorite snack with the type string.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -218,15 +224,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "`\"1.50\"` is a string that only *looks* like a number. JavaScript would multiply it anyway, which is exactly the kind of bug TypeScript exists to catch. `\"no\"` is a non-empty string, so it even counts as *true* in the ternary at the bottom!"
+            "markdown": "`\"1.50\"` looks like a number. What type is it really?",
+            "speechText": "The price is written as one fifty in quotes. What type is it really?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```ts\nconst price: number = 1.5;\nlet paid: boolean = false;\n\nconst total: number = price * quantity;\n\npaid = true;\n```"
+            "markdown": "Quoted values are strings, so fix the values rather than the annotations. `\"no\"` is a non-empty string, which even counts as true in the ternary.",
+            "speechText": "Quoted values are strings, so fix the values rather than the annotations. The word no is a non-empty string, which even counts as true in the ternary.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished main.ts."
+            "markdown": "The price becomes `const price: number = 1.5;` and `paid` starts as `false`. Then annotate `total` as a `number`, and set `paid = true` at the end.",
+            "speechText": "The price becomes the number one point five, and paid starts as false. Then annotate total as a number, and set paid to true at the end.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -383,15 +395,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Put a colon and a type after each parameter name, and after the closing bracket: `(name: string, age: number): string`."
+            "markdown": "Where does a parameter's type go: before its name or after it?",
+            "speechText": "Where does a parameter's type go: before its name or after it?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```ts\nfunction petCard(name: string, age: number): string {\n```\n\nThen fix the call: `petCard(\"Biscuit\", 3)`."
+            "markdown": "After it, with a colon: `name: string`. The return type goes after the closing bracket.",
+            "speechText": "After it, with a colon, like name colon string. The return type goes after the closing bracket.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished main.ts."
+            "markdown": "The first line becomes:\n\n```ts\nfunction petCard(name: string, age: number): string {\n```\n\nNow fix Biscuit's age in the call.",
+            "speechText": "Name is a string, age is a number, and the function returns a string. Now fix Biscuit's age in the call, from the word three to the number.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -538,15 +556,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "A default goes after the type: `bonus: number = 10`. An arrow function's return type goes between the `)` and the `=>`."
+            "markdown": "How can `levelUp(50)` work when `levelUp` takes two numbers?",
+            "speechText": "How can level up work with just one number, when it takes two?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```ts\nfunction levelUp(xp: number, bonus: number = 10): number {\n\nconst formatScore = (name: string, score: number): string => `${name}: ${score} XP`;\n\nfunction logScore(line: string): void {\n```"
+            "markdown": "Give `bonus` a default value: `bonus: number = 10`. An arrow function's return type goes between the `)` and the `=>`.",
+            "speechText": "Give the bonus a default value of ten. An arrow function's return type goes between the closing bracket and the arrow.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished main.ts."
+            "markdown": "The first line:\n\n```ts\nfunction levelUp(xp: number, bonus: number = 10): number {\n```\n\n`formatScore` is `(name: string, score: number): string =>` a template literal, and `logScore` returns `void`.",
+            "speechText": "Here's level up's first line. Format score takes a string and a number and returns a string, and log score returns void.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -694,15 +718,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Did you notice? With no type, TypeScript let `\"none\"` slide. It only checks what you've described. Start with `type Pet = {` and list each property with its type."
+            "markdown": "With no type, TypeScript let `\"none\"` slide. What does it need before it can check the list?",
+            "speechText": "With no type, TypeScript let the word none slide. What does it need before it can check the list?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```ts\ntype Pet = {\n  name: string;\n  legs: number;\n};\n\nconst pets: Pet[] = [\n```"
+            "markdown": "A type that describes a pet: `type Pet = {` with `name` and `legs` and their types. Then label the list `Pet[]`.",
+            "speechText": "A type that describes a pet, with a name and legs and their types. Then label the list as an array of Pet.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished main.ts."
+            "markdown": "The type:\n\n```ts\ntype Pet = {\n  name: string;\n  legs: number;\n};\n```\n\nNow write `const pets: Pet[] = [` and fix the snake's legs.",
+            "speechText": "Name is a string and legs is a number. Now label the list as Pet with square brackets, and fix the snake's legs.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -859,15 +889,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Once `inventory` is an `Item[]`, TypeScript points at `weigth`: *did you mean to write 'weight'?* For the total, `items.reduce((sum, item) => sum + item.weight, 0)` starts at 0 and adds each weight."
+            "markdown": "Once `inventory` is labeled `Item[]`, what does TypeScript say about the second item?",
+            "speechText": "Once the inventory is labeled as an array of items, what does TypeScript say about the second item?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```ts\ninterface Item {\n  name: string;\n  weight: number;\n  rarity?: string;\n}\n\nfunction totalWeight(items: Item[]): number {\n  return items.reduce((sum, item) => sum + item.weight, 0);\n}\n\nconst legendary: string[] = inventory\n  .filter((item) => item.rarity === \"legendary\")\n  .map((item) => item.name);\n```"
+            "markdown": "It spots `weigth`, a typo for `weight`. An optional property gets a `?`, like `rarity?: string`.",
+            "speechText": "It spots a typo in weight. An optional property gets a question mark after its name, like rarity.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished main.ts."
+            "markdown": "The interface:\n\n```ts\ninterface Item {\n  name: string;\n  weight: number;\n  rarity?: string;\n}\n```\n\n`totalWeight` uses `reduce`, and `legendary` is `filter` then `map`.",
+            "speechText": "Here's the interface. Total weight adds up weights with reduce, and legendary is filter then map to the names.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1033,15 +1069,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Each choice in a union is joined with `|`. To add one more, put `| \"playful\"` before the semicolon."
+            "markdown": "Which symbol joins the choices in the `Mood` type?",
+            "speechText": "Which symbol joins the choices in the mood type?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```ts\ntype Mood = \"happy\" | \"sleepy\" | \"hungry\" | \"playful\";\n\nlet mood: Mood = \"happy\";\n\n// inside faceFor:\nif (m === \"playful\") return \"🤸\";\n```"
+            "markdown": "The `|` means \"or\". Add `| \"playful\"` before the semicolon, then fix the typo in the first mood.",
+            "speechText": "The vertical bar means or. Add playful with a bar before the semicolon, then fix the typo in the first mood.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished main.ts."
+            "markdown": "The type becomes `\"happy\" | \"sleepy\" | \"hungry\" | \"playful\"`. In `faceFor`, add `if (m === \"playful\") return \"🤸\";`.",
+            "speechText": "Add playful to the end of the mood type. In face for, return the cartwheel face when the mood is playful.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1189,15 +1231,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Once `Triangle` is part of `Shape`, look at the `never` line's error: it says `Triangle` isn't assignable to `never`. That's TypeScript pointing at the missing `case`. For the list, after `if (!list) throw …`, TypeScript narrows `list` to `Element` for the rest of the file."
+            "markdown": "After you add `Triangle` to `Shape`, which line lights up, and what is it telling you?",
+            "speechText": "After you add triangle to shape, which line lights up, and what is it telling you?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```ts\ntype Triangle = { kind: \"triangle\"; base: number; height: number };\ntype Shape = Circle | Rectangle | Triangle;\n\n// in the switch:\ncase \"triangle\":\n  return (shape.base * shape.height) / 2;\n\n// after querySelector:\nif (!list) throw new Error(\"There's no #areas element on the page.\");\n```"
+            "markdown": "The `never` line says `Triangle` isn't handled, so add a `case \"triangle\"`. For the list, `if (!list) throw …` narrows it to `Element` for the rest of the file.",
+            "speechText": "The never line says triangles aren't handled, so add a triangle case. For the list, throwing when it's missing narrows it to Element for the rest of the file.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished main.ts."
+            "markdown": "The new type:\n\n```ts\ntype Triangle = { kind: \"triangle\"; base: number; height: number };\n```\n\nThe case returns half of base times height.",
+            "speechText": "Write the triangle type with its kind, base and height, and add it to shape. The new case returns half of base times height.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1363,15 +1411,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Copy the shape of `nap()`, but give it a new name and use `-` instead of `+`."
+            "markdown": "Which method in the class already changes `energy`?",
+            "speechText": "Which method in the class already changes the energy?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```ts\n  play(): void {\n    this.energy = this.energy - 2;\n  }\n```\n\nand below the class:\n\n```ts\nconst pip = new Pet(\"Pip\");\n```"
+            "markdown": "`nap()` does. Copy its shape for `play()`, with a `-` instead of a `+`, then make a second pet with `new`.",
+            "speechText": "Nap does. Copy its shape for play, with a minus instead of a plus, then make a second pet with new.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished main.ts."
+            "markdown": "The method:\n\n```ts\nplay(): void {\n  this.energy = this.energy - 2;\n}\n```\n\nBelow the class, make `pip` with `new Pet(\"Pip\")`.",
+            "speechText": "Play takes two away from this dot energy. Below the class, make Pip with new Pet.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1528,15 +1582,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Read the first error: *Class 'Wallet' incorrectly implements interface 'Account'*. The interface lists `withdraw`, so the class must have it. Inside methods, `this.total` and `this.history` are fine to use: `private` only blocks code **outside** the class."
+            "markdown": "The first error says `Wallet` doesn't implement `Account`. Which method is missing?",
+            "speechText": "The first error says the wallet doesn't implement the account interface. Which method is missing?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```ts\ndeposit(amount: number): void {\n  if (amount <= 0) return;\n  // …\n}\n\nwithdraw(amount: number): boolean {\n  if (amount <= 0 || amount > this.total) return false;\n  this.total -= amount;\n  this.history.push(`-${amount}`);\n  return true;\n}\n\nlog(): string {\n  return this.history.join(\", \");\n}\n```"
+            "markdown": "`withdraw(amount: number): boolean`. Inside the class, `this.total` and `this.history` are fine to use, because `private` only blocks code outside.",
+            "speechText": "Withdraw, which takes a number and returns a boolean. Inside the class you can use this dot total and this dot history, because private only blocks code outside.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished main.ts."
+            "markdown": "The check at the start of `withdraw`:\n\n```ts\nif (amount <= 0 || amount > this.total) return false;\n```\n\nThen subtract, push `-amount` to the history and return `true`.",
+            "speechText": "Withdraw starts by returning false for amounts that aren't positive or are too big. Then subtract, add the minus amount to the history, and return true.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1716,15 +1776,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "The error on `import type { Card }` says types.ts *declares 'Card' locally, but it is not exported*. That's step 1. A new card is an object in curly braces with a `name`, a `kind` and a `power`, followed by a comma."
+            "markdown": "What does the error on `import type { Card }` say about `types.ts`?",
+            "speechText": "What does the error on the import line say about the types file?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "In **types.ts**:\n\n```ts\nexport interface Card {\n```\n\nIn **cards.ts**:\n\n```ts\n  { name: \"Mossbeard\", kind: \"leaf\", power: 9 },\n  { name: \"Thunderpaws\", kind: \"fire\", power: 6 },\n```"
+            "markdown": "It says `Card` is declared there but not exported. Put `export` in front of `interface Card`, then check the card kinds in **cards.ts**.",
+            "speechText": "It says Card is declared there but not exported. Put export in front of the Card interface, then check the card kinds in the cards file.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished types.ts and cards.ts."
+            "markdown": "In **types.ts**: `export interface Card {`. In **cards.ts**, the leaf card's kind needs fixing, and a new card looks like `{ name: \"…\", kind: \"fire\", power: 6 },`.",
+            "speechText": "Export the Card interface, and fix the leaf card's kind. A new card is an object with a name, a kind and a power, followed by a comma.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1895,15 +1961,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "`this.quests.find((q) => q.id === id)` has the type `Quest | undefined`, so TypeScript makes you check it (`if (quest) …`) before setting `quest.status`. For `countWhere`, arrays already have a method that keeps the items passing a test; you just need how many there are."
+            "markdown": "What type does `this.quests.find(…)` give back, and what must you do before setting `status`?",
+            "speechText": "What type does find give back, and what must you do before setting the status?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```ts\n// QuestLog.ts\nstart(id: number): void {\n  this.setStatus(id, \"active\");\n}\n\ncomplete(id: number): void {\n  this.setStatus(id, \"done\");\n}\n\nprivate setStatus(id: number, status: Status): void {\n  const quest = this.quests.find((q) => q.id === id);\n  if (quest) quest.status = status;\n}\n\n// main.ts\nfunction countWhere<T>(items: readonly T[], test: (item: T) => boolean): number {\n  return items.filter(test).length;\n}\n```"
+            "markdown": "`Quest | undefined`, so check `if (quest)` first. A private helper `setStatus(id, status)` lets `start` and `complete` share that code.",
+            "speechText": "Quest or undefined, so check that the quest exists first. A private set status helper lets start and complete share that code.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished QuestLog.ts and main.ts."
+            "markdown": "The helper:\n\n```ts\nprivate setStatus(id: number, status: Status): void {\n  const quest = this.quests.find((q) => q.id === id);\n  if (quest) quest.status = status;\n}\n```\n\n`countWhere<T>` returns `items.filter(test).length`.",
+            "speechText": "Here's the private helper. Count where is generic over T, and returns the length of the items that pass the test.",
+            "mood": "Encouraging"
           }
         ]
       },

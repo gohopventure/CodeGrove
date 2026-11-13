@@ -364,6 +364,16 @@ namespace Codegrove.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Mood")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<string>("SpeechText")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ChallengeId", "Level")
@@ -510,6 +520,11 @@ namespace Codegrove.Api.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("DisplayText")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<string>("Kind")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -518,10 +533,15 @@ namespace Codegrove.Api.Data.Migrations
                     b.Property<int>("LessonId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Mood")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
                     b.Property<int>("SortOrder")
                         .HasColumnType("int");
 
-                    b.Property<string>("Text")
+                    b.Property<string>("SpeechText")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -722,6 +742,24 @@ namespace Codegrove.Api.Data.Migrations
                     b.ToTable("QuizQuestions");
                 });
 
+            modelBuilder.Entity("Codegrove.Api.Data.Entities.SolutionReveal", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ChallengeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("RevealedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserId", "ChallengeId");
+
+                    b.HasIndex("ChallengeId");
+
+                    b.ToTable("SolutionReveals");
+                });
+
             modelBuilder.Entity("Codegrove.Api.Data.Entities.Submission", b =>
                 {
                     b.Property<Guid>("Id")
@@ -873,6 +911,97 @@ namespace Codegrove.Api.Data.Migrations
                     b.HasIndex("RequiresTrackId");
 
                     b.ToTable("TrackPrerequisites");
+                });
+
+            modelBuilder.Entity("Codegrove.Api.Data.Entities.TutorCharacter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Band")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("PersonaPrompt")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("PortraitUrl")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("VoiceId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Band")
+                        .IsUnique();
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("TutorCharacters");
+                });
+
+            modelBuilder.Entity("Codegrove.Api.Data.Entities.TutorLine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CharacterId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DisplayText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Event")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<string>("Mood")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SpeechText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId", "Event", "SortOrder")
+                        .IsUnique();
+
+                    b.ToTable("TutorLines");
                 });
 
             modelBuilder.Entity("Codegrove.Api.Data.Entities.UserBadge", b =>
@@ -1258,6 +1387,23 @@ namespace Codegrove.Api.Data.Migrations
                     b.Navigation("Quiz");
                 });
 
+            modelBuilder.Entity("Codegrove.Api.Data.Entities.SolutionReveal", b =>
+                {
+                    b.HasOne("Codegrove.Api.Data.Entities.Challenge", "Challenge")
+                        .WithMany()
+                        .HasForeignKey("ChallengeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Codegrove.Api.Data.Entities.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Challenge");
+                });
+
             modelBuilder.Entity("Codegrove.Api.Data.Entities.Submission", b =>
                 {
                     b.HasOne("Codegrove.Api.Data.Entities.Challenge", "Challenge")
@@ -1322,6 +1468,17 @@ namespace Codegrove.Api.Data.Migrations
                     b.Navigation("RequiresTrack");
 
                     b.Navigation("Track");
+                });
+
+            modelBuilder.Entity("Codegrove.Api.Data.Entities.TutorLine", b =>
+                {
+                    b.HasOne("Codegrove.Api.Data.Entities.TutorCharacter", "Character")
+                        .WithMany("Lines")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Character");
                 });
 
             modelBuilder.Entity("Codegrove.Api.Data.Entities.UserBadge", b =>
@@ -1444,6 +1601,11 @@ namespace Codegrove.Api.Data.Migrations
                     b.Navigation("Courses");
 
                     b.Navigation("Prerequisites");
+                });
+
+            modelBuilder.Entity("Codegrove.Api.Data.Entities.TutorCharacter", b =>
+                {
+                    b.Navigation("Lines");
                 });
 #pragma warning restore 612, 618
         }

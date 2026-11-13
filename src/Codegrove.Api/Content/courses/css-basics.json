@@ -70,15 +70,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Click the **style.css** tab at the top of the editor. A rule is: selector, `{`, property: value;, `}`."
+            "markdown": "Which tab at the top of the editor holds the styles?",
+            "speechText": "Which tab at the top of the editor holds the styles?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Here's the shape of a rule:\n\n```css\nh1 {\n  color: purple;\n}\n```\n\nWrite another one for `p` using `font-size`."
+            "markdown": "Open **style.css**. A rule starts with a selector like `h1`, then curly braces with a property, a colon, a value and a semicolon inside.",
+            "speechText": "Open the style dot C-S-S tab. A rule starts with a selector like h1, then curly braces holding a property, a colon, a value, and a semicolon.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished style.css."
+            "markdown": "Here's the heading rule:\n\n```css\nh1 {\n  color: purple;\n}\n```\n\nNow write one for `p` with `font-size: 20px;`.",
+            "speechText": "The heading rule sets color to purple. Now write one for p that sets the font size to twenty pixels.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -209,15 +215,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "You need three rules: `body`, `h1` and `p`. The font goes on `body` so everything inherits it."
+            "markdown": "Which element should get the font so that everything else inherits it?",
+            "speechText": "Which element should get the font so that everything else inherits it?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```css\nbody {\n  background-color: …;\n  font-family: …;\n}\nh1 { color: …; }\np { font-size: …rem; }\n```"
+            "markdown": "You need three rules: `body`, `h1` and `p`. The background and the font go on `body`, the color on `h1`, and the size on `p`.",
+            "speechText": "You need three rules: body, h1 and p. The background and the font go on body, the color on h1, and the size on p.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The finished stylesheet."
+            "markdown": "Fill in the values:\n\n```css\nbody {\n  background-color: …;\n  font-family: …;\n}\nh1 { color: …; }\np { font-size: …rem; }\n```",
+            "speechText": "Here are the three rules with the values left blank. Fill them in from the task: linen, Verdana, dark slate blue, and one point one two five rem.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -365,15 +377,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "A class selector starts with a dot. Which class do the cards wear in the HTML?"
+            "markdown": "A class selector starts with a dot. Which class do the cards wear in the HTML?",
+            "speechText": "A class selector starts with a dot. Which class do the cards wear in the H-T-M-L?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```css\n.card {\n  background-color: lightyellow;\n  border-radius: 12px;\n}\n```"
+            "markdown": "The cards wear the class `card`, so the selector is `.card`. Inside it go `background-color` and `border-radius`.",
+            "speechText": "The cards wear the class card, so the selector is dot card. Inside it go background color and border radius.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished rule."
+            "markdown": "Start like this:\n\n```css\n.card {\n  background-color: lightyellow;\n}\n```\n\nNow add `border-radius: 12px;` inside the same braces.",
+            "speechText": "Start the dot card rule with a light yellow background. Then add a border radius of twelve pixels inside the same braces.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -533,15 +551,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Work out the specificity of `#intro p` and `.highlight`. Which one wins, and what selector would beat it?"
+            "markdown": "What's the specificity of `#intro p`, and of `.highlight`? Which one wins?",
+            "speechText": "What's the specificity of intro p, with the I-D, compared to the highlight class? Which one wins?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```css\n#intro .highlight { color: crimson; }   /* (1,1,0) beats (1,0,1) */\n.badge { background-color: gold; padding: 4px; }\n#featured { border: 2px solid darkorange; }\n```"
+            "markdown": "`#intro p` has an ID, so it beats a lone class. To win without `!important`, your selector needs the ID too, plus the class.",
+            "speechText": "The intro rule has an I-D, so it beats a lone class. To win without important, your selector needs the I-D too, plus the class.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The complete stylesheet."
+            "markdown": "The fix is `#intro .highlight { color: crimson; }`. Now add the `.badge` rule with gold and padding, and the `#featured` border.",
+            "speechText": "The fix combines the intro I-D with the highlight class and sets crimson. Then add the badge rule with gold and padding, and the featured border.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -708,15 +732,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "All three go inside the `.card` rule that's already there, each on its own line ending with `;`."
+            "markdown": "Where do the three new lines go: in a new rule, or in the rule that's already there?",
+            "speechText": "Where do the three new lines go: in a new rule, or in the rule that's already there?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```css\n.card {\n  background-color: white;\n  padding: 16px;\n  border: 3px solid teal;\n  margin: 24px;\n}\n```"
+            "markdown": "All three go inside the `.card` rule, each on its own line ending with `;`: `padding`, `border` and `margin`.",
+            "speechText": "All three go inside the dot card rule, each on its own line ending with a semicolon: padding, border and margin.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished rule."
+            "markdown": "Add this line inside `.card`:\n\n```css\npadding: 16px;\n```\n\nThen add a `3px solid` border in your favorite color, and `24px` of margin.",
+            "speechText": "Add sixteen pixels of padding inside the card rule. Then add a three pixel solid border in your favorite color, and twenty four pixels of margin.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -857,15 +887,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Two rules: one using the universal selector `*` for box-sizing, and the `.profile` rule for size, spacing, border and centering."
+            "markdown": "Without border-box, how wide does a 300px box get once you add 20px of padding and a 2px border?",
+            "speechText": "Without border box, how wide does a three hundred pixel box get once you add twenty pixels of padding and a two pixel border?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```css\n* { box-sizing: border-box; }\n.profile {\n  width: 300px;\n  padding: 20px;\n  border: 2px solid …;\n  margin: 0 auto;\n}\n```"
+            "markdown": "You need two rules: the universal selector `*` for `box-sizing`, and `.profile` for size, spacing, border and centering.",
+            "speechText": "You need two rules: the universal selector for box sizing, and the profile rule for size, spacing, border and centering.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The complete stylesheet."
+            "markdown": "Start with `* { box-sizing: border-box; }`. Then give `.profile` a width of `300px`, `20px` of padding, a `2px solid` border and `margin: 0 auto;`.",
+            "speechText": "Start with border box on every element. Then give the profile three hundred pixels of width, twenty of padding, a two pixel solid border, and margin zero auto.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1022,15 +1058,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "All three lines go on the **parent** box, `.launch-pad`, not on the button."
+            "markdown": "Do the Flexbox lines go on the button, or on the box around it?",
+            "speechText": "Do the Flexbox lines go on the button, or on the box around it?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```css\n.launch-pad {\n  height: 200px;\n  background-color: midnightblue;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n```"
+            "markdown": "They go on the parent box, `.launch-pad`. First turn on Flexbox, then center left to right and top to bottom.",
+            "speechText": "They go on the parent box, the launch pad. First turn on Flexbox, then center left to right and top to bottom.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished rule."
+            "markdown": "Add `display: flex;` and `justify-content: center;` to `.launch-pad`. One more line centers it top to bottom.",
+            "speechText": "Add display flex and justify content center to the launch pad. One more line, align items center, centers it top to bottom.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1201,15 +1243,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Containers get `display: flex` plus the layout properties; the only item-level property is `flex` on `.card`."
+            "markdown": "Which of the four elements are containers, and which property belongs on the items?",
+            "speechText": "Which of the four elements are containers, and which property belongs on the items?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```css\n.nav { display: flex; justify-content: space-between; align-items: center; }\n.menu { display: flex; gap: 16px; }\n.cards { display: flex; flex-wrap: wrap; gap: 20px; }\n.card { flex: 1 1 200px; }\n```"
+            "markdown": "`.nav`, `.menu` and `.cards` are flex containers. The only item-level property is `flex` on `.card`.",
+            "speechText": "The nav, the menu and the cards wrapper are flex containers. The only item-level property is flex, on each card.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The complete stylesheet."
+            "markdown": "Two of the rules:\n\n```css\n.nav { display: flex; justify-content: space-between; align-items: center; }\n.menu { display: flex; gap: 16px; }\n```\n\nNow make `.cards` wrap with a `20px` gap, and give `.card` `flex: 1 1 200px`.",
+            "speechText": "Here are the nav and menu rules. Now make the cards wrap with a twenty pixel gap, and give each card flex one one two hundred pixels.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1348,15 +1396,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "You need a new rule for the parent: `.gallery`. How many `1fr`s make 3 columns?"
+            "markdown": "How many `1fr`s would make three equal columns?",
+            "speechText": "How many one f-r units would make three equal columns?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```css\n.gallery {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 10px;\n}\n```"
+            "markdown": "Make a new rule for the parent, `.gallery`. It needs `display: grid`, `grid-template-columns` and a `gap`.",
+            "speechText": "Make a new rule for the parent, the gallery. It needs display grid, grid template columns, and a gap.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished stylesheet."
+            "markdown": "Start with:\n\n```css\n.gallery {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n}\n```\n\nNow add the `10px` gap.",
+            "speechText": "Turn on grid and set three columns of one f-r each. Then add a ten pixel gap.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1497,15 +1551,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "One rule makes the grid (`.wall`); two small rules make individual items span."
+            "markdown": "How many rules do you need: one for the grid, and how many for the photos that span?",
+            "speechText": "How many rules do you need: one for the grid, and how many for the photos that span?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```css\n.wall { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }\n.featured { grid-column: span 2; }\n.tall { grid-row: span 2; }\n```"
+            "markdown": "`.wall` gets the grid, three columns with `repeat`, and the gap. `.featured` spans columns and `.tall` spans rows.",
+            "speechText": "The wall gets the grid, three columns with repeat, and the gap. The featured photo spans columns, and the tall photo spans rows.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The complete stylesheet."
+            "markdown": "The grid:\n\n```css\n.wall { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }\n```\n\nNow use `grid-column: span 2` and `grid-row: span 2` on the two special photos.",
+            "speechText": "Here's the wall rule. Now give the featured photo grid column span two, and the tall photo grid row span two.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1663,15 +1723,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "A media query wraps normal CSS rules: `@media (...) { .cards { ... } }`. Count your curly braces!"
+            "markdown": "A media query wraps normal CSS rules. How many sets of curly braces does that make?",
+            "speechText": "A media query wraps normal C-S-S rules. How many sets of curly braces does that make?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```css\nimg {\n  max-width: 100%;\n}\n\n@media (max-width: 600px) {\n  .cards {\n    flex-direction: column;\n  }\n}\n```"
+            "markdown": "The media query is `@media (max-width: 600px)`, and inside it goes a `.cards` rule. The `img` rule goes outside, on its own.",
+            "speechText": "The media query checks for a max width of six hundred pixels, and inside it goes a cards rule. The image rule goes outside, on its own.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished stylesheet."
+            "markdown": "The picture rule is `img { max-width: 100%; }`. Inside the media query, give `.cards` `flex-direction: column;`.",
+            "speechText": "The picture rule sets max width to a hundred percent. Inside the media query, give the cards flex direction column.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1821,15 +1887,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Start in `index.html` (the meta tag goes in `<head>`), then in `style.css` write the default (mobile) rules first and the media query last."
+            "markdown": "Which file needs the first change, and which rules come before the media query?",
+            "speechText": "Which file needs the first change, and which rules come before the media query?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```html\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n```\n\n```css\nimg { max-width: 100%; height: auto; }\n.tracks { display: grid; grid-template-columns: 1fr; gap: 12px; }\n@media (min-width: 700px) {\n  .tracks { grid-template-columns: repeat(3, 1fr); }\n}\n```"
+            "markdown": "The viewport `<meta>` tag goes in `index.html`. In `style.css`, write the mobile rules first, a fluid `img` and a one-column `.tracks` grid, and the `min-width: 700px` query last.",
+            "speechText": "The viewport tag goes in the H-T-M-L file. In the stylesheet, write the mobile rules first, a fluid image and a one-column tracks grid, and the seven hundred pixel min width query last.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The complete solution (both files)."
+            "markdown": "The meta tag:\n\n```html\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n```\n\nThen inside `@media (min-width: 700px)`, switch `.tracks` to `repeat(3, 1fr)`.",
+            "speechText": "Here's the viewport tag. Then inside the min width seven hundred media query, switch the tracks to repeat three, one f-r.",
+            "mood": "Encouraging"
           }
         ]
       },

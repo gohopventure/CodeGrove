@@ -94,15 +94,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "A component is a function with a capital-letter name that **returns** some JSX. You use it like a tag: `<OpenSign />`."
+            "markdown": "A component is a function. What does its name start with, and what does it give back?",
+            "speechText": "A component is a function. What does its name start with, and what does it give back?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\nfunction OpenSign() {\n  return <strong>We're open!</strong>;\n}\n```\nThen add `<OpenSign />` inside `<main>`, under your paragraph."
+            "markdown": "Its name starts with a capital letter and it **returns** some JSX. You use it like a tag: `<OpenSign />`.",
+            "speechText": "Its name starts with a capital letter, and it returns some J-S-X. You use it like a tag, with the name inside angle brackets.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "Here's the component:\n\n```jsx\nfunction OpenSign() {\n  return <strong>We're open!</strong>;\n}\n```\n\nNow put `<OpenSign />` inside `<main>`, under your new paragraph.",
+            "speechText": "The component returns a strong tag that says we're open. Now use it inside main, under your new paragraph.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -249,15 +255,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Header.jsx needs `export default function Header() { return ( … ); }`. App.jsx needs `import Header from \"./Header\";` at the top, then `<Header />` where you want it."
+            "markdown": "Which file needs an `export`, and which file needs an `import`?",
+            "speechText": "Which file needs an export, and which file needs an import?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\n// Header.jsx\nexport default function Header() {\n  return (\n    <header>\n      <h1>Game Night</h1>\n    </header>\n  );\n}\n```\nIn App.jsx, `Footer` is just `function Footer() { return <footer>See you Friday!</footer>; }`."
+            "markdown": "`Header.jsx` needs `export default function Header()`. `App.jsx` imports it with `import Header from \"./Header\";` and renders `<Header />`.",
+            "speechText": "The header file needs export default function Header. The App file imports it from dot slash Header, and renders it like a tag.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx and Header.jsx."
+            "markdown": "Header.jsx:\n\n```jsx\nexport default function Header() {\n  return (\n    <header>\n      <h1>Game Night</h1>\n    </header>\n  );\n}\n```\n\nIn App.jsx, `Footer` returns `<footer>See you Friday!</footer>`.",
+            "speechText": "Here's the whole header component. In App, write a footer component that returns see you Friday, and render both.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -436,15 +448,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Curly braces show a variable: `<h2>{player}</h2>`. For the class, JSX uses `className=\"card\"`."
+            "markdown": "What do you wrap around a variable to show it inside JSX?",
+            "speechText": "What do you wrap around a variable to show it inside J-S-X?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\n<div className=\"card\">\n  ...\n  <h2>{player}</h2>\n  <p className=\"level\">Level {level}</p>\n</div>\n```"
+            "markdown": "Curly braces: `<h2>{player}</h2>`. In JSX, `class` is spelled `className`.",
+            "speechText": "Curly braces, like the player inside the h2. In J-S-X, class is spelled class name.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "The card's outside:\n\n```jsx\n<div className=\"card\">\n  …\n</div>\n```\n\nNow put `{player}` in the `<h2>` and `Level {level}` in the paragraph.",
+            "speechText": "Give the outer div the class name card. Then put the player in the h2, and the word level with the level variable in the paragraph.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -591,15 +609,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Do the math before `return`: `const tempF = Math.round(tempC * 9 / 5 + 32);`. In JSX, show values with braces: `{tempC}°C / {tempF}°F`."
+            "markdown": "Where should the Fahrenheit math happen: inside the JSX, or before the `return`?",
+            "speechText": "Where should the Fahrenheit math happen: inside the J-S-X, or before the return?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Inline styles take an object, so there are two pairs of braces: `style={{ fontWeight: \"bold\" }}`. Replace `<div>` and `</div>` with `<>` and `</>`."
+            "markdown": "Do the math before `return` with `Math.round`, then show both values with braces. Inline styles take an object, and `<>` with `</>` is a fragment.",
+            "speechText": "Do the math before the return with Math dot round, then show both values with braces. Inline styles take an object, and empty angle brackets make a fragment.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "The math is `const tempF = Math.round((tempC * 9) / 5 + 32);`. The paragraph's style is `style={{ fontWeight: \"bold\" }}`.",
+            "speechText": "Round tempC times nine over five plus thirty two. The paragraph's style is an object with font weight bold, inside double braces.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -782,15 +806,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Inside `PetCard`, `{props.name}` shows the name you passed in. Copy the `<PetCard … />` line to make more cards."
+            "markdown": "Inside `PetCard`, how would you show the name that was passed in?",
+            "speechText": "Inside pet card, how would you show the name that was passed in?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\n<h2>{props.name}</h2>\n<p>Says: {props.sound}</p>\n```\nand in App: `<PetCard name=\"Mittens\" sound=\"Meow\" />`."
+            "markdown": "Use `{props.name}` and `{props.sound}`. To make more cards, copy the `<PetCard … />` line and change the props.",
+            "speechText": "Use props dot name and props dot sound in curly braces. To make more cards, copy the pet card line and change the props.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "The card shows:\n\n```jsx\n<h2>{props.name}</h2>\n<p>Says: {props.sound}</p>\n```\n\nNow add `<PetCard name=\"Mittens\" sound=\"Meow\" />` and one for Zippy.",
+            "speechText": "Show the name in the h2 and the sound after says. Then add a card for Mittens who says meow, and one for Zippy.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -957,15 +987,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Start with `export default function ProductCard({ name, price, badge = \"New\", children }) { return ( … ); }`. Prices must be numbers (`price={49.5}`), or `toFixed` won't exist."
+            "markdown": "Which four props does `ProductCard` need, and which one has a default?",
+            "speechText": "Which four props does the product card need, and which one has a default?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\n<article className=\"product\">\n  <span className=\"badge\">{badge}</span>\n  <h3>{name}</h3>\n  <p className=\"price\">${price.toFixed(2)}</p>\n  <p className=\"description\">{children}</p>\n</article>\n```\nThe `$` before `{` is just text."
+            "markdown": "Destructure in the parameter list: `{ name, price, badge = \"New\", children }`. Pass prices as numbers, like `price={49.5}`, or `toFixed` won't exist.",
+            "speechText": "Destructure in the parameter list, with badge defaulting to new. Pass prices as numbers in curly braces, or to-fixed won't exist.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished ProductCard.jsx and App.jsx."
+            "markdown": "The card body:\n\n```jsx\n<article className=\"product\">\n  <span className=\"badge\">{badge}</span>\n  <h3>{name}</h3>\n  <p className=\"price\">${price.toFixed(2)}</p>\n  …\n</article>\n```\n\nAdd the description from `children`, then import it in App and render three cards.",
+            "speechText": "Here's most of the card. Add the description from children, then import it in App and render three cards.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1128,15 +1164,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "`map` needs a little function that gets one snack and returns one `<li>`: `snacks.map((snack) => <li key={snack}>{snack}</li>)`. Wrap the whole thing in `{ }`."
+            "markdown": "What does the little function inside `map` get, and what should it give back?",
+            "speechText": "What does the little function inside map get, and what should it give back?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\n<ul id=\"snack-list\">\n  {snacks.map((snack) => (\n    <li key={snack}>{snack}</li>\n  ))}\n</ul>\n```"
+            "markdown": "It gets one snack and returns one `<li>` with a `key`. The whole `map` goes inside `{ }`, and `snacks.length` counts the snacks.",
+            "speechText": "It gets one snack and returns one l-i with a key. The whole map goes inside curly braces, and snacks dot length counts the snacks.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "Each item looks like `<li key={snack}>{snack}</li>`. Wrap `snacks.map((snack) => …)` around it inside the list.",
+            "speechText": "Each item is an l-i with the snack as its key and its text. Wrap snacks dot map around it, inside the list.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1302,15 +1344,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Lists are `array.map((book) => <BookItem key={book.id} book={book} />)` inside `{ }`. Work out `unread` and the page total before the `return`."
+            "markdown": "What should each `BookItem` use as its `key`, and why not the array index?",
+            "speechText": "What should each book item use as its key, and why not the array index?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\nconst unread = books.filter((book) => !book.read);\nconst pagesRead = books\n  .filter((book) => book.read)\n  .reduce((sum, book) => sum + book.pages, 0);\n```"
+            "markdown": "Use `book.id`. Work out the unread books with `filter` and the pages read with `filter` plus `reduce`, all before the `return`.",
+            "speechText": "Use the book's I-D. Work out the unread books with filter, and the pages read with filter plus reduce, all before the return.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "The list:\n\n```jsx\n{books.map((book) => <BookItem key={book.id} book={book} />)}\n```\n\nThe unread list is the same with `unread`, and the total is `filter` then `reduce`.",
+            "speechText": "Map each book to a book item with its I-D as the key. Do the same for the unread books, and add up the pages with filter then reduce.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1517,15 +1565,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "`const [cookies, setCookies] = useState(0);` gives you the number and a function to change it. Buttons run code with `onClick={() => …}`."
+            "markdown": "When the variable changes, how does React find out it should draw the page again?",
+            "speechText": "When the variable changes, how does React find out it should draw the page again?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\n<button id=\"bake\" onClick={() => setCookies(cookies + 1)}>Bake a cookie</button>\n<button id=\"reset\" onClick={() => setCookies(0)}>Start over</button>\n```"
+            "markdown": "A plain `let` doesn't tell React anything. `useState(0)` gives you the number and a setter function, and calling the setter redraws the page.",
+            "speechText": "A plain let doesn't tell React anything. Use state gives you the number and a setter function, and calling the setter redraws the page.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "Start with `const [cookies, setCookies] = useState(0);`. The bake button gets `onClick={() => setCookies(cookies + 1)}`, and reset sets it to 0.",
+            "speechText": "Make cookies and set cookies with use state, starting at zero. The bake button calls set cookies with cookies plus one, and reset sets it back to zero.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1717,15 +1771,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "You need three pieces of state: two numbers and an array. A helper like `function score(team) { … }` keeps both buttons short. The leader is a plain `let` with an `if`/`else`, computed before `return`."
+            "markdown": "Which values need to be state, and which can you work out from the others?",
+            "speechText": "Which values need to be state, and which can you work out from the others?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\nconst [log, setLog] = useState([]);\n// in the click handler:\nsetLog((entries) => [...entries, { id: entries.length + 1, text: `${team} +1` }]);\n// in the JSX:\n{log.map((entry) => <li key={entry.id}>{entry.text}</li>)}\n```"
+            "markdown": "Keep two numbers and an array in state. The leader isn't state: work it out with `if`/`else` before `return`.",
+            "speechText": "Keep two numbers and an array in state. The leader isn't state: work it out with if and else before the return.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "Adding to the log without mutating it:\n\n```jsx\nsetLog((entries) => [...entries, { id: entries.length + 1, text: `${team} +1` }]);\n```\n\nRender it with `log.map` and the entry's `id` as the key.",
+            "speechText": "Add to the log by spreading the old entries into a new array with the new entry at the end. Render it with map, using each entry's I-D as the key.",
+            "mood": "Encouraging"
           }
         ]
       },

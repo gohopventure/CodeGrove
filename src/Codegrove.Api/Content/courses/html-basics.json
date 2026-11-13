@@ -81,15 +81,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Look back at the otter example. Does `<h1>` go **before** or **after** the words? Where does `</h1>` go?"
+            "markdown": "Look back at the otter example. Does `<h1>` go before the words or after them?",
+            "speechText": "Look back at the otter example. Does the opening h1 tag go before the words or after them?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "A heading looks like this:\n\n```html\n<h1>Your words here</h1>\n```\n\nA paragraph looks the same, but with `p` instead of `h1`:\n\n```html\n<p>Your fun fact here</p>\n```"
+            "markdown": "The opening tag goes before the words and the closing tag, with a `/`, goes after. A paragraph works the same way, with `p` instead of `h1`.",
+            "speechText": "The opening tag goes before the words, and the closing tag with a slash goes after. A paragraph works the same way, with p instead of h1.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's one way to do it. Compare it with yours, then type it in yourself. Typing it helps your brain remember!"
+            "markdown": "Your heading should look like `<h1>Welcome to my page</h1>`. Now add a `<p>`, your fun fact, and a `</p>` underneath it.",
+            "speechText": "Wrap the welcome words in an opening and closing h1 tag. Then add a p tag pair underneath with your fun fact inside.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -254,15 +260,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Work from the outside in. Everything visible lives in `<body>`; your new `<main>` goes inside it, and the heading and paragraph go inside `<main>`. The `<title>` lives in `<head>`."
+            "markdown": "Working from the outside in, which element should hold the heading and the paragraph?",
+            "speechText": "Working from the outside in, which element should hold the heading and the paragraph?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Here's the shape to aim for (fill in the blanks):\n\n```html\n<head>\n  <title>____</title>\n</head>\n<body>\n  <main>\n    <h1>Welcome to my page</h1>\n    <p>____</p>\n  </main>\n</body>\n```"
+            "markdown": "Everything visible lives in `<body>`. Your new `<main>` goes inside it, the heading and paragraph go inside `<main>`, and the `<title>` lives up in `<head>`.",
+            "speechText": "Everything visible lives in the body. The new main element goes inside it, the heading and paragraph go inside main, and the title lives up in the head.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's a complete solution. Read it line by line and compare it with yours before you copy anything."
+            "markdown": "Fill in the blanks:\n\n```html\n<head>\n  <title>____</title>\n</head>\n<body>\n  <main>\n    <h1>Welcome to my page</h1>\n    <p>____</p>\n  </main>\n</body>\n```",
+            "speechText": "Here's the shape with two blanks. Fill in a title that describes the page, and a fact of at least twenty characters.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -434,15 +446,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Look at the example. The list starts with an opening tag and ends with a closing tag, and every item has its own `<li>` tag pair."
+            "markdown": "In the example, what wraps the whole list, and what wraps each item?",
+            "speechText": "In the example, what wraps the whole list, and what wraps each item?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Your list should look like this, with your own games:\n\n```html\n<ul>\n  <li>First game</li>\n  <li>Second game</li>\n  <li>Third game</li>\n</ul>\n```"
+            "markdown": "The whole list goes inside `<ul>` and `</ul>`. Each game gets its own `<li>` tag pair.",
+            "speechText": "The whole list goes inside a u-l tag pair. Each game gets its own l-i tag pair.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's one way to do it. Swap in your own favorite games!"
+            "markdown": "Start like this, then add two more games:\n\n```html\n<ul>\n  <li>First game</li>\n</ul>\n```",
+            "speechText": "Start with one game inside an l-i, inside the u-l. Then add two more games the same way.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -585,15 +603,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Each section is a heading immediately followed by its list. Which list type fits ingredients (order doesn't matter) and which fits steps (order matters)?"
+            "markdown": "Which list type fits ingredients, where order doesn't matter, and which fits steps, where it does?",
+            "speechText": "Which list type fits ingredients, where order doesn't matter, and which fits steps, where it does?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Skeleton to fill in:\n\n```html\n<h2>Ingredients</h2>\n<ul>\n  <li>…</li>  <!-- 4 or more -->\n</ul>\n\n<h2>Steps</h2>\n<ol>\n  <li>…</li>  <!-- 3 or more -->\n</ol>\n```"
+            "markdown": "Each section is an `<h2>` followed right away by its list: `<ul>` for ingredients and `<ol>` for steps.",
+            "speechText": "Each section is an h2 followed right away by its list: an unordered list for ingredients, and an ordered list for steps.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "A complete solution. Compare the structure with yours before copying anything."
+            "markdown": "The ingredients section:\n\n```html\n<h2>Ingredients</h2>\n<ul>\n  <li>…</li>  <!-- 4 or more -->\n</ul>\n```\n\nNow build the Steps section the same way with `<ol>` and at least 3 items.",
+            "speechText": "The ingredients section is an h2 and a bulleted list with four or more items. Build the steps section the same way, with an ordered list of at least three.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -744,15 +768,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Both new tags need attributes. Where do attributes go: inside the opening tag, or between the tags?"
+            "markdown": "Both new tags need attributes. Do attributes go inside the opening tag or between the tags?",
+            "speechText": "Both new tags need attributes. Do attributes go inside the opening tag or between the tags?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Here's the shape of each one:\n\n```html\n<img src=\"penguin.png\" alt=\"Describe the picture here\">\n<a href=\"https://...\">Words to click</a>\n```"
+            "markdown": "Attributes go inside the opening tag, like `src` and `alt` for the picture and `href` for the link. The link's words go between `<a>` and `</a>`.",
+            "speechText": "Attributes go inside the opening tag: source and alt for the picture, and h-ref for the link. The link's words go between the a tags.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's one way to finish the page."
+            "markdown": "Here's the picture:\n\n```html\n<img src=\"penguin.png\" alt=\"Describe the picture here\">\n```\n\nNow add an `<a>` with an `href` that starts with `https://`.",
+            "speechText": "Here's the picture with its source and alt. Now add a link with an h-ref that starts with H-T-T-P-S.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -899,15 +929,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Three separate edits: the image (four attributes), a fragment link plus its target `id`, and the external link with two extra attributes."
+            "markdown": "Which three separate edits does the task ask for, and which attributes does each one need?",
+            "speechText": "Which three separate edits does the task ask for, and which attributes does each one need?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Shapes to aim for:\n\n```html\n<a href=\"#facts\">Skip to the facts</a>\n<img src=\"images/nebula.jpg\" alt=\"…\" width=\"600\" height=\"400\">\n<h2 id=\"facts\">Facts</h2>\n<a href=\"https://…\" target=\"_blank\" rel=\"noopener\">Descriptive text</a>\n```"
+            "markdown": "The image needs `src`, `alt`, `width` and `height`. The jump link uses `href=\"#facts\"` and needs a matching `id` on the `<h2>`. The external link needs `target` and `rel`.",
+            "speechText": "The image needs source, alt, width and height. The jump link points at hash facts and needs a matching I-D on the h2. The external link needs target and rel.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "A complete solution. Note where each attribute lives."
+            "markdown": "Shapes to aim for:\n\n```html\n<a href=\"#facts\">Skip to the facts</a>\n<img src=\"images/nebula.jpg\" alt=\"…\" width=\"600\" height=\"400\">\n<h2 id=\"facts\">Facts</h2>\n```\n\nThe external link gets `target=\"_blank\"` and `rel=\"noopener\"`, plus text that says where it goes.",
+            "speechText": "Here are the jump link, the image and the heading's I-D. Finish the external link with target blank, rel no-opener, and text that says where it goes.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1065,15 +1101,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Each `<div ...>` has a matching `</div>` further down. Both the opening and the closing tag need the new name."
+            "markdown": "Each `<div>` has a matching `</div>` further down. What else has to change when you rename one?",
+            "speechText": "Each div has a matching closing div further down. What else has to change when you rename one?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Change the top box like this, then do the same for the other two:\n\n```html\n<header>\n  <h1>Captain Cosmo's Space Club</h1>\n</header>\n```"
+            "markdown": "Rename both the opening and the closing tag. The top box becomes `header`, the middle becomes `main` and the bottom becomes `footer`.",
+            "speechText": "Rename both the opening and the closing tag. The top box becomes header, the middle becomes main, and the bottom becomes footer.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the whole page with its rooms named."
+            "markdown": "The top box looks like this:\n\n```html\n<header>\n  <h1>Captain Cosmo's Space Club</h1>\n</header>\n```\n\nDo the same for the middle and bottom boxes.",
+            "speechText": "The top box is now a header with the club's heading inside. Do the same for the middle and bottom boxes.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1221,15 +1263,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Work from the outside in, and change each closing tag at the same time as its opening tag. The `id` and `class` attributes can go once the tags explain themselves."
+            "markdown": "Which landmark does each box describe, and which ones sit inside others?",
+            "speechText": "Which landmark does each box describe, and which ones sit inside others?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "The outline you're aiming for:\n\n```html\n<header> h1, nav </header>\n<main>\n  <article> … </article>\n  <aside> … </aside>\n</main>\n<footer> … </footer>\n```"
+            "markdown": "Work from the outside in and rename each closing tag with its opening tag. The menu sits inside the header as a `nav`, and the article and aside both sit inside `main`.",
+            "speechText": "Work from the outside in, and rename each closing tag with its opening tag. The menu sits inside the header as a nav, and the article and aside both sit inside main.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The fully refactored page."
+            "markdown": "The outline you're aiming for:\n\n```html\n<header> h1, nav </header>\n<main>\n  <article> … </article>\n  <aside> … </aside>\n</main>\n<footer> … </footer>\n```",
+            "speechText": "Aim for a header with the heading and nav, then main with an article and an aside, then a footer.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1380,15 +1428,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Look at the `id` on each input. What should the label's `for` say so they match?"
+            "markdown": "Look at the `id` on each input. What should the label's `for` say so they match?",
+            "speechText": "Look at the I-D on each input. What should the label's for attribute say so they match?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "For the first box:\n\n```html\n<label for=\"nickname\">Club nickname</label>\n<input type=\"text\" id=\"nickname\">\n```\n\nDo the same for `planet`."
+            "markdown": "A label goes right before its box, and its `for` must be exactly the same as the box's `id`: `nickname` or `planet`.",
+            "speechText": "A label goes right before its box, and its for must be exactly the same as the box's I-D: nickname, or planet.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the whole form with both labels connected."
+            "markdown": "The first box:\n\n```html\n<label for=\"nickname\">Club nickname</label>\n<input type=\"text\" id=\"nickname\">\n```\n\nNow do the same for `planet`.",
+            "speechText": "The first box gets a label for nickname that says club nickname. Now do the same for planet.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1537,15 +1591,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Start with labels: two inputs need an `id` and a matching `<label for>`; the radios and checkbox are easiest to label by wrapping each input inside its `<label>`. Then add the attributes and the fieldset."
+            "markdown": "Which controls are missing labels, and which labeling style is easiest for each?",
+            "speechText": "Which controls are missing labels, and which labeling style is easiest for each?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Patterns you need:\n\n```html\n<label for=\"team\">Team name</label>\n<input type=\"text\" id=\"team\" name=\"team\" required>\n\n<fieldset>\n  <legend>Session</legend>\n  <label><input type=\"radio\" name=\"session\" value=\"early\"> Early (5 pm)</label>\n  …\n</fieldset>\n```"
+            "markdown": "The two text inputs need an `id` and a matching `<label for>`. Radios and checkboxes are easiest to label by wrapping the input inside its `<label>`, and the radios also need a `<fieldset>` with a `<legend>`.",
+            "speechText": "The two text inputs need an I-D and a matching label. Radios and checkboxes are easiest to label by wrapping each input inside its label, and the radios also need a fieldset with a legend.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "A complete solution. Notice the two labelling styles."
+            "markdown": "Patterns you need:\n\n```html\n<label for=\"team\">Team name</label>\n<input type=\"text\" id=\"team\" name=\"team\" required>\n\n<fieldset>\n  <legend>Session</legend>\n  <label><input type=\"radio\" name=\"session\" value=\"early\"> Early (5 pm)</label>\n  …\n</fieldset>\n```\n\nThen the robots box with `type=\"number\"` and `min=\"0\"`, the checkbox label and `type=\"submit\"`.",
+            "speechText": "Use these two patterns for the team name and the session radios. Then give the robots box type number with min zero, label the checkbox, and make the button a submit.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1696,15 +1756,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Bug 1 is on the line that says `<html>`. Bug 2 is the `<img>` tag. Bug 3 is the `<input>` with `id=\"frogname\"`."
+            "markdown": "Which three tags in the file are the bugs hiding in?",
+            "speechText": "Which three tags in the file are the bugs hiding in?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "The three fixes look like this:\n\n```html\n<html lang=\"en\">\n<img src=\"frog.png\" alt=\"Describe the frog\">\n<label for=\"frogname\">Your frog's name</label>\n```"
+            "markdown": "Bug 1 is on the `<html>` line, bug 2 is the `<img>` tag, and bug 3 is the `<input>` with `id=\"frogname\"`.",
+            "speechText": "Bug one is on the html line, bug two is the image tag, and bug three is the input for the frog's name.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the page with all three bugs fixed."
+            "markdown": "Two of the fixes:\n\n```html\n<html lang=\"en\">\n<label for=\"frogname\">Your frog's name</label>\n```\n\nNow give the `<img>` an `alt` that describes the frog.",
+            "speechText": "Add lang e-n to the html tag, and a label for the frog name box. Then give the picture alt text that describes the frog.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1837,15 +1903,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Read the page against the checklist in the lesson, top to bottom. One bug is on the very first `<html>` line."
+            "markdown": "Reading the page against the lesson's checklist, top to bottom, which line breaks the first rule?",
+            "speechText": "Reading the page against the lesson's checklist, top to bottom, which line breaks the first rule?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Fix list:\n\n```html\n<html lang=\"en\">\n<h2>How volcanoes form</h2>           <!-- was h3 -->\n<img … alt=\"Describe the eruption\">\n<a href=\"…\">Explore the USGS Volcano Hazards Program</a>\n<label for=\"email\">Parent's email</label>\n```"
+            "markdown": "The five bugs are the missing `lang`, an `<h3>` that skips a level, an image without `alt`, a \"Click here\" link and an email input with no label.",
+            "speechText": "The five bugs are the missing language, an h3 that skips a level, an image without alt text, a click here link, and an email input with no label.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "The fully fixed report."
+            "markdown": "Three of the fixes:\n\n```html\n<html lang=\"en\">\n<h2>How volcanoes form</h2>           <!-- was h3 -->\n<label for=\"email\">Parent's email</label>\n```\n\nNow describe the eruption in `alt` and rewrite the link text to say where it goes.",
+            "speechText": "Add the language, change the h3 to an h2, and label the email box. Then describe the eruption in the alt text, and rewrite the link so it says where it goes.",
+            "mood": "Encouraging"
           }
         ]
       },

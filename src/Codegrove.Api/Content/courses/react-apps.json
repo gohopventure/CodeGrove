@@ -113,15 +113,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "`{showSecret && <p id=\"secret\">…</p>}` shows the paragraph only when `showSecret` is true. The button's words can be `{showSecret ? \"Hide secret\" : \"Show secret\"}`."
+            "markdown": "Which state already tells you whether the secret is showing?",
+            "speechText": "Which state already tells you whether the secret is showing?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\n<button id=\"toggle\" onClick={() => setShowSecret(!showSecret)}>\n  {showSecret ? \"Hide secret\" : \"Show secret\"}\n</button>\n{showSecret && <p id=\"secret\">The password is: pickles</p>}\n```"
+            "markdown": "`showSecret` is true or false. Use `&&` to show the paragraph only when it's true, and `? :` to pick the button's words.",
+            "speechText": "Show secret is true or false. Use double ampersand to show the paragraph only when it's true, and the question mark and colon to pick the button's words.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "The paragraph:\n\n```jsx\n{showSecret && <p id=\"secret\">The password is: pickles</p>}\n```\n\nThe button's words are `{showSecret ? \"Hide secret\" : \"Show secret\"}`.",
+            "speechText": "Put show secret and double ampersand in front of the paragraph. For the button, if show secret is true say hide secret, otherwise say show secret.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -334,15 +340,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "`const answered = picked !== null;` and `const correct = picked === question.answer;`. Then the JSX needs `disabled={answered}`, `{answered && (…)}` and `{answered && !correct && (…)}`."
+            "markdown": "Can you work out `answered` and `correct` from `picked` alone, without new state?",
+            "speechText": "Can you work out answered and correct from picked alone, without new state?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\n{answered && (\n  <p className={correct ? \"feedback right\" : \"feedback wrong\"}>\n    {correct ? \"Correct!\" : `Not quite. The answer is ${question.answer}.`}\n  </p>\n)}\n```"
+            "markdown": "`answered` is `picked !== null`, and `correct` compares `picked` to `question.answer`. Then the buttons get `disabled={answered}`.",
+            "speechText": "Answered means picked is not null, and correct compares picked to the question's answer. Then the buttons get disabled when answered is true.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "The feedback:\n\n```jsx\n{answered && (\n  <p className={correct ? \"feedback right\" : \"feedback wrong\"}>\n    {correct ? \"Correct!\" : `Not quite. The answer is ${question.answer}.`}\n  </p>\n)}\n```\n\nThe try-again button shows only when answered and not correct.",
+            "speechText": "Here's the feedback paragraph. The try again button shows only when answered and not correct, and sets picked back to null.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -505,15 +517,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "`const [name, setName] = useState(\"\");` then `<input … value={name} onChange={(event) => setName(event.target.value)} />`."
+            "markdown": "How will React know what's typed in the box at every moment?",
+            "speechText": "How will React know what's typed in the box at every moment?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "In `handleSubmit`: `setNames([...names, name]);`. In the list: `{names.map((n) => <li key={n}>{n}</li>)}`."
+            "markdown": "Keep the text in state with `useState(\"\")`. Give the box `value={name}` and an `onChange` that calls `setName(event.target.value)`.",
+            "speechText": "Keep the text in state, starting empty. Give the box a value from that state, and an on change that sets the name to the event's target value.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "The box:\n\n```jsx\n<input id=\"pet-name\" value={name} onChange={(event) => setName(event.target.value)} />\n```\n\nIn `handleSubmit`, add it with `setNames([...names, name])`.",
+            "speechText": "Here's the connected box. In handle submit, add the name with set names, spreading the old names into a new array.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -725,15 +743,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Four pieces of state: `player` (\"\"), `team` (\"Red\"), `error` (\"\") and `roster` ([]). Both fields need `value` and `onChange`; the select gets its `value` on the `<select>` itself."
+            "markdown": "How many pieces of state does this form need, and what does each one start as?",
+            "speechText": "How many pieces of state does this form need, and what does each one start as?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\nfunction handleSubmit(event) {\n  event.preventDefault();\n  const name = player.trim();\n  if (name === \"\") {\n    setError(\"Please enter a name.\");\n    return;\n  }\n  setRoster([...roster, { id: roster.length + 1, name, team }]);\n  setError(\"\");\n  setPlayer(\"\");\n}\n```"
+            "markdown": "Four: `player` (\"\"), `team` (\"Red\"), `error` (\"\") and `roster` ([]). Both fields need `value` and `onChange`, and the submit handler starts with `event.preventDefault()`.",
+            "speechText": "Four: the player name, starting empty, the team, starting as Red, an error message, and the roster array. Both fields need a value and an on change, and the submit handler starts by preventing the default.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "The check:\n\n```jsx\nconst name = player.trim();\nif (name === \"\") {\n  setError(\"Please enter a name.\");\n  return;\n}\n```\n\nThen add `{ id, name, team }` to the roster, and clear the error and the box.",
+            "speechText": "Trim the name, and if it's empty, set the error and stop. Otherwise add the player and team to the roster, and clear the error and the box.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -915,15 +939,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Three steps in a chain: `fetch(url)`, then `.then((response) => response.json())`, then `.then((data) => setPlanets(data))`."
+            "markdown": "Fetching happens in three steps. What are they?",
+            "speechText": "Fetching happens in three steps. What are they?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "```jsx\n{planets.length === 0 && <p id=\"loading\">Loading…</p>}\n<ul id=\"planets\">\n  {planets.map((planet) => (\n    <li key={planet.id}>{planet.name}</li>\n  ))}\n</ul>\n```"
+            "markdown": "Fetch the URL, turn the response into JSON, then save the data with `setPlanets`. Each step is its own `.then`.",
+            "speechText": "Fetch the U-R-L, turn the response into jay-son, then save the data with set planets. Each step is its own then.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "The fetch:\n\n```jsx\nfetch(\"https://api.codegrove.test/planets\")\n  .then((response) => response.json())\n  .then((data) => setPlanets(data));\n```\n\nNow map the planets to `<li>`s, and show the loading message while the list is empty.",
+            "speechText": "Here's the fetch chain. Now map the planets to list items with their I-D as the key, and show loading while the list is empty.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1098,15 +1128,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "Inside `useEffect(() => { … }, [])`: fetch, check `response.ok` (throw if not), `.json()`, then `setPets` and `setStatus(\"ready\")`; `.catch` sets `\"error\"`. Return `() => { ignore = true; }` and skip the setters when `ignore` is true."
+            "markdown": "What should the dependency array be if the pets load only once, when the page appears?",
+            "speechText": "What should the dependency array be if the pets load only once, when the page appears?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "After the effect: `const available = pets.filter((pet) => !pet.adopted);` then\n```jsx\nif (status === \"loading\") return <p id=\"status\">Loading pets…</p>;\nif (status === \"error\") return <p id=\"status\">Couldn't load the pets. Try again later.</p>;\n```"
+            "markdown": "An empty array `[]`. Inside the effect, check `response.ok` and throw if it's false, set `status` to ready or error, and return a cleanup that sets `ignore = true`.",
+            "speechText": "An empty array. Inside the effect, check response dot ok and throw if it's false, set the status to ready or error, and return a cleanup that sets ignore to true.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "After the effect, filter the pets and return early for the other states:\n\n```jsx\nconst available = pets.filter((pet) => !pet.adopted);\nif (status === \"loading\") return <p id=\"status\">Loading pets…</p>;\n```\n\nAdd the error return the same way.",
+            "speechText": "Filter out adopted pets, and return early with a loading message while loading. Add the error return the same way.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1304,15 +1340,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "`App` gets `const [temp, setTemp] = useState(20);`. Then `<Display temp={temp} />` and `<Controls onUp={() => setTemp(temp + 1)} onDown={() => setTemp(temp - 1)} />`."
+            "markdown": "Which component is the parent of both `Display` and `Controls`?",
+            "speechText": "Which component is the parent of both the display and the controls?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Inside `Controls`, the buttons use the props: `onClick={props.onUp}`. Inside `Display`: `<p id=\"temp\">{props.temp}°</p>`. Remember to add `props` to both functions' brackets!"
+            "markdown": "`App` is. Keep `temp` there, pass it to `Display` as a prop, and pass `onUp` and `onDown` functions to `Controls`.",
+            "speechText": "App is. Keep the temperature there, pass it to the display as a prop, and pass on-up and on-down functions to the controls.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "In App:\n\n```jsx\nconst [temp, setTemp] = useState(20);\n<Display temp={temp} />\n<Controls onUp={() => setTemp(temp + 1)} onDown={() => setTemp(temp - 1)} />\n```\n\nIn `Controls`, the buttons use `onClick={props.onUp}` and `props.onDown`.",
+            "speechText": "Keep temp in App, starting at twenty, and pass it and the two callbacks down. In controls, the buttons call props dot on-up and on-down.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1519,15 +1561,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "In App: `const [cart, setCart] = useState({});` and `function addToCart(id) { setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 })); }`. Children receive props by destructuring: `function ProductList({ products, cart, onAdd })`."
+            "markdown": "Both `ProductList` and `CartSummary` need the cart. Which component should own it?",
+            "speechText": "Both the product list and the cart summary need the cart. Which component should own it?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "In ProductList: `onClick={() => onAdd(product.id)}` and `In cart: {cart[product.id] ?? 0}`. In CartSummary, loop over `products`: for each, `const q = cart[product.id] ?? 0;` then add `q` to the item count and `q * product.price` to the total."
+            "markdown": "`App` owns `cart` as an object of `{ productId: quantity }`. `addToCart(id)` makes a new object with spread and a computed key, and goes down as `onAdd`.",
+            "speechText": "App owns the cart as an object of product I-Ds and quantities. Add to cart makes a new object with spread and a computed key, and goes down as on-add.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx, ProductList.jsx and CartSummary.jsx."
+            "markdown": "The update:\n\n```jsx\nsetCart((current) => ({ ...current, [id]: (current[id] ?? 0) + 1 }));\n```\n\nIn `CartSummary`, loop over the products and add up each `cart[product.id] ?? 0` and its price.",
+            "speechText": "Here's the immutable update. In the summary, loop over the products, and add up each quantity and quantity times price.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -1786,15 +1834,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "You need state for the text (`\"\"`) and the wishes (`[]`). Connect the box with `value` and `onChange`, and give the form an `onSubmit` that calls `event.preventDefault()` first."
+            "markdown": "What two things does your app need to remember?",
+            "speechText": "What two things does your app need to remember?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Store each wish as `{ id, text }` so keys are unique. Adding: `setWishes([...wishes, { id: nextId, text }])`. Removing: `setWishes(wishes.filter((wish) => wish.id !== id))`. Each `<li>` gets `<button onClick={() => remove(wish.id)}>Remove</button>`."
+            "markdown": "The text in the box (`\"\"`) and the list of wishes (`[]`). Store each wish as `{ id, text }` so every key is different.",
+            "speechText": "The text in the box, starting empty, and the list of wishes, starting as an empty array. Store each wish with an I-D and its text, so every key is different.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx."
+            "markdown": "Removing a wish:\n\n```jsx\nsetWishes(wishes.filter((wish) => wish.id !== id));\n```\n\nEach `<li>` gets a button with `onClick={() => remove(wish.id)}`.",
+            "speechText": "To remove, keep every wish whose I-D isn't the one clicked. Each list item gets a remove button that calls remove with its wish's I-D.",
+            "mood": "Encouraging"
           }
         ]
       },
@@ -2157,15 +2211,21 @@
         "hints": [
           {
             "level": 1,
-            "markdown": "App needs `const [tasks, setTasks] = useState([]);` and `const [filter, setFilter] = useState(\"all\");`. Derive `const visible = tasks.filter(FILTERS[filter].test);` and `const left = tasks.filter((t) => !t.done).length;`."
+            "markdown": "What's the smallest set of state that can describe everything on the screen?",
+            "speechText": "What's the smallest set of state that can describe everything on the screen?",
+            "mood": "Thinking"
           },
           {
             "level": 2,
-            "markdown": "Toggle: `setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));`. Filter buttons:\n```jsx\n{Object.entries(FILTERS).map(([key, { label }]) => (\n  <button key={key} id={`filter-${key}`} aria-pressed={filter === key} onClick={() => setFilter(key)}>\n    {label}\n  </button>\n))}\n```"
+            "markdown": "Just `tasks` and `filter`. The visible tasks and the count left are derived during render with `filter`.",
+            "speechText": "Just the tasks and the filter. The visible tasks and the count left are worked out during render with filter.",
+            "mood": "Thinking"
           },
           {
             "level": 3,
-            "markdown": "Here's the finished App.jsx, TaskForm.jsx and TaskItem.jsx."
+            "markdown": "Toggling a task immutably:\n\n```jsx\nsetTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));\n```\n\nThe filter buttons come from `Object.entries(FILTERS)`, each with `aria-pressed`.",
+            "speechText": "Toggle a task by mapping to a copy with done flipped. Build the filter buttons from the filters object, each with aria pressed.",
+            "mood": "Encouraging"
           }
         ]
       },

@@ -26,6 +26,15 @@ public class HintReveal
     public DateTime RevealedAt { get; set; }
 }
 
+/// <summary>The learner asked to see a challenge's solution (only possible after all three hints).</summary>
+public class SolutionReveal
+{
+    public Guid UserId { get; set; }
+    public int ChallengeId { get; set; }
+    public Challenge Challenge { get; set; } = null!;
+    public DateTime RevealedAt { get; set; }
+}
+
 public class QuizAttempt
 {
     public Guid Id { get; set; }

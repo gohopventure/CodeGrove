@@ -84,10 +84,9 @@ public class Lesson
 }
 
 /// <summary>
-/// One line of the tutor's spoken script for a lesson: plain sentences written to be read aloud.
-/// Today the lesson player shows them as text in the tutor panel; later a Tutor service can voice them
-/// (pre-rendered intro/recap clips first, live avatar later) by reading this table. Exercise hints live
-/// in <see cref="Hint"/>, one row per level.
+/// One segment of the tutor's script for a lesson. Today the lesson player shows <see cref="DisplayText"/> in the tutor
+/// panel; later a Tutor service voices <see cref="SpeechText"/> (pre-rendered intro/recap clips first, live avatar later)
+/// by reading this table. Exercise hints live in <see cref="Hint"/>, one row per level.
 /// </summary>
 public class LessonScript
 {
@@ -99,7 +98,51 @@ public class LessonScript
     /// <summary>Order within the kind, from 0. Lets a script be split into separately voiced segments.</summary>
     public int SortOrder { get; set; }
 
-    public string Text { get; set; } = "";
+    /// <summary>The caption shown in the tutor panel. Light markdown is allowed, e.g. `&lt;ul&gt;` in backticks.</summary>
+    public string DisplayText { get; set; } = "";
+
+    /// <summary>What the voice says: plain words only, no code symbols, acronyms spelled for speech ("u-l", "C sharp").</summary>
+    public string SpeechText { get; set; } = "";
+
+    public TutorMood Mood { get; set; } = TutorMood.Neutral;
+}
+
+/// <summary>
+/// A tutor character. One per learner band: Juni for Explorers, Rowan for Builders. Content never names the
+/// tutor, so renaming a character only changes Content/tutors.json.
+/// </summary>
+public class TutorCharacter
+{
+    public int Id { get; set; }
+    public string Slug { get; set; } = "";
+    public string Name { get; set; } = "";
+
+    /// <summary>Explorer or Builder. Each band has exactly one character.</summary>
+    public AgeBand Band { get; set; }
+
+    /// <summary>Text-to-speech voice for later (an Azure Neural TTS voice name). Unused in the MVP.</summary>
+    public string VoiceId { get; set; } = "";
+
+    /// <summary>Portrait path with a <c>{mood}</c> placeholder, e.g. <c>/tutor/juni-{mood}.svg</c> (mood in lower case).</summary>
+    public string PortraitUrl { get; set; } = "";
+
+    /// <summary>Persona and rules for the Phase 2 live tutor's model prompt. Never sent to the browser.</summary>
+    public string PersonaPrompt { get; set; } = "";
+
+    public List<TutorLine> Lines { get; set; } = [];
+}
+
+/// <summary>A reusable line a character says at a <see cref="TutorEvent"/>; the player picks one from the pool at random.</summary>
+public class TutorLine
+{
+    public int Id { get; set; }
+    public int CharacterId { get; set; }
+    public TutorCharacter Character { get; set; } = null!;
+    public TutorEvent Event { get; set; }
+    public int SortOrder { get; set; }
+    public string DisplayText { get; set; } = "";
+    public string SpeechText { get; set; } = "";
+    public TutorMood Mood { get; set; } = TutorMood.Neutral;
 }
 
 public class Challenge
@@ -113,7 +156,10 @@ public class Challenge
     /// <summary>JSON object: file name → contents, e.g. {"index.html":"..."}.</summary>
     public string StarterFilesJson { get; set; } = "{}";
 
-    /// <summary>Same shape as starter files. Only ever sent after hint level 3 is revealed.</summary>
+    /// <summary>
+    /// Same shape as starter files. Only ever sent once the learner asks for it after all three hints
+    /// (a <see cref="SolutionReveal"/>), or after they pass.
+    /// </summary>
     public string SolutionFilesJson { get; set; } = "{}";
 
     public int XpReward { get; set; } = 10;
@@ -155,9 +201,19 @@ public class Hint
     public int ChallengeId { get; set; }
     public Challenge Challenge { get; set; } = null!;
 
-    /// <summary>1 = nudge, 2 = more help, 3 = the solution.</summary>
+    /// <summary>
+    /// 1 = nudge (always a guiding question), 2 = pointer (names the concept and where to look),
+    /// 3 = nearly there (a partial fill-in). The full solution is never a hint; it's a separate step after level 3.
+    /// </summary>
     public int Level { get; set; }
+
+    /// <summary>What the tutor panel shows. Markdown, may include code.</summary>
     public string Markdown { get; set; } = "";
+
+    /// <summary>The same hint written to be read aloud: plain words, no code symbols.</summary>
+    public string SpeechText { get; set; } = "";
+
+    public TutorMood Mood { get; set; } = TutorMood.Thinking;
 }
 
 public class Quiz
