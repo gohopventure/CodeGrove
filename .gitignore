@@ -13,3 +13,4 @@ src/Codegrove.Api/wwwroot/
 TestResults/
 .env
 .env.local
+.cg-transfer/
