@@ -230,6 +230,15 @@ function typesOf(value: unknown): string | undefined {
   return undefined;
 }
 
+/** The usual cause is packages missing from node_modules: say how to fix it instead of a require stack. */
+function friendlyBuildError(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/Cannot find (module|package) ['"]?(@angular|rxjs|tslib|rolldown)/.test(message)) {
+    return `Angular lessons need packages that aren't installed yet. Stop the dev server, run "npm install" in web/, then start it again. (${message.split('\n')[0]})`;
+  }
+  return `Couldn't build the Angular preview runtime: ${message}`;
+}
+
 export function angularRuntime(): Plugin {
   let root = process.cwd();
   let runtime: Promise<string> | null = null;
@@ -244,8 +253,15 @@ export function angularRuntime(): Plugin {
     },
     async load(id) {
       // Built once per dev-server start (a few seconds) and reused by every page and test file.
-      if (id === '\0' + RUNTIME_ID) return `export default ${JSON.stringify(await (runtime ??= buildAngularRuntime(root)))};`;
-      if (id === '\0' + TYPES_ID) return `export default ${JSON.stringify(await (types ??= buildAngularTypes(root)))};`;
+      // A failed build isn't cached, so the next request retries (after `npm install`, say).
+      try {
+        if (id === '\0' + RUNTIME_ID) return `export default ${JSON.stringify(await (runtime ??= buildAngularRuntime(root)))};`;
+        if (id === '\0' + TYPES_ID) return `export default ${JSON.stringify(await (types ??= buildAngularTypes(root)))};`;
+      } catch (error) {
+        if (id === '\0' + RUNTIME_ID) runtime = null;
+        else types = null;
+        throw new Error(friendlyBuildError(error));
+      }
       return null;
     },
   };
