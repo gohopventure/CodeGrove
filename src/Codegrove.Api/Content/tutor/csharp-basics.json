@@ -32,6 +32,38 @@
           "mood": "Encouraging"
         }
       ]
+    },
+    "variables-explorer": {
+      "intro": [
+        {
+          "displayText": "Programs need to remember things, like a player's name or how many coins they have. Your mission: build a player card that keeps its facts in variables and prints them.",
+          "speechText": "Programs need to remember things, like a player's name or how many coins they have. Your mission is to build a player card that keeps its facts in variables and prints them.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your player card prints straight from its variables! Your new word is variable: a named box that holds a value you can change.",
+          "speechText": "Your player card prints straight from its variables! Your new word is variable, a named box that holds a value you can change.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "variables-and-types": {
+      "intro": [
+        {
+          "displayText": "Every real program juggles data: prices, counts, names, flags. C# makes you choose a type for each one and holds you to it, which catches a whole family of bugs before the code ever runs. You'll meet the core types, var, constants and formatted string interpolation. Then you'll fix a road trip calculator the compiler refuses to build.",
+          "speechText": "Every real program juggles data, like prices, counts, names and flags. C sharp makes you choose a type for each one and holds you to it, which catches a whole family of bugs before the code ever runs. You'll meet the core types, var, constants and formatted string interpolation. Then you'll fix a road trip calculator the compiler refuses to build.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The calculator compiles and every number checks out. The gotcha: an int divided by an int is an int, so 7 / 2 is 3, not 3.5. Make one side a double or decimal when you need the fraction. Next, your programs start making decisions with if and switch.",
+          "speechText": "The calculator compiles and every number checks out. The gotcha is that an int divided by an int is an int, so seven divided by two is three, not three and a half. Make one side a double or a decimal when you need the fraction. Next, your programs start making decisions with if and switch.",
+          "mood": "Encouraging"
+        }
+      ]
     }
   }
 }

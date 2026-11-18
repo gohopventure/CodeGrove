@@ -331,7 +331,151 @@
       "sortOrder": 2,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Boxes for your data\n\nPrograms need to remember things: a player's name, a score, how many lives are left. They keep each thing in a **variable**, a box with a name on it.\n\n```csharp\nstring name = \"Pixel\";\nint lives = 3;\n```\n\nRead the first line like this: make a box called `name`, for text, and put `\"Pixel\"` in it.\n\n### Every box has a type\n\nIn C#, you say what kind of value goes in each box. That's its **type**:\n\n| Type | Holds | Example |\n| --- | --- | --- |\n| `string` | text, in quotes | `string pet = \"Pickles\";` |\n| `int` | whole numbers | `int score = 120;` |\n| `double` | numbers with a decimal point | `double height = 1.45;` |\n| `bool` | `true` or `false` | `bool isAwake = true;` |\n\nA box only takes its own type. `int lives = \"three\";` is a compile error, because `\"three\"` is text, not a whole number.\n\n### Change what's inside\n\nAfter you make a variable, use its name without the type to give it a new value:\n\n```csharp\nint score = 120;\nscore = score + 30;   // score is now 150\n```\n\n### Put variables in your text\n\nPut a `$` before the quotes, and a variable's name in curly braces `{ }`. C# swaps in the value:\n\n```csharp\nConsole.WriteLine($\"{name} has {lives} lives.\");   // Pixel has 3 lives.\n```\n\nThat's called **string interpolation**. Without the `$`, C# prints the braces and the name exactly as you typed them.\n\n### New words\n\n- **Variable**: a named box that holds a value. You can change the value later.\n- **Type**: the kind of value a variable holds, like text or a whole number.\n- **string**: the type for text.\n- **int** (*integer*): the type for whole numbers.\n- **bool** (*Boolean*): the type for `true` or `false`.\n- **String interpolation**: putting variables into text with `$\"...\"` and `{ }`.\n",
+      "exampleMarkdown": "A pet card made from five variables, each with its own type. The `$` and the curly braces swap in the values. A `bool` prints as `True` or `False`, with a capital letter.",
+      "exampleCode": "string petName = \"Pickles\";\nstring kind = \"hamster\";\nint age = 2;\ndouble weight = 0.12;\nbool isSleepy = true;\n\nConsole.WriteLine($\"Name: {petName}\");\nConsole.WriteLine($\"{petName} is a {age}-year-old {kind}.\");\nConsole.WriteLine($\"Weight: {weight} kg\");\nConsole.WriteLine($\"Sleepy? {isSleepy}\");\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Make a player card for your game.\n\n1. Make an `int` variable called `coins` that starts at `250`.\n2. The player found 50 more coins: add `50` to `coins`.\n3. Fix the two print lines so they show the player's name and level, not the words `player` and `level`.\n4. Add a line that prints the coins.\n\nPress **Run** to see your card. It should say `Player: PixelFox`, `Level: 3` and `Coins: 300`.",
+        "starterFiles": {
+          "Program.cs": "// Mission: make a player card for your game!\nstring player = \"PixelFox\";\nint level = 3;\n\n// 1. Make an int variable called coins, starting at 250.\n\n// 2. The player found 50 more coins! Add 50 to coins.\n\n// 3. Fix these lines so they print the values, not the names. Use $ and { }.\nConsole.WriteLine(\"Player: player\");\nConsole.WriteLine(\"Level: level\");\n// Then add a line that prints the coins, like: Coins: 300\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: make a player card for your game!\nstring player = \"PixelFox\";\nint level = 3;\n\n// 1. Make an int variable called coins, starting at 250.\nint coins = 250;\n\n// 2. The player found 50 more coins! Add 50 to coins.\ncoins = coins + 50;\n\n// 3. Fix these lines so they print the values, not the names. Use $ and { }.\nConsole.WriteLine($\"Player: {player}\");\nConsole.WriteLine($\"Level: {level}\");\n// Then add a line that prints the coins, like: Coins: 300\nConsole.WriteLine($\"Coins: {coins}\");\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Look at the Output panel: the red error names the line to fix."
+          },
+          {
+            "label": "coins starts at 250",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bint\\s+coins\\s*=\\s*250\\s*;"
+            },
+            "failMessage": "Make the variable like level on line 3: int coins = 250;"
+          },
+          {
+            "label": "50 coins are added",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bcoins\\s*(\\+=\\s*50|=\\s*coins\\s*\\+\\s*50|=\\s*50\\s*\\+\\s*coins)\\s*;"
+            },
+            "failMessage": "Change coins after you make it: coins = coins + 50;"
+          },
+          {
+            "label": "The card shows the player",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Player: PixelFox",
+              "caseSensitive": true
+            },
+            "failMessage": "Put a $ before the quotes and the variable in curly braces: {player}"
+          },
+          {
+            "label": "The card shows the level",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Level: 3",
+              "caseSensitive": true
+            },
+            "failMessage": "Fix the Level line the same way, with $ and {level}."
+          },
+          {
+            "label": "The card shows 300 coins",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Coins: 300",
+              "caseSensitive": true
+            },
+            "failMessage": "Add a line that prints the coins variable: Coins: 300"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at line 3, where `level` is made. How could you make `coins` the same way?",
+            "speechText": "Look at line three, where the level variable is made. How could you make coins the same way?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Make it with `int coins = 250;`, then add 50 with `coins = coins + 50;`. To show a variable in text, put a `$` before the quotes and the variable's name in curly braces, like `{player}`.",
+            "speechText": "Make coins with int coins equals 250, then add 50 by setting coins to coins plus 50. To show a variable in text, put a dollar sign before the quotes and the variable's name in curly braces.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the start:\n\n```csharp\nint coins = 250;\ncoins = coins + 50;\nConsole.WriteLine($\"Player: {player}\");\n```\n\nFix the Level line the same way, then add a line for `Coins: {coins}`.",
+            "speechText": "Make coins, add 50, and give each print line a dollar sign and curly braces. Then add one more line that prints the coins.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which line makes a variable that holds a whole number?",
+            "explanation": "int is the type for whole numbers, and 3 is a whole number. Text in quotes would need a string.",
+            "options": [
+              {
+                "text": "int lives = 3;",
+                "correct": true
+              },
+              {
+                "text": "string lives = 3;",
+                "correct": false
+              },
+              {
+                "text": "int lives = \"three\";",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "name holds \"Juni\". What does Console.WriteLine($\"Hi {name}!\"); print?",
+            "explanation": "The $ turns on string interpolation, so {name} is swapped for the value in the variable.",
+            "options": [
+              {
+                "text": "Hi Juni!",
+                "correct": true
+              },
+              {
+                "text": "Hi {name}!",
+                "correct": false
+              },
+              {
+                "text": "Hi name!",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which type holds true or false?",
+            "explanation": "bool holds just two values: true and false.",
+            "options": [
+              {
+                "text": "bool",
+                "correct": true
+              },
+              {
+                "text": "int",
+                "correct": false
+              },
+              {
+                "text": "string",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "variables-and-types",
@@ -339,7 +483,188 @@
       "sortOrder": 2,
       "ageBand": "Builder",
       "estimatedMinutes": 20,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Variables and types\n\nA **declaration** creates a variable: its type, its name, and usually a starting value.\n\n```csharp\nint score = 0;\nstring player = \"ByteRunner\";\n```\n\nC# is **statically typed**: every variable's type is fixed when the code compiles, and the compiler checks every use of it. Assign the wrong kind of value and you get a compile error (often CS0029 or CS0266) before anything runs. JavaScript would have let it through and failed later, or not at all.\n\n### The core types\n\n| Type | For | Literal |\n| --- | --- | --- |\n| `int` | whole numbers (about ±2.1 billion) | `42` |\n| `long` | bigger whole numbers | `9_000_000_000L` |\n| `double` | fractional numbers, fast but approximate | `3.14` |\n| `decimal` | exact decimal amounts: money | `19.99m` |\n| `bool` | `true` / `false` | `true` |\n| `char` | one character, in single quotes | `'A'` |\n| `string` | text, in double quotes | `\"hi\"` |\n\n`double` stores binary fractions, so `0.1 + 0.2` is `0.30000000000000004`. That's fine for physics and graphics. For money, use `decimal`, and note the `m` on its literals.\n\n### var and const\n\n`var total = 0m;` lets the compiler **infer** the type from the value (here `decimal`). The variable is still statically typed: `total = \"lots\";` is a compile error. Use `var` when the type is obvious from the right-hand side.\n\n`const decimal TaxRate = 0.08m;` declares a **constant**: it can never change, and the compiler rejects any attempt.\n\n### Arithmetic gotchas\n\n- `int` divided by `int` is an `int`: `7 / 2` is `3`. The fraction is dropped, not rounded. Make one side fractional to keep it: `7 / 2.0` or `(double)7 / 2`.\n- `%` gives the remainder: `7 % 2` is `1`.\n- Converting from a smaller type to a bigger one is automatic (`int` → `double`). The other way could lose data, so you need a **cast**: `(int)3.9` is `3`, again truncated.\n- C# won't mix `double` and `decimal` without a cast in one direction or the other.\n\n### String interpolation and formatting\n\n`$\"...\"` strings evaluate expressions in braces: `$\"{player} has {score * 2} points\"`. After a colon, a **format specifier** controls the output: `{price:F2}` gives two decimal places, `{ratio:P0}` a percentage, `{count:N0}` thousands separators.\n\nNaming convention: local variables use `camelCase` (`pricePerLitre`); constants use `PascalCase` (`TaxRate`).\n\n### New words\n\n- **Declaration**: a statement that creates a variable with a type and a name.\n- **Statically typed**: types are fixed and checked when the code compiles, not when it runs.\n- **Type inference**: the compiler working out a type for you, as with `var`.\n- **Constant**: a value that can't change after it's declared (`const`).\n- **Integer division**: dividing two whole numbers, which throws away the remainder.\n- **Cast**: converting a value to another type explicitly, like `(int)3.9`.\n- **Format specifier**: a code after a colon in an interpolated string, like `F2`, that controls how a value prints.\n",
+      "exampleMarkdown": "A receipt. `decimal` keeps the money exact, `var` infers `decimal` from the right-hand side, and `:F2` prints two decimal places. The pizza lines show integer division, a cast, and the remainder operator.",
+      "exampleCode": "// A receipt: types, var, const and formatted interpolation.\nconst decimal TaxRate = 0.08m;   // the m makes it a decimal literal\n\nstring item = \"Mechanical keyboard\";\nint quantity = 2;\ndecimal price = 49.99m;\n\nvar subtotal = price * quantity; // int * decimal → decimal, so var infers decimal\nvar tax = subtotal * TaxRate;\n\nConsole.WriteLine($\"{quantity} x {item} @ {price:F2}\");\nConsole.WriteLine($\"Subtotal: {subtotal:F2}\");\nConsole.WriteLine($\"Tax:      {tax:F2}\");\nConsole.WriteLine($\"Total:    {subtotal + tax:F2}\");\nConsole.WriteLine();\n\nint pizzas = 7;\nint people = 2;\nConsole.WriteLine($\"{pizzas} / {people} = {pizzas / people}   (integer division)\");\nConsole.WriteLine($\"(double){pizzas} / {people} = {(double)pizzas / people}\");\nConsole.WriteLine($\"{pizzas} % {people} = {pizzas % people}   (the remainder)\");\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Fix the road trip calculator.** It doesn't compile yet, and once it does, its numbers need work.\n\n1. Fix the compile errors. Keep the full precision in the variables (round only when printing).\n2. Print the destination from its variable.\n3. Print litres with one decimal place, and both money amounts with two.\n\nThe output must be:\n\n```\nTrip to Grand Canyon\nFuel needed: 50.7 L\nFuel cost: 82.12\nEach friend pays: 20.53\n```\n\n(Round too early, say litres to 50.7 before multiplying, and the cost comes out as 82.13.)",
+        "starterFiles": {
+          "Program.cs": "// Road trip calculator. Fix it so the output matches the instructions.\nstring destination = \"Grand Canyon\";\nint distanceKm = 735;\ndouble kmPerLitre = 14.5;\ndecimal pricePerLitre = 1.62m;\nint friends = 4;\n\nint litres = distanceKm / kmPerLitre;\ndecimal fuelCost = litres * pricePerLitre;\ndecimal perPerson = fuelCost / friends;\n\nConsole.WriteLine(\"Trip to destination\");\nConsole.WriteLine($\"Fuel needed: {litres} L\");\nConsole.WriteLine($\"Fuel cost: {fuelCost}\");\nConsole.WriteLine($\"Each friend pays: {perPerson}\");\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Road trip calculator. Fix it so the output matches the instructions.\nstring destination = \"Grand Canyon\";\nint distanceKm = 735;\ndouble kmPerLitre = 14.5;\ndecimal pricePerLitre = 1.62m;\nint friends = 4;\n\ndouble litres = distanceKm / kmPerLitre;\ndecimal fuelCost = (decimal)litres * pricePerLitre;\ndecimal perPerson = fuelCost / friends;\n\nConsole.WriteLine($\"Trip to {destination}\");\nConsole.WriteLine($\"Fuel needed: {litres:F1} L\");\nConsole.WriteLine($\"Fuel cost: {fuelCost:F2}\");\nConsole.WriteLine($\"Each friend pays: {perPerson:F2}\");\n"
+        },
+        "tests": [
+          {
+            "label": "The program compiles and runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "There's still an error in the Output panel. Fix the first one, then run again."
+          },
+          {
+            "label": "The destination comes from its variable",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\{\\s*destination\\s*\\}"
+            },
+            "failMessage": "Use string interpolation: $\"Trip to {destination}\""
+          },
+          {
+            "label": "The first line names the destination",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Trip to Grand Canyon",
+              "caseSensitive": true
+            },
+            "failMessage": "The first line should print: Trip to Grand Canyon"
+          },
+          {
+            "label": "Litres print with one decimal place",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Fuel needed: 50.7 L",
+              "caseSensitive": true
+            },
+            "failMessage": "litres needs to be a double, printed with the format specifier :F1."
+          },
+          {
+            "label": "The fuel cost is right",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Fuel cost: 82.12",
+              "caseSensitive": true
+            },
+            "failMessage": "Multiply the unrounded litres (cast to decimal) by the price, and print with :F2."
+          },
+          {
+            "label": "The split is right",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Each friend pays: 20.53",
+              "caseSensitive": true
+            },
+            "failMessage": "Print perPerson with :F2."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The compiler stops on line 8 (CS0266). What type does `distanceKm / kmPerLitre` produce, and what type is `litres`?",
+            "speechText": "The compiler stops on line eight. What type do you get when you divide the distance by kilometres per litre, and what type is litres?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Make `litres` a `double`. Line 9 then multiplies a `double` by a `decimal`, which C# won't do on its own, so cast it: `(decimal)litres`. Round only when printing, with format specifiers like `{litres:F1}`.",
+            "speechText": "Make litres a double. Then cast it to decimal before multiplying by the price, because C sharp won't mix double and decimal on its own. Round only when printing, with a format specifier like F1 after a colon inside the curly braces.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The two calculation lines:\n\n```csharp\ndouble litres = distanceKm / kmPerLitre;\ndecimal fuelCost = (decimal)litres * pricePerLitre;\n```\n\nThen print with `$\"Trip to {destination}\"`, `{litres:F1}`, `{fuelCost:F2}` and `{perPerson:F2}`.",
+            "speechText": "Declare litres as a double, and cast it to decimal on the fuel cost line. Give the first print line a dollar sign so destination can go in curly braces. Format litres with F1, and both money values with F2.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does Console.WriteLine(7 / 2); print?",
+            "explanation": "Both operands are int, so it's integer division: the .5 is dropped (not rounded). 7 / 2.0 would give 3.5.",
+            "options": [
+              {
+                "text": "3",
+                "correct": true
+              },
+              {
+                "text": "3.5",
+                "correct": false
+              },
+              {
+                "text": "4",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "After var count = 10; what is count's type?",
+            "explanation": "var asks the compiler to infer the type from the value. It's int from then on; count = \"ten\"; would be a compile error.",
+            "options": [
+              {
+                "text": "int, fixed when the code compiles",
+                "correct": true
+              },
+              {
+                "text": "Whatever type you assign to it later",
+                "correct": false
+              },
+              {
+                "text": "It has no type until the program runs",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which type should hold a price like 19.99?",
+            "explanation": "decimal stores decimal fractions exactly. double is binary and approximate, so cents can drift.",
+            "options": [
+              {
+                "text": "decimal",
+                "correct": true
+              },
+              {
+                "text": "double",
+                "correct": false
+              },
+              {
+                "text": "int",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "price is the double 4.5. Which prints Price: 4.50?",
+            "explanation": "The $ makes it an interpolated string, and :F2 after the expression formats it with two decimal places.",
+            "options": [
+              {
+                "text": "$\"Price: {price:F2}\"",
+                "correct": true
+              },
+              {
+                "text": "\"Price: {price:F2}\"",
+                "correct": false
+              },
+              {
+                "text": "$\"Price: {F2:price}\"",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What happens with int n = 3.9; ?",
+            "explanation": "Converting double to int can lose data, so C# won't do it implicitly (CS0266). An explicit cast, (int)3.9, compiles and gives 3.",
+            "options": [
+              {
+                "text": "A compile error: a double can't silently become an int",
+                "correct": true
+              },
+              {
+                "text": "n becomes 3",
+                "correct": false
+              },
+              {
+                "text": "n becomes 4",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "decisions-explorer",
