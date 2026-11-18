@@ -59,11 +59,17 @@ dotnet run --launch-profile sqlserver     # applies migrations, then seeds
 ```bash
 cd web
 npm install
+npm run build:csharp                      # once: builds the in-browser C# runner (about a minute)
 npm run dev                               # open http://localhost:5173
 ```
 
 The app runs on `http://localhost:5173` and the preview runner on `http://127.0.0.1:5173/runner.html`.
 Those are different origins on purpose, mirroring production.
+
+C# lessons compile and run learner code in the browser with Roslyn on .NET for WebAssembly, inside a
+Web Worker on the preview origin (`web/public/csharp-runner/`). `npm run build:csharp` publishes
+`src/Codegrove.CSharpRunner.Wasm` into `web/public/csharp-runner/_framework` (not committed). Run it again
+after changing anything in `src/Codegrove.CSharpRunner*`. Without it, C# lessons say the runner isn't built.
 
 **Demo accounts** (Development only; password `codegrove-demo` for all):
 

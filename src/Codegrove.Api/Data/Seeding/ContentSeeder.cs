@@ -404,6 +404,10 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
     public static readonly IReadOnlySet<string> BlockCategories =
         new HashSet<string> { "variables", "math", "text", "logic", "loops", "functions", "console" };
 
+    /// <summary>Test kinds the C# runner understands (src/Codegrove.CSharpRunner/TestEvaluator.cs).</summary>
+    public static readonly IReadOnlySet<string> CSharpTestKinds =
+        new HashSet<string> { "noErrors", "consoleIncludes", "consoleEquals", "compileError", "csharpExpression", "sourceMatches" };
+
     /// <summary>Catches authoring mistakes at seed time instead of in front of a child.</summary>
     private static void Validate(CourseFile f, string path)
     {
@@ -433,6 +437,16 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
                 }
                 else if (c.Tests.Any(t => t.Kind is "typeCheck" or "typeError"))
                     Fail("typeCheck and typeError tests only work in TypeScript and Angular challenges.");
+                // C# runs in the in-browser C# runner (src/Codegrove.CSharpRunner), which has its own test kinds.
+                if (c.Kind == ChallengeKind.CSharp)
+                {
+                    static bool HasCs(Dictionary<string, string> files) => files.Keys.Any(k => !k.StartsWith('.') && k.EndsWith(".cs"));
+                    if (!HasCs(c.StarterFiles) || !HasCs(c.SolutionFiles)) Fail("C# challenges need at least one .cs file.");
+                    if (c.Tests.FirstOrDefault(t => !CSharpTestKinds.Contains(t.Kind)) is { } bad)
+                        Fail($"test '{bad.Label}' has kind '{bad.Kind}', which C# challenges can't use. Known: {string.Join(", ", CSharpTestKinds)}.");
+                }
+                else if (c.Tests.FirstOrDefault(t => t.Kind is "consoleEquals" or "compileError" or "csharpExpression" or "sourceMatches") is { } csOnly)
+                    Fail($"test '{csOnly.Label}' has kind '{csOnly.Kind}', which only works in C# challenges.");
                 if (c.Hints.Select(h => h.Level).Order().SequenceEqual([1, 2, 3]) is false) Fail("a challenge needs hints at levels 1, 2 and 3.");
                 foreach (var h in c.Hints)
                 {

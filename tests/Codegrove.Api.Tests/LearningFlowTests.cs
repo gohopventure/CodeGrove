@@ -254,11 +254,11 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Tracks_follow_the_curriculum_order_with_angular_after_typescript()
+    public async Task Tracks_follow_the_curriculum_order_with_angular_after_typescript_and_csharp_last()
     {
         var client = _factory.NewClient();
         var tracks = (await client.GetJson("/api/tracks")).EnumerateArray().Select(t => t.GetProperty("slug").GetString()).ToList();
-        Assert.Equal(["web-foundations", "javascript", "typescript", "angular", "frontend-frameworks"], tracks);
+        Assert.Equal(["web-foundations", "javascript", "typescript", "angular", "frontend-frameworks", "csharp"], tracks);
 
         // Angular challenges are TypeScript projects: the API sends kind "Angular" with .ts starter files.
         var (_, child, _) = await FamilyWithConsentedExplorer("NgFox");
@@ -268,6 +268,16 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         var challenge = lesson.GetProperty("challenge");
         Assert.Equal("Angular", challenge.GetProperty("kind").GetString());
         Assert.True(challenge.GetProperty("starterFiles").TryGetProperty("app.ts", out _));
+
+        // C# challenges run in the browser's C# runner: kind "CSharp" with a Program.cs. Lessons still being written
+        // are listed but can't be opened.
+        var csharp = await child.GetJson("/api/courses/csharp-basics");
+        var csLessons = csharp.GetProperty("lessons").EnumerateArray().ToList();
+        var hello = csLessons.First(l => l.GetProperty("slug").GetString() == "hello-csharp-explorer");
+        var csLesson = await child.GetJson($"/api/lessons/{hello.GetProperty("id").GetInt32()}");
+        Assert.Equal("CSharp", csLesson.GetProperty("challenge").GetProperty("kind").GetString());
+        Assert.True(csLesson.GetProperty("challenge").GetProperty("starterFiles").TryGetProperty("Program.cs", out _));
+        Assert.Contains(csLessons, l => !l.GetProperty("isPublished").GetBoolean());
     }
 
     [Fact]

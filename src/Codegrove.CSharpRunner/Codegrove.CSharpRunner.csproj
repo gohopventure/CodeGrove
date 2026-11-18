@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Compiles and runs learner C# with Roslyn. Plain net10.0 so the same code runs in two places:
+      - the browser, inside Codegrove.CSharpRunner.Wasm (.NET on WebAssembly, in a Web Worker)
+      - the content checks in tests/Codegrove.CSharpRunner.Tests (every published C# challenge:
+        the solution passes, the starter fails)
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codegrove.CSharpRunner.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 5.0.0 is the compiler that shipped with .NET 10 (C# 14), so lessons match what `dotnet new console` gives. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
+  </ItemGroup>
+
+  <!--
+    Learner code compiles against .NET's reference assemblies, embedded here so the browser needs no
+    file system. Only this allow-list is offered: no System.Net.*, System.IO.FileSystem, reflection
+    emit or JavaScript interop, so learner code can't even name those APIs (the worker also removes
+    the network functions, see web/public/csharp-runner/worker.js). Add an assembly here when a
+    lesson needs it (System.Text.RegularExpressions, say).
+  -->
+  <PropertyGroup>
+    <CgRefPackDir>$(NetCoreTargetingPackRoot)/Microsoft.NETCore.App.Ref/$(BundledNETCoreAppPackageVersion)/ref/$(TargetFramework)</CgRefPackDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <CgReference Include="System.Runtime;System.Console;System.Collections;System.Linq" />
+    <EmbeddedResource Include="@(CgReference->'$(CgRefPackDir)/%(Identity).dll')" LogicalName="ref/%(Filename)%(Extension)" />
+  </ItemGroup>
+  <Target Name="CgCheckRefPack" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(CgRefPackDir)/System.Runtime.dll')" Text="Can't find .NET reference assemblies at $(CgRefPackDir). Is the .NET 10 SDK installed?" />
+  </Target>
+
+</Project>

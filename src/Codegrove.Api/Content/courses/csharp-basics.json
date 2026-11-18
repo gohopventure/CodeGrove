@@ -1,0 +1,425 @@
+{
+  "slug": "csharp-basics",
+  "title": "C# Basics: Your First Programs",
+  "summary": "Write real C# console programs, compiled and run right in your browser: statements and the compiler, variables and types, decisions, loops and lists, methods, and classes.",
+  "ageBand": "Both",
+  "estimatedMinutes": 130,
+  "isPublished": true,
+  "objectives": [
+    "Write, compile and run a C# program, and read compile errors",
+    "Store data in typed variables and build text with string interpolation",
+    "Make decisions with comparisons, if/else and switch",
+    "Repeat work with loops over arrays and lists",
+    "Split a program into methods with parameters and return values",
+    "Model things with classes, properties and constructors"
+  ],
+  "lessons": [
+    {
+      "slug": "hello-csharp-explorer",
+      "title": "Hello, C#!",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Meet C#\n\n**C#** (say \"C sharp\") is a programming language people use to build games, apps and the servers behind websites. Until now, your code ran inside a web page. A C# program is different: it's a **console program** that prints lines of text.\n\nHere's a whole C# program:\n\n```csharp\nConsole.WriteLine(\"Hello, Grove!\");\n```\n\n- `Console` is the text window your program prints into (the Output panel here).\n- `WriteLine` writes a line of text, then moves down to the next line.\n- The text goes in quotes, inside round brackets.\n- The line ends with a semicolon `;`. That's how C# knows the instruction is finished.\n\n### One line after another\n\nEach instruction is called a **statement**. A program runs its statements from top to bottom, one at a time:\n\n```csharp\nConsole.WriteLine(\"Ready...\");\nConsole.WriteLine(\"Set...\");\nConsole.WriteLine(\"Go!\");\n```\n\n### Capital letters matter\n\n`Console.WriteLine` works, but `console.writeline` doesn't. C# is **case-sensitive**: it treats a capital `C` and a small `c` as different letters.\n\n### C# checks first\n\nBefore your program runs, C# reads the whole thing and checks it. That's called **compiling**. If something is wrong, like a missing `;`, the program doesn't run at all. Instead, the Output panel shows an error with the line number, and the editor puts a red squiggle under the problem. Fix it, press **Run** again, and off it goes.\n\n### New words\n\n- **C#** (*C sharp*): a programming language for games, apps and servers.\n- **Console**: the text window a program prints into.\n- **Statement**: one instruction. Most statements end with a semicolon `;`.\n- **Case-sensitive**: capital letters and small letters count as different.\n- **Compile**: check a whole program and turn it into something the computer can run.\n",
+      "exampleMarkdown": "Bolt the robot introduces itself. Three statements make three lines of output, in the same order. Press **Run** to run it again.",
+      "exampleCode": "Console.WriteLine(\"Beep boop!\");\nConsole.WriteLine(\"I am Bolt, a friendly robot.\");\nConsole.WriteLine(\"I run from top to bottom.\");\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Make a welcome sign for the Grove. Press **Run** to see what it prints.\n\n1. Line 5 has a mistake, so the program won't run yet. Look at the Output panel: the error tells you which line, and what's missing.\n2. Add a line that prints `Please don't feed the robots.`\n3. Add one more line with your own message for visitors.\n\nWhen the sign prints all four lines, press **Check my code**.",
+        "starterFiles": {
+          "Program.cs": "// Mission: make a welcome sign for the Grove!\nConsole.WriteLine(\"Welcome to the Grove!\");\n\n// 1. Fix this line: something is missing at the end.\nConsole.WriteLine(\"Today's weather: sunny\")\n\n// 2. Add a line that prints: Please don't feed the robots.\n\n// 3. Add one more line with your own message for visitors.\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: make a welcome sign for the Grove!\nConsole.WriteLine(\"Welcome to the Grove!\");\n\n// 1. Fix this line: something is missing at the end.\nConsole.WriteLine(\"Today's weather: sunny\");\n\n// 2. Add a line that prints: Please don't feed the robots.\nConsole.WriteLine(\"Please don't feed the robots.\");\n\n// 3. Add one more line with your own message for visitors.\nConsole.WriteLine(\"Have fun, and wear sunscreen!\");\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Look at the Output panel: the red error names the line to fix. Most statements end with a semicolon ;"
+          },
+          {
+            "label": "The weather line prints",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Today's weather: sunny"
+            },
+            "failMessage": "Keep the weather line, and make sure the program runs."
+          },
+          {
+            "label": "The robot rule prints",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Please don't feed the robots."
+            },
+            "failMessage": "Add a line like the others that prints: Please don't feed the robots."
+          },
+          {
+            "label": "The sign has four lines",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "Console\\.WriteLine\\s*\\(\\s*\\\"[^\\\"]+\\\"\\s*\\)\\s*;",
+              "min": 4
+            },
+            "failMessage": "Add one more Console.WriteLine(\"...\"); with your own message, so there are four."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at the Output panel. Which line does the error point to, and what does it say is missing?",
+            "speechText": "Look at the output panel. Which line does the error point to, and what does it say is missing?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Every statement ends with a semicolon `;`. To print a new line, copy the first `Console.WriteLine(...);` line and change the words inside the quotes.",
+            "speechText": "Every statement ends with a semicolon. To print a new line, copy the first console dot write line and change the words inside the quotes.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Put a `;` at the end of the weather line:\n\n```csharp\nConsole.WriteLine(\"Today's weather: sunny\");\n```\n\nThen add `Console.WriteLine(\"Please don't feed the robots.\");` and one more line of your own.",
+            "speechText": "Put a semicolon at the end of the weather line. Then add a write line for the robot rule, and one more of your own.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does Console.WriteLine(\"Hi\"); do?",
+            "explanation": "WriteLine prints the text in the quotes, then moves to the next line.",
+            "options": [
+              {
+                "text": "Prints Hi on its own line",
+                "correct": true
+              },
+              {
+                "text": "Shows a pop-up that says Hi",
+                "correct": false
+              },
+              {
+                "text": "Saves a file called Hi",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which line will C# run?",
+            "explanation": "C# is case-sensitive, and the statement needs a semicolon at the end.",
+            "options": [
+              {
+                "text": "Console.WriteLine(\"Go!\");",
+                "correct": true
+              },
+              {
+                "text": "console.writeline(\"Go!\");",
+                "correct": false
+              },
+              {
+                "text": "Console.WriteLine(\"Go!\")",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In what order do statements run?",
+            "explanation": "A program runs its statements from top to bottom, one at a time.",
+            "options": [
+              {
+                "text": "Top to bottom, one after another",
+                "correct": true
+              },
+              {
+                "text": "Bottom to top",
+                "correct": false
+              },
+              {
+                "text": "All at once, in any order",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "hello-csharp",
+      "title": "Hello, C#: programs, statements and the compiler",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## C# and .NET\n\n**C#** is a statically typed, compiled language from Microsoft. Its programs run on **.NET**: a runtime plus a big standard library, on Windows, macOS, Linux, phones, and even inside a browser (that's how it runs here: .NET compiled to WebAssembly). You'll find C# behind web APIs (ASP.NET Core, which you'll build later in this track), Unity games and desktop apps.\n\n### A whole program\n\n```csharp\nConsole.WriteLine(\"Hello, world!\");\n```\n\nThat one line is a complete program, thanks to **top-level statements**: code written directly in `Program.cs` runs first, top to bottom. Older code (and plenty of tutorials) spells out what the compiler now writes for you, a class with a `Main` method:\n\n```csharp\nclass Program\n{\n    static void Main()\n    {\n        Console.WriteLine(\"Hello, world!\");\n    }\n}\n```\n\nBoth compile to the same thing. This course uses top-level statements, like `dotnet new console` does.\n\n### Reading a statement\n\n`Console.WriteLine(\"Hello, world!\");`\n\n- `Console` is a **class** from the `System` **namespace** (a named group of related classes). `System` is imported for you.\n- `WriteLine` is a **method**: a named piece of code that does a job. It prints its argument and ends the line. `Console.Write` prints without ending the line.\n- `;` ends the statement. Blocks of statements go in `{ }`.\n- Names are **case-sensitive**: `console.writeline` is a compile error.\n\n### Strings and escape sequences\n\nText in double quotes is a **string**. To put special characters inside one, use an **escape sequence**, a backslash plus a letter: `\\\"` is a quote mark, `\\n` a new line, `\\t` a tab, `\\\\` a backslash.\n\n```csharp\nConsole.WriteLine(\"She said \\\"hi\\\".\");  // She said \"hi\".\n```\n\nComments are ignored by the compiler: `// to the end of the line`, or `/* across lines */`.\n\n### Compile, then run\n\nRemember how TypeScript reported type errors but the page still ran? C# is stricter. The **compiler** (it's called Roslyn) checks the whole program first, and one **compile error** means *nothing* runs. Errors look like this:\n\n```\nError in Program.cs, line 3: ... (CS1002: ; expected)\n```\n\nThe file and line say where; `CS1002` is the error's code, handy for searching. One mistake often causes a few errors, so fix the **first** one, then build again.\n\n### New words\n\n- **.NET** (*dot net*): the platform C# runs on: a runtime plus a large standard library.\n- **Compiler**: the tool that checks C# and turns it into something .NET can run. C#'s compiler is called Roslyn.\n- **Compile error**: a mistake the compiler finds. The program can't run until it's fixed.\n- **Top-level statements**: statements written directly in `Program.cs`, which run first, without writing a `Main` method.\n- **Method**: a named block of code that does a job, like `WriteLine`.\n- **Namespace**: a named group of related classes, like `System`.\n- **Escape sequence**: a backslash code inside a string, like `\\\"` for a quote or `\\n` for a new line.\n",
+      "exampleMarkdown": "A build report. `Write` and `WriteLine` share a line, `\\t` adds a tab, `\\\"` prints quote marks, and `Console.WriteLine()` with nothing in the brackets prints an empty line. The comments don't print at all.",
+      "exampleCode": "// A tiny build report.\nConsole.WriteLine(\"=== Build report ===\");\nConsole.Write(\"Project: \");          // Write doesn't end the line...\nConsole.WriteLine(\"Codegrove\");      // ...so this continues it.\nConsole.WriteLine(\"Status:\\tpassing\");\nConsole.WriteLine(\"Quote of the day: \\\"It works on my machine.\\\"\");\n/* Comments like this one\n   can span several lines. */\nConsole.WriteLine();\nConsole.WriteLine(\"Done.\");\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Fix the launch checklist.** It doesn't compile yet: press **Run** and read the errors in the Output panel (and the red squiggles in the editor).\n\n1. Fix the compile errors.\n2. Line 4 should print `2. Crew: \"Ready\"`, with the quote marks.\n3. Finish the countdown so `3... 2... 1...` prints on the **same line** as `3. Countdown: `.\n4. Print `Liftoff!` on its own line.\n\nThe output must be exactly:\n\n```\nLaunch checklist\n1. Fuel: OK\n2. Crew: \"Ready\"\n3. Countdown: 3... 2... 1...\nLiftoff!\n```",
+        "starterFiles": {
+          "Program.cs": "// Launch checklist. Fix the compile errors, then make the output match the instructions exactly.\nConsole.WriteLine(\"Launch checklist\")\nconsole.WriteLine(\"1. Fuel: OK\");\nConsole.WriteLine(\"2. Crew: Ready\");\nConsole.Write(\"3. Countdown: \");\n// Finish the countdown line here.\n\n// Then print Liftoff! on its own line.\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Launch checklist. Fix the compile errors, then make the output match the instructions exactly.\nConsole.WriteLine(\"Launch checklist\");\nConsole.WriteLine(\"1. Fuel: OK\");\nConsole.WriteLine(\"2. Crew: \\\"Ready\\\"\");\nConsole.Write(\"3. Countdown: \");\n// Finish the countdown line here.\nConsole.WriteLine(\"3... 2... 1...\");\n// Then print Liftoff! on its own line.\nConsole.WriteLine(\"Liftoff!\");\n"
+        },
+        "tests": [
+          {
+            "label": "The program compiles and runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "There's still an error in the Output panel. Fix the first one, then run again."
+          },
+          {
+            "label": "The crew line has quote marks",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "2. Crew: \"Ready\"",
+              "caseSensitive": true
+            },
+            "failMessage": "Print the quotes with escape sequences: \\\" inside the string."
+          },
+          {
+            "label": "The countdown is on one line",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "3. Countdown: 3... 2... 1...",
+              "caseSensitive": true
+            },
+            "failMessage": "Console.Write doesn't end the line, so the next WriteLine continues it."
+          },
+          {
+            "label": "The output matches exactly",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "Launch checklist",
+                "1. Fuel: OK",
+                "2. Crew: \"Ready\"",
+                "3. Countdown: 3... 2... 1...",
+                "Liftoff!"
+              ]
+            },
+            "failMessage": "Compare your output with the five lines in the instructions, character by character."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The compiler reports problems before anything runs. What do the two errors in the Output panel say, and which lines do they point to?",
+            "speechText": "The compiler reports problems before anything runs. What do the two errors in the output panel say, and which lines do they point to?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "C# is case-sensitive, so `console` and `Console` are different names. To print a quote mark inside a string, put a backslash in front of it: `\\\"`.",
+            "speechText": "C sharp is case-sensitive, so console with a small c is a different name from Console. To print a quote mark inside a string, put a backslash in front of it.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Add the missing `;` on line 2 and capitalize `Console` on line 3. The crew line becomes `Console.WriteLine(\"2. Crew: \\\"Ready\\\"\");`. After the `Console.Write`, a `Console.WriteLine` finishes the countdown; then print `Liftoff!`.",
+            "speechText": "Add the missing semicolon on line two and capitalize Console on line three. Escape the quote marks around Ready with backslashes. Then finish the countdown with a write line call, and print Liftoff on its own line.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A program has one compile error, on line 9. What happens when you run it?",
+            "explanation": "The compiler checks the whole program first. With a compile error there's no program to run, not even lines 1 to 8.",
+            "options": [
+              {
+                "text": "Nothing runs until the error is fixed",
+                "correct": true
+              },
+              {
+                "text": "Lines 1 to 8 run, then it stops",
+                "correct": false
+              },
+              {
+                "text": "It runs and skips line 9",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's the difference between Console.Write and Console.WriteLine?",
+            "explanation": "Both print their argument; WriteLine then ends the line, so the next output starts on a new one.",
+            "options": [
+              {
+                "text": "WriteLine ends the line after printing; Write doesn't",
+                "correct": true
+              },
+              {
+                "text": "Write is faster",
+                "correct": false
+              },
+              {
+                "text": "WriteLine can only print numbers",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which string prints: She said \"hi\"",
+            "explanation": "Inside a string, \\\" is an escape sequence for a quote mark. Single quotes are for a single character (a char), not text.",
+            "options": [
+              {
+                "text": "\"She said \\\"hi\\\"\"",
+                "correct": true
+              },
+              {
+                "text": "\"She said \"hi\"\"",
+                "correct": false
+              },
+              {
+                "text": "'She said \"hi\"'",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What are top-level statements?",
+            "explanation": "They're statements written directly in Program.cs. The compiler wraps them in a Main method for you.",
+            "options": [
+              {
+                "text": "Statements in Program.cs that run first, without writing a Main method",
+                "correct": true
+              },
+              {
+                "text": "Statements that run before every file in the project",
+                "correct": false
+              },
+              {
+                "text": "Comments at the top of a file",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "An error ends with (CS1002: ; expected). What is CS1002?",
+            "explanation": "Every compiler error has a code. Searching for it finds an explanation and examples.",
+            "options": [
+              {
+                "text": "The compiler's code for that kind of error",
+                "correct": true
+              },
+              {
+                "text": "The line number",
+                "correct": false
+              },
+              {
+                "text": "How many errors there are",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "variables-explorer",
+      "title": "Boxes for your data",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "variables-and-types",
+      "title": "Variables, types and string interpolation",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": false
+    },
+    {
+      "slug": "decisions-explorer",
+      "title": "Making choices",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "decisions",
+      "title": "Decisions: comparisons, if/else and switch",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": false
+    },
+    {
+      "slug": "loops-explorer",
+      "title": "Lists and loops",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "loops-and-collections",
+      "title": "Arrays, lists and loops",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": false
+    },
+    {
+      "slug": "methods-explorer",
+      "title": "Methods: name a job",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "methods",
+      "title": "Methods: parameters and return values",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": false
+    },
+    {
+      "slug": "classes-explorer",
+      "title": "Blueprints with classes",
+      "sortOrder": 6,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "classes-and-objects",
+      "title": "Classes and objects",
+      "sortOrder": 6,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": false
+    },
+    {
+      "slug": "project-explorer",
+      "title": "Project: Grove Quest",
+      "sortOrder": 7,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 8,
+      "isPublished": false
+    },
+    {
+      "slug": "project-inventory",
+      "title": "Project: Inventory tracker",
+      "sortOrder": 7,
+      "ageBand": "Builder",
+      "estimatedMinutes": 25,
+      "isPublished": false
+    }
+  ]
+}

@@ -9,6 +9,8 @@ obj/
 *.db-wal
 node_modules/
 web/dist/
+# Built by `npm run build:csharp` (the in-browser C# runner)
+web/public/csharp-runner/_framework/
 src/Codegrove.Api/wwwroot/
 TestResults/
 .env

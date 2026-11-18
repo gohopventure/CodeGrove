@@ -4,7 +4,9 @@ import type { Files } from '../api/types';
 import './monacoSetup';
 import { syncTypeScriptModels } from './typeCheckMonaco';
 
-const LANGUAGE: Record<string, string> = { html: 'html', css: 'css', js: 'javascript', jsx: 'javascript', ts: 'typescript', tsx: 'typescript', json: 'json' };
+const LANGUAGE: Record<string, string> = {
+  html: 'html', css: 'css', js: 'javascript', jsx: 'javascript', ts: 'typescript', tsx: 'typescript', json: 'json', cs: 'csharp',
+};
 const languageFor = (file: string) => LANGUAGE[file.split('.').pop() ?? ''] ?? 'plaintext';
 
 /**
@@ -72,7 +74,8 @@ export function CodeEditor({
             fontSize,
             minimap: { enabled: false },
             wordWrap: 'on',
-            tabSize: 2,
+            // C# code is indented with 4 spaces by convention (and in every C# example the learner will find).
+            tabSize: active.endsWith('.cs') ? 4 : 2,
             scrollBeyondLastLine: false,
             automaticLayout: true,
             accessibilitySupport: 'auto',

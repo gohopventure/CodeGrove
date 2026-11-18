@@ -1,0 +1,30 @@
+<!doctype html>
+<!--
+  Codegrove C# runner host. Served from the preview origin (like runner.html), never the app's origin,
+  and loaded by the app in a hidden <iframe sandbox="allow-scripts allow-same-origin">. allow-same-origin
+  is needed to start a Web Worker from this origin; it gives this page the PREVIEW origin, which holds no
+  cookies or data, not the app's.
+
+  It starts worker.js, which runs .NET on WebAssembly with Roslyn (built from src/Codegrove.CSharpRunner.Wasm
+  by `npm run build:csharp`). The app sends runs here; this page passes them to the worker one at a time,
+  and stops and replaces the worker if a run takes too long, so a stuck program can't freeze anything.
+
+  Messages (all carry the id of the run they belong to):
+    app  → host  { type: 'cg:cs-run', id, request }        request = { files, tests, input }
+    host → app   { type: 'cg:cs-status', status, detail? }  'loading' | 'ready' | 'failed'
+    host → app   { type: 'cg:cs-result', id, result }       result: see Contracts.cs (RunResult)
+    host → app   { type: 'cg:cs-result', id, timedOut: true }
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; form-action 'none'; base-uri 'none'"
+    />
+    <title>C# runner</title>
+  </head>
+  <body>
+    <script src="host.js"></script>
+  </body>
+</html>

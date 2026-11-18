@@ -31,8 +31,13 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: web/package-lock.json
+      # The in-browser C# runner (.NET on WebAssembly) is built from src/ and copied into public/csharp-runner.
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
       - run: npm ci
       - run: npm test
+      - run: npm run build:csharp
       - run: npm run build
         env:
           VITE_PREVIEW_ORIGIN: https://preview.codegrove-usercontent.example

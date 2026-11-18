@@ -7,7 +7,9 @@ import type { Files, Lesson, ProgressOutcome, RevealedHint, SubmissionResponse, 
 import { Markdown } from '../components/Markdown';
 import { ErrorNote, Spinner } from '../components/ui';
 import { CodeEditor } from './CodeEditor';
+import { CSharpOutput } from './CSharpOutput';
 import { LivePreview, type LivePreviewHandle } from './LivePreview';
+import { preloadCSharp } from '../runner/csharp';
 import { monacoTypeChecker } from './typeCheckMonaco';
 import { CelebrationToast, HintLadder, QuizCard, TestResultList, useHeartbeat } from './parts';
 import { TutorPanel } from '../tutor/TutorPanel';
@@ -76,6 +78,12 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
     viewedSentFor.current = lesson.id;
     void api.post(`/api/lessons/${lesson.id}/viewed`).catch(() => undefined);
   }, [lesson.id, lesson.progress.learnViewed]);
+
+  // C# runs on .NET in the browser, a few MB the first time: start fetching it while the learner reads.
+  const isCSharp = lesson.challenge?.kind === 'CSharp';
+  useEffect(() => {
+    if (isCSharp) preloadCSharp();
+  }, [isCSharp]);
 
   // Move focus to the step heading on step change, so keyboard and screen-reader users land in the new content.
   useEffect(() => headingRef.current?.focus(), [step]);
@@ -209,9 +217,12 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
 
 function ExampleStep({ lesson, headingRef, onNext }: { lesson: Lesson; headingRef: React.RefObject<HTMLHeadingElement | null>; onNext: () => void }) {
   const preview = useRef<LivePreviewHandle>(null);
+  // C# examples are a whole Program.cs; the Output panel runs them itself (autoRun).
+  const isCSharp = lesson.challenge?.kind === 'CSharp';
+  const exampleFiles = useMemo(() => ({ 'Program.cs': lesson.exampleCode ?? '' }), [lesson.exampleCode]);
   useEffect(() => {
-    if (lesson.exampleCode) void preview.current?.run({ 'index.html': lesson.exampleCode }, []);
-  }, [lesson.exampleCode]);
+    if (lesson.exampleCode && !isCSharp) void preview.current?.run({ 'index.html': lesson.exampleCode }, []);
+  }, [lesson.exampleCode, isCSharp]);
 
   return (
     <section className="card space-y-4">
@@ -224,7 +235,9 @@ function ExampleStep({ lesson, headingRef, onNext }: { lesson: Lesson; headingRe
             <pre tabIndex={0} className="overflow-x-auto rounded-card bg-[#1b2128] p-4 font-mono text-sm text-[#e8edf2]"><code>{lesson.exampleCode}</code></pre>
           </div>
           <div className="h-72">
-            <LivePreview ref={preview} title="Example preview" />
+            {isCSharp
+              ? <CSharpOutput files={exampleFiles} autoRun title="What it prints" />
+              : <LivePreview ref={preview} title="Example preview" />}
           </div>
         </div>
       )}
@@ -245,6 +258,7 @@ function ChallengeStep({
   passed: boolean;
 }) {
   const challenge = lesson.challenge!;
+  const isCSharp = challenge.kind === 'CSharp';
   const draftKey = `cg:draft:${challenge.id}`;
   const preview = useRef<LivePreviewHandle>(null);
   const [files, setFiles] = useState<Files>(() => readDraft(draftKey) ?? challenge.starterFiles);
@@ -322,14 +336,15 @@ function ChallengeStep({
       .catch(() => undefined);
   }, [challenge.id, draftKey, blocks, setMode]);
 
-  // Live preview: re-render 400 ms after typing stops. Drafts are kept for this tab session only.
+  // Live preview: re-render 400 ms after typing stops (not C#: a console program runs when the learner
+  // presses Run). Drafts are kept for this tab session only.
   useEffect(() => {
     const t = window.setTimeout(() => {
-      if (!checkingRef.current) void preview.current?.run(files, []);
+      if (!checkingRef.current && !isCSharp) void preview.current?.run(files, []);
       sessionStorage.setItem(draftKey, JSON.stringify(files));
     }, 400);
     return () => window.clearTimeout(t);
-  }, [files, draftKey]);
+  }, [files, draftKey, isCSharp]);
 
   const testsById = useMemo(() => challenge.tests, [challenge.tests]);
 
@@ -340,7 +355,11 @@ function ChallengeStep({
     try {
       const res = await preview.current?.run(files, testsById);
       if (!res) {
-        setError(new ApiError(0, { title: "Your page didn't finish loading. Look for an error in the console under the preview." }));
+        setError(new ApiError(0, {
+          title: isCSharp
+            ? "Your code couldn't be checked this time. The Output panel says why."
+            : "Your page didn't finish loading. Look for an error in the console under the preview.",
+        }));
         return;
       }
       setResults(res);
@@ -439,7 +458,9 @@ function ChallengeStep({
           </div>
         )}
         <div className={blocks ? 'h-[38rem]' : 'h-[28rem]'}>
-          <LivePreview ref={preview} title="Your page preview" typeChecker={monacoTypeChecker} />
+          {isCSharp
+            ? <CSharpOutput ref={preview} files={files} />
+            : <LivePreview ref={preview} title="Your page preview" typeChecker={monacoTypeChecker} />}
         </div>
       </div>
 

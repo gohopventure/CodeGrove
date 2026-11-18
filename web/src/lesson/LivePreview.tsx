@@ -3,10 +3,8 @@ import { ANGULAR_RUN_OPTIONS, needsAngular } from '../runner/angular';
 import { buildRunDocument, composeFiles, REACT_RUN_OPTIONS, type Files } from '../runner/compose';
 import { hasTypeScript, loadToolkit, needsReact, needsReactRuntime } from '../runner/react';
 import type { TypeChecker, TypeDiagnostic } from '../runner/typeCheck';
+import { PREVIEW_ORIGIN } from '../runner/origin';
 import type { ConsoleLine, RunnerMessage, TestResult, TestSpec } from '../runner/types';
-
-/** Where runner.html lives. Must be a different origin from the app (see vite.config.ts). */
-const PREVIEW_ORIGIN = import.meta.env.VITE_PREVIEW_ORIGIN ?? 'http://127.0.0.1:5173';
 const RUN_TIMEOUT_MS = 4000;
 
 export interface LivePreviewHandle {

@@ -55,6 +55,21 @@
       "isPublished": true,
       "courses": ["react-basics", "react-apps"],
       "prerequisites": ["javascript"]
+    },
+    {
+      // The first backend track, after the frontend ones (the curriculum's order: React, then C#, then SQL).
+      // TypeScript is the prerequisite because it introduces static types, classes and interfaces, which C#
+      // builds on. C# runs in the browser on .NET for WebAssembly (src/Codegrove.CSharpRunner.Wasm).
+      // Planned courses: csharp-basics, then C# objects (OOP), then ASP.NET Core Web API, which comes after
+      // the SQL track so it can use a real database with EF Core.
+      "slug": "csharp",
+      "title": "C#",
+      "description": "Write real programs in C#, the language behind ASP.NET Core and Unity: the compiler, variables, decisions, loops, methods and classes.",
+      "ageBand": "Both",
+      "sortOrder": 6,
+      "isPublished": true,
+      "courses": ["csharp-basics"],
+      "prerequisites": ["typescript"]
     }
   ],
   "badges": [

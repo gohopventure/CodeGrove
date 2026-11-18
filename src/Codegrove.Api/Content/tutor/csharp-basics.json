@@ -1,0 +1,37 @@
+{
+  "course": "csharp-basics",
+  "lessons": {
+    "hello-csharp-explorer": {
+      "intro": [
+        {
+          "displayText": "Welcome to C#, a language people use to build games, apps and the servers behind websites. Your mission today: make a welcome sign for the Grove that prints line by line.",
+          "speechText": "Welcome to C sharp, a language people use to build games, apps and the servers behind websites. Your mission today is to make a welcome sign for the Grove that prints line by line.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You wrote your first C# program, and the sign prints perfectly! Your new word is statement: one instruction, and most of them end with a semicolon.",
+          "speechText": "You wrote your first C sharp program, and the sign prints perfectly! Your new word is statement, which means one instruction, and most of them end with a semicolon.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "hello-csharp": {
+      "intro": [
+        {
+          "displayText": "C# runs a huge amount of real software, from ASP.NET Core web APIs to Unity games, and it's where this track is heading: your own backend. Unlike JavaScript, it's compiled, so the compiler checks the whole program before a single line runs. You'll learn how a C# program is put together and how to read compile errors. Then you'll get a launch checklist off the ground.",
+          "speechText": "C sharp runs a huge amount of real software, from web APIs to Unity games, and it's where this track is heading: your own backend. Unlike JavaScript, it's compiled, so the compiler checks the whole program before a single line runs. You'll learn how a C sharp program is put together and how to read compile errors. Then you'll get a launch checklist off the ground.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Nice work: the checklist compiles and the output matches exactly. The gotcha: one compile error means none of the program runs, and one mistake can cause several errors, so always fix the first one first. Next, you'll store data in variables and meet C#'s types.",
+          "speechText": "Nice work. The checklist compiles and the output matches exactly. The gotcha is that one compile error means none of the program runs, and one mistake can cause several errors, so always fix the first one first. Next, you'll store data in variables and meet the types C sharp uses.",
+          "mood": "Encouraging"
+        }
+      ]
+    }
+  }
+}

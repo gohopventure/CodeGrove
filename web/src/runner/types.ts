@@ -19,7 +19,13 @@ export type TestKind =
   | 'consoleIncludes' // { text }
   | 'noErrors' // {}
   | 'typeCheck' // { file? }: TypeScript found no type errors (in that file, or in any file)
-  | 'typeError'; // { file?, code?, contains?, line? }: TypeScript DOES report a matching error
+  | 'typeError' // { file?, code?, contains?, line? }: TypeScript DOES report a matching error
+  // C# only (evaluated by the C# runner, src/Codegrove.CSharpRunner/TestEvaluator.cs). consoleIncludes and
+  // noErrors work for C# too.
+  | 'consoleEquals' // { lines }: the program's whole output is exactly these lines
+  | 'compileError' // { code?, contains?, line?, file? }: the compiler DOES report a matching error
+  | 'csharpExpression' // { expression, equals }: a C# expression run after the program, against the learner's classes
+  | 'sourceMatches'; // { pattern, file?, ignoreCase?, min? }: the code (comments removed) matches a regex
 
 export interface TestResult {
   testId: number;

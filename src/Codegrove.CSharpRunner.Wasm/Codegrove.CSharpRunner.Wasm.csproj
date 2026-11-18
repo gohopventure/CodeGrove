@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+
+  <!--
+    The C# runner on .NET for WebAssembly, loaded by web/public/csharp-runner/worker.js in a Web Worker.
+    Build it with `npm run build:csharp` in web/ (publishes into web/public/csharp-runner/_framework).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <!-- No ICU data: learners' programs format numbers and dates the invariant way. Saves a few MB. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Keep real exception messages ("Index was outside the bounds of the array."), not resource keys. -->
+    <UseSystemResourceKeys>false</UseSystemResourceKeys>
+    <!-- Stable file names, so the worker can import _framework/dotnet.js directly. -->
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <!-- Roslyn's translated messages aren't used (the runner shows English plus its own plain-language text). -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- The static host compresses on the fly; pre-compressed copies would only double the folder size. -->
+    <CompressionEnabled>false</CompressionEnabled>
+    <!--
+      The runner loads learner assemblies and reads their __CgGuard type by reflection: that's the job, and
+      everything those assemblies can reach is rooted below. The analyzer can't know that, so its warnings are off.
+    -->
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Codegrove.CSharpRunner\Codegrove.CSharpRunner.csproj" />
+  </ItemGroup>
+
+  <!--
+    Trimming removes framework code the runner itself never calls, but learner programs are compiled later,
+    in the browser, and may call anything in the allow-listed assemblies (see Codegrove.CSharpRunner.csproj).
+    So those assemblies are kept whole. Roslyn is kept whole too: it uses reflection internally.
+  -->
+  <ItemGroup>
+    <TrimmerRootAssembly Include="System.Private.CoreLib;System.Runtime;System.Console;System.Collections;System.Linq" />
+    <TrimmerRootAssembly Include="Microsoft.CodeAnalysis;Microsoft.CodeAnalysis.CSharp;Codegrove.CSharpRunner" />
+  </ItemGroup>
+
+</Project>
