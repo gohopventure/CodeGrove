@@ -16,3 +16,4 @@ TestResults/
 .env
 .env.local
 .cg-transfer/
+_to_delete/
