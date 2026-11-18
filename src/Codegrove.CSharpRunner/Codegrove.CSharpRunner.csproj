@@ -26,17 +26,18 @@
     file system. Only this allow-list is offered: no System.Net.*, System.IO.FileSystem, reflection
     emit or JavaScript interop, so learner code can't even name those APIs (the worker also removes
     the network functions, see web/public/csharp-runner/worker.js). Add an assembly here when a
-    lesson needs it (System.Text.RegularExpressions, say).
+    lesson needs it (System.Text.RegularExpressions, say): both the list and the count below.
+
+    The files are taken from the references the build itself resolved for net10.0, so this works with
+    any SDK: with the .NET 10 SDK they come from its own packs folder, with a newer SDK (global.json
+    allows rolling forward, and CI's machines have .NET 11) from the NuGet targeting pack.
   -->
-  <PropertyGroup>
-    <CgRefPackDir>$(NetCoreTargetingPackRoot)/Microsoft.NETCore.App.Ref/$(BundledNETCoreAppPackageVersion)/ref/$(TargetFramework)</CgRefPackDir>
-  </PropertyGroup>
-  <ItemGroup>
-    <CgReference Include="System.Runtime;System.Console;System.Collections;System.Linq" />
-    <EmbeddedResource Include="@(CgReference->'$(CgRefPackDir)/%(Identity).dll')" LogicalName="ref/%(Filename)%(Extension)" />
-  </ItemGroup>
-  <Target Name="CgCheckRefPack" BeforeTargets="PrepareForBuild">
-    <Error Condition="!Exists('$(CgRefPackDir)/System.Runtime.dll')" Text="Can't find .NET reference assemblies at $(CgRefPackDir). Is the .NET 10 SDK installed?" />
+  <Target Name="CgEmbedReferenceAssemblies" AfterTargets="ResolveTargetingPackAssets">
+    <ItemGroup>
+      <_CgReference Include="@(Reference)" Condition="'%(Reference.FrameworkReferenceName)' == 'Microsoft.NETCore.App' and ('%(Filename)' == 'System.Runtime' or '%(Filename)' == 'System.Console' or '%(Filename)' == 'System.Collections' or '%(Filename)' == 'System.Linq')" />
+      <EmbeddedResource Include="@(_CgReference)" LogicalName="ref/%(Filename)%(Extension)" />
+    </ItemGroup>
+    <Error Condition="'@(_CgReference->Count())' != '4'" Text="Expected 4 .NET reference assemblies to embed for learner code, found @(_CgReference->Count()): @(_CgReference->'%(Filename)')." />
   </Target>
 
 </Project>
