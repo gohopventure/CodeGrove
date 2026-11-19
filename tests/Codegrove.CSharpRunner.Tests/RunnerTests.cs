@@ -54,6 +54,19 @@ public class RunnerTests
     }
 
     [Fact]
+    public async Task A_class_that_forgot_its_interface_is_told_to_add_it()
+    {
+        var r = await Run("""
+            IGlow[] lights = { new Lamp() };
+            interface IGlow { int Brightness(); }
+            class Lamp { public int Brightness() => 5; }
+            """);
+        var e = Assert.Single(r.Diagnostics, d => d.Severity == "error");
+        Assert.Equal(("CS0266", 1), (e.Code, e.Line));
+        Assert.Contains("class Lamp : IGlow", e.Friendly);
+    }
+
+    [Fact]
     public async Task Network_apis_are_not_available()
     {
         // (File APIs live in System.Runtime itself; in the browser they only see an in-memory file system.)

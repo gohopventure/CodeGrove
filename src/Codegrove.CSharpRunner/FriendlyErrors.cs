@@ -32,12 +32,12 @@ public static class FriendlyErrors
         ["CS0127"] = "This method is void, so it can't return a value.",
         ["CS0120"] = "This needs an object to work on. Create one with new, or mark the member static.",
         ["CS1501"] = "This method doesn't take that many arguments (the values in brackets).",
-        ["CS7036"] = "This needs more arguments (values in brackets) than you gave it.",
+        ["CS7036"] = "This needs more arguments (values in brackets) than you gave it. In a derived class's constructor, pass them to the base class with : base(...) after the constructor's brackets.",
         ["CS1503"] = "One of the arguments is the wrong type for this method.",
         ["CS0136"] = "A variable with this name already exists in an outer part of the code. Pick another name.",
         ["CS0201"] = "This line doesn't do anything on its own. Did you mean to store it in a variable, or call a method?",
         ["CS0023"] = "This operator can't be used on that kind of value.",
-        ["CS0122"] = "This member is private, so code outside its class can't use it.",
+        ["CS0122"] = "This member is private (or protected), so code here can't use it.",
         ["CS0501"] = "This method needs a body: put its code between { and }.",
         ["CS0106"] = "This keyword isn't allowed here.",
         ["CS0116"] = "This code needs to be inside a class or method.",
@@ -54,6 +54,23 @@ public static class FriendlyErrors
         ["CS8509"] = "This switch expression doesn't handle every possible value. Add a final arm with _ to catch the rest.",
         ["CS0160"] = "An earlier catch already catches this kind of exception, so this catch could never run. Put the more specific catch first.",
         ["CS1524"] = "A try block needs a catch block (or a finally block) straight after it.",
+        // Inheritance (csharp-objects lesson 2).
+        ["CS0114"] = "This method has the same name as one in the base class, but it hides it instead of replacing it. Add override if you meant to replace it.",
+        ["CS0108"] = "This has the same name as a member of the base class, so it hides that member. Rename it, or use override if the base member is virtual.",
+        ["CS0115"] = "There's no virtual or abstract method with this name in the base class for override to replace. Check the name, the parameters and the base class.",
+        ["CS0506"] = "This method in the base class isn't virtual, so it can't be overridden. The base class must mark it virtual (or abstract).",
+        ["CS0534"] = "This class doesn't override an abstract method from its base class. Every abstract method needs an override.",
+        ["CS0144"] = "This is abstract (or an interface), so you can't create one with new. Create one of the classes that derive from it or implement it instead.",
+        ["CS0509"] = "This class is sealed, so no class can derive from it.",
+        ["CS0513"] = "Only an abstract class can have abstract methods. Mark the class abstract, or give the method a body.",
+        ["CS0621"] = "A virtual or abstract method can't be private, because derived classes couldn't see it to override it.",
+        ["CS0272"] = "This property's set is private or protected, so code here can only read it.",
+        // Interfaces (csharp-objects lesson 3).
+        ["CS0535"] = "This class says it implements an interface, but it's missing one of the interface's members. Add every member the interface lists.",
+        ["CS0737"] = "This method has the right name for the interface, but it isn't public, so it doesn't count. Interface members must be public.",
+        ["CS0738"] = "This method has the right name for the interface, but its return type doesn't match the interface. Use the same type the interface uses.",
+        ["CS1722"] = "The base class has to come first in the list after the colon, before any interfaces.",
+        ["CS0527"] = "Only one class can come after the colon. The other names in the list must be interfaces.",
         ["CS0155"] = "Only exceptions can be thrown or caught: types that derive from Exception.",
     };
 
@@ -74,11 +91,19 @@ public static class FriendlyErrors
     };
 
     /// <summary>Plain words for a compiler error. The message picks a better text for a few common special cases.</summary>
+    private static readonly System.Text.RegularExpressions.Regex InterfaceConversion =
+        new(@"convert type '(\w+)' to '(I[A-Z]\w*)'");
+
     public static string ForCompilerError(string code, string message = "")
     {
         // `if (x = 10)`: one = assigns, so the condition is an int, not a bool.
         if (code == "CS0029" && message.EndsWith("to 'bool'", StringComparison.Ordinal))
             return "A condition must be true or false. To compare two values, use == (two equals signs); one = puts a value into a variable.";
+        // `IGlow[] parade = { new Mushroom() }` where Mushroom forgot `: IGlow`. The message alone
+        // doesn't say the target is an interface, so this relies on the I-prefix naming convention.
+        var toInterface = InterfaceConversion.Match(message);
+        if ((code == "CS0266" || code == "CS0029") && toInterface.Success)
+            return $"{toInterface.Groups[1].Value} doesn't implement {toInterface.Groups[2].Value}, so it can't go where {toInterface.Groups[2].Value} is needed. Add it after a colon: class {toInterface.Groups[1].Value} : {toInterface.Groups[2].Value}.";
         return Compiler.GetValueOrDefault(code) ?? "";
     }
 

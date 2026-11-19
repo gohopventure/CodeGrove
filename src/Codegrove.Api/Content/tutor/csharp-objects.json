@@ -32,6 +32,70 @@
           "mood": "Encouraging"
         }
       ]
+    },
+    "inheritance-explorer": {
+      "intro": [
+        {
+          "displayText": "Every creature in the Grove has a kind and makes a sound. Your mission: add an owl and a snail to the family without writing the same code all over again!",
+          "speechText": "Every creature in the Grove has a kind and makes a sound. Your mission is to add an owl and a snail to the family without writing the same code all over again!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The owl hoots, the snail stays quiet, and you only wrote what was different! Your new word is inheritance: one class getting all the code of another.",
+          "speechText": "The owl hoots, the snail stays quiet, and you only wrote what was different! Your new word is inheritance, which means one class getting all the code of another.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "inheritance": {
+      "intro": [
+        {
+          "displayText": "Real codebases are full of families of types, like payment methods, kinds of user or game units. Inheritance lets them share one base class and replace only what's different. You'll fix a Knight that compiles but ignores its armour, then write a Berserker from scratch.",
+          "speechText": "Real codebases are full of families of types, like payment methods, kinds of user or game units. Inheritance lets them share one base class and replace only what's different. You'll fix a knight that compiles but ignores its armour, then write a berserker from scratch.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your units share one base class, and each changes only what makes it different. The gotcha: a same-named method without override only hides the base one, so code holding a Unit still calls Unit's version, and C# just warns you. Next, interfaces let classes that aren't related make the same promise.",
+          "speechText": "Your units share one base class, and each changes only what makes it different. The gotcha is that a method with the same name but no override only hides the base one, so code holding a Unit still calls the Unit version, and C sharp just warns you. Next, interfaces let classes that aren't related make the same promise.",
+          "mood": "Encouraging"
+        }
+      ]
+    },
+    "interfaces-explorer": {
+      "intro": [
+        {
+          "displayText": "Tonight is the Grove's night parade, and everything that glows gets to light the path. Your mission: help a lantern and a mushroom keep the glowing promise!",
+          "speechText": "Tonight is the Grove's night parade, and everything that glows gets to light the path. Your mission is to help a lantern and a mushroom keep the glowing promise!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The path is lit, with a firefly, a lantern and a mushroom glowing side by side! Your new word is interface: a list of jobs that a class promises to do.",
+          "speechText": "The path is lit, with a firefly, a lantern and a mushroom glowing side by side! Your new word is interface, which means a list of jobs that a class promises to do.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "interfaces": {
+      "intro": [
+        {
+          "displayText": "Most of the time, code shouldn't care which class it's talking to, only that the class can do a job. Interfaces describe that job, and frameworks like ASP.NET Core are built on them. You'll write shipping rates that a checkout compares without knowing what they are, including one rate that wraps any other.",
+          "speechText": "Most of the time, code shouldn't care which class it's talking to, only that the class can do a job. Interfaces describe that job, and frameworks like A-S-P dot net Core are built on them. You'll write shipping rates that a checkout compares without knowing what they are, including one rate that wraps any other.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your checkout compares rates it has never heard of, and FreeOver adds its rule to any of them. The gotcha: every interface member must be public in the class, or it doesn't count, and the class won't compile. Next, records give you data classes that compare by value.",
+          "speechText": "Your checkout compares rates it has never heard of, and FreeOver adds its rule to any of them. The gotcha is that every interface member must be public in the class, or it doesn't count, and the class won't compile. Next, records give you data classes that compare by value.",
+          "mood": "Encouraging"
+        }
+      ]
     }
   }
 }

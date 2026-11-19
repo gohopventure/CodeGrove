@@ -10,7 +10,7 @@
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { stateToScript } from '../lesson/blocks/generator';
 import { BLOCK_CATEGORIES } from '../lesson/blocks/toolbox';
 import { describeTypeError } from './typeCheck';
@@ -43,6 +43,13 @@ const cases = readdirSync(coursesDir)
   });
 
 describe('authored challenges', () => {
+  // The first Angular challenge pays for building the Angular runtime, which can exceed the 5 s test
+  // limit on a busy or cold machine (same as angular.test.ts). Pay it once here instead.
+  const firstAngular = cases.find(({ lesson }) => lesson.challenge!.kind === 'Angular');
+  beforeAll(async () => {
+    if (firstAngular) await runInJsdom(firstAngular.lesson.challenge!.solutionFiles, []);
+  }, 120_000);
+
   it('finds published challenges to check', () => expect(cases.length).toBeGreaterThan(0));
 
   it.each(cases)('$name', async ({ lesson }) => {

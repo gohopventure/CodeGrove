@@ -229,10 +229,12 @@ function ExampleStep({ lesson, headingRef, onNext }: { lesson: Lesson; headingRe
       <h2 ref={headingRef} tabIndex={-1} className="text-2xl font-bold">Example</h2>
       <Markdown>{lesson.exampleMarkdown}</Markdown>
       {lesson.exampleCode && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div>
+        // C# output is a few lines of text, so the code gets more of the width than a web preview allows.
+        <div className={`grid gap-4 ${isCSharp ? 'lg:grid-cols-[3fr_2fr]' : 'lg:grid-cols-2'}`}>
+          <div className="min-w-0">
             <p className="mb-1 text-sm font-bold">The code</p>
-            <pre tabIndex={0} className="overflow-x-auto rounded-card bg-[#1b2128] p-4 font-mono text-sm text-[#e8edf2]"><code>{lesson.exampleCode}</code></pre>
+            {/* Long lines wrap instead of scrolling sideways: kids miss code hidden past the edge. */}
+            <pre tabIndex={0} className="whitespace-pre-wrap rounded-card bg-[#1b2128] p-4 font-mono text-sm text-[#e8edf2] [overflow-wrap:anywhere]"><code>{lesson.exampleCode}</code></pre>
           </div>
           <div className="h-72">
             {isCSharp
