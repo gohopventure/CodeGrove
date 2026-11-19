@@ -128,6 +128,38 @@
           "mood": "Encouraging"
         }
       ]
+    },
+    "methods-explorer": {
+      "intro": [
+        {
+          "displayText": "Methods let you give a job a name, then use it again and again. Your mission: write two spells for the Grove's spell book, one that shouts and one that doubles.",
+          "speechText": "Methods let you give a job a name, then use it again and again. Your mission is to write two spells for the Grove's spell book, one that shouts and one that doubles.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Both spells work every time you call them! Your new word is parameter: a value you hand to a method when you call it.",
+          "speechText": "Both spells work every time you call them! Your new word is parameter, a value you hand to a method when you call it.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "methods": {
+      "intro": [
+        {
+          "displayText": "Good code is mostly small methods with clear names, each doing one job you can test on its own. You'll write your own: parameters, return values, optional parameters, overloads, and the out parameters behind the TryParse pattern. You'll also find out what static and public have meant in the classes you've been filling in. Then you'll build a recipe scaler from nothing but its method calls.",
+          "speechText": "Good code is mostly small methods with clear names, each doing one job you can test on its own. You'll write your own, with parameters, return values, optional parameters, overloads, and the out parameters behind the TryParse pattern. You'll also find out what static and public have meant in the classes you've been filling in. Then you'll build a recipe scaler from nothing but its method calls.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The scaler handles every serving size and turns away bad input cleanly. The gotcha: a method that receives a List gets the same list, not a copy, so changing it changes the caller's list too. Next, you'll write classes of your own, with properties and constructors.",
+          "speechText": "The scaler handles every serving size and turns away bad input cleanly. The gotcha is that a method that receives a List gets the same list, not a copy, so changing it changes the caller's list too. Next, you'll write classes of your own, with properties and constructors.",
+          "mood": "Encouraging"
+        }
+      ]
     }
   }
 }

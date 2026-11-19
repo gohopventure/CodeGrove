@@ -1197,7 +1197,7 @@
       "ageBand": "Builder",
       "estimatedMinutes": 20,
       "isPublished": true,
-      "learnMarkdown": "## Collections and loops\n\nReal programs process data by the hundred: orders, rows, messages. C# gives you collections to hold it and loops to walk through it.\n\n### Arrays\n\nAn **array** has a fixed length, set when it's created, and every element has one type:\n\n```csharp\nint[] scores = { 72, 95, 58 };      // initializer\nstring[] names = new string[3];    // three nulls, filled in later\nnames[0] = \"Ada\";\nConsole.WriteLine(scores.Length);  // 3\n```\n\nIndexes are **zero-based**: valid ones run from `0` to `Length - 1`. Read outside that range and you get an `IndexOutOfRangeException` at runtime. The compiler can't catch it.\n\n### List<T>\n\n`List<T>` is the workhorse collection: an array that grows. `T` is the element type, a **type parameter** (`List<int>`, `List<string>`).\n\n```csharp\nList<string> tasks = [\"write tests\", \"fix bug\"];   // collection expression (C# 12)\ntasks.Add(\"deploy\");\ntasks.Remove(\"fix bug\");\nConsole.WriteLine($\"{tasks.Count} tasks; first is {tasks[0]}\");\nbool hasDeploy = tasks.Contains(\"deploy\");\n```\n\nArrays have `Length`; lists have `Count`. Indexing a list out of range throws `ArgumentOutOfRangeException`.\n\n`Dictionary<TKey, TValue>` maps keys to values (`stock[\"apples\"] = 4;`). You'll use it in the project.\n\n### Loops\n\n| Loop | Use it when |\n| --- | --- |\n| `foreach (var x in items)` | you need each element, not its position |\n| `for (int i = 0; i < items.Count; i++)` | you need the index, or to step differently |\n| `while (condition)` | you don't know how many times in advance |\n| `do { … } while (condition);` | the body must run at least once |\n\nInside any loop, `break` leaves the loop immediately and `continue` skips to the next iteration.\n\n### Gotchas\n\n- **Off-by-one:** `i <= items.Count` runs one time too many and reads past the end. The usual condition is `i < items.Count`.\n- **Changing a list inside a foreach over it** (`Add`/`Remove`) throws `InvalidOperationException`. Build a new list instead, or loop with `for`.\n- An empty collection is normal input: code that divides by `Count` must handle zero.\n\n### New words\n\n- **Array**: a fixed-length, zero-based sequence of elements of one type.\n- **Zero-based**: numbered from 0, so the last index is `Length - 1`.\n- **List<T>**: a resizable collection of elements of type `T`.\n- **Type parameter**: the `T` in `List<T>`, filled in with a real type such as `int`.\n- **Iteration**: one run through a loop's body.\n- **Off-by-one error**: a loop that runs one time too many or too few.\n",
+      "learnMarkdown": "## Collections and loops\n\nReal programs process data by the hundred: orders, rows, messages. C# gives you collections to hold it and loops to walk through it.\n\n### Arrays\n\nAn **array** has a fixed length, set when it's created, and every element has one type:\n\n```csharp\nint[] scores = { 72, 95, 58 };      // initializer\nstring[] names = new string[3];    // three nulls, filled in later\nnames[0] = \"Ada\";\nConsole.WriteLine(scores.Length);  // 3\n```\n\nIndexes are **zero-based**: valid ones run from `0` to `Length - 1`. Read outside that range and you get an `IndexOutOfRangeException` at runtime. The compiler can't catch it.\n\n### List<T>\n\n`List<T>` is the workhorse collection: an array that grows. `T` is the element type, a **type parameter** (`List<int>`, `List<string>`).\n\n```csharp\n// [ ... ] is a collection expression (C# 12):\nList<string> tasks = [\"write tests\", \"fix bug\"];\ntasks.Add(\"deploy\");\ntasks.Remove(\"fix bug\");\nConsole.WriteLine($\"{tasks.Count} tasks; first is {tasks[0]}\");\nbool hasDeploy = tasks.Contains(\"deploy\");\n```\n\nArrays have `Length`; lists have `Count`. Indexing a list out of range throws `ArgumentOutOfRangeException`.\n\n`Dictionary<TKey, TValue>` maps keys to values (`stock[\"apples\"] = 4;`). You'll use it in the project.\n\n### Loops\n\n| Loop | Use it when |\n| --- | --- |\n| `foreach (var x in items)` | you need each element, not its position |\n| `for (int i = 0; i < items.Count; i++)` | you need the index, or to step differently |\n| `while (condition)` | you don't know how many times in advance |\n| `do { … } while (condition);` | the body must run at least once |\n\nInside any loop, `break` leaves the loop immediately and `continue` skips to the next iteration.\n\n### Gotchas\n\n- **Off-by-one:** `i <= items.Count` runs one time too many and reads past the end. The usual condition is `i < items.Count`.\n- **Changing a list inside a foreach over it** (`Add`/`Remove`) throws `InvalidOperationException`. Build a new list instead, or loop with `for`.\n- An empty collection is normal input: code that divides by `Count` must handle zero.\n\n### New words\n\n- **Array**: a fixed-length, zero-based sequence of elements of one type.\n- **Zero-based**: numbered from 0, so the last index is `Length - 1`.\n- **List<T>**: a resizable collection of elements of type `T`.\n- **Type parameter**: the `T` in `List<T>`, filled in with a real type such as `int`.\n- **Iteration**: one run through a loop's body.\n- **Off-by-one error**: a loop that runs one time too many or too few.\n",
       "exampleMarkdown": "A week of temperatures. `for` pairs each day with its reading by index, the list of warm days grows with `Add`, `while` with `break` finds the first hot day, and `continue` skips the cold readings.",
       "exampleCode": "double[] temps = { 18.5, 21.0, 24.3, 19.8, 26.1 };\nstring[] days = { \"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\" };\n\n// for: when you need the index, here to pair the two arrays\nfor (int i = 0; i < temps.Length; i++)\n    Console.WriteLine($\"{days[i]}: {temps[i]:F1} C\");\n\n// A list that grows as we go\nList<string> warmDays = [];\nfor (int i = 0; i < temps.Length; i++)\n{\n    if (temps[i] > 20)\n        warmDays.Add(days[i]);\n}\nConsole.WriteLine($\"Warm days: {string.Join(\", \", warmDays)} ({warmDays.Count})\");\n\n// while + break: stop at the first hot day\nint day = 0;\nwhile (day < temps.Length)\n{\n    if (temps[day] > 25)\n        break;\n    day++;\n}\nConsole.WriteLine(day < temps.Length ? $\"First hot day: {days[day]}\" : \"No hot days\");\n\n// foreach + continue: skip the cold readings\ndouble warmTotal = 0;\nforeach (double t in temps)\n{\n    if (t <= 20)\n        continue;\n    warmTotal += t;\n}\nConsole.WriteLine($\"Average warm reading: {warmTotal / warmDays.Count:F1} C\");\n",
       "challenge": {
@@ -1402,7 +1402,150 @@
       "sortOrder": 5,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Methods: name a job\n\nYou've used methods since lesson 1: `Console.WriteLine` is one. A **method** is a job with a name. You write the steps once, then **call** the method by its name whenever you need that job done.\n\n### Make your own\n\n```csharp\nvoid Cheer()\n{\n    Console.WriteLine(\"Go, Grove, go!\");\n}\n\nCheer();\nCheer();   // the same job, done twice\n```\n\n`void Cheer()` names the job. The steps go in curly braces. `Cheer();` runs them. In `Program.cs`, methods can sit below the code that calls them.\n\n### Give it something to work with\n\nA **parameter** is a value you pass in when you call the method. It goes in the round brackets, with its type:\n\n```csharp\nvoid Greet(string name)\n{\n    Console.WriteLine($\"Hello, {name}!\");\n}\n\nGreet(\"Juni\");   // Hello, Juni!\nGreet(\"Bolt\");   // Hello, Bolt!\n```\n\n### Get something back\n\nSome methods work out an answer and give it back with `return`. Instead of `void`, they start with the type of the answer:\n\n```csharp\nint Add(int a, int b)\n{\n    return a + b;\n}\n\nint total = Add(3, 4);   // total is 7\n```\n\n`void` means \"this method doesn't give anything back\". It just does its job.\n\n### Methods that come with values\n\nSome values have methods of their own. Write a dot after the value: `\"hello\".ToUpper()` gives back `\"HELLO\"`.\n\n### New words\n\n- **Method**: a job with a name, made of steps you write once and use many times.\n- **Call**: run a method by writing its name and brackets, like `Cheer();`.\n- **Parameter**: a value you pass into a method when you call it.\n- **Return value**: the answer a method gives back with `return`.\n- **void**: the word for a method that doesn't give anything back.\n",
+      "exampleMarkdown": "Three methods: `Cheer` takes nothing, `Greet` takes a name, and `Add` gives back a number. The calls are at the top; the methods are below them. The last line uses a string's own `ToUpper` method.",
+      "exampleCode": "Cheer();\nGreet(\"Juni\");\nGreet(\"Bolt\");\nint total = Add(3, 4);\nConsole.WriteLine($\"3 + 4 = {total}\");\nConsole.WriteLine(\"quiet words\".ToUpper());\n\nvoid Cheer()\n{\n    Console.WriteLine(\"Go, Grove, go!\");\n}\n\nvoid Greet(string name)\n{\n    Console.WriteLine($\"Hello, {name}!\");\n}\n\nint Add(int a, int b)\n{\n    return a + b;\n}\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Write two spells for the Grove's spell book.\n\n1. Write a method called `Shout` that takes a `string` and prints it in capital letters with a `!` at the end. `Shout(\"hello\")` prints `HELLO!`\n2. Write a method called `Twice` that takes an `int` and **returns** it times 2.\n3. Use them: shout `\"abracadabra\"`, then print `Twice(21)`.\n\nThe program should print `Spell book`, then `ABRACADABRA!`, then `42`.",
+        "starterFiles": {
+          "Program.cs": "// Mission: write two spells for the Grove's spell book!\nConsole.WriteLine(\"Spell book\");\n\n// 3. When your methods are ready, use them here:\n//    Shout the word \"abracadabra\", then print Twice(21).\n\n\n// 1. Write a method called Shout. It takes a word (a string)\n//    and prints it in capital letters with a ! at the end.\n//    Shout(\"hello\") prints: HELLO!\n\n\n// 2. Write a method called Twice. It takes a number (an int)\n//    and returns that number times 2.\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: write two spells for the Grove's spell book!\nConsole.WriteLine(\"Spell book\");\n\n// 3. When your methods are ready, use them here:\n//    Shout the word \"abracadabra\", then print Twice(21).\nShout(\"abracadabra\");\nConsole.WriteLine(Twice(21));\n\n// 1. Write a method called Shout. It takes a word (a string)\n//    and prints it in capital letters with a ! at the end.\n//    Shout(\"hello\") prints: HELLO!\nvoid Shout(string word)\n{\n    Console.WriteLine($\"{word.ToUpper()}!\");\n}\n\n// 2. Write a method called Twice. It takes a number (an int)\n//    and returns that number times 2.\nint Twice(int number)\n{\n    return number * 2;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Look at the Output panel: the red error names the line to fix."
+          },
+          {
+            "label": "Shout takes a string",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bvoid\\s+Shout\\s*\\(\\s*string\\s+\\w+\\s*\\)"
+            },
+            "failMessage": "Start the method like this: void Shout(string word)"
+          },
+          {
+            "label": "Twice takes an int and returns one",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bint\\s+Twice\\s*\\(\\s*int\\s+\\w+\\s*\\)[\\s\\S]*?\\breturn\\b"
+            },
+            "failMessage": "Twice gives back a number, so start it with int instead of void, and use return."
+          },
+          {
+            "label": "The spell is shouted",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "ABRACADABRA!",
+              "caseSensitive": true
+            },
+            "failMessage": "Call Shout(\"abracadabra\"); and use ToUpper() inside Shout."
+          },
+          {
+            "label": "Twice is used on 21",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bTwice\\s*\\(\\s*21\\s*\\)"
+            },
+            "failMessage": "Call your method with 21: Console.WriteLine(Twice(21));"
+          },
+          {
+            "label": "Twice(21) prints 42",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "42",
+              "caseSensitive": true
+            },
+            "failMessage": "Twice should return the number times 2, so Twice(21) is 42."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at the `Greet` method in the example. Which part is its name, and which part says what goes into it?",
+            "speechText": "Look at the Greet method in the example. Which part is its name, and which part says what goes into it?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Start with `void Shout(string word)` and print inside its curly braces. `Twice` gives back a number, so it starts with `int` instead of `void`, and uses `return`.",
+            "speechText": "Start with void Shout, with a string called word in the brackets, and print inside its curly braces. Twice gives back a number, so it starts with int instead of void, and uses return.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's Shout:\n\n```csharp\nvoid Shout(string word)\n{\n    Console.WriteLine($\"{word.ToUpper()}!\");\n}\n```\n\nWrite `Twice` the same way with `int` and `return number * 2;`. Then call `Shout(\"abracadabra\");` and `Console.WriteLine(Twice(21));`.",
+            "speechText": "Copy that shape for Twice, starting with int, and return the number times two. Then call Shout with abracadabra, and print Twice of 21.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does void mean in void Cheer()?",
+            "explanation": "void means the method does its job but doesn't give a value back.",
+            "options": [
+              {
+                "text": "The method doesn't give back a value",
+                "correct": true
+              },
+              {
+                "text": "The method is empty",
+                "correct": false
+              },
+              {
+                "text": "The method can't be called",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "With int Twice(int n) { return n * 2; } what is Twice(5)?",
+            "explanation": "5 goes in as n, and the method returns 5 times 2.",
+            "options": [
+              {
+                "text": "10",
+                "correct": true
+              },
+              {
+                "text": "5",
+                "correct": false
+              },
+              {
+                "text": "25",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In void Greet(string name), what is name?",
+            "explanation": "name is a parameter: it holds whatever value you pass in when you call Greet.",
+            "options": [
+              {
+                "text": "A parameter: the value passed in when Greet is called",
+                "correct": true
+              },
+              {
+                "text": "The value Greet gives back",
+                "correct": false
+              },
+              {
+                "text": "The name of the method",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "methods",
@@ -1410,7 +1553,210 @@
       "sortOrder": 5,
       "ageBand": "Builder",
       "estimatedMinutes": 20,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Methods\n\nA **method** is a named, reusable block of code. Good code is mostly small methods with clear names, each doing one job that you can read, test and change on its own.\n\n### Declaring a method\n\nYou've been filling in methods since lesson 3. Here's what the parts of the declaration mean:\n\n```csharp\nstatic class Geometry\n{\n    public static double CircleArea(double radius)\n    {\n        return Math.PI * radius * radius;\n    }\n}\n```\n\n- `public` is an **access modifier**: code outside the class can call it. Members are `private` by default.\n- `static` means the method belongs to the class itself, so you call it as `Geometry.CircleArea(2)` without creating an object first. Objects come next lesson.\n- `double` is the **return type**; `void` means it returns nothing.\n- `CircleArea(double radius)`: the name, plus a **parameter** list. The name and parameter types together are the method's **signature**.\n\nMethod names are `PascalCase`. Parameters are `camelCase`.\n\nA **parameter** is the variable in the declaration; an **argument** is the value you pass when you call it: in `CircleArea(2)`, `2` is the argument.\n\nA method with a single expression can use an **expression body**: `public static double Square(double x) => x * x;`\n\n### Optional and named arguments\n\nGive a parameter a default value to make it optional. Optional parameters go last. Name an argument to skip ahead or make a call clearer:\n\n```csharp\nstatic string Repeat(string text, int count = 3, string separator = \"\")\n...\nRepeat(\"ab\")                     // \"ababab\"\nRepeat(\"ab\", separator: \"-\")     // \"ab-ab-ab\"\n```\n\n### Overloading\n\nSeveral methods can share a name if their parameter lists differ. The compiler picks one from the argument types: `Describe(42)` and `Describe(\"hi\")` can call different methods. That's **overloading**. A different return type alone isn't enough.\n\n### out parameters and the Try pattern\n\nA method returns one value. When it needs to report success *and* produce a value, .NET uses an **out parameter**:\n\n```csharp\nif (int.TryParse(input, out int number))\n    Console.WriteLine(number * 2);\nelse\n    Console.WriteLine(\"Not a number\");\n```\n\nThe method must assign every `out` parameter before it returns. `out _` discards a value you don't need.\n\n### Values and references\n\nArguments are copied into parameters. For `int`, `double`, `bool` and other value types, the method gets its own copy. But a `List<T>` is a **reference type**: the copy is a reference to the *same* list, so `scores.Add(…)` inside a method changes the caller's list. That's why `Curved` in lesson 4 built a new list.\n\nA method that only uses its parameters and returns a result, with no other effects, is a **pure function**: the easiest kind to test.\n\n### New words\n\n- **Signature**: a method's name plus its parameter types.\n- **Argument**: the value passed to a parameter when a method is called.\n- **Access modifier**: a keyword such as `public` or `private` that controls who can use a member.\n- **static**: belonging to the class itself, called without creating an object.\n- **Overloading**: several methods with the same name and different parameter lists.\n- **out parameter**: a parameter the method must assign, used to hand back an extra value.\n- **Reference type**: a type, such as `List<T>`, whose variables refer to a shared object instead of holding a copy.\n- **Pure function**: a method whose result depends only on its arguments, with no side effects.\n",
+      "exampleMarkdown": "A small text toolkit: an optional parameter with a named argument, two overloads of `Describe`, and `int.TryParse` with `out`. The last part shows a list changed inside a method, because the method received a reference to the same list.",
+      "exampleCode": "Console.WriteLine(Text.Initials(\"Ada Lovelace\"));\nConsole.WriteLine(Text.Repeat(\"ab\"));\nConsole.WriteLine(Text.Repeat(\"ab\", separator: \"-\"));\nConsole.WriteLine(Text.Describe(42));\nConsole.WriteLine(Text.Describe(\"forty-two\"));\n\nif (int.TryParse(\"123\", out int number))\n    Console.WriteLine($\"Parsed {number}\");\nif (!int.TryParse(\"12x\", out _))\n    Console.WriteLine(\"\\\"12x\\\" isn't a number\");\n\nList<string> names = [\"Ada\"];\nText.AddGrace(names);\nConsole.WriteLine($\"Names after AddGrace: {string.Join(\", \", names)}\");\n\nstatic class Text\n{\n    public static string Initials(string fullName)\n    {\n        string result = \"\";\n        foreach (string part in fullName.Split(' '))\n            result += part[0];\n        return result;\n    }\n\n    // count and separator are optional.\n    public static string Repeat(string text, int count = 3, string separator = \"\")\n    {\n        var parts = new List<string>();\n        for (int i = 0; i < count; i++)\n            parts.Add(text);\n        return string.Join(separator, parts);\n    }\n\n    // Overloads: same name, different parameter types.\n    public static string Describe(int n) => $\"the number {n}\";\n    public static string Describe(string s) => $\"the text \\\"{s}\\\"\";\n\n    // Not pure: it changes the list it was given.\n    public static void AddGrace(List<string> list) => list.Add(\"Grace\");\n}\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Build a recipe scaler from its method calls.** The code at the top already calls three methods of the `Kitchen` class; none of them exists yet, so it doesn't compile. Declare and write them:\n\n1. `Scale(amount, toServings, fromServings)` returns `amount * toServings / fromServings` as a `double`. `fromServings` is **optional** and defaults to 4.\n2. `Format(grams)` returns whole grams under 1000 (`\"300 g\"`), and kilograms with one decimal place from 1000 up (`\"1.5 kg\"`).\n3. `TryParseServings(text, out servings)` works like `int.TryParse`, but only whole numbers from 1 to 20 count. Otherwise it returns `false` and sets `servings` to 0.\n\nRead the comments in the class for examples. When it works, the program prints flour 300 g, milk 450 g and butter 150 g for 6. Try other values of `request`, such as `\"21\"` or `\"six\"`.",
+        "starterFiles": {
+          "Program.cs": "// Recipe scaler. The code below calls three methods that don't exist yet: write them in the Kitchen class.\nstring request = \"6\";\n\nif (Kitchen.TryParseServings(request, out int servings))\n{\n    Console.WriteLine($\"Pancakes for {servings}:\");\n    Console.WriteLine($\"Flour: {Kitchen.Format(Kitchen.Scale(200, servings))}\");\n    Console.WriteLine($\"Milk: {Kitchen.Format(Kitchen.Scale(300, servings))}\");\n    Console.WriteLine($\"Butter: {Kitchen.Format(Kitchen.Scale(50, servings, 2))}\");\n}\nelse\n{\n    Console.WriteLine($\"\\\"{request}\\\" isn't a number of servings from 1 to 20.\");\n}\n\nstatic class Kitchen\n{\n    // 1. Scale returns amount * toServings / fromServings, as a double.\n    //    fromServings is optional, because most recipes are written for 4:\n    //    Kitchen.Scale(200, 6) is 300, and Kitchen.Scale(50, 6, 2) is 150.\n\n    // 2. Format takes grams (a double). Under 1000, it returns whole grams, like \"300 g\".\n    //    From 1000 up, it returns kilograms with one decimal place, like \"1.5 kg\".\n\n    // 3. TryParseServings(string text, out int servings) works like int.TryParse,\n    //    but only whole numbers from 1 to 20 count. It returns true and sets servings\n    //    for those; otherwise it returns false and sets servings to 0.\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Recipe scaler. The code below calls three methods that don't exist yet: write them in the Kitchen class.\nstring request = \"6\";\n\nif (Kitchen.TryParseServings(request, out int servings))\n{\n    Console.WriteLine($\"Pancakes for {servings}:\");\n    Console.WriteLine($\"Flour: {Kitchen.Format(Kitchen.Scale(200, servings))}\");\n    Console.WriteLine($\"Milk: {Kitchen.Format(Kitchen.Scale(300, servings))}\");\n    Console.WriteLine($\"Butter: {Kitchen.Format(Kitchen.Scale(50, servings, 2))}\");\n}\nelse\n{\n    Console.WriteLine($\"\\\"{request}\\\" isn't a number of servings from 1 to 20.\");\n}\n\nstatic class Kitchen\n{\n    // 1. Scale returns amount * toServings / fromServings, as a double.\n    //    fromServings is optional, because most recipes are written for 4:\n    //    Kitchen.Scale(200, 6) is 300, and Kitchen.Scale(50, 6, 2) is 150.\n    public static double Scale(double amount, int toServings, int fromServings = 4)\n    {\n        return amount * toServings / fromServings;\n    }\n\n    // 2. Format takes grams (a double). Under 1000, it returns whole grams, like \"300 g\".\n    //    From 1000 up, it returns kilograms with one decimal place, like \"1.5 kg\".\n    public static string Format(double grams)\n    {\n        if (grams < 1000)\n            return $\"{grams:0} g\";\n        return $\"{grams / 1000:0.0} kg\";\n    }\n\n    // 3. TryParseServings(string text, out int servings) works like int.TryParse,\n    //    but only whole numbers from 1 to 20 count. It returns true and sets servings\n    //    for those; otherwise it returns false and sets servings to 0.\n    public static bool TryParseServings(string text, out int servings)\n    {\n        if (int.TryParse(text, out servings) && servings >= 1 && servings <= 20)\n            return true;\n        servings = 0;\n        return false;\n    }\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The program compiles and runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The compiler can't find the methods yet. Declare all three in the Kitchen class, as public static."
+          },
+          {
+            "label": "Scale defaults to a 4-serving recipe",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "Kitchen.Scale(200, 6)",
+              "equals": 300
+            },
+            "failMessage": "Kitchen.Scale(200, 6) should be 300: give fromServings a default value of 4."
+          },
+          {
+            "label": "Scale works from any number of servings",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new[] { Kitchen.Scale(50, 6, 2), Kitchen.Scale(100, 1, 4), Kitchen.Scale(10, 3, 4) }",
+              "equals": [
+                150,
+                25,
+                7.5
+              ]
+            },
+            "failMessage": "Return amount * toServings / fromServings as a double (so 10 for 3 from 4 is 7.5, not 7)."
+          },
+          {
+            "label": "Format shows grams under 1000",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new[] { Kitchen.Format(300), Kitchen.Format(999), Kitchen.Format(37.5) }",
+              "equals": [
+                "300 g",
+                "999 g",
+                "38 g"
+              ]
+            },
+            "failMessage": "Under 1000, return whole grams with \" g\", like \"300 g\". The format specifier :0 rounds to a whole number."
+          },
+          {
+            "label": "Format switches to kilograms at 1000",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new[] { Kitchen.Format(1000), Kitchen.Format(1500), Kitchen.Format(2400) }",
+              "equals": [
+                "1.0 kg",
+                "1.5 kg",
+                "2.4 kg"
+              ]
+            },
+            "failMessage": "From 1000 up, divide by 1000 and show one decimal place with \" kg\", like \"1.5 kg\"."
+          },
+          {
+            "label": "TryParseServings accepts 1 to 20",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { bool a = Kitchen.TryParseServings(\"6\", out int x); bool b = Kitchen.TryParseServings(\"1\", out int y); bool c = Kitchen.TryParseServings(\"20\", out int z); return $\"{a} {x} {b} {y} {c} {z}\"; }))()",
+              "equals": "True 6 True 1 True 20"
+            },
+            "failMessage": "For \"6\", \"1\" and \"20\", return true and set servings to the number."
+          },
+          {
+            "label": "TryParseServings rejects everything else",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var results = new List<string>(); foreach (var text in new[] { \"0\", \"21\", \"six\", \"\", \"2.5\" }) { bool ok = Kitchen.TryParseServings(text, out int n); results.Add($\"{ok}/{n}\"); } return string.Join(\" \", results); }))()",
+              "equals": "False/0 False/0 False/0 False/0 False/0"
+            },
+            "failMessage": "For \"0\", \"21\", \"six\", an empty string and \"2.5\", return false and set servings to 0."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The compiler says `Kitchen` doesn't contain these methods yet. Looking at how the code at the top calls each one, what does it take in, and what does it give back?",
+            "speechText": "The compiler says the Kitchen class doesn't contain these methods yet. Looking at how the code at the top calls each one, what does it take in, and what does it give back?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Each declaration is `public static`, then the return type, name and parameters, like `public static double Scale(double amount, int toServings, int fromServings = 4)`. `TryParseServings` declares `out int servings` and can pass it straight on: `int.TryParse(text, out servings)`.",
+            "speechText": "Each method starts with public static, then the return type, the name and the parameters. Give fromServings a default of four to make it optional. TryParseServings declares an out int parameter, and can pass it straight on to int dot TryParse.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The Try method:\n\n```csharp\npublic static bool TryParseServings(string text, out int servings)\n{\n    if (int.TryParse(text, out servings) && servings >= 1 && servings <= 20)\n        return true;\n    servings = 0;\n    return false;\n}\n```\n\n`Format` returns `$\"{grams:0} g\"` under 1000, and `$\"{grams / 1000:0.0} kg\"` otherwise.",
+            "speechText": "TryParseServings returns true only when int dot TryParse succeeds and the number is from one to twenty. Otherwise it sets servings to zero and returns false. Format rounds to whole grams under a thousand, and divides by a thousand with one decimal place for kilograms.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What's the difference between a parameter and an argument?",
+            "explanation": "The parameter is the variable named in the method's declaration; the argument is the actual value passed in a particular call.",
+            "options": [
+              {
+                "text": "A parameter is declared by the method; an argument is the value passed in a call",
+                "correct": true
+              },
+              {
+                "text": "They're two words for the same thing",
+                "correct": false
+              },
+              {
+                "text": "Arguments are optional parameters",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Given static int Area(int w, int h = 1), which call doesn't compile?",
+            "explanation": "h has a default, so it can be left out, but w doesn't: Area() is missing a required argument (CS7036).",
+            "options": [
+              {
+                "text": "Area()",
+                "correct": true
+              },
+              {
+                "text": "Area(5)",
+                "correct": false
+              },
+              {
+                "text": "Area(5, 2)",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A class has Describe(int n) and Describe(string s). What is that called?",
+            "explanation": "Overloading: the same name with different parameter lists. The compiler picks one from the argument types.",
+            "options": [
+              {
+                "text": "Overloading",
+                "correct": true
+              },
+              {
+                "text": "A compile error: names must be unique",
+                "correct": false
+              },
+              {
+                "text": "Recursion",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does int.TryParse use an out parameter?",
+            "explanation": "It returns a bool for success, and hands back the parsed number through the out parameter, so one call gives you both.",
+            "options": [
+              {
+                "text": "So it can return success and the number from one call",
+                "correct": true
+              },
+              {
+                "text": "To make the method run faster",
+                "correct": false
+              },
+              {
+                "text": "Because out makes the parameter optional",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A method receives a List<int> and calls Add on it. What happens to the caller's list?",
+            "explanation": "List<T> is a reference type: the parameter refers to the same list as the caller's variable, so the caller sees the new item.",
+            "options": [
+              {
+                "text": "It changes too: both refer to the same list",
+                "correct": true
+              },
+              {
+                "text": "Nothing: the method got a copy",
+                "correct": false
+              },
+              {
+                "text": "It's a compile error",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "classes-explorer",
