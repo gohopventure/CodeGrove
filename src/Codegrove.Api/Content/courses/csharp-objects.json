@@ -932,17 +932,17 @@
       "isPublished": true,
       "learnMarkdown": "## Interfaces and polymorphism\n\nAn **interface** is a contract: a list of members that a class promises to have. It holds no data and, usually, no code.\n\n```csharp\ninterface IShippingRate\n{\n    string Name { get; }\n    decimal Cost(Parcel parcel);\n}\n```\n\nA class **implements** an interface with the same colon as inheritance, and must provide every member, as `public`:\n\n```csharp\nclass FlatRate : IShippingRate\n{\n    private readonly decimal _price;\n\n    public FlatRate(decimal price)\n    {\n        _price = price;\n    }\n\n    public string Name => \"Flat rate\";\n\n    public decimal Cost(Parcel parcel) => _price;\n}\n```\n\nLeave a member out and the class won't compile (CS0535). Write it without `public` and it doesn't count, so you get CS0737 instead. You can't create an interface itself with `new`: you create a class that implements it.\n\n### Programming to an interface\n\nCode that only needs \"something that can price a parcel\" should ask for the interface, not a particular class:\n\n```csharp\nstatic decimal Quote(Parcel p, IShippingRate rate)\n    => rate.Cost(p);\n```\n\n`Quote` now works with every rate, including ones written next year. That's polymorphism again, but the classes don't need a shared base class, or to be related at all.\n\nThis is how ASP.NET Core is built. Your classes ask for interfaces like `ILogger<T>` in their constructors, and the framework passes in a real implementation: that's **dependency injection**. In a test, you pass a fake one instead.\n\n### Interfaces or abstract classes?\n\n- A class can implement **many** interfaces, but derive from only **one** class. The base class comes first: `class Drone : Vehicle, IShippingRate, IDisposable`.\n- An abstract class can hold fields, constructors and shared code. An interface describes a capability.\n\nA rule of thumb: an interface for \"can do X\", a base class for \"is a kind of X, with shared code\".\n\n### Wrapping one implementation in another\n\nA class can keep an interface in a field, so it can wrap *any* implementation and add behaviour around it. That's the **decorator** pattern:\n\n```csharp\nclass Discounted : IShippingRate\n{\n    private readonly IShippingRate _inner;\n\n    public Discounted(IShippingRate inner)\n    {\n        _inner = inner;\n    }\n\n    public string Name => _inner.Name + \" (10% off)\";\n\n    public decimal Cost(Parcel p) => _inner.Cost(p) * 0.9m;\n}\n```\n\n`Discounted` works with flat rates, weight rates, and even other discounted rates.\n\n### Interfaces .NET gives you\n\n- `IEnumerable<T>`: anything `foreach` can loop over. Lists, arrays and LINQ results all implement it, so a parameter of type `IEnumerable<T>` accepts all of them.\n- `IComparable<T>`: \"I know how to put myself in order\", used by `Sort` and `OrderBy`.\n- `IDisposable`: \"I hold something that must be released\", used by `using`.\n\nA type pattern checks for a capability at run time: `if (thing is IDisposable d) d.Dispose();`\n\n### New words\n\n- **Interface**: a contract listing members that implementing classes must provide.\n- **Implement**: provide every member of an interface, as `public`.\n- **Dependency injection**: giving a class the objects it needs (usually as interfaces) instead of letting it create them.\n- **Decorator**: a class that implements an interface by wrapping another implementation of it and adding behaviour.\n- **`IEnumerable<T>`**: the interface for anything you can loop over with `foreach`.\n",
       "exampleMarkdown": "`Kettle` asks for an `ILogger` and never learns which one it got. The same kettle code logs to the console, and then, wrapped in `NumberedLogger`, to a list in memory, the way a test would check it.",
-      "exampleCode": "var memory = new MemoryLogger();\nILogger[] loggers = { new ConsoleLogger(), new NumberedLogger(memory) };\n\nforeach (ILogger logger in loggers)\n{\n    var kettle = new Kettle(logger);\n    kettle.Boil();\n}\n\nConsole.WriteLine($\"The memory logger kept {memory.Lines.Count} lines:\");\nforeach (string line in memory.Lines)\n{\n    Console.WriteLine(line);\n}\n\ninterface ILogger\n{\n    void Log(string message);\n}\n\nclass ConsoleLogger : ILogger\n{\n    public void Log(string message) => Console.WriteLine(message);\n}\n\nclass MemoryLogger : ILogger\n{\n    public List<string> Lines { get; } = new();\n\n    public void Log(string message) => Lines.Add(message);\n}\n\n// A decorator: wraps any logger and numbers each message.\nclass NumberedLogger : ILogger\n{\n    private readonly ILogger _inner;\n    private int _count;\n\n    public NumberedLogger(ILogger inner)\n    {\n        _inner = inner;\n    }\n\n    public void Log(string message)\n    {\n        _count++;\n        _inner.Log($\"{_count}. {message}\");\n    }\n}\n\n// Gets its logger from outside: dependency injection.\nclass Kettle\n{\n    private readonly ILogger _log;\n\n    public Kettle(ILogger log)\n    {\n        _log = log;\n    }\n\n    public void Boil()\n    {\n        _log.Log(\"Filling\");\n        _log.Log(\"Heating\");\n        _log.Log(\"Click!\");\n    }\n}\n",
+      "exampleCode": "var memory = new MemoryLogger();\nILogger[] loggers =\n{\n    new ConsoleLogger(),\n    new NumberedLogger(memory),\n};\n\nforeach (ILogger logger in loggers)\n{\n    var kettle = new Kettle(logger);\n    kettle.Boil();\n}\n\nConsole.WriteLine($\"Kept in memory: {memory.Lines.Count} lines\");\nforeach (string line in memory.Lines)\n{\n    Console.WriteLine(line);\n}\n\ninterface ILogger\n{\n    void Log(string message);\n}\n\nclass ConsoleLogger : ILogger\n{\n    public void Log(string message) => Console.WriteLine(message);\n}\n\nclass MemoryLogger : ILogger\n{\n    public List<string> Lines { get; } = new();\n\n    public void Log(string message) => Lines.Add(message);\n}\n\n// A decorator: wraps any logger and numbers each message.\nclass NumberedLogger : ILogger\n{\n    private readonly ILogger _inner;\n    private int _count;\n\n    public NumberedLogger(ILogger inner)\n    {\n        _inner = inner;\n    }\n\n    public void Log(string message)\n    {\n        _count++;\n        _inner.Log($\"{_count}. {message}\");\n    }\n}\n\n// Gets its logger from outside: dependency injection.\nclass Kettle\n{\n    private readonly ILogger _log;\n\n    public Kettle(ILogger log)\n    {\n        _log = log;\n    }\n\n    public void Boil()\n    {\n        _log.Log(\"Filling\");\n        _log.Log(\"Heating\");\n        _log.Log(\"Click!\");\n    }\n}\n",
       "challenge": {
         "kind": "CSharp",
         "xpReward": 15,
         "instructionsMarkdown": "**Finish the shipping rates** in `Shipping.cs`. `IShippingRate`, `Parcel` and `FlatRate` are done.\n\n1. **Fix `WeightRate`.** It doesn't compile yet, even though it has a `Cost` method. Once it does, make it charge 2.00 plus 1.50 for every *started* kilogram: 2.3 kg counts as 3 (`Math.Ceiling` rounds up).\n2. **Finish `FreeOver`**, a rate that wraps any other `IShippingRate`:\n   - keep the threshold and the inner rate in fields\n   - `Cost` is 0 when the parcel's `Value` is at least the threshold, and otherwise whatever the inner rate charges\n   - `Name` is the inner rate's name, then `, free over ` and the threshold with 2 decimals, like `By weight, free over 50.00`\n3. **Write `Checkout.Cheapest`**: return the rate with the lowest cost for the parcel (the first one, if two cost the same). Throw an `ArgumentException` if there are no rates at all.\n\nThe program should print:\n\n```\nParcel: 2.3 kg, worth 40.00\nFlat rate: 6.00\nBy weight: 6.50\nBy weight, free over 50.00: 6.50\nCheapest: Flat rate\nParcel: 1 kg, worth 60.00\nFlat rate: 6.00\nBy weight: 3.50\nBy weight, free over 50.00: 0.00\nCheapest: By weight, free over 50.00\n```",
         "starterFiles": {
-          "Shipping.cs": "interface IShippingRate\n{\n    string Name { get; }\n    decimal Cost(Parcel parcel);\n}\n\nclass Parcel\n{\n    public decimal WeightKg { get; }\n    public decimal Value { get; }\n\n    public Parcel(decimal weightKg, decimal value)\n    {\n        WeightKg = weightKg;\n        Value = value;\n    }\n}\n\n// Finished: the same price for every parcel.\nclass FlatRate : IShippingRate\n{\n    private readonly decimal _price;\n\n    public FlatRate(decimal price)\n    {\n        _price = price;\n    }\n\n    public string Name => \"Flat rate\";\n\n    public decimal Cost(Parcel parcel) => _price;\n}\n\n// 2.00 plus 1.50 for every started kilogram (2.3 kg counts as 3).\nclass WeightRate : IShippingRate\n{\n    public string Name => \"By weight\";\n\n    decimal Cost(Parcel parcel)\n    {\n        return 2.00m + 1.50m * parcel.WeightKg;\n    }\n}\n\n// Wraps any other rate: free when the parcel is worth at least the\n// threshold, otherwise whatever the inner rate charges.\nclass FreeOver : IShippingRate\n{\n    public FreeOver(decimal threshold, IShippingRate inner)\n    {\n        // TODO: keep both in fields.\n    }\n\n    public string Name => \"TODO\";\n\n    public decimal Cost(Parcel parcel) => 0m;\n}\n\nstatic class Checkout\n{\n    // TODO: return the rate with the lowest cost for this parcel.\n    public static IShippingRate Cheapest(Parcel parcel, IEnumerable<IShippingRate> rates)\n    {\n        return rates.First();\n    }\n}\n",
+          "Shipping.cs": "interface IShippingRate\n{\n    string Name { get; }\n    decimal Cost(Parcel parcel);\n}\n\nclass Parcel\n{\n    public decimal WeightKg { get; }\n    public decimal Value { get; }\n\n    public Parcel(decimal weightKg, decimal value)\n    {\n        WeightKg = weightKg;\n        Value = value;\n    }\n}\n\n// Finished: the same price for every parcel.\nclass FlatRate : IShippingRate\n{\n    private readonly decimal _price;\n\n    public FlatRate(decimal price)\n    {\n        _price = price;\n    }\n\n    public string Name => \"Flat rate\";\n\n    public decimal Cost(Parcel parcel) => _price;\n}\n\n// 2.00 plus 1.50 for every started kilogram (2.3 kg counts as 3).\nclass WeightRate : IShippingRate\n{\n    public string Name => \"By weight\";\n\n    decimal Cost(Parcel parcel)\n    {\n        return 2.00m + 1.50m * parcel.WeightKg;\n    }\n}\n\n// Wraps any other rate: free when the parcel is worth at least the\n// threshold, otherwise whatever the inner rate charges.\nclass FreeOver : IShippingRate\n{\n    public FreeOver(decimal threshold, IShippingRate inner)\n    {\n        // TODO: keep both in fields.\n    }\n\n    public string Name => \"TODO\";\n\n    public decimal Cost(Parcel parcel) => 0m;\n}\n\nstatic class Checkout\n{\n    // TODO: return the rate with the lowest cost for this parcel.\n    public static IShippingRate Cheapest(\n        Parcel parcel, IEnumerable<IShippingRate> rates)\n    {\n        return rates.First();\n    }\n}\n",
           "Program.cs": "// The checkout compares every rate without knowing which classes they are.\nvar options = new List<IShippingRate>\n{\n    new FlatRate(6.00m),\n    new WeightRate(),\n    new FreeOver(50m, new WeightRate()),\n};\n\nParcel[] parcels = { new Parcel(2.3m, 40m), new Parcel(1m, 60m) };\nforeach (Parcel parcel in parcels)\n{\n    Console.WriteLine($\"Parcel: {parcel.WeightKg} kg, worth {parcel.Value:F2}\");\n    foreach (IShippingRate rate in options)\n    {\n        Console.WriteLine($\"{rate.Name}: {rate.Cost(parcel):F2}\");\n    }\n    Console.WriteLine($\"Cheapest: {Checkout.Cheapest(parcel, options).Name}\");\n}\n"
         },
         "solutionFiles": {
-          "Shipping.cs": "interface IShippingRate\n{\n    string Name { get; }\n    decimal Cost(Parcel parcel);\n}\n\nclass Parcel\n{\n    public decimal WeightKg { get; }\n    public decimal Value { get; }\n\n    public Parcel(decimal weightKg, decimal value)\n    {\n        WeightKg = weightKg;\n        Value = value;\n    }\n}\n\n// Finished: the same price for every parcel.\nclass FlatRate : IShippingRate\n{\n    private readonly decimal _price;\n\n    public FlatRate(decimal price)\n    {\n        _price = price;\n    }\n\n    public string Name => \"Flat rate\";\n\n    public decimal Cost(Parcel parcel) => _price;\n}\n\n// 2.00 plus 1.50 for every started kilogram (2.3 kg counts as 3).\nclass WeightRate : IShippingRate\n{\n    public string Name => \"By weight\";\n\n    public decimal Cost(Parcel parcel)\n    {\n        return 2.00m + 1.50m * Math.Ceiling(parcel.WeightKg);\n    }\n}\n\n// Wraps any other rate: free when the parcel is worth at least the\n// threshold, otherwise whatever the inner rate charges.\nclass FreeOver : IShippingRate\n{\n    private readonly decimal _threshold;\n    private readonly IShippingRate _inner;\n\n    public FreeOver(decimal threshold, IShippingRate inner)\n    {\n        _threshold = threshold;\n        _inner = inner;\n    }\n\n    public string Name => $\"{_inner.Name}, free over {_threshold:F2}\";\n\n    public decimal Cost(Parcel parcel)\n        => parcel.Value >= _threshold ? 0m : _inner.Cost(parcel);\n}\n\nstatic class Checkout\n{\n    // TODO: return the rate with the lowest cost for this parcel.\n    public static IShippingRate Cheapest(Parcel parcel, IEnumerable<IShippingRate> rates)\n    {\n        if (!rates.Any())\n            throw new ArgumentException(\"There are no rates to choose from.\");\n        return rates.MinBy(rate => rate.Cost(parcel));\n    }\n}\n",
+          "Shipping.cs": "interface IShippingRate\n{\n    string Name { get; }\n    decimal Cost(Parcel parcel);\n}\n\nclass Parcel\n{\n    public decimal WeightKg { get; }\n    public decimal Value { get; }\n\n    public Parcel(decimal weightKg, decimal value)\n    {\n        WeightKg = weightKg;\n        Value = value;\n    }\n}\n\n// Finished: the same price for every parcel.\nclass FlatRate : IShippingRate\n{\n    private readonly decimal _price;\n\n    public FlatRate(decimal price)\n    {\n        _price = price;\n    }\n\n    public string Name => \"Flat rate\";\n\n    public decimal Cost(Parcel parcel) => _price;\n}\n\n// 2.00 plus 1.50 for every started kilogram (2.3 kg counts as 3).\nclass WeightRate : IShippingRate\n{\n    public string Name => \"By weight\";\n\n    public decimal Cost(Parcel parcel)\n    {\n        return 2.00m + 1.50m * Math.Ceiling(parcel.WeightKg);\n    }\n}\n\n// Wraps any other rate: free when the parcel is worth at least the\n// threshold, otherwise whatever the inner rate charges.\nclass FreeOver : IShippingRate\n{\n    private readonly decimal _threshold;\n    private readonly IShippingRate _inner;\n\n    public FreeOver(decimal threshold, IShippingRate inner)\n    {\n        _threshold = threshold;\n        _inner = inner;\n    }\n\n    public string Name => $\"{_inner.Name}, free over {_threshold:F2}\";\n\n    public decimal Cost(Parcel parcel)\n        => parcel.Value >= _threshold ? 0m : _inner.Cost(parcel);\n}\n\nstatic class Checkout\n{\n    // TODO: return the rate with the lowest cost for this parcel.\n    public static IShippingRate Cheapest(\n        Parcel parcel, IEnumerable<IShippingRate> rates)\n    {\n        if (!rates.Any())\n            throw new ArgumentException(\"There are no rates to choose from.\");\n        return rates.MinBy(rate => rate.Cost(parcel));\n    }\n}\n",
           "Program.cs": "// The checkout compares every rate without knowing which classes they are.\nvar options = new List<IShippingRate>\n{\n    new FlatRate(6.00m),\n    new WeightRate(),\n    new FreeOver(50m, new WeightRate()),\n};\n\nParcel[] parcels = { new Parcel(2.3m, 40m), new Parcel(1m, 60m) };\nforeach (Parcel parcel in parcels)\n{\n    Console.WriteLine($\"Parcel: {parcel.WeightKg} kg, worth {parcel.Value:F2}\");\n    foreach (IShippingRate rate in options)\n    {\n        Console.WriteLine($\"{rate.Name}: {rate.Cost(parcel):F2}\");\n    }\n    Console.WriteLine($\"Cheapest: {Checkout.Cheapest(parcel, options).Name}\");\n}\n"
         },
         "tests": [
@@ -1149,7 +1149,166 @@
       "sortOrder": 4,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Records: data that compares\n\nSome classes only hold data. A Grove trading card has a name and a power, and that's all. C# has a shortcut for types like that: a **record**.\n\n```csharp\nrecord Card(string Name, int Power);\n```\n\nThat one line gives you a constructor and the properties `Name` and `Power`. It also teaches the card to print itself:\n\n```csharp\nvar dragon = new Card(\"Dragon\", 9);\nConsole.WriteLine(dragon.Name);  // Dragon\nConsole.WriteLine(dragon);\n// Card { Name = Dragon, Power = 9 }\n```\n\n### Records compare what's inside\n\nMake two objects from a class with the same data, and `==` says they're *not* equal: they're two different objects. Records are different. Two records are equal when everything inside them is the same:\n\n```csharp\nvar a = new Card(\"Dragon\", 9);\nvar b = new Card(\"Dragon\", 9);\nConsole.WriteLine(a == b);  // True\n```\n\n### Copy, with a change\n\nYou can't change a record after you make it. Instead, `with` makes a copy and changes just the parts you list:\n\n```csharp\nvar stronger = dragon with { Power = 10 };\n```\n\n`stronger` has power 10, and `dragon` still has power 9.\n\nOne rule: in a file with top-level code, put your records at the **bottom**, after all the other code.\n\n### New words\n\n- **Record**: a quick way to make a type that just holds data. It prints itself and compares what's inside.\n- **Equal**: for records, two records are equal when all their data is the same.\n- **with**: makes a copy of a record with some parts changed, and leaves the original alone.\n",
+      "exampleMarkdown": "Two `Fruit` records with the same data are equal, even though they're two separate objects. `with` makes a ripe copy, and the original banana stays green.",
+      "exampleCode": "var green = new Fruit(\"banana\", \"green\");\nvar alsoGreen = new Fruit(\"banana\", \"green\");\n\nConsole.WriteLine(green);\nConsole.WriteLine($\"Equal? {green == alsoGreen}\");\n\nvar ripe = green with { Colour = \"yellow\" };\nConsole.WriteLine(ripe);\nConsole.WriteLine($\"Still green: {green}\");\n\nrecord Fruit(string Name, string Colour);\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Grove trading cards are the hottest thing in the forest. Follow the numbered comments:\n\n1. At the bottom of the file, make a record called `Card` with a `string Name` and an `int Power`.\n2. Set `same` by comparing `hand[0]` and `hand[2]` with `==`.\n3. Make `bigToad` a copy of `hand[1]` with `Power` 5, using `with`.\n\nRun it, and you should see:\n\n```\nCard { Name = Dragon, Power = 9 }\nCard { Name = Toad, Power = 2 }\nCard { Name = Dragon, Power = 9 }\nCard { Name = Pixie, Power = 4 }\nAre cards 1 and 3 the same? True\nBig toad: Card { Name = Toad, Power = 5 }\nOriginal toad: Card { Name = Toad, Power = 2 }\n```",
+        "starterFiles": {
+          "Program.cs": "// Mission: spot the double card, then power up a copy of the toad!\nvar hand = new List<Card>\n{\n    new Card(\"Dragon\", 9),\n    new Card(\"Toad\", 2),\n    new Card(\"Dragon\", 9),\n    new Card(\"Pixie\", 4),\n};\n\n// Records know how to print themselves.\nforeach (Card card in hand)\n{\n    Console.WriteLine(card);\n}\n\n// 2. Cards 1 and 3 look the same. Change false to compare\n//    hand[0] and hand[2] with ==.\nbool same = false;\nConsole.WriteLine($\"Are cards 1 and 3 the same? {same}\");\n\n// 3. Make bigToad a copy of hand[1] with Power 5. Use with!\nCard bigToad = hand[1];\nConsole.WriteLine($\"Big toad: {bigToad}\");\nConsole.WriteLine($\"Original toad: {hand[1]}\");\n\n// 1. Make a record called Card here, with a string Name\n//    and an int Power.\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: spot the double card, then power up a copy of the toad!\nvar hand = new List<Card>\n{\n    new Card(\"Dragon\", 9),\n    new Card(\"Toad\", 2),\n    new Card(\"Dragon\", 9),\n    new Card(\"Pixie\", 4),\n};\n\n// Records know how to print themselves.\nforeach (Card card in hand)\n{\n    Console.WriteLine(card);\n}\n\n// 2. Cards 1 and 3 look the same. Change false to compare\n//    hand[0] and hand[2] with ==.\nbool same = hand[0] == hand[2];\nConsole.WriteLine($\"Are cards 1 and 3 the same? {same}\");\n\n// 3. Make bigToad a copy of hand[1] with Power 5. Use with!\nCard bigToad = hand[1] with { Power = 5 };\nConsole.WriteLine($\"Big toad: {bigToad}\");\nConsole.WriteLine($\"Original toad: {hand[1]}\");\n\n// 1. Make a record called Card here, with a string Name\n//    and an int Power.\nrecord Card(string Name, int Power);\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The program can't run yet. Read the red message in the Output panel: it names the line to look at."
+          },
+          {
+            "label": "Card is a record",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "record\\s+Card\\s*\\("
+            },
+            "failMessage": "At the bottom of the file, write: record Card(string Name, int Power);"
+          },
+          {
+            "label": "Cards print themselves",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new Card(\"Fox\", 3).ToString()",
+              "equals": "Card { Name = Fox, Power = 3 }"
+            },
+            "failMessage": "Give the record a string called Name and an int called Power, in that order, with capital letters."
+          },
+          {
+            "label": "Cards with the same data are equal",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new Card(\"Fox\", 3) == new Card(\"Fox\", 3)",
+              "equals": true
+            },
+            "failMessage": "Make Card a record, not a class: two records with the same data are equal."
+          },
+          {
+            "label": "You compared with ==",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "hand\\s*\\[\\s*[02]\\s*\\]\\s*==\\s*hand\\s*\\[\\s*[02]\\s*\\]"
+            },
+            "failMessage": "Set same to hand[0] == hand[2]."
+          },
+          {
+            "label": "You copied the toad with with",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bwith\\s*\\{"
+            },
+            "failMessage": "Make bigToad with hand[1] with { Power = 5 }."
+          },
+          {
+            "label": "Everything prints",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "Card { Name = Dragon, Power = 9 }",
+                "Card { Name = Toad, Power = 2 }",
+                "Card { Name = Dragon, Power = 9 }",
+                "Card { Name = Pixie, Power = 4 }",
+                "Are cards 1 and 3 the same? True",
+                "Big toad: Card { Name = Toad, Power = 5 }",
+                "Original toad: Card { Name = Toad, Power = 2 }"
+              ]
+            },
+            "failMessage": "The output should match the instructions exactly. The original toad should still have power 2."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at how the cards are made, like `new Card(\"Dragon\", 9)`. What two things does every card need?",
+            "speechText": "Look at how the cards are made, like a new Card called Dragon with nine. What two things does every card need?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "At the bottom, write `record Card(string Name, int Power);`. Then compare with `hand[0] == hand[2]`, and copy with `hand[1] with { Power = 5 }`.",
+            "speechText": "At the bottom, write a record called Card with a string Name and an int Power. Then compare the first and third cards with double equals, and copy the toad with a with that sets Power to five.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The three lines to change:\n\n```csharp\nbool same = hand[0] == hand[2];\n\nCard bigToad = hand[1] with { Power = 5 };\n\nrecord Card(string Name, int Power);\n```",
+            "speechText": "Same is the first card double equals the third card, and big toad is the second card with Power set to five. The record line goes at the very bottom.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does record Card(string Name, int Power); give you?",
+            "explanation": "One line makes a Card type with Name and Power, a constructor, and a ToString that prints the data.",
+            "options": [
+              {
+                "text": "A Card type with Name, Power, a constructor, and a way to print itself",
+                "correct": true
+              },
+              {
+                "text": "A list of cards",
+                "correct": false
+              },
+              {
+                "text": "A method called Card",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "a and b are both new Card(\"Toad\", 2). What is a == b?",
+            "explanation": "Records compare what's inside, and both cards hold the same data, so they're equal.",
+            "options": [
+              {
+                "text": "True, because their data is the same",
+                "correct": true
+              },
+              {
+                "text": "False, because they're two different objects",
+                "correct": false
+              },
+              {
+                "text": "An error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does toad with { Power = 5 } do?",
+            "explanation": "with makes a new copy with Power 5. The original toad doesn't change.",
+            "options": [
+              {
+                "text": "Makes a new copy with Power 5, and leaves the toad alone",
+                "correct": true
+              },
+              {
+                "text": "Changes the toad's power to 5",
+                "correct": false
+              },
+              {
+                "text": "Deletes the toad",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "records",
@@ -1157,7 +1316,233 @@
       "sortOrder": 4,
       "ageBand": "Builder",
       "estimatedMinutes": 20,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Records and value equality\n\n### Two kinds of equality\n\nFor a class, `==` asks \"are these the same object?\" That's **reference equality**: two separate objects holding identical data are *not* equal.\n\n```csharp\nvar a = new Point(1, 2);   // Point is a class\nvar b = new Point(1, 2);\nConsole.WriteLine(a == b); // False\n```\n\nFor data like a price, a date range or a song, you usually want **value equality**: equal when the data is equal. That's what records give you.\n\n### Positional records\n\n```csharp\nrecord Song(string Title, string Artist, int Seconds);\n```\n\nFrom that one line the compiler generates:\n\n- a constructor, and `Deconstruct`, so `var (title, artist, _) = song;` works\n- `init`-only properties `Title`, `Artist` and `Seconds`\n- `Equals`, `GetHashCode`, `==` and `!=`, comparing every property\n- a readable `ToString`, like `Song { Title = Firefly, Artist = Nova Lane, Seconds = 201 }`\n\nBecause `Equals` and `GetHashCode` follow the data, records work properly in a `HashSet<T>`, as `Dictionary` keys, and with LINQ's `Distinct()`.\n\n### init and with\n\nAn `init` property can only be set while the object is being created. After that the record is **immutable**: nothing can change it, and trying is a compile error (CS8852). To \"change\" one, make a copy with a **with expression**:\n\n```csharp\nvar live = song with { Title = song.Title + \" (Live)\" };\n```\n\n`with` copies every property, then sets the ones you list. The original is untouched, so immutable data is safe to share: no other code can change it behind your back.\n\n### Adding members\n\nA record is still a class, so it can have a body with methods and extra properties:\n\n```csharp\nrecord Money(decimal Amount, string Currency)\n{\n    public Money Add(Money other)\n    {\n        if (Currency != other.Currency)\n            throw new InvalidOperationException(\n                \"The currencies are different.\");\n        return this with { Amount = Amount + other.Amount };\n    }\n}\n```\n\n### Gotcha: equality is shallow\n\nThe generated `Equals` compares each property using *that property's own* `Equals`. For a `List<T>`, that's reference equality again:\n\n```csharp\nrecord Playlist(string Name, List<Song> Songs);\n// Equal songs in two separate lists: NOT equal.\n```\n\nImmutability is shallow too: nobody can swap the list for another one, but anyone can still `Add` to it.\n\nWhen the generated equality is wrong, write your own. A record lets you replace its `Equals(T)` and `GetHashCode`:\n\n```csharp\npublic virtual bool Equals(Playlist other) => ...;\npublic override int GetHashCode() => ...;\n```\n\nAlways replace both together. Equal objects must have equal **hash codes**, or `HashSet` and `Dictionary` can't find them. C# warns you (CS8851) if you write only `Equals`.\n\n### record struct\n\n`record struct Point(int X, int Y);` makes a record that's a value type, stored directly like an `int`. It's a good fit for small pieces of data.\n\n### New words\n\n- **Reference equality**: equal only when both variables point at the same object.\n- **Value equality**: equal when the data inside is equal.\n- **Record**: a type whose generated members give it value equality, a readable `ToString` and `with` copies.\n- **Immutable**: can't be changed after it's created.\n- **init**: a property accessor that only allows setting while the object is created.\n- **with expression**: copies a record and changes the listed properties.\n- **Hash code**: a number calculated from an object's data, which `HashSet` and `Dictionary` use to find it fast. Equal objects must have equal hash codes.\n",
+      "exampleMarkdown": "`Money` is a record with one extra method. Equal amounts are equal even as separate objects, `with` makes a discounted copy, and a `Money` works as a dictionary key because equal values give equal hash codes.",
+      "exampleCode": "var price = new Money(4.50m, \"USD\");\nvar same = new Money(4.50m, \"USD\");\n\nConsole.WriteLine(price);\nConsole.WriteLine($\"Equal? {price == same}\");\nConsole.WriteLine($\"Same object? {ReferenceEquals(price, same)}\");\n\nvar total = price.Add(new Money(2.25m, \"USD\"));\nConsole.WriteLine($\"Total {total.Amount}, price still {price.Amount}\");\n\nvar sale = price with { Amount = 4.00m };\nConsole.WriteLine(sale);\n\nvar (amount, currency) = total;\nConsole.WriteLine($\"Deconstructed: {amount} {currency}\");\n\n// Equal values give equal hash codes, so records work as keys.\nvar stickers = new Dictionary<Money, string>\n{\n    [new Money(1m, \"USD\")] = \"one sticker\",\n};\nConsole.WriteLine(stickers[new Money(1m, \"USD\")]);\n\ntry\n{\n    price.Add(new Money(1m, \"EUR\"));\n}\ncatch (InvalidOperationException ex)\n{\n    Console.WriteLine(ex.Message);\n}\n\nrecord Money(decimal Amount, string Currency)\n{\n    public Money Add(Money other)\n    {\n        if (Currency != other.Currency)\n            throw new InvalidOperationException(\n                \"The currencies are different.\");\n        return this with { Amount = Amount + other.Amount };\n    }\n}\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Fix the music library** in `Music.cs`. It compiles, but duplicates slip through and two identical playlists don't count as equal.\n\n1. **Turn `Song` into a positional record** with `Title`, `Artist` and `Seconds`. `Library.Unique` already calls `Distinct()`: it starts working once songs compare by value.\n2. **Write `Library.Remaster`**: return a copy of the song with ` (Remastered)` added to its title, using a `with` expression. The original must not change.\n3. **Fix `Playlist` equality.** Two playlists are equal when their names match and they hold equal songs in the same order, even in two separate lists. Replace the record's `Equals` and `GetHashCode` (`SequenceEqual` compares two sequences item by item).\n\nThe program should print:\n\n```\n3 songs, 2 unique\nSong { Title = Firefly, Artist = Nova Lane, Seconds = 201 }\nSong { Title = Low Tide, Artist = The Tidepools, Seconds = 185 }\nSong { Title = Firefly (Remastered), Artist = Nova Lane, Seconds = 201 }\nOriginal unchanged: Firefly\nSame playlist? True\n```",
+        "starterFiles": {
+          "Music.cs": "// 1. Turn Song into a positional record with the same three properties.\nclass Song\n{\n    public string Title { get; }\n    public string Artist { get; }\n    public int Seconds { get; }\n\n    public Song(string title, string artist, int seconds)\n    {\n        Title = title;\n        Artist = artist;\n        Seconds = seconds;\n    }\n}\n\n// 3. Two playlists with the same name and the same songs, in the\n//    same order, should be equal, even in separate lists.\nrecord Playlist(string Name, List<Song> Songs);\n\nstatic class Library\n{\n    // Every song once, keeping the first of any duplicates.\n    // (Finished: it starts working once Song compares by value.)\n    public static List<Song> Unique(IEnumerable<Song> songs)\n    {\n        return songs.Distinct().ToList();\n    }\n\n    // 2. Return a copy with \" (Remastered)\" added to the title.\n    //    The original song must not change.\n    public static Song Remaster(Song song)\n    {\n        return song;\n    }\n}\n",
+          "Program.cs": "var songs = new List<Song>\n{\n    new Song(\"Firefly\", \"Nova Lane\", 201),\n    new Song(\"Low Tide\", \"The Tidepools\", 185),\n    new Song(\"Firefly\", \"Nova Lane\", 201),\n};\n\nList<Song> unique = Library.Unique(songs);\nConsole.WriteLine($\"{songs.Count} songs, {unique.Count} unique\");\nforeach (Song song in unique)\n{\n    Console.WriteLine(song);\n}\n\nSong remastered = Library.Remaster(unique[0]);\nConsole.WriteLine(remastered);\nConsole.WriteLine($\"Original unchanged: {unique[0].Title}\");\n\nvar mine = new Playlist(\"Road trip\", new List<Song>(unique));\nvar yours = new Playlist(\"Road trip\", new List<Song>(unique));\nConsole.WriteLine($\"Same playlist? {mine == yours}\");\n"
+        },
+        "solutionFiles": {
+          "Music.cs": "// 1. Turn Song into a positional record with the same three properties.\nrecord Song(string Title, string Artist, int Seconds);\n\n// 3. Two playlists with the same name and the same songs, in the\n//    same order, should be equal, even in separate lists.\nrecord Playlist(string Name, List<Song> Songs)\n{\n    public virtual bool Equals(Playlist other)\n        => other is not null\n           && Name == other.Name\n           && Songs.SequenceEqual(other.Songs);\n\n    public override int GetHashCode()\n        => HashCode.Combine(Name, Songs.Count);\n}\n\nstatic class Library\n{\n    // Every song once, keeping the first of any duplicates.\n    // (Finished: it starts working once Song compares by value.)\n    public static List<Song> Unique(IEnumerable<Song> songs)\n    {\n        return songs.Distinct().ToList();\n    }\n\n    // 2. Return a copy with \" (Remastered)\" added to the title.\n    //    The original song must not change.\n    public static Song Remaster(Song song)\n    {\n        return song with { Title = song.Title + \" (Remastered)\" };\n    }\n}\n",
+          "Program.cs": "var songs = new List<Song>\n{\n    new Song(\"Firefly\", \"Nova Lane\", 201),\n    new Song(\"Low Tide\", \"The Tidepools\", 185),\n    new Song(\"Firefly\", \"Nova Lane\", 201),\n};\n\nList<Song> unique = Library.Unique(songs);\nConsole.WriteLine($\"{songs.Count} songs, {unique.Count} unique\");\nforeach (Song song in unique)\n{\n    Console.WriteLine(song);\n}\n\nSong remastered = Library.Remaster(unique[0]);\nConsole.WriteLine(remastered);\nConsole.WriteLine($\"Original unchanged: {unique[0].Title}\");\n\nvar mine = new Playlist(\"Road trip\", new List<Song>(unique));\nvar yours = new Playlist(\"Road trip\", new List<Song>(unique));\nConsole.WriteLine($\"Same playlist? {mine == yours}\");\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The program can't run yet. Read the first error in the Output panel: it names the file and line to look at."
+          },
+          {
+            "label": "Song is a positional record",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "record\\s+Song\\s*\\(",
+              "file": "Music.cs"
+            },
+            "failMessage": "Replace the Song class with one line: record Song(string Title, string Artist, int Seconds);"
+          },
+          {
+            "label": "Songs with the same data are equal",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var set = new HashSet<Song> { new Song(\"A\", \"X\", 60), new Song(\"A\", \"X\", 60) }; return $\"{new Song(\"A\", \"X\", 60) == new Song(\"A\", \"X\", 60)}, {set.Count} in a set\"; }))()",
+              "equals": "True, 1 in a set"
+            },
+            "failMessage": "Two songs with the same title, artist and length should be equal, and a HashSet should keep only one. A record gives you that; a class doesn't."
+          },
+          {
+            "label": "Songs print their data",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new Song(\"A\", \"X\", 60).ToString()",
+              "equals": "Song { Title = A, Artist = X, Seconds = 60 }"
+            },
+            "failMessage": "A record's ToString lists its properties. Name them Title, Artist and Seconds, in that order."
+          },
+          {
+            "label": "Unique keeps the first of each, in order",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var a = new Song(\"A\", \"X\", 60); var b = new Song(\"B\", \"Y\", 90); return string.Join(\",\", Library.Unique(new[] { a, b, new Song(\"A\", \"X\", 60), new Song(\"C\", \"Z\", 30) }).Select(s => s.Title)); }))()",
+              "equals": "A,B,C"
+            },
+            "failMessage": "Unique should drop the copy of song A. It will, once Song is a record."
+          },
+          {
+            "label": "Remaster returns a changed copy",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var s = new Song(\"Tide\", \"X\", 100); var r = Library.Remaster(s); return $\"{r?.Title} / {s.Title} / {r?.Seconds} / {ReferenceEquals(r, s)}\"; }))()",
+              "equals": "Tide (Remastered) / Tide / 100 / False"
+            },
+            "failMessage": "Remaster should return a new song titled \"Tide (Remastered)\" with the same artist and length, and leave the original as it was."
+          },
+          {
+            "label": "Remaster uses with",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bwith\\s*\\{",
+              "file": "Music.cs"
+            },
+            "failMessage": "Make the copy with a with expression: song with { Title = ... }."
+          },
+          {
+            "label": "Playlists compare their songs",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var a = new Song(\"A\", \"X\", 60); var b = new Song(\"B\", \"Y\", 90); var p = new Playlist(\"P\", new List<Song> { a, b }); return $\"{p == new Playlist(\"P\", new List<Song> { a, b })} {p == new Playlist(\"P\", new List<Song> { b, a })} {p == new Playlist(\"Q\", new List<Song> { a, b })}\"; }))()",
+              "equals": "True False False"
+            },
+            "failMessage": "Same name and equal songs in the same order should be equal, even in separate lists. A different order or name shouldn't. Write Equals(Playlist other) using SequenceEqual on the songs."
+          },
+          {
+            "label": "Equal playlists have equal hash codes",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<bool>)(() => { var a = new Song(\"A\", \"X\", 60); var b = new Song(\"B\", \"Y\", 90); return new Playlist(\"P\", new List<Song> { a, b }).GetHashCode() == new Playlist(\"P\", new List<Song> { a, b }).GetHashCode(); }))()",
+              "equals": true
+            },
+            "failMessage": "Equal playlists need equal hash codes, or HashSet and Dictionary can't find them. Override GetHashCode using only data that Equals compares."
+          },
+          {
+            "label": "The library report matches",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "3 songs, 2 unique",
+                "Song { Title = Firefly, Artist = Nova Lane, Seconds = 201 }",
+                "Song { Title = Low Tide, Artist = The Tidepools, Seconds = 185 }",
+                "Song { Title = Firefly (Remastered), Artist = Nova Lane, Seconds = 201 }",
+                "Original unchanged: Firefly",
+                "Same playlist? True"
+              ]
+            },
+            "failMessage": "The program's output should match the instructions exactly."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`Unique` already calls `Distinct()`. So why does it keep both copies of Firefly while `Song` is a class?",
+            "speechText": "Unique already calls Distinct. So why does it keep both copies of Firefly while Song is a class?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Replace the whole `Song` class with `record Song(string Title, string Artist, int Seconds);`. `Remaster` can return `song with { Title = ... }`. Give `Playlist` a body with `public virtual bool Equals(Playlist other)` that compares names and uses `SequenceEqual` on the songs, plus a `GetHashCode` built from the same data.",
+            "speechText": "Replace the whole Song class with a one line positional record. Remaster can return the song with a new title. Give Playlist an Equals that compares names and uses SequenceEqual on the songs, plus a matching GetHashCode.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The Playlist body:\n\n```csharp\nrecord Playlist(string Name, List<Song> Songs)\n{\n    public virtual bool Equals(Playlist other)\n        => other is not null\n           && Name == other.Name\n           && Songs.SequenceEqual(other.Songs);\n\n    public override int GetHashCode()\n        => HashCode.Combine(Name, Songs.Count);\n}\n```",
+            "speechText": "Playlist's Equals checks the other playlist isn't null, the names match, and the songs are equal in sequence. Its GetHashCode combines the name and the number of songs.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Point is a class. What does new Point(1, 2) == new Point(1, 2) give?",
+            "explanation": "For a class, == checks whether both sides are the same object. These are two objects, so it's false.",
+            "options": [
+              {
+                "text": "False: they're two different objects",
+                "correct": true
+              },
+              {
+                "text": "True: their data is the same",
+                "correct": false
+              },
+              {
+                "text": "A compile error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "song is a Song record. What happens with song.Title = \"Remix\";?",
+            "explanation": "A positional record's properties are init-only, so they can't be set after the record is created (CS8852). Use with instead.",
+            "options": [
+              {
+                "text": "A compile error: the property can only be set when the record is created",
+                "correct": true
+              },
+              {
+                "text": "The title changes",
+                "correct": false
+              },
+              {
+                "text": "A copy is made with the new title",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "After var b = a with { Seconds = 90 };, what's true?",
+            "explanation": "with copies a and sets Seconds on the copy. a keeps its old value.",
+            "options": [
+              {
+                "text": "b is a new record with Seconds 90, and a is unchanged",
+                "correct": true
+              },
+              {
+                "text": "a and b are the same object",
+                "correct": false
+              },
+              {
+                "text": "a's Seconds is now 90",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "record Playlist(string Name, List<Song> Songs). Two playlists have the same name and equal songs, in two separate lists. Are they equal?",
+            "explanation": "The generated Equals compares the Songs property with List's own Equals, which is reference equality. Two separate lists aren't equal.",
+            "options": [
+              {
+                "text": "No: the lists are compared by reference",
+                "correct": true
+              },
+              {
+                "text": "Yes: records compare everything by value",
+                "correct": false
+              },
+              {
+                "text": "Only if the lists have the same Count",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why must you override GetHashCode whenever you override Equals?",
+            "explanation": "HashSet and Dictionary use hash codes to find items. If equal objects had different hash codes, they'd look in the wrong place.",
+            "options": [
+              {
+                "text": "HashSet and Dictionary need equal objects to have equal hash codes",
+                "correct": true
+              },
+              {
+                "text": "GetHashCode is what == calls",
+                "correct": false
+              },
+              {
+                "text": "It makes Equals run faster",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "linq-explorer",

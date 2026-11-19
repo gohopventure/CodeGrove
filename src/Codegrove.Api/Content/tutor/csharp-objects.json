@@ -96,6 +96,38 @@
           "mood": "Encouraging"
         }
       ]
+    },
+    "records-explorer": {
+      "intro": [
+        {
+          "displayText": "Grove trading cards are the hottest thing in the forest, and some kids have doubles. Your mission: make a card that knows when it's a copy, then power up a toad!",
+          "speechText": "Grove trading cards are the hottest thing in the forest, and some kids have doubles. Your mission is to make a card that knows when it's a copy, then power up a toad!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your cards print themselves, spot their doubles, and the toad got stronger without changing the original! Your new word is record: a quick way to make a type that just holds data.",
+          "speechText": "Your cards print themselves, spot their doubles, and the toad got stronger without changing the original! Your new word is record, which means a quick way to make a type that just holds data.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "records": {
+      "intro": [
+        {
+          "displayText": "Most data in real apps is a value: a price, a date range, an address, a song. Records give you value equality, readable output and safe copies in one line, which is why they're everywhere in modern C#. You'll turn a Song class into a record, copy one with with, and fix a playlist whose equality quietly fails.",
+          "speechText": "Most data in real apps is a value, like a price, a date range, an address or a song. Records give you value equality, readable output and safe copies in one line, which is why they're everywhere in modern C sharp. You'll turn a Song class into a record, copy one with a with expression, and fix a playlist whose equality quietly fails.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Duplicates disappear, copies leave the original alone, and two playlists with the same songs now count as equal. The gotcha: a record's equality is shallow, so a list inside it is compared by reference unless you write Equals and GetHashCode yourself. Next, LINQ lets you filter, sort and group collections like these.",
+          "speechText": "Duplicates disappear, copies leave the original alone, and two playlists with the same songs now count as equal. The gotcha is that a record's equality is shallow, so a list inside it is compared by reference unless you write Equals and GetHashCode yourself. Next, link lets you filter, sort and group collections like these.",
+          "mood": "Encouraging"
+        }
+      ]
     }
   }
 }

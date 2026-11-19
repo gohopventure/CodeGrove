@@ -102,8 +102,12 @@ public static class CSharpCodeRunner
 
         if (errors.Count > 0)
         {
-            foreach (var e in errors.Take(MaxConsoleErrors)) console.Add(new("error", DescribeCompileError(e)));
-            if (errors.Count > MaxConsoleErrors) console.Add(new("error", $"…and {errors.Count - MaxConsoleErrors} more errors. Fix the first one, then check again: one mistake often causes several errors."));
+            // One missing type can cause the same error on many lines (seven "can't find Card"s in a
+            // starter). The console shows each distinct error once and lists its other lines; the
+            // editor markers still come from the full diagnostics list.
+            var groups = errors.GroupBy(e => (e.File, e.Code, e.Message)).ToList();
+            foreach (var g in groups.Take(MaxConsoleErrors)) console.Add(new("error", DescribeCompileErrors(g.ToList())));
+            if (groups.Count > MaxConsoleErrors) console.Add(new("error", $"…and {groups.Count - MaxConsoleErrors} more errors. Fix the first one, then check again: one mistake often causes several errors."));
             var notRun = new RunOutcome(null, "", StopReason.CompileErrors, null);
             return new RunResult(false, diagnostics, console, "", StopReason.CompileErrors,
                 await TestEvaluator.EvaluateAllAsync(tests, request.Files, diagnostics, notRun, null),
@@ -179,9 +183,21 @@ public static class CSharpCodeRunner
     }
 
     /// <summary>"Error in Program.cs, line 3: [friendly] (CS1002: ; expected)".</summary>
-    internal static string DescribeCompileError(Diagnostic e) => string.IsNullOrEmpty(e.Friendly)
-        ? $"Error in {e.File}, line {e.Line}: {e.Message} ({e.Code})"
-        : $"Error in {e.File}, line {e.Line}: {e.Friendly} ({e.Code}: {e.Message})";
+    internal static string DescribeCompileError(Diagnostic e, string alsoOn = "") => string.IsNullOrEmpty(e.Friendly)
+        ? $"Error in {e.File}, line {e.Line}: {e.Message}{alsoOn} ({e.Code})"
+        : $"Error in {e.File}, line {e.Line}: {e.Friendly}{alsoOn} ({e.Code}: {e.Message})";
+
+    /// <summary>One error, plus "The same error is on lines 4, 5 and 11 too." when it repeats in that file.</summary>
+    internal static string DescribeCompileErrors(IReadOnlyList<Diagnostic> sameError)
+    {
+        var others = sameError.Skip(1).Select(e => e.Line).Where(l => l != sameError[0].Line).Distinct().ToList();
+        if (others.Count == 0) return DescribeCompileError(sameError[0]);
+        var lines = others.Count == 1
+            ? $"line {others[0]}"
+            : $"lines {string.Join(", ", others.Take(others.Count - 1))} and {others[^1]}";
+        // Before the technical part in brackets, so it's read with the plain-language part.
+        return DescribeCompileError(sameError[0], $" The same error is on {lines} too.");
+    }
 
     /// <summary>What happened when the program ran. <paramref name="Error"/> is the learner's exception, if any.</summary>
     internal sealed record RunOutcome(Assembly? Program, string Output, StopReason Stopped, Exception? Error);

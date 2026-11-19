@@ -41,7 +41,7 @@ public static class FriendlyErrors
         ["CS0501"] = "This method needs a body: put its code between { and }.",
         ["CS0106"] = "This keyword isn't allowed here.",
         ["CS0116"] = "This code needs to be inside a class or method.",
-        ["CS8803"] = "Top-level statements (your program's main code) must come before any class.",
+        ["CS8803"] = "Top-level statements (your program's main code) must come before any class or record. Move classes and records to the bottom of the file.",
         ["CS5001"] = "There's no program to run. Write some statements at the top of Program.cs.",
         ["CS0234"] = "C# can't find that name inside this namespace. Check the spelling.",
         ["CS0131"] = "The left side of = must be a variable, property or array item, something that can hold a value.",
@@ -71,6 +71,13 @@ public static class FriendlyErrors
         ["CS0738"] = "This method has the right name for the interface, but its return type doesn't match the interface. Use the same type the interface uses.",
         ["CS1722"] = "The base class has to come first in the list after the colon, before any interfaces.",
         ["CS0527"] = "Only one class can come after the colon. The other names in the list must be interfaces.",
+        // Records (csharp-objects lesson 4).
+        ["CS8852"] = "This property can only be set while the object is being created. To change a record, make a copy with with { ... }.",
+        ["CS0200"] = "This property is read-only, so it can't be given a new value here.",
+        ["CS8851"] = "This record writes its own Equals but not GetHashCode. Write both, so equal records get equal hash codes.",
+        ["CS8872"] = "A record's own Equals method must be virtual (unless the record is sealed): write public virtual bool Equals(...).",
+        ["CS8858"] = "with only works on records (and structs). Make this type a record to copy it with with { ... }.",
+        ["CS0111"] = "This type already has a member with this name and the same parameter types. (A record writes Equals(object) for you: write Equals(YourRecord other) instead.)",
         ["CS0155"] = "Only exceptions can be thrown or caught: types that derive from Exception.",
     };
 

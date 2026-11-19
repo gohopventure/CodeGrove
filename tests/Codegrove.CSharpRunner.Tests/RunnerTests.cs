@@ -54,6 +54,26 @@ public class RunnerTests
     }
 
     [Fact]
+    public async Task A_repeated_compile_error_is_printed_once_with_its_other_lines()
+    {
+        var r = await Run("""
+            var a = new Card();
+            var b = new Card();
+            Console.WriteLine("hi")
+            var c = new Card();
+            """);
+
+        // Every location keeps its own diagnostic (editor markers)...
+        Assert.Equal(3, r.Diagnostics.Count(d => d.Code == "CS0246"));
+        // ...but the console says it once, then the different error.
+        var errors = r.Console.Where(l => l.Level == "error").Select(l => l.Text).ToList();
+        Assert.Equal(2, errors.Count);
+        Assert.StartsWith("Error in Program.cs, line 1:", errors[0]);
+        Assert.Contains("capital letters. The same error is on lines 2 and 4 too. (CS0246:", errors[0]);
+        Assert.Contains("CS1002", errors[1]);
+    }
+
+    [Fact]
     public async Task A_class_that_forgot_its_interface_is_told_to_add_it()
     {
         var r = await Run("""
