@@ -52,6 +52,9 @@ public static class FriendlyErrors
         ["CS8510"] = "This pattern can never match: an earlier one already catches every value it would. Put narrower patterns first.",
         ["CS8120"] = "This case can never match: an earlier case already catches every value it would. Put narrower cases first.",
         ["CS8509"] = "This switch expression doesn't handle every possible value. Add a final arm with _ to catch the rest.",
+        ["CS0160"] = "An earlier catch already catches this kind of exception, so this catch could never run. Put the more specific catch first.",
+        ["CS1524"] = "A try block needs a catch block (or a finally block) straight after it.",
+        ["CS0155"] = "Only exceptions can be thrown or caught: types that derive from Exception.",
     };
 
     private static readonly Dictionary<string, string> Runtime = new()

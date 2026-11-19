@@ -374,6 +374,7 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         Assert.Contains("style-star", codes);
         Assert.Contains("js-juggler", codes);
         Assert.Contains("sharp-starter", codes);
+        Assert.Contains("class-act", codes);
     }
 
     /// <summary>Maps each quiz question to its correct option by matching prompts against the seed file.</summary>

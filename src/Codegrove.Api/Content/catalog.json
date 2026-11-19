@@ -64,11 +64,11 @@
       // the SQL track so it can use a real database with EF Core.
       "slug": "csharp",
       "title": "C#",
-      "description": "Write real programs in C#, the language behind ASP.NET Core and Unity: the compiler, variables, decisions, loops, methods and classes.",
+      "description": "Write real programs in C#, the language behind ASP.NET Core and Unity: the compiler, variables, decisions, loops, methods and classes, then exceptions, inheritance, interfaces, records and LINQ.",
       "ageBand": "Both",
       "sortOrder": 6,
       "isPublished": true,
-      "courses": ["csharp-basics"],
+      "courses": ["csharp-basics", "csharp-objects"],
       "prerequisites": ["typescript"]
     }
   ],
@@ -153,6 +153,15 @@
       "iconUrl": "/badges/sharp-starter.svg",
       "ruleType": "CourseCompleted",
       "ruleCourseSlug": "csharp-basics"
+    },
+    {
+      // A parent block linked to two child blocks: a class family tree, drawn from scratch.
+      "code": "class-act",
+      "name": "Class Act",
+      "description": "You finished C# Objects and built programs from objects that work together.",
+      "iconUrl": "/badges/class-act.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "csharp-objects"
     },
     {
       "code": "app-architect",

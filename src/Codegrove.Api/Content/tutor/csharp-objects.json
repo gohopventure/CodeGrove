@@ -1,0 +1,37 @@
+{
+  "course": "csharp-objects",
+  "lessons": {
+    "exceptions-explorer": {
+      "intro": [
+        {
+          "displayText": "Sometimes a program meets something it can't handle, like the word two where a number should be. Your mission: keep the Grove potion shop open, even when an order makes no sense!",
+          "speechText": "Sometimes a program meets something it can't handle, like the word two where a number should be. Your mission is to keep the Grove potion shop open, even when an order makes no sense!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The shop skips the silly orders and still counts every potion! Your new word is exception: the message C# throws when something goes wrong while a program runs.",
+          "speechText": "The shop skips the silly orders and still counts every potion! Your new word is exception, which means the message C sharp throws when something goes wrong while a program runs.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "exceptions": {
+      "intro": [
+        {
+          "displayText": "Real programs read files, call other services and accept user input, and any of those can fail. Exceptions are how .NET reports failure, and handling them well is the difference between an app that explains a problem and one that crashes or quietly loses data. You'll learn try, catch, finally and exception filters, and when not to use exceptions at all. Then you'll make an order importer that rejects bad lines with clear messages and keeps going.",
+          "speechText": "Real programs read files, call other services and accept user input, and any of those can fail. Exceptions are how dot net reports failure, and handling them well is the difference between an app that explains a problem and one that crashes or quietly loses data. You'll learn try, catch, finally and exception filters, and when not to use exceptions at all. Then you'll make an order importer that rejects bad lines with clear messages and keeps going.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The importer skips bad lines, says exactly what's wrong with each one, and keeps the original exception for whoever has to debug it. The gotcha: only catch what you can handle, because a catch for Exception also hides real bugs, like the null line that still crashes. Next, you'll build families of classes with inheritance.",
+          "speechText": "The importer skips bad lines, says exactly what's wrong with each one, and keeps the original exception for whoever has to debug it. The gotcha is that you should only catch what you can handle, because a catch for Exception also hides real bugs, like the null line that still crashes. Next, you'll build families of classes with inheritance.",
+          "mood": "Encouraging"
+        }
+      ]
+    }
+  }
+}

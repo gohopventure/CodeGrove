@@ -1,0 +1,486 @@
+{
+  "slug": "csharp-objects",
+  "title": "C# Objects: Exceptions, Inheritance and LINQ",
+  "summary": "Build bigger C# programs out of objects that work together: handle errors with exceptions, share code with inheritance, make promises with interfaces, model data with records, query collections with LINQ, and let the compiler warn you about null.",
+  "ageBand": "Both",
+  "estimatedMinutes": 150,
+  "isPublished": true,
+  "objectives": [
+    "Handle errors with try, catch and finally, and throw clear exceptions of your own",
+    "Share and extend behaviour with inheritance, virtual methods and overrides",
+    "Write code that works with any type that implements an interface",
+    "Model data with records, value equality and with expressions",
+    "Filter, sort, project and group collections with LINQ",
+    "Use nullable reference types so the compiler catches null mistakes"
+  ],
+  "lessons": [
+    {
+      "slug": "exceptions-explorer",
+      "title": "When things go wrong",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## When things go wrong\n\nSometimes a program meets something it can't handle. Ask C# to turn the text `\"seven\"` into a number, and it can't. So it **throws an exception**: it stops and reports what went wrong.\n\n```csharp\nint age = int.Parse(\"seven\");   // FormatException!\nConsole.WriteLine(\"This line never runs.\");\n```\n\nIf nothing deals with the exception, the program **crashes**: it stops right there, and the rest never runs.\n\n### Try, and catch\n\nYou can tell C#: *try* this, and if it goes wrong, *catch* the problem and do something else instead.\n\n```csharp\ntry\n{\n    int age = int.Parse(\"seven\");\n    Console.WriteLine($\"Age: {age}\");\n}\ncatch (FormatException)\n{\n    Console.WriteLine(\"That isn't a number!\");\n}\nConsole.WriteLine(\"Still running!\");\n```\n\n- The code inside `try` runs as normal.\n- If a line in it throws a `FormatException`, C# jumps straight to `catch`. The rest of the `try` block is skipped.\n- After the `catch`, the program carries on.\n\n### Names of exceptions\n\nEach kind of problem has its own exception, and their names all end in `Exception`:\n\n- `FormatException`: text that isn't a number\n- `IndexOutOfRangeException`: an array item that doesn't exist\n- `DivideByZeroException`: dividing a whole number by 0\n\n`catch (FormatException)` only catches that one kind. Other problems still show up, so you can find and fix them.\n\n### New words\n\n- **Exception**: a message C# throws when something goes wrong while the program runs.\n- **Crash**: what happens when nobody catches an exception: the program stops.\n- **try**: a block of code that might throw an exception.\n- **catch**: the block that runs if the `try` block throws, so the program can carry on.\n",
+      "exampleMarkdown": "A guessing game that gets one guess that isn't a number. The `try` block turns each guess into a number; when `int.Parse` throws, the `catch` block prints a friendly message instead, and the loop carries on with the next guess.",
+      "exampleCode": "string[] guesses = { \"4\", \"banana\", \"9\" };\n\nforeach (string guess in guesses)\n{\n    try\n    {\n        int number = int.Parse(guess);\n        Console.WriteLine($\"You guessed {number}\");\n    }\n    catch (FormatException)\n    {\n        Console.WriteLine($\"{guess} isn't a number. Try again!\");\n    }\n}\n\nConsole.WriteLine(\"Game over. Thanks for playing!\");\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The Grove potion shop gets its orders as text. Some orders are words instead of numbers, and right now the first one crashes the whole shop.\n\n1. Put a `try` block around the three lines inside the loop.\n2. After it, add a `catch (FormatException)` that prints `Skipped: ` and the order, like `Skipped: two`.\n3. Run it. The shop should get through every order and print the total:\n\n```\nAdded 3\nSkipped: two\nAdded 5\nSkipped: lots\nAdded 1\nTotal potions: 9\n```",
+        "starterFiles": {
+          "Program.cs": "// Mission: don't let a bad order crash the potion shop!\nstring[] orders = { \"3\", \"two\", \"5\", \"lots\", \"1\" };\nint total = 0;\n\nforeach (string order in orders)\n{\n    // 1. Put these three lines inside a try block.\n    int amount = int.Parse(order);\n    total = total + amount;\n    Console.WriteLine($\"Added {amount}\");\n\n    // 2. After the try block, add a catch (FormatException)\n    //    that prints the order, like: Skipped: two\n}\n\n// 3. This line should run at the end, even with bad orders.\nConsole.WriteLine($\"Total potions: {total}\");\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: don't let a bad order crash the potion shop!\nstring[] orders = { \"3\", \"two\", \"5\", \"lots\", \"1\" };\nint total = 0;\n\nforeach (string order in orders)\n{\n    // 1. Put these three lines inside a try block.\n    try\n    {\n        int amount = int.Parse(order);\n        total = total + amount;\n        Console.WriteLine($\"Added {amount}\");\n    }\n    // 2. After the try block, add a catch (FormatException)\n    //    that prints the order, like: Skipped: two\n    catch (FormatException)\n    {\n        Console.WriteLine($\"Skipped: {order}\");\n    }\n}\n\n// 3. This line should run at the end, even with bad orders.\nConsole.WriteLine($\"Total potions: {total}\");\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs to the end",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The program stopped before the end. Read the red message in the Output panel: it names the line to look at."
+          },
+          {
+            "label": "You used try",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\btry\\b"
+            },
+            "failMessage": "Put the three lines inside the loop in a try block: try { ... }."
+          },
+          {
+            "label": "You catch FormatException",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "catch\\s*\\(\\s*FormatException"
+            },
+            "failMessage": "Catch FormatException, the exception int.Parse throws, so other problems still show up. Add catch (FormatException) { ... } right after the try block."
+          },
+          {
+            "label": "Bad orders are skipped",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Skipped: two",
+              "caseSensitive": true
+            },
+            "failMessage": "Inside the catch, print Skipped: and the order, like Skipped: two."
+          },
+          {
+            "label": "The shop gets through every order",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "Added 3",
+                "Skipped: two",
+                "Added 5",
+                "Skipped: lots",
+                "Added 1",
+                "Total potions: 9"
+              ]
+            },
+            "failMessage": "The output should match the instructions exactly. If it stops after the first bad order, move the try inside the loop, so the shop carries on with the next one."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which line breaks when the order is `two`, and what could you wrap around it?",
+            "speechText": "Which line breaks when the order is the word two, and what could you wrap around it?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Inside the loop, put the three lines between `try {` and `}`. Straight after that, add `catch (FormatException) { }` with a `Console.WriteLine` inside it.",
+            "speechText": "Inside the loop, put the three lines in a try block. Straight after it, add a catch for FormatException, with a write line inside it.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the catch block. It goes right after the `}` that ends `try`, still inside the loop:\n\n```csharp\ncatch (FormatException)\n{\n    Console.WriteLine($\"Skipped: {order}\");\n}\n```",
+            "speechText": "The catch block goes right after the try block, still inside the loop. It writes the word Skipped, then the order.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What happens when an exception is thrown and nothing catches it?",
+            "explanation": "With no catch to handle it, the program crashes: it stops at that line, and the rest never runs.",
+            "options": [
+              {
+                "text": "The program crashes and stops",
+                "correct": true
+              },
+              {
+                "text": "C# skips that line and carries on",
+                "correct": false
+              },
+              {
+                "text": "C# fixes the mistake by itself",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In try { A; B; } catch (FormatException) { C; }, line A throws a FormatException. Which lines run after A?",
+            "explanation": "When A throws, the rest of the try block (B) is skipped and C# jumps straight to the catch block (C).",
+            "options": [
+              {
+                "text": "Only C",
+                "correct": true
+              },
+              {
+                "text": "B, then C",
+                "correct": false
+              },
+              {
+                "text": "Only B",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which exception does int.Parse(\"hello\") throw?",
+            "explanation": "\"hello\" isn't written like a number, so int.Parse throws a FormatException.",
+            "options": [
+              {
+                "text": "FormatException",
+                "correct": true
+              },
+              {
+                "text": "DivideByZeroException",
+                "correct": false
+              },
+              {
+                "text": "IndexOutOfRangeException",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "exceptions",
+      "title": "Exceptions: try, catch and finally",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": true,
+      "learnMarkdown": "## Exceptions: try, catch and finally\n\nWhen a method can't do its job, it **throws** an exception: an object that describes what went wrong. .NET then unwinds the **call stack**: it leaves the current method, then the method that called it, and so on, until it finds a `catch` for that type of exception. If nothing catches it, it's an **unhandled exception** and the program crashes.\n\n```csharp\nstatic int ParseAge(string text) => int.Parse(text);\n\n// int.Parse throws FormatException. ParseAge doesn't\n// catch it, so it travels up to whoever called ParseAge.\n```\n\n### try and catch\n\n```csharp\ntry\n{\n    int age = ParseAge(input);\n    Console.WriteLine($\"Next year: {age + 1}\");\n}\ncatch (FormatException ex)\n{\n    Console.WriteLine($\"Not a number: {ex.Message}\");\n}\n```\n\nThe rest of the `try` block after the throwing line is skipped. `ex` is the exception object: its `Message`, its type (`ex.GetType().Name`) and its `InnerException` (more on that below).\n\nException types form a family tree: they all derive from `Exception`, and, for example, `ArgumentNullException` is a kind of `ArgumentException`. (You'll build families of classes in the next lesson.) A `catch` handles its type **and every type derived from it**. Catch clauses are tried from top to bottom, so put specific ones first. C# won't compile a specific catch below a more general one (error CS0160).\n\n```csharp\ncatch (FormatException) { ... }  // specific first\ncatch (Exception) { ... }        // general last\n```\n\n### Exception filters\n\n`when` adds a condition to a catch. It's handy for treating two unrelated types the same way:\n\n```csharp\ncatch (Exception ex) when (ex is FormatException\n                           or OverflowException)\n```\n\n### finally\n\nA `finally` block runs however the `try` ends: normally, by throwing, or by returning early. It's for cleanup that must always happen, like closing a file or releasing a lock.\n\n```csharp\nConsole.WriteLine(\"Opening the log\");\ntry\n{\n    WriteEntries();\n}\nfinally\n{\n    Console.WriteLine(\"Closing the log\"); // always\n}\n```\n\nObjects that must be closed, like files and database connections, have a `Dispose` method. A `using` statement calls it for you in a hidden `finally`.\n\n### Throwing and rethrowing\n\n`throw new ArgumentException(\"...\")` throws. Pick the type that describes the problem: `ArgumentException` for a bad argument, `InvalidOperationException` when the object's current state doesn't allow the call.\n\nInside a catch, `throw;` rethrows the same exception and keeps its **stack trace**: the record of where it came from. `throw ex;` restarts that record from your catch, so the real origin is lost. Prefer `throw;`.\n\n### Custom exceptions and wrapping\n\nMake your own exception type when callers need to catch *your* kind of problem. Derive it from `Exception`, and keep the original as the **inner exception**, so no detail is lost:\n\n```csharp\nclass ImportException : Exception\n{\n    public int LineNumber { get; }\n\n    public ImportException(int line, string message,\n                           Exception inner = null)\n        : base($\"Line {line}: {message}\", inner)\n    {\n        LineNumber = line;\n    }\n}\n```\n\n`: base(...)` passes the message and inner exception to `Exception`'s own constructor. The next lesson explains it properly.\n\n### When not to use exceptions\n\nExceptions are for things that shouldn't normally happen. When bad input is expected, like a user typing into a box, the **Try pattern** is clearer and cheaper: `int.TryParse(text, out int n)` returns `false` instead of throwing.\n\nAnd only catch what you can actually handle. A `catch (Exception)` around everything also swallows real bugs, like a `NullReferenceException`, and hides them until they do worse damage.\n\n### New words\n\n- **Throw**: stop the current method and hand an exception to the code that called it.\n- **Call stack**: the chain of methods running right now, each one called by the one below it.\n- **Unhandled exception**: an exception that no catch handles, so the program crashes.\n- **Exception filter**: a `when` condition on a catch clause.\n- **finally**: a block that always runs after `try`, used for cleanup.\n- **Stack trace**: the record of the methods an exception passed through.\n- **Inner exception**: the original exception, kept inside a new exception that wraps it.\n- **Try pattern**: a method like `int.TryParse` that returns `false` instead of throwing.\n",
+      "exampleMarkdown": "`Parser.Positive` lets `int.Parse` throw, and throws its own `ArgumentException` for numbers below 1. The loop catches the specific type first, then uses a filter to handle the two parsing failures together, and `finally` runs after every input. The last line shows the Try pattern, which needs no exception at all.",
+      "exampleCode": "string[] inputs = { \"42\", \"abc\", \"99999999999\", \"-5\" };\n\nforeach (var input in inputs)\n{\n    try\n    {\n        int value = Parser.Positive(input);\n        Console.WriteLine($\"{input}: accepted {value}\");\n    }\n    catch (ArgumentException ex)\n    {\n        Console.WriteLine($\"{input}: rejected, {ex.Message}\");\n    }\n    catch (Exception ex) when (ex is FormatException\n                               or OverflowException)\n    {\n        Console.WriteLine($\"{input}: not an int ({ex.GetType().Name})\");\n    }\n    finally\n    {\n        Console.WriteLine(\"  checked\");\n    }\n}\n\nif (int.TryParse(\"17\", out int n))\n    Console.WriteLine($\"TryParse gave {n} without any exception\");\n\nstatic class Parser\n{\n    public static int Positive(string text)\n    {\n        int value = int.Parse(text);   // may throw\n        if (value < 1)\n            throw new ArgumentException(\"must be at least 1\");\n        return value;\n    }\n}\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Make the order importer robust.** Right now the first bad line crashes the whole import. Change `Importer.cs` so that:\n\n1. `ParseLine` throws an `ImportException` for every bad line, with these messages:\n   - not exactly 2 fields: `expected 2 fields, found N`\n   - a quantity that isn't an `int` (including numbers too big for one): `\"two\" is not a valid quantity`, with the original exception passed as `inner`\n   - a quantity below 1: `quantity must be at least 1`\n2. `ImportAll` catches `ImportException` around each line, adds its `Message` to `errors`, and carries on with the next line.\n3. `ImportAll` catches **only** `ImportException`. Anything else, like a `null` line, is a bug in the calling code and should still crash.\n\n`ImportException` already adds `Line N: ` to the front of every message. The program should print:\n\n```\nImported 2 orders, 3 errors\nLine 2: \"two\" is not a valid quantity\nLine 3: expected 2 fields, found 1\nLine 4: quantity must be at least 1\n```",
+        "starterFiles": {
+          "Importer.cs": "// One order line, like \"APPLE-01, 3\": a stock code (SKU) and a quantity.\nclass Order\n{\n    public string Sku { get; }\n    public int Quantity { get; }\n\n    public Order(string sku, int quantity)\n    {\n        Sku = sku;\n        Quantity = quantity;\n    }\n}\n\n// Thrown for a line that can't be imported. Finished: use it as it is.\nclass ImportException : Exception\n{\n    public int LineNumber { get; }\n\n    public ImportException(int lineNumber, string message,\n                           Exception inner = null)\n        : base($\"Line {lineNumber}: {message}\", inner)\n    {\n        LineNumber = lineNumber;\n    }\n}\n\nstatic class Importer\n{\n    // Turns one line into an Order.\n    // Should throw an ImportException (with the line number) for any bad line.\n    public static Order ParseLine(string line, int lineNumber)\n    {\n        string[] parts = line.Split(',');\n        string sku = parts[0].Trim();\n        int quantity = int.Parse(parts[1]);\n        return new Order(sku, quantity);\n    }\n\n    // Imports every good line. Should skip each bad line, add its message\n    // to errors, and carry on with the next line.\n    public static List<Order> ImportAll(string[] lines, List<string> errors)\n    {\n        var orders = new List<Order>();\n        for (int i = 0; i < lines.Length; i++)\n        {\n            orders.Add(ParseLine(lines[i], i + 1));\n        }\n        return orders;\n    }\n}\n",
+          "Program.cs": "// Imports an order file. Bad lines should be reported, not crash the import.\nstring[] lines =\n{\n    \"APPLE-01, 3\",\n    \"PEAR-02, two\",\n    \"PLUM-03\",\n    \"FIG-04, 0\",\n    \"KIWI-05, 12\",\n};\n\nvar errors = new List<string>();\nList<Order> orders = Importer.ImportAll(lines, errors);\n\nConsole.WriteLine($\"Imported {orders.Count} orders, {errors.Count} errors\");\nforeach (string error in errors)\n{\n    Console.WriteLine(error);\n}\n"
+        },
+        "solutionFiles": {
+          "Importer.cs": "// One order line, like \"APPLE-01, 3\": a stock code (SKU) and a quantity.\nclass Order\n{\n    public string Sku { get; }\n    public int Quantity { get; }\n\n    public Order(string sku, int quantity)\n    {\n        Sku = sku;\n        Quantity = quantity;\n    }\n}\n\n// Thrown for a line that can't be imported. Finished: use it as it is.\nclass ImportException : Exception\n{\n    public int LineNumber { get; }\n\n    public ImportException(int lineNumber, string message,\n                           Exception inner = null)\n        : base($\"Line {lineNumber}: {message}\", inner)\n    {\n        LineNumber = lineNumber;\n    }\n}\n\nstatic class Importer\n{\n    // Turns one line into an Order.\n    // Should throw an ImportException (with the line number) for any bad line.\n    public static Order ParseLine(string line, int lineNumber)\n    {\n        string[] parts = line.Split(',');\n        if (parts.Length != 2)\n            throw new ImportException(lineNumber, $\"expected 2 fields, found {parts.Length}\");\n\n        string sku = parts[0].Trim();\n        string text = parts[1].Trim();\n        int quantity;\n        try\n        {\n            quantity = int.Parse(text);\n        }\n        catch (Exception ex) when (ex is FormatException or OverflowException)\n        {\n            throw new ImportException(lineNumber, $\"\\\"{text}\\\" is not a valid quantity\", ex);\n        }\n\n        if (quantity < 1)\n            throw new ImportException(lineNumber, \"quantity must be at least 1\");\n        return new Order(sku, quantity);\n    }\n\n    // Imports every good line. Should skip each bad line, add its message\n    // to errors, and carry on with the next line.\n    public static List<Order> ImportAll(string[] lines, List<string> errors)\n    {\n        var orders = new List<Order>();\n        for (int i = 0; i < lines.Length; i++)\n        {\n            try\n            {\n                orders.Add(ParseLine(lines[i], i + 1));\n            }\n            catch (ImportException ex)\n            {\n                errors.Add(ex.Message);\n            }\n        }\n        return orders;\n    }\n}\n",
+          "Program.cs": "// Imports an order file. Bad lines should be reported, not crash the import.\nstring[] lines =\n{\n    \"APPLE-01, 3\",\n    \"PEAR-02, two\",\n    \"PLUM-03\",\n    \"FIG-04, 0\",\n    \"KIWI-05, 12\",\n};\n\nvar errors = new List<string>();\nList<Order> orders = Importer.ImportAll(lines, errors);\n\nConsole.WriteLine($\"Imported {orders.Count} orders, {errors.Count} errors\");\nforeach (string error in errors)\n{\n    Console.WriteLine(error);\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The import runs to the end",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The import stopped before the end. Read the first error in the Output panel: it names the file and line to look at."
+          },
+          {
+            "label": "A good line becomes an Order",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "Importer.ParseLine(\"FIG-04, 7\", 1) is { Sku: \"FIG-04\", Quantity: 7 }",
+              "equals": true
+            },
+            "failMessage": "ParseLine(\"FIG-04, 7\", 1) should return an Order with Sku FIG-04 and Quantity 7."
+          },
+          {
+            "label": "Wrong field counts throw ImportException",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { string Try(Action a) { try { a(); return \"ok\"; } catch (ImportException e) { return e.Message; } catch (Exception e) { return e.GetType().Name; } } return Try(() => Importer.ParseLine(\"PLUM-03\", 3)) + \" | \" + Try(() => Importer.ParseLine(\"A-1, 1, 2\", 9)); }))()",
+              "equals": "Line 3: expected 2 fields, found 1 | Line 9: expected 2 fields, found 3"
+            },
+            "failMessage": "Check parts.Length before using parts[1], and throw an ImportException with the message: expected 2 fields, found N."
+          },
+          {
+            "label": "A bad quantity keeps the original exception",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { try { Importer.ParseLine(\"X-1, abc\", 7); return \"no exception\"; } catch (ImportException e) { var inner = e.InnerException?.GetType().Name ?? \"no inner exception\"; return $\"{e.LineNumber} {inner} {e.Message}\"; } catch (Exception e) { return e.GetType().Name; } }))()",
+              "equals": "7 FormatException Line 7: \"abc\" is not a valid quantity"
+            },
+            "failMessage": "Catch the FormatException from int.Parse and throw an ImportException with the message \"abc\" is not a valid quantity, passing the caught exception as inner."
+          },
+          {
+            "label": "Numbers too big for an int are caught too",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { try { Importer.ParseLine(\"X-1, 99999999999\", 2); return \"no exception\"; } catch (ImportException e) { var inner = e.InnerException?.GetType().Name ?? \"no inner exception\"; return $\"{e.LineNumber} {inner} {e.Message}\"; } catch (Exception e) { return e.GetType().Name; } }))()",
+              "equals": "2 OverflowException Line 2: \"99999999999\" is not a valid quantity"
+            },
+            "failMessage": "int.Parse throws OverflowException for numbers too big for an int. Catch it the same way as FormatException: a when filter can handle both."
+          },
+          {
+            "label": "Quantities below 1 are rejected",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { string Try(Action a) { try { a(); return \"ok\"; } catch (ImportException e) { return e.Message; } catch (Exception e) { return e.GetType().Name; } } return Try(() => Importer.ParseLine(\"X-1, 0\", 1)) + \" | \" + Try(() => Importer.ParseLine(\"X-1, -4\", 2)); }))()",
+              "equals": "Line 1: quantity must be at least 1 | Line 2: quantity must be at least 1"
+            },
+            "failMessage": "After parsing, throw an ImportException when the quantity is less than 1."
+          },
+          {
+            "label": "ImportAll skips bad lines and keeps going",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var errs = new List<string>(); var got = Importer.ImportAll(new[] { \"A-1, 2\", \"bad\", \"B-2, x\", \"C-3, 5\" }, errs); return $\"{got.Count} orders, {errs.Count} errors: {string.Join(\",\", got.Select(o => o.Sku))}\"; }))()",
+              "equals": "2 orders, 2 errors: A-1,C-3"
+            },
+            "failMessage": "In ImportAll, put a try around each line and catch ImportException, so one bad line is recorded in errors and the loop carries on."
+          },
+          {
+            "label": "Real bugs still crash",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { string Try(Action a) { try { a(); return \"ok\"; } catch (ImportException e) { return e.Message; } catch (Exception e) { return e.GetType().Name; } } return Try(() => Importer.ImportAll(new string[] { null }, new List<string>())) switch { \"NullReferenceException\" or \"ArgumentNullException\" => \"it crashed\", var other => other }; }))()",
+              "equals": "it crashed"
+            },
+            "failMessage": "A null line is a bug in the calling code, so ImportAll shouldn't hide it. Catch ImportException there, not Exception."
+          },
+          {
+            "label": "The report matches",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "Imported 2 orders, 3 errors",
+                "Line 2: \"two\" is not a valid quantity",
+                "Line 3: expected 2 fields, found 1",
+                "Line 4: quantity must be at least 1"
+              ]
+            },
+            "failMessage": "The program's output should match the instructions exactly, messages included."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which exceptions can each line of `ParseLine` throw today, and which of them should the caller see as an `ImportException` instead?",
+            "speechText": "Which exceptions can each line of ParseLine throw today, and which of them should the caller see as an ImportException instead?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Check `parts.Length` before you touch `parts[1]`. Wrap only the `int.Parse` call in a `try`, catch `FormatException` and `OverflowException` (one `when` filter handles both), and throw a new `ImportException` that passes the caught exception as `inner`. In `ImportAll`, put a `try` around each line with `catch (ImportException ex)`.",
+            "speechText": "Check how many parts there are before you use the second one. Wrap only the parse call in a try, catch both FormatException and OverflowException with one filter, and throw a new ImportException that passes the caught exception along. In ImportAll, catch ImportException around each line.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The quantity part of `ParseLine`:\n\n```csharp\nstring text = parts[1].Trim();\nint quantity;\ntry\n{\n    quantity = int.Parse(text);\n}\ncatch (Exception ex) when (ex is FormatException\n                           or OverflowException)\n{\n    throw new ImportException(lineNumber,\n        $\"\\\"{text}\\\" is not a valid quantity\", ex);\n}\n```\n\nThen throw for `quantity < 1`. In `ImportAll`, wrap `orders.Add(...)` in a `try` and `catch (ImportException ex)` that calls `errors.Add(ex.Message)`.",
+            "speechText": "Parse the trimmed text inside a try. The catch has a filter for FormatException or OverflowException, and throws a new ImportException with the caught exception as its inner exception. Then reject quantities below one, and in ImportAll catch ImportException and add its message to the errors.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A try has catch (Exception) first and catch (FormatException) second. What happens?",
+            "explanation": "catch (Exception) already handles every exception, so the FormatException clause could never run. C# reports that as compile error CS0160: put specific catches first.",
+            "options": [
+              {
+                "text": "It doesn't compile: the second catch could never be reached",
+                "correct": true
+              },
+              {
+                "text": "A FormatException goes to the second catch",
+                "correct": false
+              },
+              {
+                "text": "Both catch blocks run, one after the other",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When does a finally block run?",
+            "explanation": "finally runs however the try block ends: normally, by throwing, or by returning early. That's what makes it the place for cleanup.",
+            "options": [
+              {
+                "text": "Always, whether try finishes, throws or returns",
+                "correct": true
+              },
+              {
+                "text": "Only when an exception was thrown",
+                "correct": false
+              },
+              {
+                "text": "Only when no exception was thrown",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Inside a catch block, what's the difference between throw; and throw ex;?",
+            "explanation": "throw; rethrows the same exception with its original stack trace. throw ex; restarts the trace from the catch, so you lose where the problem really started.",
+            "options": [
+              {
+                "text": "throw; keeps the original stack trace; throw ex; restarts it from the catch",
+                "correct": true
+              },
+              {
+                "text": "There's no difference",
+                "correct": false
+              },
+              {
+                "text": "throw ex; keeps more detail than throw;",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Users type their age into a form, and they often type something that isn't a number. What's the best way to read it?",
+            "explanation": "Bad input is expected here, so the Try pattern fits: int.TryParse returns false instead of throwing, and you show a message.",
+            "options": [
+              {
+                "text": "Use int.TryParse and check whether it returned true",
+                "correct": true
+              },
+              {
+                "text": "Wrap int.Parse in catch (Exception) and ignore any error",
+                "correct": false
+              },
+              {
+                "text": "Use int.Parse and let the program crash",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why wrap a FormatException inside a new ImportException instead of letting it through?",
+            "explanation": "Callers can catch one type for every import problem, with the line number, and the inner exception still holds the original details for debugging.",
+            "options": [
+              {
+                "text": "Callers can catch one import-specific type, and the original details are kept",
+                "correct": true
+              },
+              {
+                "text": "It makes int.Parse run faster",
+                "correct": false
+              },
+              {
+                "text": "C# doesn't let a FormatException leave a method",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "inheritance-explorer",
+      "title": "Families of classes",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "inheritance",
+      "title": "Inheritance: base classes and overriding",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": false
+    },
+    {
+      "slug": "interfaces-explorer",
+      "title": "Interfaces: a promise to do a job",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "interfaces",
+      "title": "Interfaces and polymorphism",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": false
+    },
+    {
+      "slug": "records-explorer",
+      "title": "Records: data that compares",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "records",
+      "title": "Records and value equality",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": false
+    },
+    {
+      "slug": "linq-explorer",
+      "title": "Asking your lists questions",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "linq",
+      "title": "LINQ: filter, sort and group",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": false
+    },
+    {
+      "slug": "nullable-explorer",
+      "title": "Nothing there: null",
+      "sortOrder": 6,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "nullable-reference-types",
+      "title": "Nullable reference types",
+      "sortOrder": 6,
+      "ageBand": "Builder",
+      "estimatedMinutes": 20,
+      "isPublished": false
+    },
+    {
+      "slug": "objects-project-explorer",
+      "title": "Project: Grove Zoo",
+      "sortOrder": 7,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 10,
+      "isPublished": false
+    },
+    {
+      "slug": "objects-project",
+      "title": "Project: Library checkout",
+      "sortOrder": 7,
+      "ageBand": "Builder",
+      "estimatedMinutes": 30,
+      "isPublished": false
+    }
+  ]
+}
