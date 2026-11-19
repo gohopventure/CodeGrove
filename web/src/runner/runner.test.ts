@@ -193,7 +193,7 @@ describe('harness forms', () => {
     expect(lines.some((l) => l.text.startsWith('Form submitted!'))).toBe(false);
   });
 
-  it('explains unhandled submissions in the console, and respects a cancelled click', async () => {
+  it('explains unhandled submissions in the console, and respects a canceled click', async () => {
     const { console: lines } = await runInJsdom(files(''), [{ ...spec('jsExpression', { expression: clickAdd, equals: '' }), id: 1 }]);
     expect(lines.filter((l) => l.text.startsWith('Form submitted!'))).toHaveLength(1);
 

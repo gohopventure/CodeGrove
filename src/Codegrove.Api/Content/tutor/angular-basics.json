@@ -27,8 +27,8 @@
       ],
       "recap": [
         {
-          "displayText": "Nice work, mission control is live. You used interpolation for properties and a method call. The gotcha is floating-point maths: 0.85 × 100 isn't exactly 85, so round before you show it.",
-          "speechText": "Nice work, mission control is live. You used interpolation for properties and a method call. The gotcha is floating point maths: zero point eight five times one hundred isn't exactly 85, so round before you show it.",
+          "displayText": "Nice work, mission control is live. You used interpolation for properties and a method call. The gotcha is floating-point math: 0.85 × 100 isn't exactly 85, so round before you show it.",
+          "speechText": "Nice work, mission control is live. You used interpolation for properties and a method call. The gotcha is floating point math: zero point eight five times one hundred isn't exactly 85, so round before you show it.",
           "mood": "Encouraging"
         }
       ]

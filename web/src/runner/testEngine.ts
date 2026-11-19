@@ -309,9 +309,9 @@ export function harnessMain(cfg: HarnessConfig, evaluate: typeof evaluateTest): 
       | null;
     const form = submitter?.form;
     if (!form) return;
-    const cancelledByLearner = e.defaultPrevented;
+    const canceledByLearner = e.defaultPrevented;
     e.preventDefault();
-    if (cancelledByLearner) return;
+    if (canceledByLearner) return;
     const init = { bubbles: true, cancelable: true };
     form.dispatchEvent(typeof SubmitEvent === 'function' ? new SubmitEvent('submit', { ...init, submitter }) : new Event('submit', init));
   });
