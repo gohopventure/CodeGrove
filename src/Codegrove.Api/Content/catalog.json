@@ -146,6 +146,15 @@
       "ruleCourseSlug": "angular-basics"
     },
     {
+      // A musical sharp sign (C sharp), drawn from scratch: not the C# logo.
+      "code": "sharp-starter",
+      "name": "Sharp Starter",
+      "description": "You finished C# Basics and wrote your first real programs.",
+      "iconUrl": "/badges/sharp-starter.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "csharp-basics"
+    },
+    {
       "code": "app-architect",
       "name": "App Architect",
       "description": "You finished React Apps and built a whole app.",

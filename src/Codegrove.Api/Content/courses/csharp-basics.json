@@ -2126,7 +2126,173 @@
       "sortOrder": 7,
       "ageBand": "Explorer",
       "estimatedMinutes": 8,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Project: Grove Quest\n\nTime for an adventure that uses everything from this course. Here's where each skill shows up:\n\n| Skill | In Grove Quest |\n| --- | --- |\n| Variables and types | the hero's gold, and the path to walk |\n| Making choices | is it gold? Is there enough to buy something? |\n| Loops | walking along every step of the path |\n| Methods | `Collect` and `Buy` |\n| Classes and objects | the `Hero` blueprint, and Pixel built from it |\n\n### More than one file\n\nBig programs are split into several **code files**. This project has two: `Program.cs` runs the adventure, and `Hero.cs` holds the `Hero` class. Click a file's tab above the editor to switch between them. C# puts the files together when it builds your program, so `Program.cs` can use `Hero` even though it lives in another file.\n\n### Work in small steps\n\nDon't write everything at once. Finish one numbered step, press **Run**, check the output, then move on. When something goes wrong, the Output panel names the file and the line. Finding and fixing mistakes like that is called **debugging**, and every programmer does it all day long.\n\n### New words\n\n- **Project**: a bigger program that uses lots of skills together.\n- **Code file**: one file of a program. Bigger programs have many, often one per class.\n- **Debugging**: finding and fixing mistakes in a program, one at a time.\n",
+      "exampleMarkdown": "A tiny shop that uses a class, two lists, a loop, and an `if` to check what 12 coins can buy. Grove Quest uses the same skills, split across two files.",
+      "exampleCode": "Shop shop = new Shop();\nshop.Stock(\"apple\", 2);\nshop.Stock(\"sword\", 30);\nshop.Stock(\"potion\", 8);\n\nint coins = 12;\nforeach (string thing in shop.Names)\n{\n    int price = shop.PriceOf(thing);\n    if (price <= coins)\n    {\n        Console.WriteLine($\"You can afford the {thing} ({price} coins).\");\n    }\n    else\n    {\n        Console.WriteLine($\"The {thing} costs too much ({price} coins).\");\n    }\n}\n\nclass Shop\n{\n    public List<string> Names { get; set; }\n    public List<int> Prices { get; set; }\n\n    public Shop()\n    {\n        Names = new List<string>();\n        Prices = new List<int>();\n    }\n\n    public void Stock(string name, int price)\n    {\n        Names.Add(name);\n        Prices.Add(price);\n    }\n\n    public int PriceOf(string name)\n    {\n        return Prices[Names.IndexOf(name)];\n    }\n}\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Grove Quest!** Guide Pixel along the path, collect treasure and go shopping. There are two files: start in `Hero.cs`, then go back to `Program.cs`.\n\n1. In `Hero.cs`, `Collect` puts the item in the `Backpack`.\n2. `Buy` takes away the price and adds the item, but only if there's enough gold. It returns `true` if it worked and `false` if it didn't.\n3. In `Program.cs`, walk the path with a `foreach` loop. Each `\"gold\"` adds 5 to `hero.Gold`; everything else gets collected.\n4. Try to buy a lantern for 20 gold and a map for 15, and print what happened.\n\nWhen it all works, the program prints:\n\n```\nBought lantern!\nNot enough gold for map.\nPixel has 5 gold and 3 things.\n```",
+        "starterFiles": {
+          "Program.cs": "// Grove Quest! The Hero class lives in Hero.cs: click its tab to finish steps 1 and 2.\nHero hero = new Hero(\"Pixel\");\nstring[] path = { \"apple\", \"gold\", \"gold\", \"feather\", \"gold\" };\n\n// 3. Walk the path with a foreach loop.\n//    If the thing is \"gold\", add 5 to hero.Gold. Otherwise, Collect it.\n\n\n// 4. Visit the shop. Try to buy a \"lantern\" for 20 gold, then a \"map\" for 15.\n//    For each one, print Bought lantern! or Not enough gold for lantern.\n\n\nConsole.WriteLine($\"{hero.Name} has {hero.Gold} gold and {hero.Backpack.Count} things.\");\n",
+          "Hero.cs": "class Hero\n{\n    public string Name { get; set; }\n    public int Gold { get; set; }\n    public List<string> Backpack { get; set; }\n\n    public Hero(string name)\n    {\n        Name = name;\n        Gold = 10;\n        Backpack = new List<string>();\n    }\n\n    // 1. Collect puts the item in the Backpack.\n    public void Collect(string item)\n    {\n    }\n\n    // 2. Buy: if the hero has enough gold, take away the price,\n    //    put the item in the Backpack, and return true.\n    //    If there isn't enough gold, change nothing and return false.\n    public bool Buy(string item, int price)\n    {\n        return false;\n    }\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Grove Quest! The Hero class lives in Hero.cs: click its tab to finish steps 1 and 2.\nHero hero = new Hero(\"Pixel\");\nstring[] path = { \"apple\", \"gold\", \"gold\", \"feather\", \"gold\" };\n\n// 3. Walk the path with a foreach loop.\n//    If the thing is \"gold\", add 5 to hero.Gold. Otherwise, Collect it.\nforeach (string thing in path)\n{\n    if (thing == \"gold\")\n    {\n        hero.Gold = hero.Gold + 5;\n    }\n    else\n    {\n        hero.Collect(thing);\n    }\n}\n\n// 4. Visit the shop. Try to buy a \"lantern\" for 20 gold, then a \"map\" for 15.\n//    For each one, print Bought lantern! or Not enough gold for lantern.\nif (hero.Buy(\"lantern\", 20))\n{\n    Console.WriteLine(\"Bought lantern!\");\n}\nelse\n{\n    Console.WriteLine(\"Not enough gold for lantern.\");\n}\n\nif (hero.Buy(\"map\", 15))\n{\n    Console.WriteLine(\"Bought map!\");\n}\nelse\n{\n    Console.WriteLine(\"Not enough gold for map.\");\n}\n\nConsole.WriteLine($\"{hero.Name} has {hero.Gold} gold and {hero.Backpack.Count} things.\");\n",
+          "Hero.cs": "class Hero\n{\n    public string Name { get; set; }\n    public int Gold { get; set; }\n    public List<string> Backpack { get; set; }\n\n    public Hero(string name)\n    {\n        Name = name;\n        Gold = 10;\n        Backpack = new List<string>();\n    }\n\n    // 1. Collect puts the item in the Backpack.\n    public void Collect(string item)\n    {\n        Backpack.Add(item);\n    }\n\n    // 2. Buy: if the hero has enough gold, take away the price,\n    //    put the item in the Backpack, and return true.\n    //    If there isn't enough gold, change nothing and return false.\n    public bool Buy(string item, int price)\n    {\n        if (Gold >= price)\n        {\n            Gold = Gold - price;\n            Backpack.Add(item);\n            return true;\n        }\n        return false;\n    }\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Look at the Output panel: the red error names the file and line to fix."
+          },
+          {
+            "label": "Collect puts things in the backpack",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<int>)(() => { var h = new Hero(\"Bo\"); h.Collect(\"rock\"); h.Collect(\"leaf\"); return h.Backpack.Count; }))()",
+              "equals": 2
+            },
+            "failMessage": "In Hero.cs, Collect should add the item to the Backpack: Backpack.Add(item);"
+          },
+          {
+            "label": "Buy works when there's enough gold",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var h = new Hero(\"Bo\"); bool ok = h.Buy(\"rope\", 7); return $\"{ok} {h.Gold} {h.Backpack.Count}\"; }))()",
+              "equals": "True 3 1"
+            },
+            "failMessage": "With 10 gold, buying a rope for 7 should return true, leave 3 gold and put the rope in the backpack."
+          },
+          {
+            "label": "Buy says no when there isn't enough gold",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var h = new Hero(\"Bo\"); bool ok = h.Buy(\"castle\", 11); return $\"{ok} {h.Gold} {h.Backpack.Count}\"; }))()",
+              "equals": "False 10 0"
+            },
+            "failMessage": "With 10 gold, buying something for 11 should return false and change nothing."
+          },
+          {
+            "label": "A foreach loop walks the path",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bforeach\\s*\\(",
+              "file": "Program.cs"
+            },
+            "failMessage": "In Program.cs, walk the path with foreach (string thing in path)"
+          },
+          {
+            "label": "The lantern is bought",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Bought lantern!",
+              "caseSensitive": true
+            },
+            "failMessage": "After the path, Pixel has 25 gold, so the lantern should be bought: print Bought lantern!"
+          },
+          {
+            "label": "The map costs too much",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Not enough gold for map.",
+              "caseSensitive": true
+            },
+            "failMessage": "After the lantern, Pixel has 5 gold, so print Not enough gold for map."
+          },
+          {
+            "label": "Pixel ends with 5 gold and 3 things",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Pixel has 5 gold and 3 things.",
+              "caseSensitive": true
+            },
+            "failMessage": "The last line should say: Pixel has 5 gold and 3 things."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Start in `Hero.cs`. What should `Collect` do with the item it's given?",
+            "speechText": "Start in the Hero file. What should Collect do with the item it's given?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "`Collect` is one line: `Backpack.Add(item);`. `Buy` checks `if (Gold >= price)` before taking any gold. In `Program.cs`, use `foreach (string thing in path)` with an `if` for `\"gold\"`.",
+            "speechText": "Collect adds the item to the backpack, and Buy checks there's enough gold before taking any. In Program, loop over the path with foreach, add five gold for each gold, and collect everything else.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's Buy:\n\n```csharp\npublic bool Buy(string item, int price)\n{\n    if (Gold >= price)\n    {\n        Gold = Gold - price;\n        Backpack.Add(item);\n        return true;\n    }\n    return false;\n}\n```\n\nIn the shop, put each `hero.Buy(...)` inside an `if`, and print `Bought lantern!` or `Not enough gold for lantern.`",
+            "speechText": "Buy takes the gold, adds the item and returns true, or returns false without changing anything. In the shop, put each Buy inside an if, and print whether it worked.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why does the Hero class live in its own file?",
+            "explanation": "Splitting a program into files keeps each part tidy and easy to find. C# puts the files back together when it builds.",
+            "options": [
+              {
+                "text": "It keeps the program tidy and each part easy to find",
+                "correct": true
+              },
+              {
+                "text": "Classes only work in their own file",
+                "correct": false
+              },
+              {
+                "text": "It makes the program run faster",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "The hero has 5 gold. What should Buy(\"map\", 15) return?",
+            "explanation": "There isn't enough gold, so Buy changes nothing and returns false.",
+            "options": [
+              {
+                "text": "false",
+                "correct": true
+              },
+              {
+                "text": "true",
+                "correct": false
+              },
+              {
+                "text": "5",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which skill lets you do the same thing for every step of the path?",
+            "explanation": "A loop, like foreach, runs its code once for every item.",
+            "options": [
+              {
+                "text": "A loop",
+                "correct": true
+              },
+              {
+                "text": "An if statement",
+                "correct": false
+              },
+              {
+                "text": "A variable",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "project-inventory",
@@ -2134,7 +2300,218 @@
       "sortOrder": 7,
       "ageBand": "Builder",
       "estimatedMinutes": 25,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Project: Inventory tracker\n\nThis project is shaped like real code: one class per file, a **model** class that guards its own rules, and a class that manages a collection of models. It's the kind of class you'll later put behind a web API.\n\n| File | Job |\n| --- | --- |\n| `Item.cs` | The model: one product, with a SKU (*Stock Keeping Unit*), name, price and quantity. **Finished**: read it first. |\n| `Inventory.cs` | Your work: stores items by SKU, restocks, sells, and reports. |\n| `Program.cs` | A small scenario that uses the inventory and prints a report. |\n\nConvention: one public type per file, and the file is named after it.\n\n### Dictionary<TKey, TValue>\n\nA **dictionary** stores values by **key**, and finds one by its key directly, without searching a list:\n\n```csharp\nvar stock = new Dictionary<string, int>();\nstock[\"PEN-01\"] = 40;          // add or replace\nint pens = stock[\"PEN-01\"];    // throws KeyNotFoundException if missing\nbool known = stock.ContainsKey(\"NB-A5\");\nif (stock.TryGetValue(\"NB-A5\", out int count)) { … }\n```\n\n`stock.Keys` and `stock.Values` let you loop over the keys or the values.\n\n### Lambdas and LINQ\n\nA **lambda expression** is a small unnamed function: `item => item.Quantity < 5` takes an item and returns a bool. **LINQ** (*Language Integrated Query*) methods take lambdas and query any collection:\n\n```csharp\nvar lowNames = items\n    .Where(i => i.Quantity < 5)   // keep matching items\n    .Select(i => i.Name)          // turn each into its name\n    .OrderBy(name => name)        // sort A to Z\n    .ToList();                    // run it, into a List\ndecimal total = items.Sum(i => i.Price * i.Quantity);\n```\n\n`Where`, `Select` and `OrderBy` are lazy: nothing runs until something like `ToList()`, `Sum()` or a `foreach` asks for results.\n\n### null, ?. and ??\n\nMethods that look things up often return `null` for \"not found\". `item?.Name` is `null` instead of throwing when `item` is `null`, and `a ?? b` means \"a, unless it's null, then b\".\n\n### New words\n\n- **Model**: a class that represents one thing in your program's world, with its data and rules.\n- **Dictionary**: a collection that stores values by key, for direct lookup.\n- **Key**: the value a dictionary uses to find an entry, like a SKU.\n- **Lambda expression**: a small unnamed function written with `=>`.\n- **LINQ** (*Language Integrated Query*): methods such as `Where`, `Select` and `Sum` for querying collections.\n- **Null-conditional operator** (`?.`): reads a member only if the value isn't null.\n",
+      "exampleMarkdown": "A dictionary of ages: adding with the indexer, a safe lookup with `TryGetValue`, and a LINQ query over its entries. Then LINQ on an array, and `?.` with `??` on a null string.",
+      "exampleCode": "var ages = new Dictionary<string, int>\n{\n    [\"Ada\"] = 36,\n    [\"Linus\"] = 28,\n    [\"Grace\"] = 85,\n};\nages[\"Alan\"] = 41;   // add (or replace)\nConsole.WriteLine($\"Grace is {ages[\"Grace\"]}\");\n\nif (ages.TryGetValue(\"Bob\", out int bobAge))\n    Console.WriteLine($\"Bob is {bobAge}\");\nelse\n    Console.WriteLine(\"No Bob here\");\n\nvar under50 = ages\n    .Where(pair => pair.Value < 50)\n    .Select(pair => pair.Key)\n    .OrderBy(name => name);\nConsole.WriteLine($\"Under 50: {string.Join(\", \", under50)}\");\n\nint[] scores = { 72, 95, 58, 88, 64 };\nvar passing = scores.Where(s => s >= 60).OrderBy(s => s).ToList();\nConsole.WriteLine($\"Passing: {string.Join(\", \", passing)}\");\nConsole.WriteLine($\"Average {scores.Average():F1}, best {scores.Max()}\");\n\nstring nobody = null;\nConsole.WriteLine($\"Length: {nobody?.Length ?? 0}\");\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Build the inventory.** `Item.cs` is finished: read it first, because `Inventory` can lean on its rules. Your work is the six members in `Inventory.cs`:\n\n1. `AddItem` stores an item by SKU, and throws an `ArgumentException` if the SKU is already there.\n2. `Find` returns the item with a SKU, or `null`.\n3. `Restock` and 4. `Sell` change an item's quantity and return `false` for an unknown SKU. `Sell` also returns `false`, changing nothing, when there isn't enough stock.\n5. `TotalValue` adds up every item's `Value`.\n6. `LowStock` lists the names of items with fewer than `threshold` in stock (default 5), sorted A to Z.\n\n`Program.cs` should then print:\n\n```\nItems: 4\nBig notebook order: not enough stock\nStock value: 79.45\nLow stock: 30 cm ruler, Eraser\n```\n\nThe checks also try other inventories, including an empty one.",
+        "starterFiles": {
+          "Program.cs": "// Inventory tracker for the Grove's corner shop.\n// Item.cs is finished. Your work is in Inventory.cs.\nvar shop = new Inventory();\nshop.AddItem(new Item(\"PEN-01\", \"Gel pen\", 1.25m, 40));\nshop.AddItem(new Item(\"NB-A5\", \"A5 notebook\", 3.50m, 12));\nshop.AddItem(new Item(\"ERS-02\", \"Eraser\", 0.60m, 3));\nshop.AddItem(new Item(\"RUL-30\", \"30 cm ruler\", 1.10m));\n\nshop.Sell(\"PEN-01\", 15);\nshop.Restock(\"RUL-30\", 4);\nbool sold = shop.Sell(\"NB-A5\", 20);\n\nConsole.WriteLine($\"Items: {shop.Count}\");\nConsole.WriteLine($\"Big notebook order: {(sold ? \"sold\" : \"not enough stock\")}\");\nConsole.WriteLine($\"Stock value: {shop.TotalValue():F2}\");\nConsole.WriteLine($\"Low stock: {string.Join(\", \", shop.LowStock())}\");\n",
+          "Inventory.cs": "class Inventory\n{\n    // Every item, by its SKU.\n    private readonly Dictionary<string, Item> _items = new();\n\n    // How many different items there are.\n    public int Count => _items.Count;\n\n    // 1. Add a new item. Throw an ArgumentException if its SKU is already there.\n    public void AddItem(Item item)\n    {\n    }\n\n    // 2. The item with this SKU, or null if there isn't one.\n    public Item Find(string sku)\n    {\n        return null;\n    }\n\n    // 3. Add amount to the item's quantity. Return false if the SKU isn't found.\n    public bool Restock(string sku, int amount)\n    {\n        return false;\n    }\n\n    // 4. Take amount out of stock. Return false if the SKU isn't found,\n    //    or if there isn't enough stock (then change nothing).\n    public bool Sell(string sku, int amount)\n    {\n        return false;\n    }\n\n    // 5. The value of all the stock: every item's Value, added up.\n    public decimal TotalValue()\n    {\n        return 0;\n    }\n\n    // 6. The names of items with fewer than threshold in stock, sorted A to Z.\n    public List<string> LowStock(int threshold = 5)\n    {\n        return new List<string>();\n    }\n}\n",
+          "Item.cs": "// Finished: one product in the inventory. Read it, but you don't need to change it.\nclass Item\n{\n    public string Sku { get; }\n    public string Name { get; }\n    public decimal Price { get; }\n    public int Quantity { get; private set; }\n\n    // The value of this item's stock: price times quantity.\n    public decimal Value => Price * Quantity;\n\n    public Item(string sku, string name, decimal price, int quantity = 0)\n    {\n        if (price < 0 || quantity < 0)\n            throw new ArgumentException(\"Price and quantity can't be negative.\");\n        Sku = sku;\n        Name = name;\n        Price = price;\n        Quantity = quantity;\n    }\n\n    public void Add(int amount)\n    {\n        if (amount <= 0)\n            throw new ArgumentException(\"Add a positive amount.\");\n        Quantity += amount;\n    }\n\n    // Returns false (and changes nothing) if there isn't enough stock.\n    public bool Remove(int amount)\n    {\n        if (amount <= 0)\n            throw new ArgumentException(\"Remove a positive amount.\");\n        if (amount > Quantity)\n            return false;\n        Quantity -= amount;\n        return true;\n    }\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Inventory tracker for the Grove's corner shop.\n// Item.cs is finished. Your work is in Inventory.cs.\nvar shop = new Inventory();\nshop.AddItem(new Item(\"PEN-01\", \"Gel pen\", 1.25m, 40));\nshop.AddItem(new Item(\"NB-A5\", \"A5 notebook\", 3.50m, 12));\nshop.AddItem(new Item(\"ERS-02\", \"Eraser\", 0.60m, 3));\nshop.AddItem(new Item(\"RUL-30\", \"30 cm ruler\", 1.10m));\n\nshop.Sell(\"PEN-01\", 15);\nshop.Restock(\"RUL-30\", 4);\nbool sold = shop.Sell(\"NB-A5\", 20);\n\nConsole.WriteLine($\"Items: {shop.Count}\");\nConsole.WriteLine($\"Big notebook order: {(sold ? \"sold\" : \"not enough stock\")}\");\nConsole.WriteLine($\"Stock value: {shop.TotalValue():F2}\");\nConsole.WriteLine($\"Low stock: {string.Join(\", \", shop.LowStock())}\");\n",
+          "Inventory.cs": "class Inventory\n{\n    // Every item, by its SKU.\n    private readonly Dictionary<string, Item> _items = new();\n\n    // How many different items there are.\n    public int Count => _items.Count;\n\n    // 1. Add a new item. Throw an ArgumentException if its SKU is already there.\n    public void AddItem(Item item)\n    {\n        if (_items.ContainsKey(item.Sku))\n            throw new ArgumentException($\"There's already an item with SKU {item.Sku}.\");\n        _items[item.Sku] = item;\n    }\n\n    // 2. The item with this SKU, or null if there isn't one.\n    public Item Find(string sku)\n    {\n        return _items.TryGetValue(sku, out Item item) ? item : null;\n    }\n\n    // 3. Add amount to the item's quantity. Return false if the SKU isn't found.\n    public bool Restock(string sku, int amount)\n    {\n        Item item = Find(sku);\n        if (item == null)\n            return false;\n        item.Add(amount);\n        return true;\n    }\n\n    // 4. Take amount out of stock. Return false if the SKU isn't found,\n    //    or if there isn't enough stock (then change nothing).\n    public bool Sell(string sku, int amount)\n    {\n        Item item = Find(sku);\n        return item != null && item.Remove(amount);\n    }\n\n    // 5. The value of all the stock: every item's Value, added up.\n    public decimal TotalValue()\n    {\n        return _items.Values.Sum(i => i.Value);\n    }\n\n    // 6. The names of items with fewer than threshold in stock, sorted A to Z.\n    public List<string> LowStock(int threshold = 5)\n    {\n        return _items.Values\n            .Where(i => i.Quantity < threshold)\n            .Select(i => i.Name)\n            .OrderBy(name => name)\n            .ToList();\n    }\n}\n",
+          "Item.cs": "// Finished: one product in the inventory. Read it, but you don't need to change it.\nclass Item\n{\n    public string Sku { get; }\n    public string Name { get; }\n    public decimal Price { get; }\n    public int Quantity { get; private set; }\n\n    // The value of this item's stock: price times quantity.\n    public decimal Value => Price * Quantity;\n\n    public Item(string sku, string name, decimal price, int quantity = 0)\n    {\n        if (price < 0 || quantity < 0)\n            throw new ArgumentException(\"Price and quantity can't be negative.\");\n        Sku = sku;\n        Name = name;\n        Price = price;\n        Quantity = quantity;\n    }\n\n    public void Add(int amount)\n    {\n        if (amount <= 0)\n            throw new ArgumentException(\"Add a positive amount.\");\n        Quantity += amount;\n    }\n\n    // Returns false (and changes nothing) if there isn't enough stock.\n    public bool Remove(int amount)\n    {\n        if (amount <= 0)\n            throw new ArgumentException(\"Remove a positive amount.\");\n        if (amount > Quantity)\n            return false;\n        Quantity -= amount;\n        return true;\n    }\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The program compiles and runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "There's an error in the Output panel. Fix the first one, then run again."
+          },
+          {
+            "label": "AddItem stores items by SKU, and Find finds them",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var inv = new Inventory(); inv.AddItem(new Item(\"A1\", \"Apple\", 1m, 2)); inv.AddItem(new Item(\"B2\", \"Banana\", 1m, 2)); return $\"{inv.Count} {inv.Find(\"B2\")?.Name}\"; }))()",
+              "equals": "2 Banana"
+            },
+            "failMessage": "AddItem should store each item under its Sku, and Find should return it."
+          },
+          {
+            "label": "Find returns null for an unknown SKU",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new Inventory().Find(\"NOPE\") == null",
+              "equals": true
+            },
+            "failMessage": "Find should return null when there's no item with that SKU (TryGetValue avoids an exception)."
+          },
+          {
+            "label": "Adding the same SKU twice throws",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { string Try(Action a) { try { a(); return \"ok\"; } catch (ArgumentException) { return \"thrown\"; } } var inv = new Inventory(); inv.AddItem(new Item(\"A1\", \"Apple\", 1m)); return Try(() => inv.AddItem(new Item(\"A1\", \"Apricot\", 2m))) + \" \" + inv.Find(\"A1\")?.Name; }))()",
+              "equals": "thrown Apple"
+            },
+            "failMessage": "AddItem should throw an ArgumentException for a SKU that's already there, and keep the original item."
+          },
+          {
+            "label": "Restock and Sell update quantities",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var inv = new Inventory(); inv.AddItem(new Item(\"A1\", \"Apple\", 1m, 2)); bool a = inv.Restock(\"A1\", 5); bool b = inv.Sell(\"A1\", 4); bool c = inv.Sell(\"A1\", 10); bool d = inv.Restock(\"ZZ\", 1); bool e = inv.Sell(\"ZZ\", 1); return $\"{a} {b} {c} {d} {e} {inv.Find(\"A1\")?.Quantity}\"; }))()",
+              "equals": "True True False False False 3"
+            },
+            "failMessage": "From 2: restock 5 (true), sell 4 (true), sell 10 (false, not enough), and unknown SKUs return false. That leaves 3."
+          },
+          {
+            "label": "TotalValue adds up every item's value",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<decimal[]>)(() => { var inv = new Inventory(); inv.AddItem(new Item(\"A\", \"A\", 2.50m, 4)); inv.AddItem(new Item(\"B\", \"B\", 0.75m, 2)); return new[] { inv.TotalValue(), new Inventory().TotalValue() }; }))()",
+              "equals": [
+                11.5,
+                0
+              ]
+            },
+            "failMessage": "2.50 x 4 plus 0.75 x 2 is 11.50, and an empty inventory is worth 0."
+          },
+          {
+            "label": "LowStock lists names under the threshold, A to Z",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var inv = new Inventory(); inv.AddItem(new Item(\"Z\", \"Zebra pens\", 1m, 1)); inv.AddItem(new Item(\"A\", \"Apple\", 1m, 4)); inv.AddItem(new Item(\"M\", \"Mango\", 1m, 5)); inv.AddItem(new Item(\"K\", \"Kiwi\", 1m)); return string.Join(\"|\", inv.LowStock()) + \" / \" + string.Join(\"|\", inv.LowStock(2)); }))()",
+              "equals": "Apple|Kiwi|Zebra pens / Kiwi|Zebra pens"
+            },
+            "failMessage": "Fewer than 5 by default (so 5 itself isn't low), names only, sorted A to Z. LowStock(2) uses 2 instead."
+          },
+          {
+            "label": "The report matches",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "Items: 4",
+                "Big notebook order: not enough stock",
+                "Stock value: 79.45",
+                "Low stock: 30 cm ruler, Eraser"
+              ]
+            },
+            "failMessage": "Compare the Output with the four lines in the instructions."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`_items` maps each SKU to its `Item`. Which `Dictionary` members let you check for a key, look one up safely, and go through every item?",
+            "speechText": "The items field maps each stock code to its item. Which dictionary members let you check for a key, look one up safely, and go through every item?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "`ContainsKey` guards `AddItem`, and `TryGetValue` makes `Find` safe. `Restock` and `Sell` can call `Find`, then the item's own `Add` and `Remove`, which already enforce the rules. For the reports, query `_items.Values` with LINQ: `Sum`, `Where`, `Select`, `OrderBy`.",
+            "speechText": "Use ContainsKey to guard AddItem, and TryGetValue to make Find safe. Restock and Sell can call Find, then the item's own Add and Remove methods, which already enforce the rules. For the reports, query the dictionary's values with link methods like Sum, Where, Select and OrderBy.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Two of them:\n\n```csharp\npublic Item Find(string sku)\n{\n    return _items.TryGetValue(sku, out Item item) ? item : null;\n}\n\npublic List<string> LowStock(int threshold = 5)\n{\n    return _items.Values\n        .Where(i => i.Quantity < threshold)\n        .Select(i => i.Name)\n        .OrderBy(name => name)\n        .ToList();\n}\n```\n\n`TotalValue` is `_items.Values.Sum(i => i.Value)`.",
+            "speechText": "Find returns the item from TryGetValue, or null. LowStock filters by quantity, selects the names and sorts them, and TotalValue sums each item's value.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why does Inventory store items in a Dictionary<string, Item> rather than a List<Item>?",
+            "explanation": "A dictionary goes straight to the entry for a key. With a list you'd have to search through the items to find a SKU.",
+            "options": [
+              {
+                "text": "It can find an item by its SKU directly, without searching",
+                "correct": true
+              },
+              {
+                "text": "Lists can't hold objects",
+                "correct": false
+              },
+              {
+                "text": "A dictionary keeps items sorted A to Z",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does ages[\"Bob\"] do when the dictionary has no \"Bob\" key?",
+            "explanation": "The indexer throws KeyNotFoundException for a missing key. Use TryGetValue or ContainsKey when a key might not be there.",
+            "options": [
+              {
+                "text": "Throws KeyNotFoundException",
+                "correct": true
+              },
+              {
+                "text": "Returns 0",
+                "correct": false
+              },
+              {
+                "text": "Adds Bob with the value 0",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does scores.Where(s => s >= 60) give you?",
+            "explanation": "Where keeps the elements for which the lambda returns true: the scores of 60 or more.",
+            "options": [
+              {
+                "text": "The scores that are 60 or more",
+                "correct": true
+              },
+              {
+                "text": "true or false",
+                "correct": false
+              },
+              {
+                "text": "How many scores are 60 or more",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What is s => s >= 60?",
+            "explanation": "A lambda expression: a small unnamed function. This one takes s and returns whether it's at least 60.",
+            "options": [
+              {
+                "text": "A lambda expression: a small unnamed function",
+                "correct": true
+              },
+              {
+                "text": "A comparison that's always true",
+                "correct": false
+              },
+              {
+                "text": "A switch expression arm",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What is item?.Name when item is null?",
+            "explanation": "The null-conditional operator stops at null and gives null, instead of throwing NullReferenceException.",
+            "options": [
+              {
+                "text": "null, without an exception",
+                "correct": true
+              },
+              {
+                "text": "It throws NullReferenceException",
+                "correct": false
+              },
+              {
+                "text": "An empty string",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

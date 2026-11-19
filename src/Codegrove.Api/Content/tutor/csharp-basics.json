@@ -192,6 +192,38 @@
           "mood": "Encouraging"
         }
       ]
+    },
+    "project-explorer": {
+      "intro": [
+        {
+          "displayText": "Time for an adventure that uses everything you've learned: variables, choices, loops, methods and classes. Your mission: guide Pixel along the Grove path, collect treasure and go shopping.",
+          "speechText": "Time for an adventure that uses everything you've learned, like variables, choices, loops, methods and classes. Your mission is to guide Pixel along the Grove path, collect treasure and go shopping.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You finished Grove Quest, and the whole C# Basics course! Your new word is project: a bigger program that uses lots of skills together.",
+          "speechText": "You finished Grove Quest, and the whole C sharp Basics course! Your new word is project, a bigger program that uses lots of skills together.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "project-inventory": {
+      "intro": [
+        {
+          "displayText": "This project is shaped like real code: one class per file, a model that guards its own rules, and a class that manages a collection of them. You'll meet two tools you'll use constantly: Dictionary for fast lookups by key, and LINQ for querying collections. The Item class is done; your job is the Inventory that tracks stock, sales and reports. It's the same kind of class you'll put behind a web API later in the track.",
+          "speechText": "This project is shaped like real code, with one class per file, a model that guards its own rules, and a class that manages a collection of them. You'll meet two tools you'll use constantly, Dictionary for fast lookups by key, and link for querying collections. The Item class is done, and your job is the Inventory that tracks stock, sales and reports. It's the same kind of class you'll put behind a web API later in the track.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The inventory tracks stock, refuses duplicate SKUs and reports exactly what's running low. That completes C# Basics. The gotcha: indexing a dictionary with a missing key throws, so use TryGetValue or ContainsKey when a key might not be there. Next comes a course on C# objects, then SQL.",
+          "speechText": "The inventory tracks stock, refuses duplicate stock codes and reports exactly what's running low. That completes C sharp Basics. The gotcha is that indexing a dictionary with a missing key throws, so use TryGetValue or ContainsKey when a key might not be there. Next comes a course on C sharp objects, then sequel.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }

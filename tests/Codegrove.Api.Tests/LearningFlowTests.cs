@@ -269,15 +269,15 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         Assert.Equal("Angular", challenge.GetProperty("kind").GetString());
         Assert.True(challenge.GetProperty("starterFiles").TryGetProperty("app.ts", out _));
 
-        // C# challenges run in the browser's C# runner: kind "CSharp" with a Program.cs. Lessons still being written
-        // are listed but can't be opened.
+        // C# challenges run in the browser's C# runner: kind "CSharp" with a Program.cs. Every lesson is published,
+        // so the course can be completed (and earns its badge, see Every_published_course_has_a_completion_badge).
         var csharp = await child.GetJson("/api/courses/csharp-basics");
         var csLessons = csharp.GetProperty("lessons").EnumerateArray().ToList();
         var hello = csLessons.First(l => l.GetProperty("slug").GetString() == "hello-csharp-explorer");
         var csLesson = await child.GetJson($"/api/lessons/{hello.GetProperty("id").GetInt32()}");
         Assert.Equal("CSharp", csLesson.GetProperty("challenge").GetProperty("kind").GetString());
         Assert.True(csLesson.GetProperty("challenge").GetProperty("starterFiles").TryGetProperty("Program.cs", out _));
-        Assert.Contains(csLessons, l => !l.GetProperty("isPublished").GetBoolean());
+        Assert.All(csLessons, l => Assert.True(l.GetProperty("isPublished").GetBoolean()));
     }
 
     [Fact]
@@ -373,6 +373,7 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         Assert.Contains("html-hero", codes);
         Assert.Contains("style-star", codes);
         Assert.Contains("js-juggler", codes);
+        Assert.Contains("sharp-starter", codes);
     }
 
     /// <summary>Maps each quiz question to its correct option by matching prompts against the seed file.</summary>
