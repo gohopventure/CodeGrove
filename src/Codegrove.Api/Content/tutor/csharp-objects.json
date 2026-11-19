@@ -160,6 +160,38 @@
           "mood": "Encouraging"
         }
       ]
+    },
+    "nullable-explorer": {
+      "intro": [
+        {
+          "displayText": "It's name tag day in the Grove, but Pebble has no nickname, and that crashes the program. Your mission: give every pet a tag, nickname or not!",
+          "speechText": "It's name tag day in the Grove, but Pebble has no nickname, and that crashes the program. Your mission is to give every pet a tag, nickname or not!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Every pet has a name tag, and the yellow warnings are gone! Your new word is null: it means there's nothing there at all.",
+          "speechText": "Every pet has a name tag, and the yellow warnings are gone! Your new word is null, which means there's nothing there at all.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "nullable-reference-types": {
+      "intro": [
+        {
+          "displayText": "Null reference crashes are the most common bug in .NET apps. Nullable reference types let the compiler point them out before your code runs, and new .NET projects switch them on by default. You'll clean up a contacts class full of nullable warnings, and one real crash, without silencing anything.",
+          "speechText": "Null reference crashes are the most common bug in dot net apps. Nullable reference types let the compiler point them out before your code runs, and new dot net projects switch them on by default. You'll clean up a contacts class full of nullable warnings, and one real crash, without silencing anything.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your contacts class is warning-free, and every fix says what can be missing and checks for it. The gotcha: the ! operator makes a warning go away without making the code safe, so a wrong guess still crashes. Next, you'll put the whole course together in a project.",
+          "speechText": "Your contacts class is warning-free, and every fix says what can be missing and checks for it. The gotcha is that the exclamation mark operator makes a warning go away without making the code safe, so a wrong guess still crashes. Next, you'll put the whole course together in a project.",
+          "mood": "Encouraging"
+        }
+      ]
     }
   }
 }

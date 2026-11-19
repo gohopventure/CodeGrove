@@ -24,8 +24,10 @@ export type TestKind =
   // noErrors work for C# too.
   | 'consoleEquals' // { lines }: the program's whole output is exactly these lines
   | 'compileError' // { code?, contains?, line?, file? }: the compiler DOES report a matching error
+  | 'compileWarning' // { code?, contains?, line?, file? }: the compiler DOES report a matching warning
+  | 'noWarnings' // { code?, file? }: it compiles with no warnings (or none whose code starts with code, e.g. "CS86")
   | 'csharpExpression' // { expression, equals }: a C# expression run after the program, against the learner's classes
-  | 'sourceMatches'; // { pattern, file?, ignoreCase?, min? }: the code (comments removed) matches a regex
+  | 'sourceMatches'; // { pattern, file?, ignoreCase?, min?, max? }: the code (comments removed) matches a regex (max: 0 = must not)
 
 export interface TestResult {
   testId: number;

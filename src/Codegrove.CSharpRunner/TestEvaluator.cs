@@ -23,7 +23,7 @@ namespace Codegrove.CSharpRunner;
 internal static class TestEvaluator
 {
     public static readonly IReadOnlySet<string> Kinds =
-        new HashSet<string> { "noErrors", "consoleIncludes", "consoleEquals", "compileError", "csharpExpression", "sourceMatches" };
+        new HashSet<string> { "noErrors", "consoleIncludes", "consoleEquals", "compileError", "compileWarning", "noWarnings", "csharpExpression", "sourceMatches" };
 
     /// <summary>
     /// Evaluates every test. <paramref name="context"/> is null when the program didn't compile, so
@@ -78,16 +78,50 @@ internal static class TestEvaluator
                 return match ? Pass(test) : Fail(test);
             }
 
+            case "compileWarning":
+            {
+                // Like compileError, for warnings: nullable lessons teach by making a warning appear or go away.
+                var code = Str(s, "code");
+                var contains = Str(s, "contains");
+                var file = Str(s, "file");
+                var line = s.ValueKind == JsonValueKind.Object && s.TryGetProperty("line", out var l) && l.TryGetInt32(out var n) ? n : (int?)null;
+                var match = diagnostics.Any(d => d.Severity == "warning"
+                    && (code.Length == 0 || d.Code == code)
+                    && (file.Length == 0 || d.File == file)
+                    && (line is null || d.Line == line)
+                    && (contains.Length == 0 || d.Message.Contains(contains, StringComparison.OrdinalIgnoreCase)));
+                return match ? Pass(test) : Fail(test);
+            }
+
+            case "noWarnings":
+            {
+                // { code?, file? }: no warnings at all, or none whose code starts with `code` ("CS86" = nullable).
+                // Code that doesn't compile has no meaningful warnings yet, so it can't pass.
+                if (diagnostics.Any(d => d.Severity == "error"))
+                    return Fail(test, "Your code needs to compile before this can be checked.");
+                var code = Str(s, "code");
+                var file = Str(s, "file");
+                var left = diagnostics.Where(d => d.Severity == "warning"
+                    && (code.Length == 0 || d.Code.StartsWith(code, StringComparison.Ordinal))
+                    && (file.Length == 0 || d.File == file)).ToList();
+                if (left.Count == 0) return Pass(test);
+                var first = left[0];
+                return Fail(test, $"({left.Count} left. The first is in {first.File}, line {first.Line}: {first.Code}.)");
+            }
+
             case "sourceMatches":
             {
                 var file = Str(s, "file");
-                var min = s.ValueKind == JsonValueKind.Object && s.TryGetProperty("min", out var m) && m.TryGetInt32(out var k) ? k : 1;
+                var hasMax = s.ValueKind == JsonValueKind.Object && s.TryGetProperty("max", out _);
+                var min = s.ValueKind == JsonValueKind.Object && s.TryGetProperty("min", out var m) && m.TryGetInt32(out var k) ? k : hasMax ? 0 : 1;
                 var options = RegexOptions.CultureInvariant | (Bool(s, "ignoreCase") ? RegexOptions.IgnoreCase : RegexOptions.None);
                 var code = string.Join("\n", files
                     .Where(f => f.Key.EndsWith(".cs", StringComparison.OrdinalIgnoreCase) && (file.Length == 0 || f.Key == file))
                     .Select(f => WithoutComments(f.Value)));
+                // max: 0 turns this into "must NOT match", e.g. no null-forgiving ! operators.
+                var max = s.ValueKind == JsonValueKind.Object && s.TryGetProperty("max", out var mx) && mx.TryGetInt32(out var most) ? most : int.MaxValue;
                 var count = Regex.Matches(code, Str(s, "pattern"), options, TimeSpan.FromSeconds(1)).Count;
-                return count >= min ? Pass(test) : Fail(test);
+                return count >= min && count <= max ? Pass(test) : Fail(test);
             }
 
             default:

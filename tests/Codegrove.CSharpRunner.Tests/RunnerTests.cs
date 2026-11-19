@@ -54,6 +54,58 @@ public class RunnerTests
     }
 
     [Fact]
+    public async Task Warnings_are_shown_above_the_output_and_can_be_checked()
+    {
+        var program = """
+            #nullable enable
+            string? nick = null;
+            Console.WriteLine(nick.Length);
+            """;
+        var r = await Run(program,
+            Test(1, "compileWarning", new { code = "CS8602", line = 3 }),
+            Test(2, "noWarnings", new { code = "CS86" }),
+            Test(3, "noWarnings", new { code = "CS01" }));
+
+        // The warning comes first, in plain words, then the crash it predicted.
+        Assert.Equal("warn", r.Console[0].Level);
+        Assert.StartsWith("Warning in Program.cs, line 3: This might be null here", r.Console[0].Text);
+        Assert.Contains("(CS8602:", r.Console[0].Text);
+        Assert.Equal(StopReason.Exception, r.Stopped);
+        Assert.Equal([true, false, true], r.Results.Select(t => t.Passed));
+
+        // Same warning for two variables: one line in the panel. (A second a.Length wouldn't warn at all:
+        // after the first one, flow analysis knows a isn't null.)
+        var twice = await Run("#nullable enable\nstring? a = null;\nstring? b = null;\nvar x = a.Length;\nvar y = b.Length;\n");
+        Assert.EndsWith("The same warning is on line 5 too. (CS8602: Dereference of a possibly null reference.)", twice.Console[0].Text);
+        Assert.Equal("fail 2 (1 left. The first is in Program.cs, line 3: CS8602.)", r.Results[1].Message);
+
+        var fixedUp = await Run(program.Replace("nick.Length", "nick?.Length ?? 0"),
+            Test(1, "compileWarning", new { code = "CS8602" }), Test(2, "noWarnings", new { }));
+        Assert.DoesNotContain(fixedUp.Console, l => l.Level == "warn");
+        Assert.Equal([false, true], fixedUp.Results.Select(t => t.Passed));
+    }
+
+    [Fact]
+    public async Task NoWarnings_fails_while_the_code_does_not_compile()
+    {
+        var r = await Run("int x = ;", Test(1, "noWarnings", new { }));
+        Assert.Equal("fail 1 Your code needs to compile before this can be checked.", r.Results[0].Message);
+    }
+
+    [Fact]
+    public async Task SourceMatches_max_zero_means_must_not_match()
+    {
+        var r = await Run("""
+            #nullable enable
+            string? s = "hi";
+            Console.WriteLine(s!.Length != 0); // a ! in a comment doesn't count: x!
+            """,
+            Test(1, "sourceMatches", new { pattern = @"[\w\)\]]!(?!=)", max = 0 }),
+            Test(2, "sourceMatches", new { pattern = "Banana", max = 0 }));
+        Assert.Equal([false, true], r.Results.Select(t => t.Passed));
+    }
+
+    [Fact]
     public async Task A_repeated_compile_error_is_printed_once_with_its_other_lines()
     {
         var r = await Run("""

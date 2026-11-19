@@ -1916,7 +1916,145 @@
       "sortOrder": 6,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Nothing there: null\n\nSometimes a variable has nothing in it at all. C# calls that **null**. A pet with no nickname has a nickname of `null`: not an empty word, just *nothing*.\n\nAsk null for something, like its length, and the program crashes with a `NullReferenceException`:\n\n```csharp\nstring? nickname = null;\nConsole.WriteLine(nickname.Length);   // crash!\n```\n\n### The question mark: \"might be nothing\"\n\n`string?` with a question mark means \"this might be null\". Plain `string` means \"this always has a real value\".\n\nWhen **null warnings** are switched on, C# watches for maybe-null values and warns you, in yellow, *before* the program runs. This line at the top of a file switches them on:\n\n```csharp\n#nullable enable\n```\n\n### Two ways to handle null\n\n**`??`** gives a backup when something is null:\n\n```csharp\nstring tag = nickname ?? \"No nickname\";\n```\n\n**`?.`** only asks if something is there. If it's null, the answer is null too, so `??` can give a backup:\n\n```csharp\nint letters = nickname?.Length ?? 0;\n```\n\nFix every yellow warning, and the crash can't happen.\n\n### New words\n\n- **null**: nothing at all, not even an empty word.\n- **Null warning**: a yellow message from C# that says a value might be null where that could crash.\n- **??**: gives a backup value when the left side is null.\n- **?.**: uses a member only if the thing isn't null.\n",
+      "exampleMarkdown": "One snack has a topping and one doesn't. `??` gives the plain biscuit a backup topping name, and `?.` only measures a topping that's really there. There are no yellow warnings, because every maybe-null value is handled.",
+      "exampleCode": "#nullable enable\nSnack[] snacks =\n{\n    new Snack(\"Muffin\", \"berries\"),\n    new Snack(\"Biscuit\", null),\n};\n\nforeach (Snack snack in snacks)\n{\n    string topping = snack.Topping ?? \"nothing on top\";\n    int letters = snack.Topping?.Length ?? 0;\n    Console.WriteLine($\"{snack.Name}: {topping} ({letters} letters)\");\n}\n\nrecord Snack(string Name, string? Topping);\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** It's name tag day in the Grove. Pebble has no nickname, so the program shows two yellow warnings and then crashes. Follow the numbered comments:\n\n1. Use `??` so a pet with no nickname gets its `Name` on the tag.\n2. Use `?.` and `??` so a missing nickname counts as `0` letters.\n\nWhen both yellow warnings are gone, it should print:\n\n```\nName tag: Bis\nNickname letters: 3\nName tag: Pebble\nNickname letters: 0\nName tag: Tiz\nNickname letters: 3\n```",
+        "starterFiles": {
+          "Program.cs": "#nullable enable\n// Mission: give every pet a name tag, nickname or not!\nPet[] pets =\n{\n    new Pet(\"Biscuit\", \"Bis\"),\n    new Pet(\"Pebble\", null),\n    new Pet(\"Thistle\", \"Tiz\"),\n};\n\nforeach (Pet pet in pets)\n{\n    // 1. Some pets have no nickname, so Nickname can be null.\n    //    Use ?? so the tag shows the pet's Name instead.\n    string tag = pet.Nickname;\n    Console.WriteLine($\"Name tag: {tag}\");\n\n    // 2. Count the nickname's letters. Use ?. and ?? so that\n    //    no nickname counts as 0 letters.\n    int letters = pet.Nickname.Length;\n    Console.WriteLine($\"Nickname letters: {letters}\");\n}\n\nrecord Pet(string Name, string? Nickname);\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "#nullable enable\n// Mission: give every pet a name tag, nickname or not!\nPet[] pets =\n{\n    new Pet(\"Biscuit\", \"Bis\"),\n    new Pet(\"Pebble\", null),\n    new Pet(\"Thistle\", \"Tiz\"),\n};\n\nforeach (Pet pet in pets)\n{\n    // 1. Some pets have no nickname, so Nickname can be null.\n    //    Use ?? so the tag shows the pet's Name instead.\n    string tag = pet.Nickname ?? pet.Name;\n    Console.WriteLine($\"Name tag: {tag}\");\n\n    // 2. Count the nickname's letters. Use ?. and ?? so that\n    //    no nickname counts as 0 letters.\n    int letters = pet.Nickname?.Length ?? 0;\n    Console.WriteLine($\"Nickname letters: {letters}\");\n}\n\nrecord Pet(string Name, string? Nickname);\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs to the end",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The program stopped before the end. Read the red message in the Output panel: it names the line to look at."
+          },
+          {
+            "label": "No yellow warnings",
+            "kind": "noWarnings",
+            "spec": {},
+            "failMessage": "There's still a yellow warning in the Output panel. It names the line where a nickname might be null."
+          },
+          {
+            "label": "You used ??",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\?\\?"
+            },
+            "failMessage": "Give the tag a backup with ??: pet.Nickname ?? pet.Name."
+          },
+          {
+            "label": "You used ?.",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\?\\."
+            },
+            "failMessage": "Ask for the length only if there's a nickname: pet.Nickname?.Length."
+          },
+          {
+            "label": "Every pet gets a tag",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "Name tag: Bis",
+                "Nickname letters: 3",
+                "Name tag: Pebble",
+                "Nickname letters: 0",
+                "Name tag: Tiz",
+                "Nickname letters: 3"
+              ]
+            },
+            "failMessage": "The output should match the instructions exactly. Pebble's tag should say Pebble, with 0 letters."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "When a pet has no nickname, what should its name tag show instead?",
+            "speechText": "When a pet has no nickname, what should its name tag show instead?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "For the tag, write `pet.Nickname ?? pet.Name`. For the letters, `pet.Nickname?.Length ?? 0` asks for the length only when there's a nickname.",
+            "speechText": "For the tag, use the nickname, or the name if there's no nickname. For the letters, ask for the length only when there's a nickname, with zero as the backup.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The two lines to change:\n\n```csharp\nstring tag = pet.Nickname ?? pet.Name;\n\nint letters = pet.Nickname?.Length ?? 0;\n```",
+            "speechText": "The tag is the nickname, with the name as its backup. The letters are the nickname's length, with zero as the backup.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does null mean?",
+            "explanation": "null means there's nothing there at all. It isn't zero, and it isn't an empty word.",
+            "options": [
+              {
+                "text": "There's nothing there at all",
+                "correct": true
+              },
+              {
+                "text": "The number zero",
+                "correct": false
+              },
+              {
+                "text": "A word with no letters in it",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "nickname is null. What is nickname ?? \"none\"?",
+            "explanation": "?? gives the backup on its right when the left side is null.",
+            "options": [
+              {
+                "text": "\"none\"",
+                "correct": true
+              },
+              {
+                "text": "null",
+                "correct": false
+              },
+              {
+                "text": "The program crashes",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the ? in string? nickname mean?",
+            "explanation": "string? says the nickname might be null, so C# warns you if you use it without checking.",
+            "options": [
+              {
+                "text": "The nickname might be null",
+                "correct": true
+              },
+              {
+                "text": "The nickname is a question",
+                "correct": false
+              },
+              {
+                "text": "The nickname is always empty",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "nullable-reference-types",
@@ -1924,7 +2062,222 @@
       "sortOrder": 6,
       "ageBand": "Builder",
       "estimatedMinutes": 20,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Nullable reference types\n\n`null` means \"no object\". Use a member of `null` and you get a `NullReferenceException`, the most common crash in .NET programs. Tony Hoare, who invented null references, later called them his billion-dollar mistake.\n\n**Nullable reference types** let the compiler track which values might be null, and warn you *before* the program runs.\n\n### Switching them on\n\nNew .NET projects have `<Nullable>enable</Nullable>` in the `.csproj` file, which switches it on everywhere. In this course, each file starts with `#nullable enable` instead.\n\n### Two kinds of reference\n\n- `string name`: never null. The compiler warns if you might put null in it.\n- `string? nickname`: might be null. The compiler warns if you use it without checking.\n\nThe `?` changes nothing when the program runs. It's information for the compiler, and for the next developer who reads your code.\n\n### Flow analysis\n\nThe compiler follows your code, so after a check it knows the value isn't null:\n\n```csharp\nstring? nick = FindNickname(id);\nConsole.WriteLine(nick.Length);      // CS8602: might be null\nif (nick is not null)\n    Console.WriteLine(nick.Length);  // fine: it was checked\n```\n\n### Tools for maybe-null values\n\n- `nick?.Length`: the **null-conditional operator** gives null instead of crashing.\n- `nick ?? \"none\"`: the **null-coalescing operator** gives a fallback.\n- `nick ??= \"none\"`: assigns only when `nick` is null.\n- `is null` and `is not null`: plain checks.\n- `string.IsNullOrEmpty(s)`: the compiler knows `s` isn't null when this returns false.\n- `ArgumentNullException.ThrowIfNull(arg)`: rejects a null argument right away.\n\n### The warnings you'll meet\n\n- **CS8602**: using a member of something that might be null.\n- **CS8603**: returning something that might be null from a method whose return type says it never is. Make the return type nullable: `Contact?`.\n- **CS8600**, **CS8601**, **CS8604**: putting a maybe-null value where null isn't allowed.\n- **CS8618**: a non-nullable property that's never set, so it starts as null.\n\nFor CS8618, make the property nullable if it's optional, or mark it **`required`** so callers must set it:\n\n```csharp\nclass Contact\n{\n    public required string Name { get; set; }\n    public string? Email { get; set; }\n}\n\nvar c = new Contact { Name = \"Ada\" };  // leave out Name: error\n```\n\n### The ! operator\n\n`nick!.Length` uses the **null-forgiving operator**. It tells the compiler \"trust me, this isn't null\".\n\n**Gotcha:** `!` removes the warning, not the danger. If you're wrong, it still crashes. Use it only when you know something the compiler can't.\n\n### Warnings, not errors\n\nNullable problems are warnings, so the code still compiles. Many teams turn them into errors with `<WarningsAsErrors>nullable</WarningsAsErrors>`.\n\nAnd the warnings are only as good as your annotations. A property declared `string` that's really optional gets no warnings until you mark it `string?`. Then the warnings show you every place that needs a check.\n\n### New words\n\n- **Nullable reference type**: a reference type marked with `?`, like `string?`, that may hold null.\n- **Flow analysis**: the compiler following your code to know where a value can't be null.\n- **Null-conditional operator** (`?.`): uses a member only when the value isn't null.\n- **Null-coalescing operator** (`??`): gives a fallback when the value is null.\n- **Null-forgiving operator** (`!`): silences a nullable warning without checking anything.\n- **required member**: a property that every object initializer must set.\n",
+      "exampleMarkdown": "Settings that may or may not exist. A lookup returns `string?`, and each use handles null: `??`, `?.`, a null check that narrows the type, `??=`, and `TryGetValue`, whose value the compiler knows is set when it returns true. `Profile` uses `required` for the one property every profile needs.",
+      "exampleCode": "#nullable enable\nvar settings = new Dictionary<string, string>\n{\n    [\"theme\"] = \"dark\",\n    [\"volume\"] = \"7\",\n};\n\nstring? theme = Lookup(settings, \"theme\");\nstring? font = Lookup(settings, \"font\");\n\nConsole.WriteLine($\"Theme: {theme ?? \"light\"}\");\nint fontLetters = font?.Length ?? 0;\nConsole.WriteLine($\"Font: {font ?? \"default\"}, {fontLetters} letters\");\n\n// After the check, the compiler knows theme isn't null.\nif (theme is not null)\n{\n    Console.WriteLine($\"In capitals: {theme.ToUpper()}\");\n}\n\n// ??= only assigns when the variable is null.\nfont ??= \"Atkinson\";\nConsole.WriteLine($\"Font now: {font}\");\n\nif (settings.TryGetValue(\"volume\", out string? volume))\n{\n    Console.WriteLine($\"Volume has {volume.Length} digit\");\n}\n\nvar profile = new Profile { Username = \"byte_runner\" };\nConsole.WriteLine($\"{profile.Username}: {profile.Bio ?? \"(no bio yet)\"}\");\n\nstatic string? Lookup(Dictionary<string, string> map, string key)\n    => map.TryGetValue(key, out var value) ? value : null;\n\nclass Profile\n{\n    public required string Username { get; init; }\n    public string? Bio { get; init; }\n}\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Clean up `Contacts.cs`.** It compiles, but the compiler is warning about nulls, and the program crashes on Bo, who has no email. Make it warning-free, and say what can be missing instead of silencing anything:\n\n1. Every contact must have a `Name`: mark it `required`, so creating a contact without one is a compile error.\n2. `Email` and `Manager` are optional: make their types nullable, like `Phone`.\n3. `Find` returns null when nobody matches: make its return type say so.\n4. Fix every warning that appears: `Label` treats a null or empty email as no email, `ManagerName` returns `(none)` without a manager, and `UkPhones` skips contacts with no phone.\n5. Don't use the `!` operator: it hides a warning without fixing anything.\n\nWith no warnings left, the program should print:\n\n```\nAda <ada@grove.dev>, manager: (none)\nBo, manager: Ada\nCy, manager: Ada\nDee, manager: Bo\nZed isn't in the directory\nUK phone numbers: 2\n```",
+        "starterFiles": {
+          "Contacts.cs": "#nullable enable\n\nclass Contact\n{\n    // Every contact has a name. Email, Phone and Manager are optional.\n    public string Name { get; set; }\n    public string Email { get; set; }\n    public string? Phone { get; set; }\n    public Contact Manager { get; set; }\n}\n\nstatic class Contacts\n{\n    // The contact with this name, or null when there isn't one.\n    public static Contact Find(List<Contact> contacts, string name)\n    {\n        return contacts.FirstOrDefault(c => c.Name == name);\n    }\n\n    // \"Ada <ada@grove.dev>\", or just \"Ada\" with no email.\n    public static string Label(Contact contact)\n    {\n        if (contact.Email.Length == 0)\n            return contact.Name;\n        return $\"{contact.Name} <{contact.Email}>\";\n    }\n\n    // The manager's name, or \"(none)\".\n    public static string ManagerName(Contact contact)\n    {\n        return contact.Manager.Name;\n    }\n\n    // How many contacts have a UK phone number (starting with +44)?\n    public static int UkPhones(List<Contact> contacts)\n    {\n        return contacts.Count(c => c.Phone.StartsWith(\"+44\"));\n    }\n}\n",
+          "Program.cs": "#nullable enable\nvar ada = new Contact { Name = \"Ada\", Email = \"ada@grove.dev\", Phone = \"+44 20 7946 0000\" };\nvar bo = new Contact { Name = \"Bo\", Manager = ada };\nvar cy = new Contact { Name = \"Cy\", Email = \"\", Phone = \"+1 555 0100\", Manager = ada };\nvar dee = new Contact { Name = \"Dee\", Phone = \"+44 161 496 0000\", Manager = bo };\nvar everyone = new List<Contact> { ada, bo, cy, dee };\n\nforeach (Contact contact in everyone)\n{\n    Console.WriteLine($\"{Contacts.Label(contact)}, manager: {Contacts.ManagerName(contact)}\");\n}\n\nContact? zed = Contacts.Find(everyone, \"Zed\");\nConsole.WriteLine(zed is null ? \"Zed isn't in the directory\" : $\"Found {zed.Name}\");\nConsole.WriteLine($\"UK phone numbers: {Contacts.UkPhones(everyone)}\");\n"
+        },
+        "solutionFiles": {
+          "Contacts.cs": "#nullable enable\n\nclass Contact\n{\n    // Every contact has a name. Email, Phone and Manager are optional.\n    public required string Name { get; set; }\n    public string? Email { get; set; }\n    public string? Phone { get; set; }\n    public Contact? Manager { get; set; }\n}\n\nstatic class Contacts\n{\n    // The contact with this name, or null when there isn't one.\n    public static Contact? Find(List<Contact> contacts, string name)\n    {\n        return contacts.FirstOrDefault(c => c.Name == name);\n    }\n\n    // \"Ada <ada@grove.dev>\", or just \"Ada\" with no email.\n    public static string Label(Contact contact)\n    {\n        if (string.IsNullOrEmpty(contact.Email))\n            return contact.Name;\n        return $\"{contact.Name} <{contact.Email}>\";\n    }\n\n    // The manager's name, or \"(none)\".\n    public static string ManagerName(Contact contact)\n    {\n        return contact.Manager?.Name ?? \"(none)\";\n    }\n\n    // How many contacts have a UK phone number (starting with +44)?\n    public static int UkPhones(List<Contact> contacts)\n    {\n        return contacts.Count(c => c.Phone?.StartsWith(\"+44\") == true);\n    }\n}\n",
+          "Program.cs": "#nullable enable\nvar ada = new Contact { Name = \"Ada\", Email = \"ada@grove.dev\", Phone = \"+44 20 7946 0000\" };\nvar bo = new Contact { Name = \"Bo\", Manager = ada };\nvar cy = new Contact { Name = \"Cy\", Email = \"\", Phone = \"+1 555 0100\", Manager = ada };\nvar dee = new Contact { Name = \"Dee\", Phone = \"+44 161 496 0000\", Manager = bo };\nvar everyone = new List<Contact> { ada, bo, cy, dee };\n\nforeach (Contact contact in everyone)\n{\n    Console.WriteLine($\"{Contacts.Label(contact)}, manager: {Contacts.ManagerName(contact)}\");\n}\n\nContact? zed = Contacts.Find(everyone, \"Zed\");\nConsole.WriteLine(zed is null ? \"Zed isn't in the directory\" : $\"Found {zed.Name}\");\nConsole.WriteLine($\"UK phone numbers: {Contacts.UkPhones(everyone)}\");\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs to the end",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The program stopped before the end. Read the first error in the Output panel: it names the file and line to look at."
+          },
+          {
+            "label": "No warnings left",
+            "kind": "noWarnings",
+            "spec": {},
+            "failMessage": "There's still a warning in the Output panel. Each one names a line where something might be null."
+          },
+          {
+            "label": "No ! operators",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "[\\w\\)\\]]!(?!=)",
+              "file": "Contacts.cs",
+              "max": 0
+            },
+            "failMessage": "Remove the ! operator: it only hides the warning. Mark what can be missing with ?, then check for null."
+          },
+          {
+            "label": "Name is required, the others are optional",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var ctx = new System.Reflection.NullabilityInfoContext(); string State(string p) => ctx.Create(typeof(Contact).GetProperty(p)!).ReadState .ToString(); bool required = typeof(Contact).GetProperty(\"Name\")!.IsDefined(typeof(System.Runtime.CompilerServices.RequiredMemberAttribute), false); return $\"Name {State(\"Name\")}{(required ? \" required\" : \"\")}, Email {State(\"Email\")}, Phone {State(\"Phone\")}, Manager {State(\"Manager\")}\"; }))()",
+              "equals": "Name NotNull required, Email Nullable, Phone Nullable, Manager Nullable"
+            },
+            "failMessage": "Mark Name required (public required string Name), and give Email and Manager nullable types (string? and Contact?), like Phone."
+          },
+          {
+            "label": "Find returns null when nobody matches",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var a = new Contact { Name = \"A\", Email = \"a@x.io\", Phone = \"+44 1\" }; var b = new Contact { Name = \"B\" }; var c = new Contact { Name = \"C\", Email = \"\", Phone = \"+1 2\", Manager = a }; var list = new List<Contact> { a, b, c }; return $\"{Contacts.Find(list, \"B\")?.Name} / {Contacts.Find(list, \"Z\")?.Name ?? \"null\"}\"; }))()",
+              "equals": "B / null"
+            },
+            "failMessage": "Find should return the matching contact, or null when there isn't one."
+          },
+          {
+            "label": "Label handles a missing or empty email",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var a = new Contact { Name = \"A\", Email = \"a@x.io\", Phone = \"+44 1\" }; var b = new Contact { Name = \"B\" }; var c = new Contact { Name = \"C\", Email = \"\", Phone = \"+1 2\", Manager = a }; return $\"{Contacts.Label(a)} | {Contacts.Label(b)} | {Contacts.Label(c)}\"; }))()",
+              "equals": "A <a@x.io> | B | C"
+            },
+            "failMessage": "Label should show the email in angle brackets, and just the name when the email is null or empty. string.IsNullOrEmpty checks both."
+          },
+          {
+            "label": "ManagerName handles no manager",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var a = new Contact { Name = \"A\", Email = \"a@x.io\", Phone = \"+44 1\" }; var b = new Contact { Name = \"B\" }; var c = new Contact { Name = \"C\", Email = \"\", Phone = \"+1 2\", Manager = a }; return $\"{Contacts.ManagerName(b)} | {Contacts.ManagerName(c)}\"; }))()",
+              "equals": "(none) | A"
+            },
+            "failMessage": "With no manager, ManagerName should return (none): try ?. and ??."
+          },
+          {
+            "label": "UkPhones skips missing phones",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<int>)(() => { var a = new Contact { Name = \"A\", Email = \"a@x.io\", Phone = \"+44 1\" }; var b = new Contact { Name = \"B\" }; var c = new Contact { Name = \"C\", Email = \"\", Phone = \"+1 2\", Manager = a }; return Contacts.UkPhones(new List<Contact> { a, b, c, new Contact { Name = \"D\", Phone = \"+44 2\" } }); }))()",
+              "equals": 2
+            },
+            "failMessage": "Only A and D have +44 numbers. A contact with no phone shouldn't crash the count: check for null before calling StartsWith."
+          },
+          {
+            "label": "The directory prints",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "Ada <ada@grove.dev>, manager: (none)",
+                "Bo, manager: Ada",
+                "Cy, manager: Ada",
+                "Dee, manager: Bo",
+                "Zed isn't in the directory",
+                "UK phone numbers: 2"
+              ]
+            },
+            "failMessage": "The program's output should match the instructions exactly."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which of `Contact`'s properties can really be missing, and does its type say so yet?",
+            "speechText": "Which of the contact's properties can really be missing, and does its type say so yet?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Add `required` to `Name`, and `?` to `Email`, `Manager` and `Find`'s return type. New warnings will appear where those are used: fix each with `string.IsNullOrEmpty`, or `?.` with `??`.",
+            "speechText": "Mark Name as required, and make Email, Manager and the return type of Find nullable. New warnings will appear where those are used, so fix each one with IsNullOrEmpty, or the null conditional and null coalescing operators.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The changed lines:\n\n```csharp\npublic required string Name { get; set; }\npublic string? Email { get; set; }\npublic Contact? Manager { get; set; }\n\npublic static Contact? Find(...)\n\nif (string.IsNullOrEmpty(contact.Email))\n\nreturn contact.Manager?.Name ?? \"(none)\";\n\nreturn contacts.Count(c => c.Phone?.StartsWith(\"+44\") == true);\n```",
+            "speechText": "Name is required, and Email, Manager and the result of Find are nullable. Label uses IsNullOrEmpty, ManagerName falls back to none, and UkPhones only counts a phone that exists and starts with plus four four.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "With nullable warnings on: string? s = null; Console.WriteLine(s.Length); What happens?",
+            "explanation": "Nullable problems are warnings, so it compiles, with CS8602 on s.Length. Then it crashes with a NullReferenceException when it runs.",
+            "options": [
+              {
+                "text": "It compiles with a warning, then crashes when it runs",
+                "correct": true
+              },
+              {
+                "text": "It doesn't compile",
+                "correct": false
+              },
+              {
+                "text": "It prints 0",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "s is null. What is s?.Length ?? 0?",
+            "explanation": "s?.Length gives null instead of crashing, and ?? turns that null into 0.",
+            "options": [
+              {
+                "text": "0",
+                "correct": true
+              },
+              {
+                "text": "null",
+                "correct": false
+              },
+              {
+                "text": "It crashes",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the ! in nick!.Length do?",
+            "explanation": "The null-forgiving operator only removes the warning. If nick really is null, it still crashes.",
+            "options": [
+              {
+                "text": "Silences the warning, but still crashes if nick is null",
+                "correct": true
+              },
+              {
+                "text": "Checks for null and skips the line",
+                "correct": false
+              },
+              {
+                "text": "Turns null into an empty string",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "public string Email { get; set; } is never set, giving warning CS8618. Email is optional. What's the best fix?",
+            "explanation": "If an email can be missing, the type should say so. Then the compiler shows every place that needs a check.",
+            "options": [
+              {
+                "text": "Change it to string? Email",
+                "correct": true
+              },
+              {
+                "text": "Write = null!; after it",
+                "correct": false
+              },
+              {
+                "text": "Mark it required",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Name is declared public required string Name { get; set; }. What does new Contact() do?",
+            "explanation": "A required member must be set in the object initializer, so this is a compile error (CS9035).",
+            "options": [
+              {
+                "text": "It's a compile error, because Name isn't set",
+                "correct": true
+              },
+              {
+                "text": "It creates a contact with Name null",
+                "correct": false
+              },
+              {
+                "text": "It creates a contact with an empty Name",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "objects-project-explorer",

@@ -89,6 +89,8 @@ export const CSharpOutput = forwardRef<LivePreviewHandle, {
             >
               {l.level === 'error' && <span aria-hidden="true">✕ </span>}
               {l.level === 'error' && <span className="sr-only">Error: </span>}
+              {l.level === 'warn' && <span aria-hidden="true">⚠ </span>}
+              {l.level === 'warn' && <span className="sr-only">Warning: </span>}
               {l.text === '' ? ' ' : l.text}
             </li>
           ))}

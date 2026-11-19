@@ -406,7 +406,7 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
 
     /// <summary>Test kinds the C# runner understands (src/Codegrove.CSharpRunner/TestEvaluator.cs).</summary>
     public static readonly IReadOnlySet<string> CSharpTestKinds =
-        new HashSet<string> { "noErrors", "consoleIncludes", "consoleEquals", "compileError", "csharpExpression", "sourceMatches" };
+        new HashSet<string> { "noErrors", "consoleIncludes", "consoleEquals", "compileError", "compileWarning", "noWarnings", "csharpExpression", "sourceMatches" };
 
     /// <summary>Catches authoring mistakes at seed time instead of in front of a child.</summary>
     private static void Validate(CourseFile f, string path)
@@ -445,7 +445,7 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
                     if (c.Tests.FirstOrDefault(t => !CSharpTestKinds.Contains(t.Kind)) is { } bad)
                         Fail($"test '{bad.Label}' has kind '{bad.Kind}', which C# challenges can't use. Known: {string.Join(", ", CSharpTestKinds)}.");
                 }
-                else if (c.Tests.FirstOrDefault(t => t.Kind is "consoleEquals" or "compileError" or "csharpExpression" or "sourceMatches") is { } csOnly)
+                else if (c.Tests.FirstOrDefault(t => t.Kind is "consoleEquals" or "compileError" or "compileWarning" or "noWarnings" or "csharpExpression" or "sourceMatches") is { } csOnly)
                     Fail($"test '{csOnly.Label}' has kind '{csOnly.Kind}', which only works in C# challenges.");
                 if (c.Hints.Select(h => h.Level).Order().SequenceEqual([1, 2, 3]) is false) Fail("a challenge needs hints at levels 1, 2 and 3.");
                 foreach (var h in c.Hints)

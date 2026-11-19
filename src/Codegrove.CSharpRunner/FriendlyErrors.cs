@@ -78,12 +78,23 @@ public static class FriendlyErrors
         ["CS8872"] = "A record's own Equals method must be virtual (unless the record is sealed): write public virtual bool Equals(...).",
         ["CS8858"] = "with only works on records (and structs). Make this type a record to copy it with with { ... }.",
         ["CS0111"] = "This type already has a member with this name and the same parameter types. (A record writes Equals(object) for you: write Equals(YourRecord other) instead.)",
+        // Nullable reference types (csharp-objects lesson 6). These are warnings: the program still runs.
+        ["CS8600"] = "This value might be null, but it's going into a variable that says it's never null. Make the variable's type nullable (string?), or give a fallback with ??.",
+        ["CS8601"] = "This might put null somewhere that says it's never null. Check for null first, or make that type nullable with ?.",
+        ["CS8602"] = "This might be null here, and using a member of null crashes. Check for null first, or use ?. and ?? to handle it.",
+        ["CS8603"] = "This method might return null, but its return type says it never does. Add ? to the return type, or return something that isn't null.",
+        ["CS8604"] = "This argument might be null, but the method says it needs a real value. Check for null first, or pass a fallback with ??.",
+        ["CS8618"] = "This non-nullable property or field is never given a value when the object is created, so it starts as null. Make it nullable with ? if it's optional, mark it required, or give it a value.",
+        ["CS8625"] = "null can't go here: this type says it's never null. Make the type nullable with ? if null is allowed.",
+        ["CS8629"] = "This nullable value might be null here. Check HasValue (or for null) first, or use ?? to give a fallback.",
+        ["CS8632"] = "The ? on this type only works where nullable checking is on. Add #nullable enable at the top of this file.",
+        ["CS9035"] = "This property is required, so it has to be set when the object is created: add it inside the { } after new.",
         ["CS0155"] = "Only exceptions can be thrown or caught: types that derive from Exception.",
     };
 
     private static readonly Dictionary<string, string> Runtime = new()
     {
-        ["NullReferenceException"] = "Something was null (empty, no object), and the program tried to use it.",
+        ["NullReferenceException"] = "Something was null (no object at all), and the program tried to use it.",
         ["IndexOutOfRangeException"] = "The program asked for an item past the end of an array. Remember the first item is number 0.",
         ["ArgumentOutOfRangeException"] = "The program asked for a position that doesn't exist, like an item past the end of a list. The first item is number 0.",
         ["DivideByZeroException"] = "The program tried to divide by zero, which has no answer.",

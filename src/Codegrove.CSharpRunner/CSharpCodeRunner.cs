@@ -133,6 +133,12 @@ public static class CSharpCodeRunner
                 compileWatch.ElapsedMilliseconds, 0);
         }
 
+        // Warnings don't stop the program, but they're often the lesson (nullable warnings especially),
+        // so they're shown above the output as well as underlined in the editor.
+        var warnings = diagnostics.Where(d => d.Severity == "warning").GroupBy(d => (d.File, d.Code, d.Message)).ToList();
+        foreach (var g in warnings.Take(MaxConsoleErrors)) console.Add(new("warn", DescribeCompileErrors(g.ToList())));
+        if (warnings.Count > MaxConsoleErrors) console.Add(new("warn", $"…and {warnings.Count - MaxConsoleErrors} more warnings."));
+
         var runWatch = Stopwatch.StartNew();
         var context = RunContext.Create();
         try
@@ -182,12 +188,16 @@ public static class CSharpCodeRunner
             FriendlyErrors.ForCompilerError(d.Id, d.GetMessage(System.Globalization.CultureInfo.InvariantCulture)));
     }
 
-    /// <summary>"Error in Program.cs, line 3: [friendly] (CS1002: ; expected)".</summary>
-    internal static string DescribeCompileError(Diagnostic e, string alsoOn = "") => string.IsNullOrEmpty(e.Friendly)
-        ? $"Error in {e.File}, line {e.Line}: {e.Message}{alsoOn} ({e.Code})"
-        : $"Error in {e.File}, line {e.Line}: {e.Friendly}{alsoOn} ({e.Code}: {e.Message})";
+    /// <summary>"Error in Program.cs, line 3: [friendly] (CS1002: ; expected)", or "Warning in …" for a warning.</summary>
+    internal static string DescribeCompileError(Diagnostic e, string alsoOn = "")
+    {
+        var kind = e.Severity == "warning" ? "Warning" : "Error";
+        return string.IsNullOrEmpty(e.Friendly)
+            ? $"{kind} in {e.File}, line {e.Line}: {e.Message}{alsoOn} ({e.Code})"
+            : $"{kind} in {e.File}, line {e.Line}: {e.Friendly}{alsoOn} ({e.Code}: {e.Message})";
+    }
 
-    /// <summary>One error, plus "The same error is on lines 4, 5 and 11 too." when it repeats in that file.</summary>
+    /// <summary>One error or warning, plus "The same error is on lines 4, 5 and 11 too." when it repeats in that file.</summary>
     internal static string DescribeCompileErrors(IReadOnlyList<Diagnostic> sameError)
     {
         var others = sameError.Skip(1).Select(e => e.Line).Where(l => l != sameError[0].Line).Distinct().ToList();
@@ -196,7 +206,8 @@ public static class CSharpCodeRunner
             ? $"line {others[0]}"
             : $"lines {string.Join(", ", others.Take(others.Count - 1))} and {others[^1]}";
         // Before the technical part in brackets, so it's read with the plain-language part.
-        return DescribeCompileError(sameError[0], $" The same error is on {lines} too.");
+        var what = sameError[0].Severity == "warning" ? "warning" : "error";
+        return DescribeCompileError(sameError[0], $" The same {what} is on {lines} too.");
     }
 
     /// <summary>What happened when the program ran. <paramref name="Error"/> is the learner's exception, if any.</summary>
