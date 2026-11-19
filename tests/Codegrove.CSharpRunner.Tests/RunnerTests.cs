@@ -45,6 +45,15 @@ public class RunnerTests
     }
 
     [Fact]
+    public async Task Assignment_in_a_condition_explains_double_equals()
+    {
+        var r = await Run("int score = 5;\nif (score = 10) { Console.WriteLine(\"ten\"); }");
+        var e = Assert.Single(r.Diagnostics, d => d.Severity == "error");
+        Assert.Equal(("CS0029", 2), (e.Code, e.Line));
+        Assert.Contains("use == (two equals signs)", e.Friendly);
+    }
+
+    [Fact]
     public async Task Network_apis_are_not_available()
     {
         // (File APIs live in System.Runtime itself; in the browser they only see an in-memory file system.)

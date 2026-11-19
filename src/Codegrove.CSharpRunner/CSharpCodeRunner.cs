@@ -175,7 +175,7 @@ public static class CSharpCodeRunner
             d.Id,
             d.Severity == DiagnosticSeverity.Error ? "error" : "warning",
             d.GetMessage(System.Globalization.CultureInfo.InvariantCulture),
-            FriendlyErrors.ForCompilerError(d.Id));
+            FriendlyErrors.ForCompilerError(d.Id, d.GetMessage(System.Globalization.CultureInfo.InvariantCulture)));
     }
 
     /// <summary>"Error in Program.cs, line 3: [friendly] (CS1002: ; expected)".</summary>

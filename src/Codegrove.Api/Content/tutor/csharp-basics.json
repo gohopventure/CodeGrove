@@ -64,6 +64,38 @@
           "mood": "Encouraging"
         }
       ]
+    },
+    "decisions-explorer": {
+      "intro": [
+        {
+          "displayText": "Programs get clever when they can choose what to do. Your mission: run the Rocket Ride checker at the Grove Fair and decide who gets to ride.",
+          "speechText": "Programs get clever when they can choose what to do. Your mission is to run the Rocket Ride checker at the Grove Fair and decide who gets to ride.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your ride checker makes the right call for every rider! Your new word is condition: a true-or-false question that an if statement checks.",
+          "speechText": "Your ride checker makes the right call for every rider! Your new word is condition, a true or false question that an if statement checks.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "decisions": {
+      "intro": [
+        {
+          "displayText": "Almost every feature you'll build branches somewhere: pricing tiers, permissions, validation, error handling. C# gives you if and else for simple branches, and switch expressions with patterns for cleaner multi-way decisions. You'll also meet short-circuit logic, which real code relies on to avoid crashing on missing data. Then you'll write the pricing rules for a cinema.",
+          "speechText": "Almost every feature you'll build branches somewhere, like pricing tiers, permissions, validation and error handling. C sharp gives you if and else for simple branches, and switch expressions with patterns for cleaner multi way decisions. You'll also meet short circuit logic, which real code relies on to avoid crashing on missing data. Then you'll write the pricing rules for a cinema.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The pricing rules hold up for every age and every day of the week. The gotcha: a switch expression tries its arms from top to bottom, so put the narrowest patterns first. Get the order wrong and C# reports the arm that can never match as an error. Next, you'll repeat work with loops over arrays and lists.",
+          "speechText": "The pricing rules hold up for every age and every day of the week. The gotcha is that a switch expression tries its arms from top to bottom, so put the narrowest patterns first. Get the order wrong and C sharp reports the arm that can never match as an error. Next, you'll repeat work with loops over arrays and lists.",
+          "mood": "Encouraging"
+        }
+      ]
     }
   }
 }

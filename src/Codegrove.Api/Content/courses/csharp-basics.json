@@ -672,7 +672,151 @@
       "sortOrder": 3,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Making choices\n\nSo far, your programs did the same thing every time. Real programs make choices: *if* the player has a key, open the door; *if not*, keep it locked.\n\n### Questions with true or false answers\n\nA **comparison** asks a question about two values. The answer is always `true` or `false`:\n\n| Sign | Means | Example | Answer |\n| --- | --- | --- | --- |\n| `>` | greater than | `10 > 3` | `true` |\n| `<` | less than | `10 < 3` | `false` |\n| `>=` | greater than or equal to | `5 >= 5` | `true` |\n| `<=` | less than or equal to | `4 <= 5` | `true` |\n| `==` | equal to | `7 == 7` | `true` |\n| `!=` | not equal to | `7 != 7` | `false` |\n\nCareful: `==` (two equals signs) *asks* whether two values are the same. One `=` *puts* a value into a variable.\n\n### if and else\n\nAn **if statement** runs some code only when its **condition** is `true`. The **else** part runs when it's `false`:\n\n```csharp\nint coins = 12;\n\nif (coins >= 10)\n{\n    Console.WriteLine(\"You can buy the sword!\");\n}\nelse\n{\n    Console.WriteLine(\"Keep collecting coins.\");\n}\n```\n\nThe condition goes in round brackets. The code for each choice goes in curly braces `{ }`.\n\n### More than two choices\n\nAdd `else if` to check another condition when the first one is false. C# checks from the top and runs only the **first** match:\n\n```csharp\nif (coins >= 100) { Console.WriteLine(\"Rich!\"); }\nelse if (coins >= 10) { Console.WriteLine(\"Doing fine.\"); }\nelse { Console.WriteLine(\"Broke!\"); }\n```\n\n### New words\n\n- **Comparison**: a question about two values, like `coins >= 10`, whose answer is true or false.\n- **Condition**: the true-or-false question an if statement checks.\n- **if statement**: code that runs only when its condition is true.\n- **else**: the part of an if statement that runs when the condition is false.\n",
+      "exampleMarkdown": "The weather decides what to wear. C# checks the conditions from the top: 12 isn't less than 10, but it is less than 20, so only the hoodie line runs. The second `if` checks a `bool` directly, because it's already true or false.",
+      "exampleCode": "int temperature = 12;\nbool isRaining = true;\n\nif (temperature < 10)\n{\n    Console.WriteLine(\"Wear a big coat.\");\n}\nelse if (temperature < 20)\n{\n    Console.WriteLine(\"A hoodie is fine.\");\n}\nelse\n{\n    Console.WriteLine(\"T-shirt weather!\");\n}\n\nif (isRaining)\n{\n    Console.WriteLine(\"Take an umbrella too.\");\n}\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** You're running the Rocket Ride at the Grove Fair.\n\n1. Riders must be **at least 120 cm** tall. Fix the first condition, which lets everyone on right now.\n2. The ride costs **4 tickets**. Add an `if` and `else` that prints `Enjoy the ride!` when `tickets` is 4 or more, and `You need more tickets.` when it isn't.\n\nWith a height of 125 and 3 tickets, the program should print `Tall enough!` and `You need more tickets.`\n\nTry changing `height` and `tickets` and pressing **Run** to see the other messages.",
+        "starterFiles": {
+          "Program.cs": "// Mission: run the Rocket Ride checker at the Grove Fair!\nint height = 125;   // in centimetres\nint tickets = 3;\n\n// 1. Riders must be at least 120 cm tall.\n//    Fix this condition: right now it lets everyone on.\nif (height > 0)\n{\n    Console.WriteLine(\"Tall enough!\");\n}\nelse\n{\n    Console.WriteLine(\"Sorry, not tall enough yet.\");\n}\n\n// 2. The ride costs 4 tickets.\n//    If tickets is 4 or more, print: Enjoy the ride!\n//    Otherwise, print: You need more tickets.\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: run the Rocket Ride checker at the Grove Fair!\nint height = 125;   // in centimetres\nint tickets = 3;\n\n// 1. Riders must be at least 120 cm tall.\n//    Fix this condition: right now it lets everyone on.\nif (height >= 120)\n{\n    Console.WriteLine(\"Tall enough!\");\n}\nelse\n{\n    Console.WriteLine(\"Sorry, not tall enough yet.\");\n}\n\n// 2. The ride costs 4 tickets.\n//    If tickets is 4 or more, print: Enjoy the ride!\n//    Otherwise, print: You need more tickets.\nif (tickets >= 4)\n{\n    Console.WriteLine(\"Enjoy the ride!\");\n}\nelse\n{\n    Console.WriteLine(\"You need more tickets.\");\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Look at the Output panel: the red error names the line to fix."
+          },
+          {
+            "label": "The height rule is at least 120 cm",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bheight\\s*>=\\s*120\\b|\\b120\\s*<=\\s*height\\b"
+            },
+            "failMessage": "Use >= so that exactly 120 cm counts too: height >= 120"
+          },
+          {
+            "label": "The ticket rule is 4 or more",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\btickets\\s*>=\\s*4\\b|\\b4\\s*<=\\s*tickets\\b|\\btickets\\s*>\\s*3\\b"
+            },
+            "failMessage": "Check the tickets with a comparison like tickets >= 4"
+          },
+          {
+            "label": "Both rules have an else",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\belse\\b",
+              "min": 2
+            },
+            "failMessage": "Give the tickets check an else part too, for when there aren't enough."
+          },
+          {
+            "label": "A 125 cm rider is tall enough",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Tall enough!",
+              "caseSensitive": true
+            },
+            "failMessage": "Keep the Tall enough! message for riders who pass."
+          },
+          {
+            "label": "3 tickets isn't enough",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "You need more tickets.",
+              "caseSensitive": true
+            },
+            "failMessage": "With 3 tickets, the program should print: You need more tickets."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which sign means \"at least\": `>` or `>=`?",
+            "speechText": "Which sign means at least? Is it greater than, or greater than or equal to?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Change the first condition to `height >= 120`. For the tickets, copy the whole `if` and `else`, then change the condition and the two messages.",
+            "speechText": "Change the first condition to height greater than or equal to 120. For the tickets, copy the whole if and else, then change the condition and the two messages.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The tickets check starts like this:\n\n```csharp\nif (tickets >= 4)\n{\n    Console.WriteLine(\"Enjoy the ride!\");\n}\n```\n\nThen add the `else` part that prints `You need more tickets.`",
+            "speechText": "Check that tickets is greater than or equal to four, and print Enjoy the ride inside the curly braces. Then add an else that prints You need more tickets.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "score is 7. Which condition is true?",
+            "explanation": "7 is greater than 5, so score > 5 is true. The other two are false.",
+            "options": [
+              {
+                "text": "score > 5",
+                "correct": true
+              },
+              {
+                "text": "score < 5",
+                "correct": false
+              },
+              {
+                "text": "score == 10",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's the difference between = and ==?",
+            "explanation": "One = stores a value. Two == asks a true-or-false question: are these the same?",
+            "options": [
+              {
+                "text": "= puts a value in a variable; == checks if two values are equal",
+                "correct": true
+              },
+              {
+                "text": "They do the same thing",
+                "correct": false
+              },
+              {
+                "text": "== only works with text",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When does the else part of an if statement run?",
+            "explanation": "else is the other choice: it runs only when the condition is false.",
+            "options": [
+              {
+                "text": "When the condition is false",
+                "correct": true
+              },
+              {
+                "text": "Every time",
+                "correct": false
+              },
+              {
+                "text": "When the condition is true",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "decisions",
@@ -680,7 +824,219 @@
       "sortOrder": 3,
       "ageBand": "Builder",
       "estimatedMinutes": 20,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Branching\n\nAlmost every feature branches somewhere: pricing tiers, permissions, validation. C# branches on **Boolean expressions**: expressions whose type is `bool`.\n\n### Comparison and logical operators\n\nComparisons (`==`, `!=`, `<`, `<=`, `>`, `>=`) produce a `bool`. For strings, `==` compares the *text* (unlike Java), and it's case-sensitive: `\"Ada\" == \"ada\"` is `false`. Use `string.Equals(a, b, StringComparison.OrdinalIgnoreCase)` to ignore case.\n\n**Logical operators** combine bools: `&&` (and), `||` (or), `!` (not). `&&` and `||` **short-circuit**: they stop as soon as the answer is known, so the right-hand side may never run. That's what makes this safe:\n\n```csharp\n// If name is null, name.Length is never read:\nif (name != null && name.Length > 3) { ... }\n```\n\nUnlike JavaScript, there's no \"truthy\": a condition must be a `bool`. `if (count)` and `if (x = 10)` are compile errors, which catches the classic `=` for `==` typo.\n\n### if / else if / else\n\n```csharp\nif (score >= 90) grade = 'A';\nelse if (score >= 80) grade = 'B';\nelse grade = 'C';\n```\n\nBraces are optional around a single statement, but most teams require them: adding a second line to an unbraced `if` is a classic bug.\n\n### switch statements\n\nA `switch` compares one value against constant cases. Each section must end with `break` (or `return`/`throw`): C# doesn't allow accidental fall-through (CS0163). Stack labels to share a section, and use `default` for everything else.\n\n```csharp\nswitch (country)\n{\n    case \"US\":\n        days = 2;\n        break;\n    case \"CA\":\n    case \"MX\":\n        days = 5;\n        break;\n    default:\n        days = 10;\n        break;\n}\n```\n\n### switch expressions and patterns\n\nWhen every branch just produces a value, a **switch expression** is shorter. Each arm is a **pattern**, `=>`, and a result; arms are tried top to bottom:\n\n```csharp\nstring size = total switch\n{\n    < 20m => \"small\",               // relational pattern\n    >= 20m and < 100m => \"medium\",  // combined with and\n    _ => \"large\",                   // discard: matches anything\n};\n```\n\nThe compiler checks the arms. An arm that can never match because an earlier one already covers it is an error (CS8510). A switch expression that misses some values gets a warning (CS8509), and throws at runtime if one of those values arrives. Ending with `_` covers the rest.\n\n### The conditional operator\n\n`condition ? a : b` picks one of two values: `var label = isMember ? \"Member\" : \"Guest\";`. It's handy inline, but nested ones get unreadable quickly.\n\n### New words\n\n- **Boolean expression**: an expression whose value is `true` or `false`.\n- **Logical operator**: `&&`, `||` or `!`, which combine or invert bools.\n- **Short-circuit evaluation**: stopping a logical expression as soon as its result is known.\n- **switch expression**: an expression that picks a value by matching its input against patterns.\n- **Pattern**: a test a value can match, like `< 20m`, `\"US\"` or `_`.\n- **Discard** (`_`): a pattern that matches anything; in a switch expression, the catch-all arm.\n- **Conditional operator** (`?:`): picks one of two values based on a bool.\n",
+      "exampleMarkdown": "One order, four ways to branch: `if`/`else if` with `||` for the shipping price, a `switch` statement with stacked labels for delivery time, a switch expression with relational patterns for the size, and the conditional operator for the message.",
+      "exampleCode": "decimal orderTotal = 42.50m;\nstring country = \"CA\";\nbool isMember = true;\n\n// if / else if / else: members ship free whatever the total.\ndecimal shipping;\nif (orderTotal >= 50m || isMember)\n    shipping = 0m;\nelse if (orderTotal >= 25m)\n    shipping = 4.99m;\nelse\n    shipping = 9.99m;\nConsole.WriteLine($\"Shipping: {shipping:F2}\");\n\n// switch statement: stacked labels share a section; every section ends with break.\nswitch (country)\n{\n    case \"US\":\n        Console.WriteLine(\"Delivery: 2 days\");\n        break;\n    case \"CA\":\n    case \"MX\":\n        Console.WriteLine(\"Delivery: 5 days\");\n        break;\n    default:\n        Console.WriteLine(\"Delivery: 10 days\");\n        break;\n}\n\n// switch expression with relational patterns, tried top to bottom.\nstring size = orderTotal switch\n{\n    < 20m => \"small\",\n    < 100m => \"medium\",\n    _ => \"large\",\n};\nConsole.WriteLine($\"Order size: {size}\");\n\n// conditional operator\nConsole.WriteLine(isMember ? \"Thanks for being a member!\" : \"Join to get free shipping.\");\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Write the cinema's pricing rules.** The program at the top prints a price list; your code goes in the two methods of the `Pricing` class.\n\n1. `Category(age)` returns `\"free\"` under 3, `\"child\"` from 3 to 12, `\"senior\"` at 65 and over, and `\"adult\"` otherwise. Use a **switch expression**.\n2. `TicketPrice(age, isWeekend)` returns free 0.00, child 8.50, adult 12.50, senior 9.00.\n3. Weekends add 2.00 to every ticket **that isn't free**. (The starter adds it to everything.)\n\nThe checks call your methods with many ages, not just the ones in the list, so test the edges: 2 and 3, 12 and 13, 64 and 65.",
+        "starterFiles": {
+          "Program.cs": "// Cinema ticket pricing. This prints a price list; the rules live in the Pricing class below.\n// (Classes and methods get their own lessons. For now, write your code inside the two methods.)\nConsole.WriteLine($\"Age 2:  {Pricing.Category(2)}, {Pricing.TicketPrice(2, false):F2}\");\nConsole.WriteLine($\"Age 8:  {Pricing.Category(8)}, {Pricing.TicketPrice(8, false):F2}\");\nConsole.WriteLine($\"Age 30: {Pricing.Category(30)}, {Pricing.TicketPrice(30, false):F2}\");\nConsole.WriteLine($\"Age 70: {Pricing.Category(70)}, {Pricing.TicketPrice(70, false):F2}\");\nConsole.WriteLine($\"Age 2 on a Saturday: {Pricing.TicketPrice(2, true):F2}\");\nConsole.WriteLine($\"Age 8 on a Saturday: {Pricing.TicketPrice(8, true):F2}\");\n\nstatic class Pricing\n{\n    // \"free\" under 3, \"child\" from 3 to 12, \"senior\" at 65 and over, \"adult\" otherwise.\n    // Use a switch expression.\n    public static string Category(int age)\n    {\n        return \"adult\";\n    }\n\n    // free: 0.00, child: 8.50, adult: 12.50, senior: 9.00.\n    // Weekends add 2.00 to every ticket that isn't free.\n    public static decimal TicketPrice(int age, bool isWeekend)\n    {\n        decimal price = 12.50m;\n        if (isWeekend)\n            price = price + 2.00m;\n        return price;\n    }\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Cinema ticket pricing. This prints a price list; the rules live in the Pricing class below.\n// (Classes and methods get their own lessons. For now, write your code inside the two methods.)\nConsole.WriteLine($\"Age 2:  {Pricing.Category(2)}, {Pricing.TicketPrice(2, false):F2}\");\nConsole.WriteLine($\"Age 8:  {Pricing.Category(8)}, {Pricing.TicketPrice(8, false):F2}\");\nConsole.WriteLine($\"Age 30: {Pricing.Category(30)}, {Pricing.TicketPrice(30, false):F2}\");\nConsole.WriteLine($\"Age 70: {Pricing.Category(70)}, {Pricing.TicketPrice(70, false):F2}\");\nConsole.WriteLine($\"Age 2 on a Saturday: {Pricing.TicketPrice(2, true):F2}\");\nConsole.WriteLine($\"Age 8 on a Saturday: {Pricing.TicketPrice(8, true):F2}\");\n\nstatic class Pricing\n{\n    // \"free\" under 3, \"child\" from 3 to 12, \"senior\" at 65 and over, \"adult\" otherwise.\n    // Use a switch expression.\n    public static string Category(int age)\n    {\n        return age switch\n        {\n            < 3 => \"free\",\n            <= 12 => \"child\",\n            >= 65 => \"senior\",\n            _ => \"adult\",\n        };\n    }\n\n    // free: 0.00, child: 8.50, adult: 12.50, senior: 9.00.\n    // Weekends add 2.00 to every ticket that isn't free.\n    public static decimal TicketPrice(int age, bool isWeekend)\n    {\n        decimal price = Category(age) switch\n        {\n            \"free\" => 0m,\n            \"child\" => 8.50m,\n            \"senior\" => 9.00m,\n            _ => 12.50m,\n        };\n        if (isWeekend && price > 0m)\n            price = price + 2.00m;\n        return price;\n    }\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The program compiles and runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "There's still an error in the Output panel. Fix the first one, then run again."
+          },
+          {
+            "label": "Category uses a switch expression",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bswitch\\s*\\{"
+            },
+            "failMessage": "Return a switch expression from Category: return age switch { ... };"
+          },
+          {
+            "label": "Under 3 is free",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new[] { Pricing.Category(0), Pricing.Category(2) }",
+              "equals": [
+                "free",
+                "free"
+              ]
+            },
+            "failMessage": "Ages 0 to 2 should be \"free\"."
+          },
+          {
+            "label": "3 to 12 is child",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new[] { Pricing.Category(3), Pricing.Category(8), Pricing.Category(12) }",
+              "equals": [
+                "child",
+                "child",
+                "child"
+              ]
+            },
+            "failMessage": "Ages 3 to 12, including both ends, should be \"child\"."
+          },
+          {
+            "label": "13 to 64 is adult, 65 and over is senior",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new[] { Pricing.Category(13), Pricing.Category(64), Pricing.Category(65), Pricing.Category(99) }",
+              "equals": [
+                "adult",
+                "adult",
+                "senior",
+                "senior"
+              ]
+            },
+            "failMessage": "13 to 64 should be \"adult\", and 65 or more \"senior\"."
+          },
+          {
+            "label": "Weekday prices",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new[] { Pricing.TicketPrice(2, false), Pricing.TicketPrice(8, false), Pricing.TicketPrice(30, false), Pricing.TicketPrice(70, false) }",
+              "equals": [
+                0,
+                8.5,
+                12.5,
+                9
+              ]
+            },
+            "failMessage": "Weekday prices should be 0.00 free, 8.50 child, 12.50 adult and 9.00 senior."
+          },
+          {
+            "label": "Weekends add 2.00, except to free tickets",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new[] { Pricing.TicketPrice(2, true), Pricing.TicketPrice(8, true), Pricing.TicketPrice(30, true), Pricing.TicketPrice(70, true) }",
+              "equals": [
+                0,
+                10.5,
+                14.5,
+                11
+              ]
+            },
+            "failMessage": "On weekends, add 2.00 only when the ticket isn't free."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "What should `Category(2)` return, and which kind of pattern in a switch expression could check that an age is under 3?",
+            "speechText": "What should Category return for a two year old? Which kind of pattern in a switch expression could check that an age is under three?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Relational patterns like `< 3` and `<= 12` are tried from top to bottom, so order them from the youngest up and finish with `_` for everyone else. In `TicketPrice`, only add the weekend extra when the price isn't zero: join both conditions with `&&`.",
+            "speechText": "Relational patterns are tried from top to bottom, so order them from the youngest age up, and finish with a discard for everyone else. In TicketPrice, only add the weekend extra when the price isn't zero, by joining both conditions with and.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "`Category` can start like this:\n\n```csharp\nreturn age switch\n{\n    < 3 => \"free\",\n    <= 12 => \"child\",\n    // senior, then _ for adult\n};\n```\n\nIn `TicketPrice`, get the base price with a switch on `Category(age)`, then add the extra with `if (isWeekend && price > 0m)`.",
+            "speechText": "Return age switch with the free and child arms first, then senior, then a discard for adult. Get the base price by switching on the category, and add two only when it's the weekend and the price is more than zero.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What happens with if (score = 10) in C#?",
+            "explanation": "score = 10 is an assignment whose value is an int, and a condition must be a bool, so it's a compile error (CS0029). In JavaScript it would silently be true.",
+            "options": [
+              {
+                "text": "A compile error: a condition must be a bool",
+                "correct": true
+              },
+              {
+                "text": "score is set to 10 and the if runs",
+                "correct": false
+              },
+              {
+                "text": "It compares score with 10",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why doesn't name != null && name.Length > 3 crash when name is null?",
+            "explanation": "&& short-circuits: the left side is false, so the result is false, and the right side is never evaluated.",
+            "options": [
+              {
+                "text": "&& stops at the first false, so Length is never read",
+                "correct": true
+              },
+              {
+                "text": "The Length of null is 0",
+                "correct": false
+              },
+              {
+                "text": "!= null turns name into an empty string",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A case in a switch statement has no break, so it would run on into the next case. What happens?",
+            "explanation": "C# doesn't allow fall-through from one case section into another: it's a compile error (CS0163). Stack labels to share code instead.",
+            "options": [
+              {
+                "text": "A compile error",
+                "correct": true
+              },
+              {
+                "text": "The next case's code runs too",
+                "correct": false
+              },
+              {
+                "text": "The switch ends quietly",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's wrong with n switch { > 0 => \"positive\", < 0 => \"negative\" }?",
+            "explanation": "Nothing matches 0. The compiler warns that the switch isn't exhaustive (CS8509), and it throws at runtime if n is 0. A final _ arm fixes it.",
+            "options": [
+              {
+                "text": "It doesn't handle 0, so it throws if n is 0",
+                "correct": true
+              },
+              {
+                "text": "Nothing: it covers every number",
+                "correct": false
+              },
+              {
+                "text": "Each arm needs a break",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "With var msg = isMember ? \"Welcome back\" : \"Hello\"; what is msg when isMember is false?",
+            "explanation": "The conditional operator picks the value after ? when the condition is true, and the value after : when it's false.",
+            "options": [
+              {
+                "text": "\"Hello\"",
+                "correct": true
+              },
+              {
+                "text": "\"Welcome back\"",
+                "correct": false
+              },
+              {
+                "text": "false",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "loops-explorer",

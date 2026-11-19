@@ -47,6 +47,11 @@ public static class FriendlyErrors
         ["CS0131"] = "The left side of = must be a variable, property or array item, something that can hold a value.",
         ["CS0170"] = "This field is used before it has a value.",
         ["CS0236"] = "A field can't use another field to set its starting value. Do it in a constructor instead.",
+        ["CS0163"] = "Each case in a switch must end with break (or return), so the code can't run on into the next case.",
+        ["CS0152"] = "Two cases in this switch check the same value. Each case needs a different one.",
+        ["CS8510"] = "This pattern can never match: an earlier one already catches every value it would. Put narrower patterns first.",
+        ["CS8120"] = "This case can never match: an earlier case already catches every value it would. Put narrower cases first.",
+        ["CS8509"] = "This switch expression doesn't handle every possible value. Add a final arm with _ to catch the rest.",
     };
 
     private static readonly Dictionary<string, string> Runtime = new()
@@ -65,7 +70,14 @@ public static class FriendlyErrors
         ["NotImplementedException"] = "This part of the program hasn't been written yet.",
     };
 
-    public static string ForCompilerError(string code) => Compiler.GetValueOrDefault(code) is { Length: > 0 } s ? s : "";
+    /// <summary>Plain words for a compiler error. The message picks a better text for a few common special cases.</summary>
+    public static string ForCompilerError(string code, string message = "")
+    {
+        // `if (x = 10)`: one = assigns, so the condition is an int, not a bool.
+        if (code == "CS0029" && message.EndsWith("to 'bool'", StringComparison.Ordinal))
+            return "A condition must be true or false. To compare two values, use == (two equals signs); one = puts a value into a variable.";
+        return Compiler.GetValueOrDefault(code) ?? "";
+    }
 
     public static string ForException(string typeName) => Runtime.GetValueOrDefault(typeName) ?? "";
 }
