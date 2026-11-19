@@ -7,7 +7,7 @@
   "isPublished": true,
   "objectives": [
     "Handle errors with try, catch and finally, and throw clear exceptions of your own",
-    "Share and extend behaviour with inheritance, virtual methods and overrides",
+    "Share and extend behavior with inheritance, virtual methods and overrides",
     "Write code that works with any type that implements an interface",
     "Model data with records, value equality and with expressions",
     "Filter, sort, project and group collections with LINQ",
@@ -552,19 +552,19 @@
       "ageBand": "Builder",
       "estimatedMinutes": 20,
       "isPublished": true,
-      "learnMarkdown": "## Inheritance: base classes and overriding\n\nWhen several classes share data and behaviour, put the shared part in a **base class** and **derive** the others from it. A derived class gets every member of its base, then adds or replaces what it needs.\n\n```csharp\nclass Vehicle\n{\n    public string Plate { get; }\n\n    public Vehicle(string plate)\n    {\n        Plate = plate;\n    }\n\n    public virtual decimal Toll() => 2.50m;\n}\n\nclass Truck : Vehicle\n{\n    public int Axles { get; }\n\n    public Truck(string plate, int axles) : base(plate)\n    {\n        Axles = axles;\n    }\n\n    public override decimal Toll() => 2.50m * Axles;\n}\n```\n\nUse inheritance for an **is-a** relationship: a truck is a vehicle. If you'd say \"has a\" (a car has an engine), use a field instead. That's **composition**, and it's usually the better default: inheritance ties classes together tightly.\n\n### Constructors and base(...)\n\nConstructors aren't inherited. A derived constructor always runs a base constructor first: `base(plate)`, written after a colon, picks which one and passes its arguments. Leave it out, and C# looks for a base constructor with no parameters. If there isn't one, you get error CS7036.\n\n### virtual, override and base\n\n- `virtual` marks a member that derived classes may replace.\n- `override` replaces it, and the override runs **even when the object is held in a base-type variable**: with `Vehicle v = new Truck(\"T1\", 3);`, `v.Toll()` returns 7.50. Picking the method from the object's real type at run time is called **polymorphism**.\n- Inside an override, `base.Toll()` calls the base version, so you can build on it instead of copying it:\n\n```csharp\npublic override decimal Toll() => base.Toll() * Axles;\n```\n\n**Gotcha:** write a method with the same name but forget `override`, and you've **hidden** the base method instead of replacing it. C# only warns you (CS0114). Code holding the object as a `Vehicle` still calls the base version, so treat that warning as an error.\n\n### protected\n\n`private` members are invisible even to derived classes. `protected` means \"this class and the classes derived from it\". A common pattern: `public int Health { get; protected set; }` lets anyone read it but only the family change it.\n\n### abstract and sealed\n\nAn `abstract` class exists only to be a base: you can't create one with `new` (CS0144). An `abstract` method has no body, and every non-abstract derived class must override it (CS0534).\n\n```csharp\nabstract class Shape\n{\n    public abstract double Area();\n\n    public override string ToString() => $\"Area {Area():F1}\";\n}\n```\n\n`ToString` is itself a virtual method of `object`, the base of every class. That's why overriding it changes what `$\"{shape}\"` prints.\n\n`sealed` does the opposite of abstract: nothing can derive from a sealed class. Seal classes that weren't designed to be extended. Unsealing later is easy; taking it back once others derive from your class isn't.\n\n### New words\n\n- **Inheritance**: a class getting the members of a base class, and adding or replacing some.\n- **Base class / derived class**: the class inherited from, and the class that inherits.\n- **Polymorphism**: calling a method through a base-type variable and getting the version for the object's real type.\n- **Hiding**: a same-named member without `override`, which base-type code never calls.\n- **protected**: visible to the class and the classes derived from it.\n- **Abstract class**: a class that can't be created with `new`, only derived from.\n- **sealed**: a class nothing can derive from.\n- **Composition**: building a class from other objects it holds in fields (\"has a\").\n",
+      "learnMarkdown": "## Inheritance: base classes and overriding\n\nWhen several classes share data and behavior, put the shared part in a **base class** and **derive** the others from it. A derived class gets every member of its base, then adds or replaces what it needs.\n\n```csharp\nclass Vehicle\n{\n    public string Plate { get; }\n\n    public Vehicle(string plate)\n    {\n        Plate = plate;\n    }\n\n    public virtual decimal Toll() => 2.50m;\n}\n\nclass Truck : Vehicle\n{\n    public int Axles { get; }\n\n    public Truck(string plate, int axles) : base(plate)\n    {\n        Axles = axles;\n    }\n\n    public override decimal Toll() => 2.50m * Axles;\n}\n```\n\nUse inheritance for an **is-a** relationship: a truck is a vehicle. If you'd say \"has a\" (a car has an engine), use a field instead. That's **composition**, and it's usually the better default: inheritance ties classes together tightly.\n\n### Constructors and base(...)\n\nConstructors aren't inherited. A derived constructor always runs a base constructor first: `base(plate)`, written after a colon, picks which one and passes its arguments. Leave it out, and C# looks for a base constructor with no parameters. If there isn't one, you get error CS7036.\n\n### virtual, override and base\n\n- `virtual` marks a member that derived classes may replace.\n- `override` replaces it, and the override runs **even when the object is held in a base-type variable**: with `Vehicle v = new Truck(\"T1\", 3);`, `v.Toll()` returns 7.50. Picking the method from the object's real type at run time is called **polymorphism**.\n- Inside an override, `base.Toll()` calls the base version, so you can build on it instead of copying it:\n\n```csharp\npublic override decimal Toll() => base.Toll() * Axles;\n```\n\n**Gotcha:** write a method with the same name but forget `override`, and you've **hidden** the base method instead of replacing it. C# only warns you (CS0114). Code holding the object as a `Vehicle` still calls the base version, so treat that warning as an error.\n\n### protected\n\n`private` members are invisible even to derived classes. `protected` means \"this class and the classes derived from it\". A common pattern: `public int Health { get; protected set; }` lets anyone read it but only the family change it.\n\n### abstract and sealed\n\nAn `abstract` class exists only to be a base: you can't create one with `new` (CS0144). An `abstract` method has no body, and every non-abstract derived class must override it (CS0534).\n\n```csharp\nabstract class Shape\n{\n    public abstract double Area();\n\n    public override string ToString() => $\"Area {Area():F1}\";\n}\n```\n\n`ToString` is itself a virtual method of `object`, the base of every class. That's why overriding it changes what `$\"{shape}\"` prints.\n\n`sealed` does the opposite of abstract: nothing can derive from a sealed class. Seal classes that weren't designed to be extended. Unsealing later is easy; taking it back once others derive from your class isn't.\n\n### New words\n\n- **Inheritance**: a class getting the members of a base class, and adding or replacing some.\n- **Base class / derived class**: the class inherited from, and the class that inherits.\n- **Polymorphism**: calling a method through a base-type variable and getting the version for the object's real type.\n- **Hiding**: a same-named member without `override`, which base-type code never calls.\n- **protected**: visible to the class and the classes derived from it.\n- **Abstract class**: a class that can't be created with `new`, only derived from.\n- **sealed**: a class nothing can derive from.\n- **Composition**: building a class from other objects it holds in fields (\"has a\").\n",
       "exampleMarkdown": "Every vehicle inherits `Plate` and `ToString`. `Truck` builds on the base toll with `base.Toll()` instead of copying it, and it's `sealed`. The loop holds everything as `Vehicle`, yet each object uses its own `Toll`: that's polymorphism.",
       "exampleCode": "var traffic = new List<Vehicle>\n{\n    new Vehicle(\"CAR-1\"),\n    new Truck(\"TRK-7\", 3),\n    new Motorbike(\"MTR-2\"),\n};\n\ndecimal total = 0;\nforeach (Vehicle vehicle in traffic)\n{\n    Console.WriteLine($\"{vehicle}: {vehicle.Toll():F2}\");\n    total += vehicle.Toll();\n}\nConsole.WriteLine($\"Total tolls: {total:F2}\");\n\nclass Vehicle\n{\n    public string Plate { get; }\n\n    public Vehicle(string plate)\n    {\n        Plate = plate;\n    }\n\n    public virtual decimal Toll() => 2.50m;\n\n    public override string ToString()\n        => $\"{GetType().Name} {Plate}\";\n}\n\nsealed class Truck : Vehicle\n{\n    public int Axles { get; }\n\n    public Truck(string plate, int axles) : base(plate)\n    {\n        Axles = axles;\n    }\n\n    // Builds on the base toll instead of copying the number.\n    public override decimal Toll() => base.Toll() * Axles;\n}\n\nclass Motorbike : Vehicle\n{\n    public Motorbike(string plate) : base(plate) { }\n\n    public override decimal Toll() => 1.00m;\n}\n",
       "challenge": {
         "kind": "CSharp",
         "xpReward": 15,
-        "instructionsMarkdown": "**Finish the game's units** in `Units.cs`. `Unit` and `Archer` are done.\n\n1. **Fix `Knight`.** It doesn't compile, and once it does, its armour is ignored whenever the knight is held as a `Unit`. Make it:\n   - start with 100 health, by passing the name and 100 to `Unit`'s constructor\n   - replace (not hide) `TakeDamage`: each hit does 5 less damage, but always at least 1\n   - reuse `Unit`'s `TakeDamage` with `base.TakeDamage(...)`, so health still never goes below 0\n2. **Add a `Berserker`** that derives from `Unit`:\n   - 80 health\n   - `AttackPower` is 10, plus a quarter of the health it has lost (whole numbers, so `(80 - Health) / 4`)\n   - `sealed`: nothing should derive from it\n3. **Add Cato to the battle:** in `Program.cs`, remove the `//` from the line that adds the Berserker to the party.\n\nThe battle should print:\n\n```\nEveryone takes 20 damage:\nAsh (40 HP) hits for 12\nBryn (85 HP) hits for 15\nCato (60 HP) hits for 15\nEveryone takes 70 damage:\nAsh (0 HP) is out\nBryn (20 HP) hits for 15\nCato (0 HP) is out\n```",
+        "instructionsMarkdown": "**Finish the game's units** in `Units.cs`. `Unit` and `Archer` are done.\n\n1. **Fix `Knight`.** It doesn't compile, and once it does, its armor is ignored whenever the knight is held as a `Unit`. Make it:\n   - start with 100 health, by passing the name and 100 to `Unit`'s constructor\n   - replace (not hide) `TakeDamage`: each hit does 5 less damage, but always at least 1\n   - reuse `Unit`'s `TakeDamage` with `base.TakeDamage(...)`, so health still never goes below 0\n2. **Add a `Berserker`** that derives from `Unit`:\n   - 80 health\n   - `AttackPower` is 10, plus a quarter of the health it has lost (whole numbers, so `(80 - Health) / 4`)\n   - `sealed`: nothing should derive from it\n3. **Add Cato to the battle:** in `Program.cs`, remove the `//` from the line that adds the Berserker to the party.\n\nThe battle should print:\n\n```\nEveryone takes 20 damage:\nAsh (40 HP) hits for 12\nBryn (85 HP) hits for 15\nCato (60 HP) hits for 15\nEveryone takes 70 damage:\nAsh (0 HP) is out\nBryn (20 HP) hits for 15\nCato (0 HP) is out\n```",
         "starterFiles": {
-          "Units.cs": "// Every unit derives from this. Finished: use it as it is.\nabstract class Unit\n{\n    public string Name { get; }\n    public int Health { get; protected set; }\n    public bool IsAlive => Health > 0;\n\n    protected Unit(string name, int health)\n    {\n        Name = name;\n        Health = health;\n    }\n\n    // Lose the full damage, but never below 0.\n    public virtual void TakeDamage(int amount)\n    {\n        Health = Math.Max(0, Health - amount);\n    }\n\n    public abstract int AttackPower();\n\n    public override string ToString() => $\"{Name} ({Health} HP)\";\n}\n\n// A finished unit, to show the pattern.\nclass Archer : Unit\n{\n    public Archer(string name) : base(name, 60) { }\n\n    public override int AttackPower() => 12;\n}\n\n// A Knight starts with 100 health and hits for 15.\n// Armour: every hit does 5 less damage, but always at least 1.\nclass Knight : Unit\n{\n    public Knight(string name)\n    {\n    }\n\n    public override int AttackPower() => 15;\n\n    public void TakeDamage(int amount)\n    {\n        int reduced = amount - 5;\n        Health = Health - reduced;\n    }\n}\n\n// TODO: a sealed Berserker class (see the instructions).\n",
+          "Units.cs": "// Every unit derives from this. Finished: use it as it is.\nabstract class Unit\n{\n    public string Name { get; }\n    public int Health { get; protected set; }\n    public bool IsAlive => Health > 0;\n\n    protected Unit(string name, int health)\n    {\n        Name = name;\n        Health = health;\n    }\n\n    // Lose the full damage, but never below 0.\n    public virtual void TakeDamage(int amount)\n    {\n        Health = Math.Max(0, Health - amount);\n    }\n\n    public abstract int AttackPower();\n\n    public override string ToString() => $\"{Name} ({Health} HP)\";\n}\n\n// A finished unit, to show the pattern.\nclass Archer : Unit\n{\n    public Archer(string name) : base(name, 60) { }\n\n    public override int AttackPower() => 12;\n}\n\n// A Knight starts with 100 health and hits for 15.\n// Armor: every hit does 5 less damage, but always at least 1.\nclass Knight : Unit\n{\n    public Knight(string name)\n    {\n    }\n\n    public override int AttackPower() => 15;\n\n    public void TakeDamage(int amount)\n    {\n        int reduced = amount - 5;\n        Health = Health - reduced;\n    }\n}\n\n// TODO: a sealed Berserker class (see the instructions).\n",
           "Program.cs": "// Every unit in the party takes the same hits.\nvar party = new List<Unit> { new Archer(\"Ash\"), new Knight(\"Bryn\") };\n// Once Berserker exists, remove the // at the start of the next line:\n// party.Add(new Berserker(\"Cato\"));\n\nint[] hits = { 20, 70 };\nforeach (int damage in hits)\n{\n    Console.WriteLine($\"Everyone takes {damage} damage:\");\n    foreach (Unit unit in party)\n    {\n        unit.TakeDamage(damage);\n        string status = unit.IsAlive ? $\"hits for {unit.AttackPower()}\" : \"is out\";\n        Console.WriteLine($\"{unit} {status}\");\n    }\n}\n"
         },
         "solutionFiles": {
-          "Units.cs": "// Every unit derives from this. Finished: use it as it is.\nabstract class Unit\n{\n    public string Name { get; }\n    public int Health { get; protected set; }\n    public bool IsAlive => Health > 0;\n\n    protected Unit(string name, int health)\n    {\n        Name = name;\n        Health = health;\n    }\n\n    // Lose the full damage, but never below 0.\n    public virtual void TakeDamage(int amount)\n    {\n        Health = Math.Max(0, Health - amount);\n    }\n\n    public abstract int AttackPower();\n\n    public override string ToString() => $\"{Name} ({Health} HP)\";\n}\n\n// A finished unit, to show the pattern.\nclass Archer : Unit\n{\n    public Archer(string name) : base(name, 60) { }\n\n    public override int AttackPower() => 12;\n}\n\n// A Knight starts with 100 health and hits for 15.\n// Armour: every hit does 5 less damage, but always at least 1.\nclass Knight : Unit\n{\n    public Knight(string name) : base(name, 100) { }\n\n    public override int AttackPower() => 15;\n\n    public override void TakeDamage(int amount)\n    {\n        base.TakeDamage(Math.Max(1, amount - 5));\n    }\n}\n\n// Gets stronger as it gets hurt.\nsealed class Berserker : Unit\n{\n    private const int MaxHealth = 80;\n\n    public Berserker(string name) : base(name, MaxHealth) { }\n\n    public override int AttackPower() => 10 + (MaxHealth - Health) / 4;\n}\n",
+          "Units.cs": "// Every unit derives from this. Finished: use it as it is.\nabstract class Unit\n{\n    public string Name { get; }\n    public int Health { get; protected set; }\n    public bool IsAlive => Health > 0;\n\n    protected Unit(string name, int health)\n    {\n        Name = name;\n        Health = health;\n    }\n\n    // Lose the full damage, but never below 0.\n    public virtual void TakeDamage(int amount)\n    {\n        Health = Math.Max(0, Health - amount);\n    }\n\n    public abstract int AttackPower();\n\n    public override string ToString() => $\"{Name} ({Health} HP)\";\n}\n\n// A finished unit, to show the pattern.\nclass Archer : Unit\n{\n    public Archer(string name) : base(name, 60) { }\n\n    public override int AttackPower() => 12;\n}\n\n// A Knight starts with 100 health and hits for 15.\n// Armor: every hit does 5 less damage, but always at least 1.\nclass Knight : Unit\n{\n    public Knight(string name) : base(name, 100) { }\n\n    public override int AttackPower() => 15;\n\n    public override void TakeDamage(int amount)\n    {\n        base.TakeDamage(Math.Max(1, amount - 5));\n    }\n}\n\n// Gets stronger as it gets hurt.\nsealed class Berserker : Unit\n{\n    private const int MaxHealth = 80;\n\n    public Berserker(string name) : base(name, MaxHealth) { }\n\n    public override int AttackPower() => 10 + (MaxHealth - Health) / 4;\n}\n",
           "Program.cs": "// Every unit in the party takes the same hits.\nvar party = new List<Unit> { new Archer(\"Ash\"), new Knight(\"Bryn\") };\n// Once Berserker exists, remove the // at the start of the next line:\nparty.Add(new Berserker(\"Cato\"));\n\nint[] hits = { 20, 70 };\nforeach (int damage in hits)\n{\n    Console.WriteLine($\"Everyone takes {damage} damage:\");\n    foreach (Unit unit in party)\n    {\n        unit.TakeDamage(damage);\n        string status = unit.IsAlive ? $\"hits for {unit.AttackPower()}\" : \"is out\";\n        Console.WriteLine($\"{unit} {status}\");\n    }\n}\n"
         },
         "tests": [
@@ -584,7 +584,7 @@
             "failMessage": "Pass the name and 100 to Unit's constructor: add : base(name, 100) after Knight's constructor brackets."
           },
           {
-            "label": "Armour works even when the Knight is held as a Unit",
+            "label": "Armor works even when the Knight is held as a Unit",
             "kind": "csharpExpression",
             "spec": {
               "expression": "((Func<string>)(() => { Unit k = new Knight(\"K\"); k.TakeDamage(20); int first = k.Health; k.TakeDamage(3); return $\"{first} then {k.Health}\"; }))()",
@@ -930,7 +930,7 @@
       "ageBand": "Builder",
       "estimatedMinutes": 20,
       "isPublished": true,
-      "learnMarkdown": "## Interfaces and polymorphism\n\nAn **interface** is a contract: a list of members that a class promises to have. It holds no data and, usually, no code.\n\n```csharp\ninterface IShippingRate\n{\n    string Name { get; }\n    decimal Cost(Parcel parcel);\n}\n```\n\nA class **implements** an interface with the same colon as inheritance, and must provide every member, as `public`:\n\n```csharp\nclass FlatRate : IShippingRate\n{\n    private readonly decimal _price;\n\n    public FlatRate(decimal price)\n    {\n        _price = price;\n    }\n\n    public string Name => \"Flat rate\";\n\n    public decimal Cost(Parcel parcel) => _price;\n}\n```\n\nLeave a member out and the class won't compile (CS0535). Write it without `public` and it doesn't count, so you get CS0737 instead. You can't create an interface itself with `new`: you create a class that implements it.\n\n### Programming to an interface\n\nCode that only needs \"something that can price a parcel\" should ask for the interface, not a particular class:\n\n```csharp\nstatic decimal Quote(Parcel p, IShippingRate rate)\n    => rate.Cost(p);\n```\n\n`Quote` now works with every rate, including ones written next year. That's polymorphism again, but the classes don't need a shared base class, or to be related at all.\n\nThis is how ASP.NET Core is built. Your classes ask for interfaces like `ILogger<T>` in their constructors, and the framework passes in a real implementation: that's **dependency injection**. In a test, you pass a fake one instead.\n\n### Interfaces or abstract classes?\n\n- A class can implement **many** interfaces, but derive from only **one** class. The base class comes first: `class Drone : Vehicle, IShippingRate, IDisposable`.\n- An abstract class can hold fields, constructors and shared code. An interface describes a capability.\n\nA rule of thumb: an interface for \"can do X\", a base class for \"is a kind of X, with shared code\".\n\n### Wrapping one implementation in another\n\nA class can keep an interface in a field, so it can wrap *any* implementation and add behaviour around it. That's the **decorator** pattern:\n\n```csharp\nclass Discounted : IShippingRate\n{\n    private readonly IShippingRate _inner;\n\n    public Discounted(IShippingRate inner)\n    {\n        _inner = inner;\n    }\n\n    public string Name => _inner.Name + \" (10% off)\";\n\n    public decimal Cost(Parcel p) => _inner.Cost(p) * 0.9m;\n}\n```\n\n`Discounted` works with flat rates, weight rates, and even other discounted rates.\n\n### Interfaces .NET gives you\n\n- `IEnumerable<T>`: anything `foreach` can loop over. Lists, arrays and LINQ results all implement it, so a parameter of type `IEnumerable<T>` accepts all of them.\n- `IComparable<T>`: \"I know how to put myself in order\", used by `Sort` and `OrderBy`.\n- `IDisposable`: \"I hold something that must be released\", used by `using`.\n\nA type pattern checks for a capability at run time: `if (thing is IDisposable d) d.Dispose();`\n\n### New words\n\n- **Interface**: a contract listing members that implementing classes must provide.\n- **Implement**: provide every member of an interface, as `public`.\n- **Dependency injection**: giving a class the objects it needs (usually as interfaces) instead of letting it create them.\n- **Decorator**: a class that implements an interface by wrapping another implementation of it and adding behaviour.\n- **`IEnumerable<T>`**: the interface for anything you can loop over with `foreach`.\n",
+      "learnMarkdown": "## Interfaces and polymorphism\n\nAn **interface** is a contract: a list of members that a class promises to have. It holds no data and, usually, no code.\n\n```csharp\ninterface IShippingRate\n{\n    string Name { get; }\n    decimal Cost(Parcel parcel);\n}\n```\n\nA class **implements** an interface with the same colon as inheritance, and must provide every member, as `public`:\n\n```csharp\nclass FlatRate : IShippingRate\n{\n    private readonly decimal _price;\n\n    public FlatRate(decimal price)\n    {\n        _price = price;\n    }\n\n    public string Name => \"Flat rate\";\n\n    public decimal Cost(Parcel parcel) => _price;\n}\n```\n\nLeave a member out and the class won't compile (CS0535). Write it without `public` and it doesn't count, so you get CS0737 instead. You can't create an interface itself with `new`: you create a class that implements it.\n\n### Programming to an interface\n\nCode that only needs \"something that can price a parcel\" should ask for the interface, not a particular class:\n\n```csharp\nstatic decimal Quote(Parcel p, IShippingRate rate)\n    => rate.Cost(p);\n```\n\n`Quote` now works with every rate, including ones written next year. That's polymorphism again, but the classes don't need a shared base class, or to be related at all.\n\nThis is how ASP.NET Core is built. Your classes ask for interfaces like `ILogger<T>` in their constructors, and the framework passes in a real implementation: that's **dependency injection**. In a test, you pass a fake one instead.\n\n### Interfaces or abstract classes?\n\n- A class can implement **many** interfaces, but derive from only **one** class. The base class comes first: `class Drone : Vehicle, IShippingRate, IDisposable`.\n- An abstract class can hold fields, constructors and shared code. An interface describes a capability.\n\nA rule of thumb: an interface for \"can do X\", a base class for \"is a kind of X, with shared code\".\n\n### Wrapping one implementation in another\n\nA class can keep an interface in a field, so it can wrap *any* implementation and add behavior around it. That's the **decorator** pattern:\n\n```csharp\nclass Discounted : IShippingRate\n{\n    private readonly IShippingRate _inner;\n\n    public Discounted(IShippingRate inner)\n    {\n        _inner = inner;\n    }\n\n    public string Name => _inner.Name + \" (10% off)\";\n\n    public decimal Cost(Parcel p) => _inner.Cost(p) * 0.9m;\n}\n```\n\n`Discounted` works with flat rates, weight rates, and even other discounted rates.\n\n### Interfaces .NET gives you\n\n- `IEnumerable<T>`: anything `foreach` can loop over. Lists, arrays and LINQ results all implement it, so a parameter of type `IEnumerable<T>` accepts all of them.\n- `IComparable<T>`: \"I know how to put myself in order\", used by `Sort` and `OrderBy`.\n- `IDisposable`: \"I hold something that must be released\", used by `using`.\n\nA type pattern checks for a capability at run time: `if (thing is IDisposable d) d.Dispose();`\n\n### New words\n\n- **Interface**: a contract listing members that implementing classes must provide.\n- **Implement**: provide every member of an interface, as `public`.\n- **Dependency injection**: giving a class the objects it needs (usually as interfaces) instead of letting it create them.\n- **Decorator**: a class that implements an interface by wrapping another implementation of it and adding behavior.\n- **`IEnumerable<T>`**: the interface for anything you can loop over with `foreach`.\n",
       "exampleMarkdown": "`Kettle` asks for an `ILogger` and never learns which one it got. The same kettle code logs to the console, and then, wrapped in `NumberedLogger`, to a list in memory, the way a test would check it.",
       "exampleCode": "var memory = new MemoryLogger();\nILogger[] loggers =\n{\n    new ConsoleLogger(),\n    new NumberedLogger(memory),\n};\n\nforeach (ILogger logger in loggers)\n{\n    var kettle = new Kettle(logger);\n    kettle.Boil();\n}\n\nConsole.WriteLine($\"Kept in memory: {memory.Lines.Count} lines\");\nforeach (string line in memory.Lines)\n{\n    Console.WriteLine(line);\n}\n\ninterface ILogger\n{\n    void Log(string message);\n}\n\nclass ConsoleLogger : ILogger\n{\n    public void Log(string message) => Console.WriteLine(message);\n}\n\nclass MemoryLogger : ILogger\n{\n    public List<string> Lines { get; } = new();\n\n    public void Log(string message) => Lines.Add(message);\n}\n\n// A decorator: wraps any logger and numbers each message.\nclass NumberedLogger : ILogger\n{\n    private readonly ILogger _inner;\n    private int _count;\n\n    public NumberedLogger(ILogger inner)\n    {\n        _inner = inner;\n    }\n\n    public void Log(string message)\n    {\n        _count++;\n        _inner.Log($\"{_count}. {message}\");\n    }\n}\n\n// Gets its logger from outside: dependency injection.\nclass Kettle\n{\n    private readonly ILogger _log;\n\n    public Kettle(ILogger log)\n    {\n        _log = log;\n    }\n\n    public void Boil()\n    {\n        _log.Log(\"Filling\");\n        _log.Log(\"Heating\");\n        _log.Log(\"Click!\");\n    }\n}\n",
       "challenge": {
@@ -1152,7 +1152,7 @@
       "isPublished": true,
       "learnMarkdown": "## Records: data that compares\n\nSome classes only hold data. A Grove trading card has a name and a power, and that's all. C# has a shortcut for types like that: a **record**.\n\n```csharp\nrecord Card(string Name, int Power);\n```\n\nThat one line gives you a constructor and the properties `Name` and `Power`. It also teaches the card to print itself:\n\n```csharp\nvar dragon = new Card(\"Dragon\", 9);\nConsole.WriteLine(dragon.Name);  // Dragon\nConsole.WriteLine(dragon);\n// Card { Name = Dragon, Power = 9 }\n```\n\n### Records compare what's inside\n\nMake two objects from a class with the same data, and `==` says they're *not* equal: they're two different objects. Records are different. Two records are equal when everything inside them is the same:\n\n```csharp\nvar a = new Card(\"Dragon\", 9);\nvar b = new Card(\"Dragon\", 9);\nConsole.WriteLine(a == b);  // True\n```\n\n### Copy, with a change\n\nYou can't change a record after you make it. Instead, `with` makes a copy and changes just the parts you list:\n\n```csharp\nvar stronger = dragon with { Power = 10 };\n```\n\n`stronger` has power 10, and `dragon` still has power 9.\n\nOne rule: in a file with top-level code, put your records at the **bottom**, after all the other code.\n\n### New words\n\n- **Record**: a quick way to make a type that just holds data. It prints itself and compares what's inside.\n- **Equal**: for records, two records are equal when all their data is the same.\n- **with**: makes a copy of a record with some parts changed, and leaves the original alone.\n",
       "exampleMarkdown": "Two `Fruit` records with the same data are equal, even though they're two separate objects. `with` makes a ripe copy, and the original banana stays green.",
-      "exampleCode": "var green = new Fruit(\"banana\", \"green\");\nvar alsoGreen = new Fruit(\"banana\", \"green\");\n\nConsole.WriteLine(green);\nConsole.WriteLine($\"Equal? {green == alsoGreen}\");\n\nvar ripe = green with { Colour = \"yellow\" };\nConsole.WriteLine(ripe);\nConsole.WriteLine($\"Still green: {green}\");\n\nrecord Fruit(string Name, string Colour);\n",
+      "exampleCode": "var green = new Fruit(\"banana\", \"green\");\nvar alsoGreen = new Fruit(\"banana\", \"green\");\n\nConsole.WriteLine(green);\nConsole.WriteLine($\"Equal? {green == alsoGreen}\");\n\nvar ripe = green with { Color = \"yellow\" };\nConsole.WriteLine(ripe);\nConsole.WriteLine($\"Still green: {green}\");\n\nrecord Fruit(string Name, string Color);\n",
       "challenge": {
         "kind": "CSharp",
         "xpReward": 10,
@@ -1702,7 +1702,7 @@
       "isPublished": true,
       "learnMarkdown": "## LINQ: filter, sort and group\n\n**LINQ** (*Language Integrated Query*) is a set of methods for asking questions of any `IEnumerable<T>`: lists, arrays, dictionaries, and later in this track, database tables through Entity Framework Core.\n\n### Lambdas\n\nMost LINQ methods take a **lambda**, a small function with no name. `s => s.Units >= 10` takes a sale `s` and returns whether it's a large one.\n\n### The everyday operators\n\n```csharp\nvar big = sales.Where(s => s.Units >= 10);   // filter\nvar names = sales.Select(s => s.Product);    // project\nvar sorted = sales\n    .OrderByDescending(s => s.Total)         // sort...\n    .ThenBy(s => s.Product);                 // ...ties by name\nvar top3 = sorted.Take(3);                   // the first 3\n```\n\n`Select` is called **projection**: it turns each item into something else. For a second sort key, use `ThenBy`: a second `OrderBy` would throw away the first sort.\n\nThese **aggregates** return a single value: `Count`, `Sum`, `Average`, `Min`, `Max`, `Any`, `All`, `MinBy`, `MaxBy`, `First` and `FirstOrDefault`. `First` throws an exception on an empty sequence. `FirstOrDefault` returns the default instead: `null` for classes and strings, 0 for numbers.\n\n### Grouping\n\n`GroupBy` sorts items into buckets that share a key. Each group has a `Key`, and is itself a sequence of the items in it:\n\n```csharp\nforeach (var group in sales.GroupBy(s => s.Region))\n{\n    decimal revenue = group.Sum(s => s.Total);\n    Console.WriteLine($\"{group.Key}: {revenue}\");\n}\n```\n\n`ToDictionary` turns groups into a lookup table:\n\n```csharp\nDictionary<string, decimal> totals = sales\n    .GroupBy(s => s.Region)\n    .ToDictionary(g => g.Key, g => g.Sum(s => s.Total));\n```\n\n### Shaping results\n\n`Select` can build a new shape on the fly with an **anonymous type**, a type with no name that only lives inside the query:\n\n```csharp\nvar products = sales\n    .GroupBy(s => s.Product)\n    .Select(g => new { Name = g.Key, Units = g.Sum(s => s.Units) })\n    .OrderByDescending(p => p.Units);\n```\n\n### Deferred execution\n\nA query like `Where` doesn't run when you write it. It runs each time something loops over it, or calls `Count`, `ToList` and so on. That's **deferred execution**:\n\n```csharp\nvar large = sales.Where(s => s.Units >= 10);\nsales.Add(new Sale(\"West\", \"Drone\", 20, 120m));\nConsole.WriteLine(large.Count());  // includes the West sale!\n```\n\n**Gotcha:** when you need a snapshot, or you'll loop over an expensive query more than once, finish it with `ToList()` or `ToArray()`. That runs it once, right there.\n\n### Query syntax\n\nYou'll also see LINQ written like SQL: `from s in sales where s.Units >= 10 select s.Product`. It compiles to the same method calls. This course uses the method style.\n\n### New words\n\n- **LINQ** (*Language Integrated Query*): methods such as `Where`, `Select` and `GroupBy` for querying any `IEnumerable<T>`.\n- **Lambda**: a small unnamed function, like `s => s.Total`.\n- **Projection**: turning each item into a new shape with `Select`.\n- **Aggregate**: an operator that reduces a sequence to one value, like `Sum` or `Count`.\n- **Grouping**: sorting items into keyed buckets with `GroupBy`.\n- **Anonymous type**: a type with no name, created with `new { ... }`, for use inside one query.\n- **Deferred execution**: a query runs when its results are used, not when it's written.\n",
       "exampleMarkdown": "Questions about a book list: filtering and projecting, sorting with a tie-breaker, grouping with averages, `Any`, and `FirstOrDefault` on a genre that isn't there. The last lines show deferred execution: the query sees the book added later, and the `ToList` snapshot doesn't.",
-      "exampleCode": "var books = new List<Book>\n{\n    new Book(\"Dune\", \"Sci-fi\", 1965, 4.6),\n    new Book(\"Matilda\", \"Kids\", 1988, 4.4),\n    new Book(\"Neuromancer\", \"Sci-fi\", 1984, 4.1),\n    new Book(\"Holes\", \"Kids\", 1998, 4.5),\n    new Book(\"Emma\", \"Classic\", 1815, 4.0),\n};\n\nvar modern = books.Where(b => b.Year >= 1980).Select(b => b.Title);\nConsole.WriteLine($\"Since 1980: {string.Join(\", \", modern)}\");\n\nBook best = books\n    .OrderByDescending(b => b.Rating)\n    .ThenBy(b => b.Title)\n    .First();\nConsole.WriteLine($\"Highest rated: {best.Title}\");\n\nforeach (var genre in books.GroupBy(b => b.Genre).OrderBy(g => g.Key))\n{\n    double average = genre.Average(b => b.Rating);\n    int count = genre.Count();\n    Console.WriteLine($\"{genre.Key}: average {average:F2} ({count} of them)\");\n}\n\nConsole.WriteLine($\"Any before 1900? {books.Any(b => b.Year < 1900)}\");\nBook poem = books.FirstOrDefault(b => b.Genre == \"Poetry\");\nConsole.WriteLine($\"First poetry book: {poem?.Title ?? \"none\"}\");\n\nvar kids = books.Where(b => b.Genre == \"Kids\");\nvar kidsNow = kids.ToList();\nbooks.Add(new Book(\"Wonder\", \"Kids\", 2012, 4.7));\nConsole.WriteLine($\"Query: {kids.Count()}, snapshot: {kidsNow.Count}\");\n\nrecord Book(string Title, string Genre, int Year, double Rating);\n",
+      "exampleCode": "var books = new List<Book>\n{\n    new Book(\"Dune\", \"Sci-fi\", 1965, 4.6),\n    new Book(\"Matilda\", \"Kids\", 1988, 4.4),\n    new Book(\"Neuromancer\", \"Sci-fi\", 1984, 4.1),\n    new Book(\"Holes\", \"Kids\", 1998, 4.5),\n    new Book(\"Emma\", \"Classic\", 1815, 4.0),\n};\n\nvar modern = books.Where(b => b.Year >= 1980).Select(b => b.Title);\nConsole.WriteLine($\"Since 1980: {string.Join(\", \", modern)}\");\n\nBook best = books\n    .OrderByDescending(b => b.Rating)\n    .ThenBy(b => b.Title)\n    .First();\nConsole.WriteLine($\"Highest rated: {best.Title}\");\n\nforeach (var genre in books.GroupBy(b => b.Genre).OrderBy(g => g.Key))\n{\n    double avg = genre.Average(b => b.Rating);\n    int count = genre.Count();\n    Console.WriteLine($\"{genre.Key}: average {avg:F2} ({count} of them)\");\n}\n\nConsole.WriteLine($\"Any before 1900? {books.Any(b => b.Year < 1900)}\");\nBook poem = books.FirstOrDefault(b => b.Genre == \"Poetry\");\nConsole.WriteLine($\"First poetry book: {poem?.Title ?? \"none\"}\");\n\nvar kids = books.Where(b => b.Genre == \"Kids\");\nvar kidsNow = kids.ToList();\nbooks.Add(new Book(\"Wonder\", \"Kids\", 2012, 4.7));\nConsole.WriteLine($\"Query: {kids.Count()}, snapshot: {kidsNow.Count}\");\n\nrecord Book(string Title, string Genre, int Year, double Rating);\n",
       "challenge": {
         "kind": "CSharp",
         "xpReward": 15,
@@ -2065,7 +2065,7 @@
       "isPublished": true,
       "learnMarkdown": "## Nullable reference types\n\n`null` means \"no object\". Use a member of `null` and you get a `NullReferenceException`, the most common crash in .NET programs. Tony Hoare, who invented null references, later called them his billion-dollar mistake.\n\n**Nullable reference types** let the compiler track which values might be null, and warn you *before* the program runs.\n\n### Switching them on\n\nNew .NET projects have `<Nullable>enable</Nullable>` in the `.csproj` file, which switches it on everywhere. In this course, each file starts with `#nullable enable` instead.\n\n### Two kinds of reference\n\n- `string name`: never null. The compiler warns if you might put null in it.\n- `string? nickname`: might be null. The compiler warns if you use it without checking.\n\nThe `?` changes nothing when the program runs. It's information for the compiler, and for the next developer who reads your code.\n\n### Flow analysis\n\nThe compiler follows your code, so after a check it knows the value isn't null:\n\n```csharp\nstring? nick = FindNickname(id);\nConsole.WriteLine(nick.Length);      // CS8602: might be null\nif (nick is not null)\n    Console.WriteLine(nick.Length);  // fine: it was checked\n```\n\n### Tools for maybe-null values\n\n- `nick?.Length`: the **null-conditional operator** gives null instead of crashing.\n- `nick ?? \"none\"`: the **null-coalescing operator** gives a fallback.\n- `nick ??= \"none\"`: assigns only when `nick` is null.\n- `is null` and `is not null`: plain checks.\n- `string.IsNullOrEmpty(s)`: the compiler knows `s` isn't null when this returns false.\n- `ArgumentNullException.ThrowIfNull(arg)`: rejects a null argument right away.\n\n### The warnings you'll meet\n\n- **CS8602**: using a member of something that might be null.\n- **CS8603**: returning something that might be null from a method whose return type says it never is. Make the return type nullable: `Contact?`.\n- **CS8600**, **CS8601**, **CS8604**: putting a maybe-null value where null isn't allowed.\n- **CS8618**: a non-nullable property that's never set, so it starts as null.\n\nFor CS8618, make the property nullable if it's optional, or mark it **`required`** so callers must set it:\n\n```csharp\nclass Contact\n{\n    public required string Name { get; set; }\n    public string? Email { get; set; }\n}\n\nvar c = new Contact { Name = \"Ada\" };  // leave out Name: error\n```\n\n### The ! operator\n\n`nick!.Length` uses the **null-forgiving operator**. It tells the compiler \"trust me, this isn't null\".\n\n**Gotcha:** `!` removes the warning, not the danger. If you're wrong, it still crashes. Use it only when you know something the compiler can't.\n\n### Warnings, not errors\n\nNullable problems are warnings, so the code still compiles. Many teams turn them into errors with `<WarningsAsErrors>nullable</WarningsAsErrors>`.\n\nAnd the warnings are only as good as your annotations. A property declared `string` that's really optional gets no warnings until you mark it `string?`. Then the warnings show you every place that needs a check.\n\n### New words\n\n- **Nullable reference type**: a reference type marked with `?`, like `string?`, that may hold null.\n- **Flow analysis**: the compiler following your code to know where a value can't be null.\n- **Null-conditional operator** (`?.`): uses a member only when the value isn't null.\n- **Null-coalescing operator** (`??`): gives a fallback when the value is null.\n- **Null-forgiving operator** (`!`): silences a nullable warning without checking anything.\n- **required member**: a property that every object initializer must set.\n",
       "exampleMarkdown": "Settings that may or may not exist. A lookup returns `string?`, and each use handles null: `??`, `?.`, a null check that narrows the type, `??=`, and `TryGetValue`, whose value the compiler knows is set when it returns true. `Profile` uses `required` for the one property every profile needs.",
-      "exampleCode": "#nullable enable\nvar settings = new Dictionary<string, string>\n{\n    [\"theme\"] = \"dark\",\n    [\"volume\"] = \"7\",\n};\n\nstring? theme = Lookup(settings, \"theme\");\nstring? font = Lookup(settings, \"font\");\n\nConsole.WriteLine($\"Theme: {theme ?? \"light\"}\");\nint fontLetters = font?.Length ?? 0;\nConsole.WriteLine($\"Font: {font ?? \"default\"}, {fontLetters} letters\");\n\n// After the check, the compiler knows theme isn't null.\nif (theme is not null)\n{\n    Console.WriteLine($\"In capitals: {theme.ToUpper()}\");\n}\n\n// ??= only assigns when the variable is null.\nfont ??= \"Atkinson\";\nConsole.WriteLine($\"Font now: {font}\");\n\nif (settings.TryGetValue(\"volume\", out string? volume))\n{\n    Console.WriteLine($\"Volume has {volume.Length} digit\");\n}\n\nvar profile = new Profile { Username = \"byte_runner\" };\nConsole.WriteLine($\"{profile.Username}: {profile.Bio ?? \"(no bio yet)\"}\");\n\nstatic string? Lookup(Dictionary<string, string> map, string key)\n    => map.TryGetValue(key, out var value) ? value : null;\n\nclass Profile\n{\n    public required string Username { get; init; }\n    public string? Bio { get; init; }\n}\n",
+      "exampleCode": "#nullable enable\nvar settings = new Dictionary<string, string>\n{\n    [\"theme\"] = \"dark\",\n    [\"volume\"] = \"7\",\n};\n\nstring? theme = Lookup(settings, \"theme\");\nstring? font = Lookup(settings, \"font\");\n\nConsole.WriteLine($\"Theme: {theme ?? \"light\"}\");\nint fontLetters = font?.Length ?? 0;\nConsole.WriteLine($\"Font: {font ?? \"default\"}, {fontLetters} letters\");\n\n// After the check, the compiler knows theme isn't null.\nif (theme is not null)\n{\n    Console.WriteLine($\"In capitals: {theme.ToUpper()}\");\n}\n\n// ??= only assigns when the variable is null.\nfont ??= \"Atkinson\";\nConsole.WriteLine($\"Font now: {font}\");\n\nif (settings.TryGetValue(\"volume\", out string? volume))\n{\n    Console.WriteLine($\"Volume has {volume.Length} digit\");\n}\n\nvar profile = new Profile { Username = \"byte_runner\" };\nstring bio = profile.Bio ?? \"(no bio yet)\";\nConsole.WriteLine($\"{profile.Username}: {bio}\");\n\nstatic string? Lookup(Dictionary<string, string> map, string key)\n    => map.TryGetValue(key, out var value) ? value : null;\n\nclass Profile\n{\n    public required string Username { get; init; }\n    public string? Bio { get; init; }\n}\n",
       "challenge": {
         "kind": "CSharp",
         "xpReward": 15,
@@ -2285,7 +2285,167 @@
       "sortOrder": 7,
       "ageBand": "Explorer",
       "estimatedMinutes": 10,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Project: Grove Zoo\n\nThe Grove Zoo opens today! In this project you'll use something from almost every lesson in this course, all in one program:\n\n- **A derived class** (lesson 2): a `Parrot` that inherits from `Animal`, just like the `Lion` does.\n- **null and ??** (lesson 6): an animal with no nickname gets a tag like `the parrot`.\n- **LINQ** (lesson 5): count the lions in one line.\n- **try and catch** (lesson 1): skip the visitor cards that aren't numbers.\n\n### Step by step\n\nThe missions are numbered in the code. Do them in order, and press **Run** after each one. Each mission gets the zoo a little further.\n\nThe program has two files. `Zoo.cs` holds the animal classes, and `Program.cs` runs the zoo. Click the tabs above the editor to switch between them.\n\n### Remember\n\n```csharp\nclass Parrot : Animal            // a Parrot is an Animal\nstring tag = nickname ?? \"none\"; // a backup for null\nint big = numbers.Count(n => n > 10);\ntry { ... } catch (FormatException) { ... }\n```\n\n### New words\n\n- **Project**: a bigger program that puts lots of ideas together.\n",
+      "exampleMarkdown": "A small garden that uses all four ideas: a `Sunflower` that inherits from `Plant`, `??` for plants with no name, `Count` to count the sunflowers, and `try` with `catch` for a height that isn't a number.",
+      "exampleCode": "#nullable enable\nPlant[] garden =\n{\n    new Sunflower(\"Sunny\"),\n    new Plant(),\n    new Sunflower(null),\n};\n\nforeach (Plant plant in garden)\n{\n    Console.WriteLine($\"{plant.Label()} {plant.Grow()}\");\n}\n\nint sunflowers = garden.Count(p => p.Kind == \"sunflower\");\nConsole.WriteLine($\"Sunflowers: {sunflowers}\");\n\ntry\n{\n    int height = int.Parse(\"tall\");\n    Console.WriteLine($\"Height: {height}\");\n}\ncatch (FormatException)\n{\n    Console.WriteLine(\"tall isn't a number!\");\n}\n\nclass Plant\n{\n    public string Kind = \"plant\";\n    public string? Name;\n\n    public virtual string Grow()\n    {\n        return \"grows a little\";\n    }\n\n    public string Label()\n    {\n        return Name ?? \"a \" + Kind;\n    }\n}\n\nclass Sunflower : Plant\n{\n    public Sunflower(string? name)\n    {\n        Kind = \"sunflower\";\n        Name = name;\n    }\n\n    public override string Grow()\n    {\n        return \"grows taller than you!\";\n    }\n}\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Open the Grove Zoo!** Do the four missions in order, and press Run after each one:\n\n1. In `Zoo.cs`, make a `Parrot` that inherits from `Animal`, like the `Lion`. Its kind is `parrot`, and its `Sound` is `Squawk!`.\n2. In `Zoo.cs`, fix `Tag` with `??`: an animal with no nickname gets `the ` and its kind, like `the parrot`. That makes the yellow warning go away.\n3. In `Program.cs`, count the lions with LINQ's `Count`.\n4. In `Program.cs`, put the code inside the cards loop in a `try`, and `catch (FormatException)` to print `Skipped card: ` and the card.\n\nWhen the zoo is open, it prints:\n\n```\nLeo says Roar!\nthe parrot says Squawk!\nthe lion says Roar!\nLions: 2\nSkipped card: eleven\nKids under 12: 2\n```",
+        "starterFiles": {
+          "Zoo.cs": "#nullable enable\n// Every animal in the Grove Zoo.\nclass Animal\n{\n    public string Kind = \"animal\";\n    public string? Nickname;\n\n    public virtual string Sound()\n    {\n        return \"...\";\n    }\n\n    // 2. Use ?? so an animal with no nickname gets \"the \" and its\n    //    Kind instead, like \"the parrot\".\n    public string Tag()\n    {\n        return Nickname;\n    }\n}\n\n// The lion is finished. Use it as your pattern!\nclass Lion : Animal\n{\n    public Lion(string? nickname)\n    {\n        Kind = \"lion\";\n        Nickname = nickname;\n    }\n\n    public override string Sound()\n    {\n        return \"Roar!\";\n    }\n}\n\n// 1. Make a Parrot that inherits from Animal. Its Kind is \"parrot\",\n//    and its Sound is \"Squawk!\".\n",
+          "Program.cs": "#nullable enable\n// Mission: open the Grove Zoo! Do the missions in order.\nAnimal[] animals = { new Lion(\"Leo\"), new Parrot(null), new Lion(null) };\n\nforeach (Animal animal in animals)\n{\n    Console.WriteLine($\"{animal.Tag()} says {animal.Sound()}\");\n}\n\n// 3. Count the lions with LINQ: use Count, and Kind == \"lion\".\nint lions = 0;\nConsole.WriteLine($\"Lions: {lions}\");\n\n// 4. Some visitors wrote their age as a word. Put the code inside\n//    the loop in a try. Then catch (FormatException) and print\n//    Skipped card: and the card.\nstring[] cards = { \"9\", \"eleven\", \"12\", \"7\" };\nint kids = 0;\nforeach (string card in cards)\n{\n    int age = int.Parse(card);\n    if (age < 12)\n        kids = kids + 1;\n}\nConsole.WriteLine($\"Kids under 12: {kids}\");\n"
+        },
+        "solutionFiles": {
+          "Zoo.cs": "#nullable enable\n// Every animal in the Grove Zoo.\nclass Animal\n{\n    public string Kind = \"animal\";\n    public string? Nickname;\n\n    public virtual string Sound()\n    {\n        return \"...\";\n    }\n\n    // 2. Use ?? so an animal with no nickname gets \"the \" and its\n    //    Kind instead, like \"the parrot\".\n    public string Tag()\n    {\n        return Nickname ?? \"the \" + Kind;\n    }\n}\n\n// The lion is finished. Use it as your pattern!\nclass Lion : Animal\n{\n    public Lion(string? nickname)\n    {\n        Kind = \"lion\";\n        Nickname = nickname;\n    }\n\n    public override string Sound()\n    {\n        return \"Roar!\";\n    }\n}\n\n// 1. Make a Parrot that inherits from Animal. Its Kind is \"parrot\",\n//    and its Sound is \"Squawk!\".\nclass Parrot : Animal\n{\n    public Parrot(string? nickname)\n    {\n        Kind = \"parrot\";\n        Nickname = nickname;\n    }\n\n    public override string Sound()\n    {\n        return \"Squawk!\";\n    }\n}\n",
+          "Program.cs": "#nullable enable\n// Mission: open the Grove Zoo! Do the missions in order.\nAnimal[] animals = { new Lion(\"Leo\"), new Parrot(null), new Lion(null) };\n\nforeach (Animal animal in animals)\n{\n    Console.WriteLine($\"{animal.Tag()} says {animal.Sound()}\");\n}\n\n// 3. Count the lions with LINQ: use Count, and Kind == \"lion\".\nint lions = animals.Count(a => a.Kind == \"lion\");\nConsole.WriteLine($\"Lions: {lions}\");\n\n// 4. Some visitors wrote their age as a word. Put the code inside\n//    the loop in a try. Then catch (FormatException) and print\n//    Skipped card: and the card.\nstring[] cards = { \"9\", \"eleven\", \"12\", \"7\" };\nint kids = 0;\nforeach (string card in cards)\n{\n    try\n    {\n        int age = int.Parse(card);\n        if (age < 12)\n            kids = kids + 1;\n    }\n    catch (FormatException)\n    {\n        Console.WriteLine($\"Skipped card: {card}\");\n    }\n}\nConsole.WriteLine($\"Kids under 12: {kids}\");\n"
+        },
+        "tests": [
+          {
+            "label": "The zoo runs to the end",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The program stopped before the end. Read the red message in the Output panel: it names the file and line to look at."
+          },
+          {
+            "label": "Mission 1: the parrot squawks",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { Animal parrot = new Parrot(null); return $\"{parrot.Kind}, {parrot.Sound()}\"; }))()",
+              "equals": "parrot, Squawk!"
+            },
+            "failMessage": "Make class Parrot : Animal, with a constructor like the Lion's that sets Kind to \"parrot\", and an override of Sound that returns \"Squawk!\"."
+          },
+          {
+            "label": "Mission 2: every animal gets a tag",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "$\"{new Lion(\"Leo\").Tag()} / {new Lion(null).Tag()}\"",
+              "equals": "Leo / the lion"
+            },
+            "failMessage": "Tag should give the nickname, or \"the \" and the Kind when there's no nickname: return Nickname ?? \"the \" + Kind;"
+          },
+          {
+            "label": "No yellow warnings",
+            "kind": "noWarnings",
+            "spec": {},
+            "failMessage": "There's still a yellow warning in the Output panel. Mission 2 fixes it."
+          },
+          {
+            "label": "Mission 3: you counted with Count",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\.Count\\s*\\(\\s*\\w+\\s*=>",
+              "file": "Program.cs"
+            },
+            "failMessage": "Count the lions with animals.Count(a => a.Kind == \"lion\")."
+          },
+          {
+            "label": "Mission 4: you caught FormatException",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "catch\\s*\\(\\s*FormatException",
+              "file": "Program.cs"
+            },
+            "failMessage": "Put the loop's code in a try, then add catch (FormatException) { ... } after it."
+          },
+          {
+            "label": "The zoo is open",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "Leo says Roar!",
+                "the parrot says Squawk!",
+                "the lion says Roar!",
+                "Lions: 2",
+                "Skipped card: eleven",
+                "Kids under 12: 2"
+              ]
+            },
+            "failMessage": "The output should match the instructions exactly. If it stops at the eleven card, the try needs to be inside the loop."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which mission is next, and which earlier lesson showed you how to do it?",
+            "speechText": "Which mission is next, and which earlier lesson showed you how to do it?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Copy the `Lion` to make the `Parrot`, and write `return Nickname ?? \"the \" + Kind;` in `Tag`. Count with `animals.Count(a => a.Kind == \"lion\")`, and wrap the loop's code in `try` with a `catch (FormatException)` after it.",
+            "speechText": "Copy the lion to make the parrot, and give Tag a backup with double question marks. Then count the lions with Count, and wrap the loop's code in a try with a catch for FormatException.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Missions 2, 3 and 4:\n\n```csharp\nreturn Nickname ?? \"the \" + Kind;\n\nint lions = animals.Count(a => a.Kind == \"lion\");\n\ntry\n{\n    int age = int.Parse(card);\n    if (age < 12)\n        kids = kids + 1;\n}\ncatch (FormatException)\n{\n    Console.WriteLine($\"Skipped card: {card}\");\n}\n```\n\nThe `Parrot` is a copy of the `Lion` with a new kind and sound.",
+            "speechText": "Tag returns the nickname with the kind as its backup, and Count counts the animals whose kind is lion. The cards loop puts its code in a try, with a catch that prints the skipped card.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Parrot inherits from Animal but doesn't write its own Tag. Can a parrot use Tag?",
+            "explanation": "Yes: a derived class gets all the code of its base class, including Tag.",
+            "options": [
+              {
+                "text": "Yes, it inherits Tag from Animal",
+                "correct": true
+              },
+              {
+                "text": "No, it has to write its own Tag",
+                "correct": false
+              },
+              {
+                "text": "Only if Tag is marked override",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Nickname is \"Leo\". What is Nickname ?? \"the lion\"?",
+            "explanation": "?? only uses the backup when the left side is null. Leo isn't null, so the answer is Leo.",
+            "options": [
+              {
+                "text": "\"Leo\"",
+                "correct": true
+              },
+              {
+                "text": "\"the lion\"",
+                "correct": false
+              },
+              {
+                "text": "null",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does the zoo use try and catch for the visitor cards?",
+            "explanation": "Some cards say a word instead of a number. int.Parse throws a FormatException for those, and catch lets the zoo skip them instead of crashing.",
+            "options": [
+              {
+                "text": "Some cards aren't numbers, and int.Parse would crash on them",
+                "correct": true
+              },
+              {
+                "text": "To make the program run faster",
+                "correct": false
+              },
+              {
+                "text": "Because foreach loops need a try",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "objects-project",
@@ -2293,7 +2453,237 @@
       "sortOrder": 7,
       "ageBand": "Builder",
       "estimatedMinutes": 30,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Project: Library checkout\n\nYou'll build the lending rules for a small library, using every part of this course:\n\n- **Records** for books, members and loans. Value equality means \"is this book already on loan?\" is just `loan.Book == book`.\n- **An interface**, `ILoanPolicy`, for the lending rules, so the library works with any policy you plug in. You can build the new-release policy on top of the standard one with **inheritance**.\n- **LINQ** to find books, count a member's loans and list overdue ones.\n- **Nullable reference types**: `Find` returns `Book?`, so the compiler makes every caller handle \"not found\".\n- **Exceptions** for refusals: a `LibraryException` with a clear message.\n\n### Planning the work\n\nThe TODOs are numbered. Work through them in order and run after each one: `Program.cs` uses them in the same order, so every run gets further. A `NotImplementedException` in the Output panel points at the next TODO.\n\n### Working with dates\n\n`DateOnly` is a date with no time of day:\n\n```csharp\nvar today = new DateOnly(2026, 11, 2);\nDateOnly due = today.AddDays(21);\nint daysLeft = due.DayNumber - today.DayNumber; // 21\nbool late = due < today;                        // false\n```\n\n### Throw expressions\n\n`??` can throw instead of giving a fallback. After this line, the compiler knows `book` isn't null:\n\n```csharp\nBook book = Find(isbn)\n    ?? throw new LibraryException($\"No book with ISBN {isbn}.\");\n```\n\n### Null or exception?\n\n`Find` returns null when there's no match, because \"not found\" is a normal answer that callers expect to handle. `Checkout` throws, because a refused loan means the caller asked for something that can't happen. It's the same split as `int.TryParse` and `int.Parse`.\n\n### New words\n\n- **DateOnly**: a date with no time of day.\n- **Throw expression**: `throw` used where a value is expected, like after `??`.\n- **Policy**: an object that holds a set of rules, so you can swap the rules without changing the code that uses them.\n",
+      "exampleMarkdown": "A tiny bike rental that uses the same building blocks as your library: records, a pricing interface with two implementations, `??` with `throw`, a refusal exception, and LINQ over the rentals.",
+      "exampleCode": "#nullable enable\nvar bikes = new List<Bike> { new(\"B1\", \"Red\"), new(\"B2\", \"Blue\") };\nvar rentals = new List<Rental>();\nIPricing pricing = new WeekendPricing();\n\nRent(\"B1\", \"Ash\", 3);\nRent(\"B1\", \"Rue\", 2);   // already out\nRent(\"B9\", \"Rue\", 1);   // no such bike\n\ndecimal total = rentals.Sum(r => pricing.Price(r.Hours));\nConsole.WriteLine($\"{rentals.Count} rental, {total:F2} taken\");\n\nvoid Rent(string id, string rider, int hours)\n{\n    try\n    {\n        Bike bike = bikes.FirstOrDefault(b => b.Id == id)\n            ?? throw new RentalException($\"No bike called {id}.\");\n        if (rentals.Any(r => r.Bike == bike))\n            throw new RentalException($\"{bike.Color} bike is out.\");\n        rentals.Add(new Rental(bike, rider, hours));\n        Console.WriteLine($\"{rider} rides {bike.Color} for {hours}h\");\n    }\n    catch (RentalException ex)\n    {\n        Console.WriteLine($\"Sorry {rider}: {ex.Message}\");\n    }\n}\n\nrecord Bike(string Id, string Color);\nrecord Rental(Bike Bike, string Rider, int Hours);\n\nclass RentalException : Exception\n{\n    public RentalException(string message) : base(message) { }\n}\n\ninterface IPricing\n{\n    decimal Price(int hours);\n}\n\nclass StandardPricing : IPricing\n{\n    public virtual decimal Price(int hours) => hours * 4m;\n}\n\nclass WeekendPricing : StandardPricing\n{\n    public override decimal Price(int hours) => base.Price(hours) + 2m;\n}\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Build the library's lending rules** in `Library.cs`. The records, `LibraryException`, `ILoanPolicy` and `StandardPolicy` are done. Work through the TODOs in order:\n\n1. **`NewReleasePolicy`**: books from 2025 or later are 7-day loans; everything else follows `StandardPolicy` (3 books, or 10 for staff, for 21 days).\n2. **`Find`**: the book with that ISBN, or `null`.\n3. **`Checkout`**: lend the book, due `LoanDays` after `today`, and return the loan. Refuse with a `LibraryException`, checking in this order:\n   - no such book: `No book with ISBN 999-99.`\n   - already on loan: `\"Code by Lanternlight\" is already on loan.`\n   - the member holds `MaxBooks` already: `Ash already has 3 books.`\n4. **`Return`**: remove the book's loan, or refuse with `978-01 isn't on loan.`\n5. **`Overdue`**: the loans due before `today`, most overdue first, as a list that won't change afterwards.\n\nUse the policy you're given (don't write 21 or 3 into `Library`), keep the code free of warnings, and don't use `!`. The program should print:\n\n```\nFind 978-03: The Fox Who Debugged\nFind 999-99: not found\nAsh borrowed Roots of the Grove for 21 days\nAsh borrowed Code by Lanternlight for 7 days\nAsh borrowed The Fox Who Debugged for 21 days\nRefused: \"Code by Lanternlight\" is already on loan.\nRefused: No book with ISBN 999-99.\nRefused: Ash already has 3 books.\nRue borrowed Null and Void for 7 days\nRefused: 978-01 isn't on loan.\nOverdue: Code by Lanternlight (Ash, 3 days late)\nOverdue: Null and Void (Rue, 2 days late)\n```",
+        "starterFiles": {
+          "Library.cs": "#nullable enable\n\nrecord Book(\n    string Isbn, string Title,\n    string Author, int Year);\nrecord Member(int Id, string Name, bool IsStaff);\nrecord Loan(Book Book, Member Member, DateOnly Due);\n\n// Thrown when a request is refused. Finished.\nclass LibraryException : Exception\n{\n    public LibraryException(string message) : base(message) { }\n}\n\n// The lending rules. Finished.\ninterface ILoanPolicy\n{\n    int MaxBooks(Member member);\n    int LoanDays(Book book);\n}\n\n// 3 books (10 for staff), 21 days. Finished.\nclass StandardPolicy : ILoanPolicy\n{\n    public virtual int MaxBooks(Member member) => member.IsStaff ? 10 : 3;\n    public virtual int LoanDays(Book book) => 21;\n}\n\n// 1. NewReleasePolicy: books from 2025 or later\n//    are 7-day loans. Everything else follows\n//    the standard rules.\n\nclass Library\n{\n    private readonly ILoanPolicy _policy;\n    private readonly List<Book> _books = new();\n    private readonly List<Loan> _loans = new();\n\n    public Library(ILoanPolicy policy)\n    {\n        _policy = policy;\n    }\n\n    public void Add(Book book) => _books.Add(book);\n\n    // 2. The book with this ISBN, or null if\n    //    there isn't one.\n    public Book? Find(string isbn)\n    {\n        return null;\n    }\n\n    // 3. Lend a book, due after the policy's\n    //    number of days. Throw a\n    //    LibraryException when there's no such\n    //    book, when it's already on loan, or\n    //    when the member already has as many\n    //    books as the policy allows.\n    public Loan Checkout(string isbn, Member member, DateOnly today)\n    {\n        throw new NotImplementedException(\"TODO 3: Checkout\");\n    }\n\n    // 4. Take a book back. Throw a\n    //    LibraryException if it isn't on loan.\n    public void Return(string isbn)\n    {\n        throw new NotImplementedException(\"TODO 4: Return\");\n    }\n\n    // 5. The loans due before today, most\n    //    overdue first.\n    public IEnumerable<Loan> Overdue(DateOnly today)\n    {\n        return new List<Loan>();\n    }\n}\n",
+          "Program.cs": "#nullable enable\nvar today = new DateOnly(2026, 11, 2);\nvar library = new Library(new NewReleasePolicy());\nlibrary.Add(new Book(\"978-01\", \"Roots of the Grove\", \"Ivy Marsh\", 2019));\nlibrary.Add(new Book(\"978-02\", \"Code by Lanternlight\", \"Theo Quill\", 2025));\nlibrary.Add(new Book(\"978-03\", \"The Fox Who Debugged\", \"Ivy Marsh\", 2021));\nlibrary.Add(new Book(\"978-04\", \"Null and Void\", \"Sam Okafor\", 2026));\n\nvar ash = new Member(1, \"Ash\", IsStaff: false);\nvar rue = new Member(2, \"Rue\", IsStaff: true);\n\nConsole.WriteLine($\"Find 978-03: {library.Find(\"978-03\")?.Title ?? \"not found\"}\");\nConsole.WriteLine($\"Find 999-99: {library.Find(\"999-99\")?.Title ?? \"not found\"}\");\n\nstring[] wanted = { \"978-01\", \"978-02\", \"978-03\", \"978-02\", \"999-99\", \"978-04\" };\nforeach (string isbn in wanted)\n{\n    Borrow(isbn, ash, today);\n}\n\nlibrary.Return(\"978-01\");\nBorrow(\"978-04\", rue, today.AddDays(1));\ntry\n{\n    library.Return(\"978-01\");\n}\ncatch (LibraryException ex)\n{\n    Console.WriteLine($\"Refused: {ex.Message}\");\n}\n\nDateOnly later = today.AddDays(10);\nforeach (Loan loan in library.Overdue(later))\n{\n    int late = later.DayNumber - loan.Due.DayNumber;\n    Console.WriteLine($\"Overdue: {loan.Book.Title} ({loan.Member.Name}, {late} days late)\");\n}\n\nvoid Borrow(string isbn, Member member, DateOnly day)\n{\n    try\n    {\n        Loan loan = library.Checkout(isbn, member, day);\n        int days = loan.Due.DayNumber - day.DayNumber;\n        Console.WriteLine($\"{member.Name} borrowed {loan.Book.Title} for {days} days\");\n    }\n    catch (LibraryException ex)\n    {\n        Console.WriteLine($\"Refused: {ex.Message}\");\n    }\n}\n"
+        },
+        "solutionFiles": {
+          "Library.cs": "#nullable enable\n\nrecord Book(\n    string Isbn, string Title,\n    string Author, int Year);\nrecord Member(int Id, string Name, bool IsStaff);\nrecord Loan(Book Book, Member Member, DateOnly Due);\n\n// Thrown when a request is refused. Finished.\nclass LibraryException : Exception\n{\n    public LibraryException(string message) : base(message) { }\n}\n\n// The lending rules. Finished.\ninterface ILoanPolicy\n{\n    int MaxBooks(Member member);\n    int LoanDays(Book book);\n}\n\n// 3 books (10 for staff), 21 days. Finished.\nclass StandardPolicy : ILoanPolicy\n{\n    public virtual int MaxBooks(Member member) => member.IsStaff ? 10 : 3;\n    public virtual int LoanDays(Book book) => 21;\n}\n\n// 1. NewReleasePolicy: books from 2025 or later\n//    are 7-day loans. Everything else follows\n//    the standard rules.\nclass NewReleasePolicy : StandardPolicy\n{\n    public override int LoanDays(Book book)\n        => book.Year >= 2025 ? 7 : base.LoanDays(book);\n}\n\nclass Library\n{\n    private readonly ILoanPolicy _policy;\n    private readonly List<Book> _books = new();\n    private readonly List<Loan> _loans = new();\n\n    public Library(ILoanPolicy policy)\n    {\n        _policy = policy;\n    }\n\n    public void Add(Book book) => _books.Add(book);\n\n    // 2. The book with this ISBN, or null if\n    //    there isn't one.\n    public Book? Find(string isbn)\n    {\n        return _books.FirstOrDefault(b => b.Isbn == isbn);\n    }\n\n    // 3. Lend a book, due after the policy's\n    //    number of days. Throw a\n    //    LibraryException when there's no such\n    //    book, when it's already on loan, or\n    //    when the member already has as many\n    //    books as the policy allows.\n    public Loan Checkout(string isbn, Member member, DateOnly today)\n    {\n        Book book = Find(isbn)\n            ?? throw new LibraryException($\"No book with ISBN {isbn}.\");\n        if (_loans.Any(l => l.Book == book))\n            throw new LibraryException($\"\\\"{book.Title}\\\" is already on loan.\");\n\n        int held = _loans.Count(l => l.Member == member);\n        if (held >= _policy.MaxBooks(member))\n            throw new LibraryException($\"{member.Name} already has {held} books.\");\n\n        var loan = new Loan(book, member, today.AddDays(_policy.LoanDays(book)));\n        _loans.Add(loan);\n        return loan;\n    }\n\n    // 4. Take a book back. Throw a\n    //    LibraryException if it isn't on loan.\n    public void Return(string isbn)\n    {\n        Loan loan = _loans.FirstOrDefault(l => l.Book.Isbn == isbn)\n            ?? throw new LibraryException($\"{isbn} isn't on loan.\");\n        _loans.Remove(loan);\n    }\n\n    // 5. The loans due before today, most\n    //    overdue first.\n    public IEnumerable<Loan> Overdue(DateOnly today)\n    {\n        return _loans\n            .Where(l => l.Due < today)\n            .OrderBy(l => l.Due)\n            .ToList();\n    }\n}\n",
+          "Program.cs": "#nullable enable\nvar today = new DateOnly(2026, 11, 2);\nvar library = new Library(new NewReleasePolicy());\nlibrary.Add(new Book(\"978-01\", \"Roots of the Grove\", \"Ivy Marsh\", 2019));\nlibrary.Add(new Book(\"978-02\", \"Code by Lanternlight\", \"Theo Quill\", 2025));\nlibrary.Add(new Book(\"978-03\", \"The Fox Who Debugged\", \"Ivy Marsh\", 2021));\nlibrary.Add(new Book(\"978-04\", \"Null and Void\", \"Sam Okafor\", 2026));\n\nvar ash = new Member(1, \"Ash\", IsStaff: false);\nvar rue = new Member(2, \"Rue\", IsStaff: true);\n\nConsole.WriteLine($\"Find 978-03: {library.Find(\"978-03\")?.Title ?? \"not found\"}\");\nConsole.WriteLine($\"Find 999-99: {library.Find(\"999-99\")?.Title ?? \"not found\"}\");\n\nstring[] wanted = { \"978-01\", \"978-02\", \"978-03\", \"978-02\", \"999-99\", \"978-04\" };\nforeach (string isbn in wanted)\n{\n    Borrow(isbn, ash, today);\n}\n\nlibrary.Return(\"978-01\");\nBorrow(\"978-04\", rue, today.AddDays(1));\ntry\n{\n    library.Return(\"978-01\");\n}\ncatch (LibraryException ex)\n{\n    Console.WriteLine($\"Refused: {ex.Message}\");\n}\n\nDateOnly later = today.AddDays(10);\nforeach (Loan loan in library.Overdue(later))\n{\n    int late = later.DayNumber - loan.Due.DayNumber;\n    Console.WriteLine($\"Overdue: {loan.Book.Title} ({loan.Member.Name}, {late} days late)\");\n}\n\nvoid Borrow(string isbn, Member member, DateOnly day)\n{\n    try\n    {\n        Loan loan = library.Checkout(isbn, member, day);\n        int days = loan.Due.DayNumber - day.DayNumber;\n        Console.WriteLine($\"{member.Name} borrowed {loan.Book.Title} for {days} days\");\n    }\n    catch (LibraryException ex)\n    {\n        Console.WriteLine($\"Refused: {ex.Message}\");\n    }\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs to the end",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The program stopped before the end. Read the first error in the Output panel: it names the file and line, and a NotImplementedException names the next TODO."
+          },
+          {
+            "label": "No warnings",
+            "kind": "noWarnings",
+            "spec": {},
+            "failMessage": "There's still a warning in the Output panel. Each one names a line where something might be null."
+          },
+          {
+            "label": "No ! operators",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "[\\w\\)\\]]!(?!=)",
+              "file": "Library.cs",
+              "max": 0
+            },
+            "failMessage": "Remove the ! operator: handle the null with ?? or a check instead."
+          },
+          {
+            "label": "1. NewReleasePolicy follows the rules",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { ILoanPolicy p = new NewReleasePolicy(); return $\"{p.LoanDays(new Book(\"a\", \"A\", \"X\", 2025))} {p.LoanDays(new Book(\"b\", \"B\", \"X\", 2024))} {p.MaxBooks(new Member(1, \"M\", false))} {p.MaxBooks(new Member(2, \"S\", true))}\"; }))()",
+              "equals": "7 21 3 10"
+            },
+            "failMessage": "NewReleasePolicy should lend 2025 books for 7 days and 2024 books for 21, and allow 3 books (10 for staff). Inheriting from StandardPolicy and overriding LoanDays does it."
+          },
+          {
+            "label": "2. Find returns the book or null",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { string Try(Action a) { try { a(); return \"ok\"; } catch (LibraryException e) { return e.Message; } catch (Exception e) { return e.GetType().Name; } } var d = new DateOnly(2026, 1, 1); var lib = new Library(new StandardPolicy()); foreach (var id in new[] { \"1\", \"2\", \"3\", \"4\" }) lib.Add(new Book(id, \"Book \" + id, \"X\", 2020)); lib.Add(new Book(\"5\", \"New\", \"Y\", 2025)); var m = new Member(1, \"Mo\", false); var s = new Member(2, \"Sol\", true); return $\"{lib.Find(\"2\")?.Title} / {lib.Find(\"9\")?.Title ?? \"null\"}\"; }))()",
+              "equals": "Book 2 / null"
+            },
+            "failMessage": "Find should return the book with that ISBN, or null when there isn't one: FirstOrDefault does both."
+          },
+          {
+            "label": "3. Checkout lends for the policy's days",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { string Try(Action a) { try { a(); return \"ok\"; } catch (LibraryException e) { return e.Message; } catch (Exception e) { return e.GetType().Name; } } var d = new DateOnly(2026, 1, 1); var lib = new Library(new StandardPolicy()); foreach (var id in new[] { \"1\", \"2\", \"3\", \"4\" }) lib.Add(new Book(id, \"Book \" + id, \"X\", 2020)); lib.Add(new Book(\"5\", \"New\", \"Y\", 2025)); var m = new Member(1, \"Mo\", false); var s = new Member(2, \"Sol\", true); var fresh = new Library(new NewReleasePolicy()); fresh.Add(new Book(\"5\", \"New\", \"Y\", 2025)); var a = lib.Checkout(\"5\", m, d); var b = fresh.Checkout(\"5\", m, d); return $\"{a.Book.Title}, {a.Member.Name}, {a.Due.DayNumber - d.DayNumber} / {b.Due.DayNumber - d.DayNumber}\"; }))()",
+              "equals": "New, Mo, 21 / 7"
+            },
+            "failMessage": "Checkout should return a loan of that book to that member, due LoanDays after today, using the library's own policy: 21 days with StandardPolicy, 7 with NewReleasePolicy for a 2025 book."
+          },
+          {
+            "label": "3. Checkout refuses with clear reasons",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { string Try(Action a) { try { a(); return \"ok\"; } catch (LibraryException e) { return e.Message; } catch (Exception e) { return e.GetType().Name; } } var d = new DateOnly(2026, 1, 1); var lib = new Library(new StandardPolicy()); foreach (var id in new[] { \"1\", \"2\", \"3\", \"4\" }) lib.Add(new Book(id, \"Book \" + id, \"X\", 2020)); lib.Add(new Book(\"5\", \"New\", \"Y\", 2025)); var m = new Member(1, \"Mo\", false); var s = new Member(2, \"Sol\", true); lib.Checkout(\"1\", m, d); lib.Checkout(\"2\", m, d); lib.Checkout(\"3\", m, d); return string.Join(\" | \", Try(() => lib.Checkout(\"9\", m, d)), Try(() => lib.Checkout(\"1\", s, d)), Try(() => lib.Checkout(\"4\", m, d)), Try(() => lib.Checkout(\"4\", s, d))); }))()",
+              "equals": "No book with ISBN 9. | \"Book 1\" is already on loan. | Mo already has 3 books. | ok"
+            },
+            "failMessage": "After Mo borrows books 1 to 3: a missing book, a book on loan, and a fourth book for Mo should each throw a LibraryException with the message from the instructions, but staff member Sol can still borrow book 4."
+          },
+          {
+            "label": "4. Return frees the book and the member's place",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { string Try(Action a) { try { a(); return \"ok\"; } catch (LibraryException e) { return e.Message; } catch (Exception e) { return e.GetType().Name; } } var d = new DateOnly(2026, 1, 1); var lib = new Library(new StandardPolicy()); foreach (var id in new[] { \"1\", \"2\", \"3\", \"4\" }) lib.Add(new Book(id, \"Book \" + id, \"X\", 2020)); lib.Add(new Book(\"5\", \"New\", \"Y\", 2025)); var m = new Member(1, \"Mo\", false); var s = new Member(2, \"Sol\", true); lib.Checkout(\"1\", m, d); lib.Checkout(\"2\", m, d); lib.Checkout(\"3\", m, d); lib.Return(\"1\"); return string.Join(\" | \", Try(() => lib.Checkout(\"4\", m, d)), Try(() => lib.Checkout(\"1\", s, d)), Try(() => lib.Return(\"5\"))); }))()",
+              "equals": "ok | ok | 5 isn't on loan."
+            },
+            "failMessage": "After Mo returns book 1, Mo can borrow another book, book 1 can go to someone else, and returning a book that isn't on loan throws: 5 isn't on loan."
+          },
+          {
+            "label": "5. Overdue lists the late loans, most overdue first",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { string Try(Action a) { try { a(); return \"ok\"; } catch (LibraryException e) { return e.Message; } catch (Exception e) { return e.GetType().Name; } } var d = new DateOnly(2026, 1, 1); var lib = new Library(new StandardPolicy()); foreach (var id in new[] { \"1\", \"2\", \"3\", \"4\" }) lib.Add(new Book(id, \"Book \" + id, \"X\", 2020)); lib.Add(new Book(\"5\", \"New\", \"Y\", 2025)); var m = new Member(1, \"Mo\", false); var s = new Member(2, \"Sol\", true); var lib2 = new Library(new NewReleasePolicy()); lib2.Add(new Book(\"A\", \"A\", \"X\", 2025)); lib2.Add(new Book(\"B\", \"B\", \"X\", 2020)); lib2.Add(new Book(\"C\", \"C\", \"X\", 2026)); lib2.Checkout(\"C\", s, d.AddDays(2)); lib2.Checkout(\"A\", s, d); lib2.Checkout(\"B\", s, d); var late = lib2.Overdue(d.AddDays(12)); lib2.Return(\"A\"); return string.Join(\",\", late.Select(l => l.Book.Title)); }))()",
+              "equals": "A,C"
+            },
+            "failMessage": "Twelve days in, A (due day 7) and C (due day 9) are late and B (due day 21) isn't. List the most overdue first, and finish with ToList so returning a book afterwards doesn't change the list."
+          },
+          {
+            "label": "The library's day matches",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "Find 978-03: The Fox Who Debugged",
+                "Find 999-99: not found",
+                "Ash borrowed Roots of the Grove for 21 days",
+                "Ash borrowed Code by Lanternlight for 7 days",
+                "Ash borrowed The Fox Who Debugged for 21 days",
+                "Refused: \"Code by Lanternlight\" is already on loan.",
+                "Refused: No book with ISBN 999-99.",
+                "Refused: Ash already has 3 books.",
+                "Rue borrowed Null and Void for 7 days",
+                "Refused: 978-01 isn't on loan.",
+                "Overdue: Code by Lanternlight (Ash, 3 days late)",
+                "Overdue: Null and Void (Rue, 2 days late)"
+              ]
+            },
+            "failMessage": "The program's output should match the instructions exactly."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which TODO does the Output panel point at right now, and which lesson in this course covered that idea?",
+            "speechText": "Which to do does the Output panel point at right now, and which lesson in this course covered that idea?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "`NewReleasePolicy` can inherit from `StandardPolicy` and override `LoanDays`. `Find` is `FirstOrDefault`; `Checkout` starts with `Find(isbn) ?? throw`, then uses `Any` and `Count` over `_loans`; `Return` is the same `?? throw` pattern; and `Overdue` is `Where`, `OrderBy` and `ToList`.",
+            "speechText": "NewReleasePolicy can inherit from StandardPolicy and override LoanDays. Find is FirstOrDefault, and Checkout starts with Find and a throw expression, then uses Any and Count over the loans. Return uses the same pattern, and Overdue is Where, OrderBy and To List.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "`Checkout`, the biggest TODO:\n\n```csharp\nBook book = Find(isbn)\n    ?? throw new LibraryException($\"No book with ISBN {isbn}.\");\nif (_loans.Any(l => l.Book == book))\n    throw new LibraryException($\"\\\"{book.Title}\\\" is already on loan.\");\n\nint held = _loans.Count(l => l.Member == member);\nif (held >= _policy.MaxBooks(member))\n    throw new LibraryException($\"{member.Name} already has {held} books.\");\n\nvar loan = new Loan(book, member,\n    today.AddDays(_policy.LoanDays(book)));\n_loans.Add(loan);\nreturn loan;\n```",
+            "speechText": "Checkout finds the book or throws, throws if any loan has that book, and throws if the member already holds the policy's maximum. Then it adds a loan due after the policy's loan days and returns it.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why does Find return Book? and null, while Checkout throws an exception?",
+            "explanation": "Not finding a book is a normal answer callers expect to handle. A refused loan means the request can't happen, so it's an exception the caller must deal with.",
+            "options": [
+              {
+                "text": "\"Not found\" is a normal answer, but a refused loan is an error",
+                "correct": true
+              },
+              {
+                "text": "Exceptions are only allowed in methods that return void",
+                "correct": false
+              },
+              {
+                "text": "Returning null is always faster than throwing",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does _loans.Any(l => l.Book == book) find a loan of the same book?",
+            "explanation": "Book is a record, so == compares the data: the same ISBN, title, author and year are equal.",
+            "options": [
+              {
+                "text": "Book is a record, so == compares the book's data",
+                "correct": true
+              },
+              {
+                "text": "== always compares data in C#",
+                "correct": false
+              },
+              {
+                "text": "Any compares the ISBNs automatically",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Library takes an ILoanPolicy in its constructor. What does that give you?",
+            "explanation": "Library only knows the interface, so any policy can be plugged in, including a fake one in tests, without changing Library. That's dependency injection.",
+            "options": [
+              {
+                "text": "New rules can be plugged in without changing Library",
+                "correct": true
+              },
+              {
+                "text": "Library can create its own policy",
+                "correct": false
+              },
+              {
+                "text": "The policy can't be changed once the program runs",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does Book book = Find(isbn) ?? throw new LibraryException(...); do?",
+            "explanation": "If Find returns null, the throw expression runs. Otherwise book is the found book, and the compiler knows it isn't null.",
+            "options": [
+              {
+                "text": "Throws when Find returns null, otherwise gives a book that isn't null",
+                "correct": true
+              },
+              {
+                "text": "Always throws, then returns the book",
+                "correct": false
+              },
+              {
+                "text": "Returns null when the book is missing",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Overdue returns _loans.Where(...).OrderBy(...) without ToList. A book is returned before the caller loops over the result. What does the caller see?",
+            "explanation": "Deferred execution: the query only runs when the caller loops, so the returned book is already gone from it.",
+            "options": [
+              {
+                "text": "The list without the returned book, because the query runs late",
+                "correct": true
+              },
+              {
+                "text": "The list as it was when Overdue was called",
+                "correct": false
+              },
+              {
+                "text": "An exception, because the list changed",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

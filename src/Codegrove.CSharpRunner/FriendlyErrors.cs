@@ -94,6 +94,7 @@ public static class FriendlyErrors
 
     private static readonly Dictionary<string, string> Runtime = new()
     {
+        ["NotImplementedException"] = "This part of the program hasn't been written yet. The message in brackets says which TODO it is.",
         ["NullReferenceException"] = "Something was null (no object at all), and the program tried to use it.",
         ["IndexOutOfRangeException"] = "The program asked for an item past the end of an array. Remember the first item is number 0.",
         ["ArgumentOutOfRangeException"] = "The program asked for a position that doesn't exist, like an item past the end of a list. The first item is number 0.",

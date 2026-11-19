@@ -52,8 +52,8 @@
     "inheritance": {
       "intro": [
         {
-          "displayText": "Real codebases are full of families of types, like payment methods, kinds of user or game units. Inheritance lets them share one base class and replace only what's different. You'll fix a Knight that compiles but ignores its armour, then write a Berserker from scratch.",
-          "speechText": "Real codebases are full of families of types, like payment methods, kinds of user or game units. Inheritance lets them share one base class and replace only what's different. You'll fix a knight that compiles but ignores its armour, then write a berserker from scratch.",
+          "displayText": "Real codebases are full of families of types, like payment methods, kinds of user or game units. Inheritance lets them share one base class and replace only what's different. You'll fix a Knight that compiles but ignores its armor, then write a Berserker from scratch.",
+          "speechText": "Real codebases are full of families of types, like payment methods, kinds of user or game units. Inheritance lets them share one base class and replace only what's different. You'll fix a knight that compiles but ignores its armor, then write a berserker from scratch.",
           "mood": "Neutral"
         }
       ],
@@ -190,6 +190,38 @@
           "displayText": "Your contacts class is warning-free, and every fix says what can be missing and checks for it. The gotcha: the ! operator makes a warning go away without making the code safe, so a wrong guess still crashes. Next, you'll put the whole course together in a project.",
           "speechText": "Your contacts class is warning-free, and every fix says what can be missing and checks for it. The gotcha is that the exclamation mark operator makes a warning go away without making the code safe, so a wrong guess still crashes. Next, you'll put the whole course together in a project.",
           "mood": "Encouraging"
+        }
+      ]
+    },
+    "objects-project-explorer": {
+      "intro": [
+        {
+          "displayText": "The Grove Zoo opens today, and it needs your help! Your mission: add a parrot, fix the name tags, count the lions and check the visitors' cards.",
+          "speechText": "The Grove Zoo opens today, and it needs your help! Your mission is to add a parrot, fix the name tags, count the lions and check the visitors' cards.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The zoo is open, and you used inheritance, null, LINQ, try and catch, all in one program! Your new word is project: a bigger program that puts lots of ideas together.",
+          "speechText": "The zoo is open, and you used inheritance, null, link, try and catch, all in one program! Your new word is project, which means a bigger program that puts lots of ideas together.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "objects-project": {
+      "intro": [
+        {
+          "displayText": "Real features combine everything at once: data types, rules that change, queries, and errors the caller has to handle. You'll build a library's lending rules with records, an interface, LINQ, nullable types and exceptions. Work through the TODOs in order, and run after each one.",
+          "speechText": "Real features combine everything at once, like data types, rules that change, queries, and errors the caller has to handle. You'll build a library's lending rules with records, an interface, link, nullable types and exceptions. Work through the to dos in order, and run after each one.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your library lends, refuses with clear reasons, swaps policies and lists overdue loans, without a single warning. The gotcha: decide which outcomes are normal answers and which are errors, like Find returning null while Checkout throws. Finish every lesson in C# Objects to earn the Class Act badge.",
+          "speechText": "Your library lends, refuses with clear reasons, swaps policies and lists overdue loans, without a single warning. The gotcha is to decide which outcomes are normal answers and which are errors, like Find returning null while Checkout throws. Finish every lesson in C sharp Objects to earn the Class Act badge.",
+          "mood": "Celebrating"
         }
       ]
     }
