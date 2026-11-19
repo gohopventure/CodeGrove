@@ -1764,7 +1764,162 @@
       "sortOrder": 6,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Blueprints with classes\n\nA **class** is a blueprint. It describes what a kind of thing knows and what it can do. From one blueprint you can build as many things as you like, and each thing you build is an **object**.\n\n```csharp\nclass Robot\n{\n    public string Name { get; set; }\n    public int Battery { get; set; }\n}\n```\n\n### What an object knows\n\n`Name` and `Battery` are **properties**: values that each object keeps for itself. `{ get; set; }` means other code can read them and change them. `public` means code outside the class can use them.\n\n### Building objects\n\nThe word `new` builds an object from the blueprint:\n\n```csharp\nRobot bolt = new Robot();\nbolt.Name = \"Bolt\";\nbolt.Battery = 50;\n```\n\nEach object has its *own* values. Change `bolt.Battery` and every other robot's battery stays the same.\n\n### The constructor\n\nA **constructor** runs when an object is built. It has the same name as the class, and it's the place to set things up:\n\n```csharp\npublic Robot(string name)\n{\n    Name = name;\n    Battery = 0;\n}\n```\n\nNow `new Robot(\"Bolt\")` builds a robot that already has its name.\n\n### What an object can do\n\nMethods inside a class can use the object's own properties:\n\n```csharp\npublic void Charge()\n{\n    Battery = Battery + 10;\n}\n```\n\n`bolt.Charge();` charges Bolt, and only Bolt.\n\n### New words\n\n- **Class**: a blueprint that describes what a kind of thing knows and can do.\n- **Object**: one thing built from a class, with its own values.\n- **Property**: a value that each object keeps, like `Name`.\n- **Constructor**: the special method that runs when an object is built.\n- **new**: the word that builds an object from a class.\n",
+      "exampleMarkdown": "Two robots built from one `Robot` class. Bolt is charged twice and Zip once, so each keeps its own battery level. The constructor gives each robot its name, and `Status` uses the robot's own properties.",
+      "exampleCode": "Robot bolt = new Robot(\"Bolt\");\nRobot zip = new Robot(\"Zip\");\n\nbolt.Charge();\nbolt.Charge();\nzip.Charge();\n\nConsole.WriteLine(bolt.Status());\nConsole.WriteLine(zip.Status());\n\nclass Robot\n{\n    public string Name { get; set; }\n    public int Battery { get; set; }\n\n    public Robot(string name)\n    {\n        Name = name;\n        Battery = 0;\n    }\n\n    public void Charge()\n    {\n        Battery = Battery + 10;\n    }\n\n    public string Status()\n    {\n        return $\"{Name} has {Battery}% battery\";\n    }\n}\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Finish the blueprint for a Grove pet.\n\n1. In the constructor, set `Name` to the name that was passed in, and `Hunger` to `5`.\n2. `Feed` makes `Hunger` 1 smaller, but never below `0`.\n3. `Describe` returns text like `Pip has hunger 4`.\n\nThe program builds a pet called Pip, feeds it once and prints `Pip has hunger 4`. The checks build other pets too, and feed them lots of times.",
+        "starterFiles": {
+          "Program.cs": "// Mission: finish the blueprint for a Grove pet!\nPet pip = new Pet(\"Pip\");\npip.Feed();\nConsole.WriteLine(pip.Describe());\n\nclass Pet\n{\n    public string Name { get; set; }\n    public int Hunger { get; set; }\n\n    public Pet(string name)\n    {\n        // 1. Set Name to the name that was passed in, and Hunger to 5.\n    }\n\n    public void Feed()\n    {\n        // 2. Make Hunger 1 smaller. But Hunger can't go below 0!\n    }\n\n    public string Describe()\n    {\n        // 3. Return text like: Pip has hunger 4\n        return \"\";\n    }\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: finish the blueprint for a Grove pet!\nPet pip = new Pet(\"Pip\");\npip.Feed();\nConsole.WriteLine(pip.Describe());\n\nclass Pet\n{\n    public string Name { get; set; }\n    public int Hunger { get; set; }\n\n    public Pet(string name)\n    {\n        // 1. Set Name to the name that was passed in, and Hunger to 5.\n        Name = name;\n        Hunger = 5;\n    }\n\n    public void Feed()\n    {\n        // 2. Make Hunger 1 smaller. But Hunger can't go below 0!\n        if (Hunger > 0)\n        {\n            Hunger = Hunger - 1;\n        }\n    }\n\n    public string Describe()\n    {\n        // 3. Return text like: Pip has hunger 4\n        return $\"{Name} has hunger {Hunger}\";\n    }\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Look at the Output panel: the red error names the line to fix."
+          },
+          {
+            "label": "A new pet has its name",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new Pet(\"Bo\").Name",
+              "equals": "Bo"
+            },
+            "failMessage": "In the constructor, set Name to the name that was passed in: Name = name;"
+          },
+          {
+            "label": "A new pet starts with hunger 5",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new Pet(\"Bo\").Hunger",
+              "equals": 5
+            },
+            "failMessage": "In the constructor, set Hunger to 5."
+          },
+          {
+            "label": "Feed makes hunger 1 smaller",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<int>)(() => { var p = new Pet(\"Bo\"); p.Feed(); p.Feed(); return p.Hunger; }))()",
+              "equals": 3
+            },
+            "failMessage": "Feeding a pet twice should take its hunger from 5 to 3."
+          },
+          {
+            "label": "Hunger never goes below 0",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<int>)(() => { var p = new Pet(\"Bo\"); for (int i = 0; i < 8; i++) p.Feed(); return p.Hunger; }))()",
+              "equals": 0
+            },
+            "failMessage": "Feeding a pet 8 times should stop at hunger 0. Use an if in Feed."
+          },
+          {
+            "label": "Describe tells the name and hunger",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var p = new Pet(\"Bo\"); p.Feed(); return p.Describe(); }))()",
+              "equals": "Bo has hunger 4"
+            },
+            "failMessage": "Describe should return text like: Bo has hunger 4"
+          },
+          {
+            "label": "Pip's line prints",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Pip has hunger 4",
+              "caseSensitive": true
+            },
+            "failMessage": "The program should print: Pip has hunger 4"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Inside the constructor, which property should get the `name` that was passed in?",
+            "speechText": "Inside the constructor, which property should get the name that was passed in?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "In the constructor, write `Name = name;` and `Hunger = 5;`. In `Feed`, make `Hunger` 1 smaller, but only `if (Hunger > 0)`.",
+            "speechText": "In the constructor, set Name to name, and Hunger to five. In Feed, make Hunger one smaller, but only if it's more than zero.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's Feed:\n\n```csharp\npublic void Feed()\n{\n    if (Hunger > 0)\n    {\n        Hunger = Hunger - 1;\n    }\n}\n```\n\n`Describe` can `return $\"{Name} has hunger {Hunger}\";`",
+            "speechText": "Feed only takes one away when Hunger is more than zero. Describe returns the name, the words has hunger, and then the hunger number.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does new Robot(\"Bolt\") do?",
+            "explanation": "new builds an object from the Robot class, and the constructor gives it the name Bolt.",
+            "options": [
+              {
+                "text": "Builds a new Robot object called Bolt",
+                "correct": true
+              },
+              {
+                "text": "Renames the Robot class to Bolt",
+                "correct": false
+              },
+              {
+                "text": "Deletes a robot called Bolt",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Two pets are built from the same Pet class. You feed one of them. Whose hunger changes?",
+            "explanation": "Each object has its own values, so only the pet you fed changes.",
+            "options": [
+              {
+                "text": "Only the pet you fed",
+                "correct": true
+              },
+              {
+                "text": "Both pets",
+                "correct": false
+              },
+              {
+                "text": "Neither pet",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When does a constructor run?",
+            "explanation": "A constructor runs once, when the object is built with new.",
+            "options": [
+              {
+                "text": "When an object is built with new",
+                "correct": true
+              },
+              {
+                "text": "Every time one of its methods is called",
+                "correct": false
+              },
+              {
+                "text": "When the program ends",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "classes-and-objects",
@@ -1772,7 +1927,198 @@
       "sortOrder": 6,
       "ageBand": "Builder",
       "estimatedMinutes": 20,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Classes and objects\n\nSo far your classes were `static`: bags of methods. Most C# code is about **objects**: values that carry their own data and the behaviour that goes with it. A **class** defines a type; an object is an **instance** of it, created with `new`.\n\n```csharp\n// An instance, then an instance method called on it:\nvar account = new BankAccount(\"Ada\", 20m);\naccount.Deposit(5m);\n```\n\n### Fields and properties\n\nA **field** is a variable that belongs to an object. A **property** looks like a field from outside but goes through `get` and `set` accessors, so the class keeps control. Public data is almost always a property:\n\n```csharp\n// Read-only: set in the constructor.\npublic string Owner { get; }\n\n// Anyone can read it; only the class can change it.\npublic decimal Balance { get; private set; }\n\n// Computed each time it's read.\npublic bool IsOverdrawn => Balance < 0;\n```\n\nFields are usually `private`, named `_camelCase`.\n\n### Constructors and this\n\nA **constructor** runs when an instance is created; it has the class's name and no return type. Use it to put the object into a valid state. `this` means \"the current object\", handy when a parameter has the same name as a member.\n\nOptional parameters work here too, and an **object initializer** sets properties right after construction: `new Pet { Name = \"Pip\" }` (for settable properties).\n\n### Encapsulation\n\n**Encapsulation** means the class guards its own rules (its **invariants**), so no other code can put an object into a broken state. Hide what others shouldn't change (`private set`), and check inputs in the methods that change state. When an input breaks a rule, **throw an exception**:\n\n```csharp\nif (amount <= 0)\n    throw new ArgumentException(\"Deposit a positive amount.\");\n```\n\nThe method stops, and the caller finds out at once. (Catching exceptions comes in the next course.)\n\n### Instance and static members\n\nInstance members belong to each object: every account has its own `Balance`. `static` members belong to the class as a whole, like `Math.PI` or a counter of accounts created.\n\n### References and null\n\nClasses are **reference types**. A variable holds a reference to an object, not the object itself:\n\n```csharp\nvar a = new BankAccount(\"Ada\");\nvar b = a;          // copies the reference: one account, two names\nb.Deposit(10m);     // a.Balance is 10 too\n```\n\nA reference can also be `null`: no object at all. Calling a member on `null` throws `NullReferenceException`.\n\n### New words\n\n- **Instance**: an object created from a class with `new`.\n- **Field**: a variable that belongs to an object, usually private.\n- **Property**: a member read and written like a field, through `get` and `set` accessors the class controls.\n- **Constructor**: the code that runs when an instance is created, to make it valid.\n- **Encapsulation**: keeping an object's data private and changing it only through members that enforce its rules.\n- **Invariant**: a rule that must always be true for an object, like \"the balance is never negative\".\n- **Exception**: an error object thrown to stop a method when something is wrong.\n- **null**: a reference to no object at all.\n",
+      "exampleMarkdown": "A `Player` class: a read-only `Name`, a `Score` only the class can change, a computed `Level`, a guarded method, a private field, and a static counter shared by every player. The last lines show two variables referring to the same object.",
+      "exampleCode": "var ada = new Player(\"Ada\");\nvar linus = new Player(\"Linus\");\n\nada.AddPoints(120);\nlinus.AddPoints(40);\nada.AddPoints(95);\n\nConsole.WriteLine(ada.Describe());\nConsole.WriteLine(linus.Describe());\nConsole.WriteLine($\"Players created: {Player.Count}\");\n\nvar alias = ada;          // same object, second name\nalias.AddPoints(5);\nConsole.WriteLine($\"ada.Score is now {ada.Score}\");\n\nclass Player\n{\n    public static int Count { get; private set; }\n\n    public string Name { get; }\n    public int Score { get; private set; }\n    public int Level => Score / 100 + 1;    // computed property\n\n    private int _rounds;                     // private field\n\n    public Player(string name)\n    {\n        Name = name;\n        Count++;\n    }\n\n    public void AddPoints(int points)\n    {\n        if (points <= 0)\n            throw new ArgumentException(\"Points must be positive.\");\n        Score += points;\n        _rounds++;\n    }\n\n    public string Describe() =>\n        $\"{Name}: {Score} points, level {Level}, {_rounds} rounds\";\n}\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Make the bank account trustworthy.** Right now any code can change `Owner` and `Balance`, and `Withdraw` happily overdraws. Give the class rules:\n\n1. `Owner` is set once, in the constructor, and never changes. Code outside the class can read `Balance` but can't set it.\n2. `openingBalance` is optional (default 0). A negative opening balance throws an `ArgumentException`.\n3. `Deposit` and `Withdraw` throw an `ArgumentException` for amounts of 0 or less.\n4. `Withdraw` returns `false` and changes nothing when there isn't enough money; otherwise it subtracts and returns `true`.\n5. `Summary` shows the balance with two decimal places.\n\nThe program should then print:\n\n```\nWithdraw 100: declined\nAda: 35.50\n```",
+        "starterFiles": {
+          "Program.cs": "// This bank account has no rules: any code can change its balance, and it can be overdrawn.\n// Give it rules. Then the code below should print the two lines in the instructions.\nvar account = new BankAccount(\"Ada\", 20m);\naccount.Deposit(15.50m);\nbool ok = account.Withdraw(100m);\nConsole.WriteLine($\"Withdraw 100: {(ok ? \"done\" : \"declined\")}\");\nConsole.WriteLine(account.Summary());\n\nclass BankAccount\n{\n    public string Owner;\n    public decimal Balance;\n\n    public BankAccount(string owner, decimal openingBalance)\n    {\n        Owner = owner;\n        Balance = openingBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        Balance += amount;\n    }\n\n    public bool Withdraw(decimal amount)\n    {\n        Balance -= amount;\n        return true;\n    }\n\n    public string Summary()\n    {\n        return $\"{Owner}: {Balance}\";\n    }\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// This bank account has no rules: any code can change its balance, and it can be overdrawn.\n// Give it rules. Then the code below should print the two lines in the instructions.\nvar account = new BankAccount(\"Ada\", 20m);\naccount.Deposit(15.50m);\nbool ok = account.Withdraw(100m);\nConsole.WriteLine($\"Withdraw 100: {(ok ? \"done\" : \"declined\")}\");\nConsole.WriteLine(account.Summary());\n\nclass BankAccount\n{\n    public string Owner { get; }\n    public decimal Balance { get; private set; }\n\n    public BankAccount(string owner, decimal openingBalance = 0)\n    {\n        if (openingBalance < 0)\n            throw new ArgumentException(\"The opening balance can't be negative.\");\n        Owner = owner;\n        Balance = openingBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount <= 0)\n            throw new ArgumentException(\"Deposit a positive amount.\");\n        Balance += amount;\n    }\n\n    public bool Withdraw(decimal amount)\n    {\n        if (amount <= 0)\n            throw new ArgumentException(\"Withdraw a positive amount.\");\n        if (amount > Balance)\n            return false;\n        Balance -= amount;\n        return true;\n    }\n\n    public string Summary()\n    {\n        return $\"{Owner}: {Balance:F2}\";\n    }\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The program compiles and runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "There's an error in the Output panel. Fix the first one, then run again."
+          },
+          {
+            "label": "Code outside can't change Owner or Balance",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new[] { \"Owner\", \"Balance\" }.All(n => typeof(BankAccount).GetProperty(n) is { } p && (p.SetMethod == null || !p.SetMethod.IsPublic))",
+              "equals": true
+            },
+            "failMessage": "Make Owner and Balance properties: { get; } for Owner, and { get; private set; } for Balance."
+          },
+          {
+            "label": "The opening balance is optional",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new BankAccount(\"Bo\").Balance",
+              "equals": 0
+            },
+            "failMessage": "new BankAccount(\"Bo\") should work and start at 0: give openingBalance a default."
+          },
+          {
+            "label": "Bad amounts throw an ArgumentException",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { string Try(Action a) { try { a(); return \"ok\"; } catch (ArgumentException) { return \"thrown\"; } } var acc = new BankAccount(\"Bo\", 10m); return string.Join(\" \", Try(() => new BankAccount(\"X\", -1m)), Try(() => acc.Deposit(0m)), Try(() => acc.Deposit(-5m)), Try(() => acc.Withdraw(0m)), Try(() => acc.Withdraw(-1m)), Try(() => acc.Deposit(1m))); }))()",
+              "equals": "thrown thrown thrown thrown thrown ok"
+            },
+            "failMessage": "Throw an ArgumentException for a negative opening balance, and for deposits or withdrawals of 0 or less. (A deposit of 1 should still work.)"
+          },
+          {
+            "label": "Withdraw never overdraws",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var a = new BankAccount(\"Bo\", 10m); bool x = a.Withdraw(25m); bool y = a.Withdraw(4m); bool z = a.Withdraw(6m); return $\"{x} {y} {z} {a.Balance:F2}\"; }))()",
+              "equals": "False True True 0.00"
+            },
+            "failMessage": "From 10: withdrawing 25 returns false and changes nothing; withdrawing 4 and then 6 both work and leave 0."
+          },
+          {
+            "label": "The withdrawal is declined",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Withdraw 100: declined",
+              "caseSensitive": true
+            },
+            "failMessage": "Ada only has 35.50, so withdrawing 100 should be declined."
+          },
+          {
+            "label": "The summary shows two decimal places",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Ada: 35.50",
+              "caseSensitive": true
+            },
+            "failMessage": "Format the balance with :F2 in Summary, so it prints Ada: 35.50"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which members can code outside the class change right now, and which of them should only the class itself be able to change?",
+            "speechText": "Which members can code outside the class change right now, and which of them should only the class itself be able to change?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Turn the fields into properties: `{ get; }` for one that's only set in the constructor, `{ get; private set; }` for one that only the class's own methods change. Check each rule at the top of its method with `if (...) throw new ArgumentException(\"...\");`, and give `openingBalance` a default of 0.",
+            "speechText": "Turn the fields into properties, with only a get for Owner, and a get with a private set for Balance. Check each rule at the top of its method, and throw an ArgumentException when it's broken. Give the opening balance a default of zero.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Withdraw with its rules:\n\n```csharp\npublic bool Withdraw(decimal amount)\n{\n    if (amount <= 0)\n        throw new ArgumentException(\"Withdraw a positive amount.\");\n    if (amount > Balance)\n        return false;\n    Balance -= amount;\n    return true;\n}\n```\n\nAdd the same kind of check to `Deposit` and the constructor, and format the balance with `:F2` in `Summary`.",
+            "speechText": "Withdraw throws for zero or less, returns false when there isn't enough money, and only then subtracts. Add the same kind of check to Deposit and the constructor, and format the balance with F2.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What's the difference between a class and an object?",
+            "explanation": "The class defines the type: its data and behaviour. Each object is one instance of it, created with new, with its own values.",
+            "options": [
+              {
+                "text": "A class defines a type; an object is an instance of it made with new",
+                "correct": true
+              },
+              {
+                "text": "They're two names for the same thing",
+                "correct": false
+              },
+              {
+                "text": "An object is a class marked static",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Given public decimal Balance { get; private set; }, what can code outside the class do?",
+            "explanation": "The getter is public and the setter is private, so outside code can read Balance but only the class's own members can assign it.",
+            "options": [
+              {
+                "text": "Read Balance, but not assign it",
+                "correct": true
+              },
+              {
+                "text": "Read and assign it",
+                "correct": false
+              },
+              {
+                "text": "Neither read nor assign it",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "var a = new BankAccount(\"Ada\"); var b = a; b.Deposit(10m); What is a.Balance?",
+            "explanation": "BankAccount is a class, a reference type: b = a copies the reference, so a and b are the same account.",
+            "options": [
+              {
+                "text": "10, because a and b refer to the same object",
+                "correct": true
+              },
+              {
+                "text": "0, because b is a copy",
+                "correct": false
+              },
+              {
+                "text": "It's a compile error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What happens with BankAccount acc = null; acc.Deposit(5m);?",
+            "explanation": "acc refers to no object, so calling a method on it throws NullReferenceException when the program runs.",
+            "options": [
+              {
+                "text": "It throws NullReferenceException",
+                "correct": true
+              },
+              {
+                "text": "Nothing happens",
+                "correct": false
+              },
+              {
+                "text": "A new account is created automatically",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's the difference between an instance member and a static member?",
+            "explanation": "Instance members belong to each object (every account has its own Balance); static members belong to the class as a whole and are shared.",
+            "options": [
+              {
+                "text": "Instance members belong to each object; static members belong to the class",
+                "correct": true
+              },
+              {
+                "text": "Static members can't be changed",
+                "correct": false
+              },
+              {
+                "text": "Instance members are always private",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "project-explorer",

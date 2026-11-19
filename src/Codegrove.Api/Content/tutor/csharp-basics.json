@@ -160,6 +160,38 @@
           "mood": "Encouraging"
         }
       ]
+    },
+    "classes-explorer": {
+      "intro": [
+        {
+          "displayText": "A class is a blueprint, and you can build as many things from it as you like. Your mission: finish the blueprint for a Grove pet that you can name, feed and check on.",
+          "speechText": "A class is a blueprint, and you can build as many things from it as you like. Your mission is to finish the blueprint for a Grove pet that you can name, feed and check on.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your pet remembers its name and gets less hungry every time you feed it! Your new word is object: one thing built from a class, with its own values.",
+          "speechText": "Your pet remembers its name and gets less hungry every time you feed it! Your new word is object, which means one thing built from a class, with its own values.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "classes-and-objects": {
+      "intro": [
+        {
+          "displayText": "Classes are how real C# code models the world: accounts, orders, players, sensors. A good class guards its own rules, so the rest of the program can't put it into a broken state. You'll learn properties, constructors, access modifiers and how objects are shared by reference. Then you'll take a bank account with no rules at all and make it trustworthy.",
+          "speechText": "Classes are how real C sharp code models the world, like accounts, orders, players and sensors. A good class guards its own rules, so the rest of the program can't put it into a broken state. You'll learn properties, constructors, access modifiers and how objects are shared by reference. Then you'll take a bank account with no rules at all and make it trustworthy.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The account guards its balance now: no overdrafts, no bad amounts, and no outside code quietly changing it. The gotcha: assigning an object to another variable copies the reference, not the object, so both variables change the same account. Next, you'll put the whole course together in a project.",
+          "speechText": "The account guards its balance now, with no overdrafts, no bad amounts, and no outside code quietly changing it. The gotcha is that assigning an object to another variable copies the reference, not the object, so both variables change the same account. Next, you'll put the whole course together in a project.",
+          "mood": "Encouraging"
+        }
+      ]
     }
   }
 }
