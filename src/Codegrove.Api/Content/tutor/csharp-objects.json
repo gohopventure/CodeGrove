@@ -20,8 +20,8 @@
     "exceptions": {
       "intro": [
         {
-          "displayText": "Real programs read files, call other services and accept user input, and any of those can fail. Exceptions are how .NET reports failure, and handling them well is the difference between an app that explains a problem and one that crashes or quietly loses data. You'll learn try, catch, finally and exception filters, and when not to use exceptions at all. Then you'll make an order importer that rejects bad lines with clear messages and keeps going.",
-          "speechText": "Real programs read files, call other services and accept user input, and any of those can fail. Exceptions are how dot net reports failure, and handling them well is the difference between an app that explains a problem and one that crashes or quietly loses data. You'll learn try, catch, finally and exception filters, and when not to use exceptions at all. Then you'll make an order importer that rejects bad lines with clear messages and keeps going.",
+          "displayText": "Real programs read files, call services and take user input, and any of those can fail. You'll learn try, catch, finally and exception filters, plus when not to use exceptions at all. Then you'll make an order importer that rejects bad lines with clear messages and keeps going.",
+          "speechText": "Real programs read files, call services and take user input, and any of those can fail. You'll learn try, catch, finally and exception filters, plus when not to use exceptions at all. Then you'll make an order importer that rejects bad lines with clear messages and keeps going.",
           "mood": "Neutral"
         }
       ],
