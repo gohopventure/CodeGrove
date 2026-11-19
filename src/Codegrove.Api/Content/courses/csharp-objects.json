@@ -1550,7 +1550,148 @@
       "sortOrder": 5,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Asking your lists questions\n\n\"How many runners scored 10 or more? Who came first?\" You could answer with a loop, an `if` and a counter. **LINQ** lets you ask each question in one line.\n\n### A tiny method: the lambda\n\nLINQ questions use a **lambda**, a tiny method with no name:\n\n```csharp\ns => s >= 10\n```\n\nRead it as \"for each `s`, is `s` 10 or more?\" The left side of `=>` names each item. The right side is the answer for that item.\n\n### Questions you can ask\n\n```csharp\nint[] scores = { 7, 12, 15, 4, 10 };\n\nscores.Where(s => s >= 10);         // 12, 15, 10\nscores.Count(s => s >= 10);         // 3\nscores.OrderBy(s => s);             // 4, 7, 10, 12, 15\nscores.OrderByDescending(s => s);   // 15, 12, 10, 7, 4\nscores.Select(s => s * 2);          // 14, 24, 30, 8, 20\nscores.Sum();                       // 48\n```\n\n- `Where` keeps the items that match.\n- `Count` counts the items that match.\n- `OrderBy` sorts smallest first, and `OrderByDescending` sorts biggest first.\n- `Select` turns each item into something else.\n\n### Asking about objects\n\nWith a list of objects, the lambda can look inside each one:\n\n```csharp\nrunners.Where(r => r.Score >= 10)\nrunners.OrderByDescending(r => r.Score)\nrunners.Select(r => r.Name)\n```\n\nYou can **chain** questions, one after another. This keeps the runners who scored under 10, then gives back just their names:\n\n```csharp\nrunners.Where(r => r.Score < 10).Select(r => r.Name)\n```\n\n### New words\n\n- **LINQ** (*Language Integrated Query*): methods like `Where` and `Count` for asking questions about lists.\n- **Lambda**: a tiny method with no name, like `s => s >= 10`.\n- **Chain**: using one LINQ question on the answer of another.\n",
+      "exampleMarkdown": "A list of acorn piles, asked six questions. Each `Console.WriteLine` shows the answer to one LINQ question, and `string.Join` puts commas between the items.",
+      "exampleCode": "int[] acorns = { 5, 12, 3, 9, 15, 7 };\n\nvar bigPiles = acorns.Where(a => a >= 9);\nConsole.WriteLine($\"Big piles: {string.Join(\", \", bigPiles)}\");\nConsole.WriteLine($\"How many big piles: {acorns.Count(a => a >= 9)}\");\n\nvar sorted = acorns.OrderBy(a => a);\nConsole.WriteLine($\"Smallest first: {string.Join(\", \", sorted)}\");\n\nvar doubled = acorns.Select(a => a * 2);\nConsole.WriteLine($\"Doubled: {string.Join(\", \", doubled)}\");\n\nConsole.WriteLine($\"All the acorns: {acorns.Sum()}\");\n\nvar smallDoubled = acorns.Where(a => a < 9).Select(a => a * 2);\nConsole.WriteLine($\"Small, doubled: {string.Join(\", \", smallDoubled)}\");\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** It's sports day in the Grove. Answer each question in one line, following the numbered comments:\n\n1. Count the runners who scored 10 or more, using `Count`.\n2. Put the runners in order, highest score first, using `OrderByDescending`.\n3. Get the names of the runners who scored under 10, using `Where` and then `Select`.\n\nRun it, and the results should read:\n\n```\nMedals: 3\nFern: 15\nMoss: 12\nWren: 10\nPip: 7\nBram: 4\nKeep trying: Pip, Bram\n```",
+        "starterFiles": {
+          "Program.cs": "// Mission: sports day results! Answer each question with LINQ.\nvar runners = new List<Runner>\n{\n    new Runner(\"Pip\", 7),\n    new Runner(\"Moss\", 12),\n    new Runner(\"Fern\", 15),\n    new Runner(\"Bram\", 4),\n    new Runner(\"Wren\", 10),\n};\n\n// 1. How many runners scored 10 or more? Use Count.\nint medals = 0;\nConsole.WriteLine($\"Medals: {medals}\");\n\n// 2. Put the runners in order, highest score first.\n//    Use OrderByDescending.\nvar ranked = runners;\nforeach (Runner runner in ranked)\n{\n    Console.WriteLine($\"{runner.Name}: {runner.Score}\");\n}\n\n// 3. Get the names of the runners who scored under 10.\n//    Use Where, then Select.\nvar keepTrying = new List<string>();\nConsole.WriteLine($\"Keep trying: {string.Join(\", \", keepTrying)}\");\n\nrecord Runner(string Name, int Score);\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: sports day results! Answer each question with LINQ.\nvar runners = new List<Runner>\n{\n    new Runner(\"Pip\", 7),\n    new Runner(\"Moss\", 12),\n    new Runner(\"Fern\", 15),\n    new Runner(\"Bram\", 4),\n    new Runner(\"Wren\", 10),\n};\n\n// 1. How many runners scored 10 or more? Use Count.\nint medals = runners.Count(r => r.Score >= 10);\nConsole.WriteLine($\"Medals: {medals}\");\n\n// 2. Put the runners in order, highest score first.\n//    Use OrderByDescending.\nvar ranked = runners.OrderByDescending(r => r.Score);\nforeach (Runner runner in ranked)\n{\n    Console.WriteLine($\"{runner.Name}: {runner.Score}\");\n}\n\n// 3. Get the names of the runners who scored under 10.\n//    Use Where, then Select.\nvar keepTrying = runners.Where(r => r.Score < 10).Select(r => r.Name);\nConsole.WriteLine($\"Keep trying: {string.Join(\", \", keepTrying)}\");\n\nrecord Runner(string Name, int Score);\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The program can't run. Read the red message in the Output panel: it names the line to look at."
+          },
+          {
+            "label": "You counted with Count",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\.Count\\s*\\(\\s*\\w+\\s*=>"
+            },
+            "failMessage": "Count the medals with a lambda inside Count: runners.Count(r => ...)."
+          },
+          {
+            "label": "You sorted with OrderByDescending",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\.OrderByDescending\\s*\\(\\s*\\w+\\s*=>"
+            },
+            "failMessage": "Sort with runners.OrderByDescending(r => ...), so the highest score comes first."
+          },
+          {
+            "label": "You used Where and Select",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\.Where\\s*\\((?s:.*)\\.Select\\s*\\("
+            },
+            "failMessage": "Keep the runners under 10 with Where, then take their names with Select: runners.Where(...).Select(...)."
+          },
+          {
+            "label": "The results are right",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "Medals: 3",
+                "Fern: 15",
+                "Moss: 12",
+                "Wren: 10",
+                "Pip: 7",
+                "Bram: 4",
+                "Keep trying: Pip, Bram"
+              ]
+            },
+            "failMessage": "The output should match the instructions exactly. Check whether each question uses 10 or more, or under 10."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "To count the medals, what question would you ask about each runner?",
+            "speechText": "To count the medals, what question would you ask about each runner?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Ask `runners.Count(r => r.Score >= 10)` and `runners.OrderByDescending(r => r.Score)`. For the last one, keep the runners under 10 with `Where`, then take their names with `Select`.",
+            "speechText": "Count the runners whose score is ten or more, and order them by score, biggest first. For the last one, keep the runners under ten with Where, then take their names with Select.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The three lines to change:\n\n```csharp\nint medals = runners.Count(r => r.Score >= 10);\n\nvar ranked = runners.OrderByDescending(r => r.Score);\n\nvar keepTrying = runners.Where(r => r.Score < 10)\n                        .Select(r => r.Name);\n```",
+            "speechText": "Medals counts the runners with ten or more, and ranked orders them by score, biggest first. Keep trying is Where the score is under ten, then Select the name.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "scores is { 3, 8, 12 }. What does scores.Where(s => s > 5) give?",
+            "explanation": "Where keeps only the items that match. 8 and 12 are bigger than 5; 3 isn't.",
+            "options": [
+              {
+                "text": "8 and 12",
+                "correct": true
+              },
+              {
+                "text": "Just 3",
+                "correct": false
+              },
+              {
+                "text": "3, 8 and 12",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In runners.Count(r => r.Score >= 10), what is r?",
+            "explanation": "The lambda is asked about each runner in the list, one at a time, and r is the runner it's looking at.",
+            "options": [
+              {
+                "text": "Each runner in the list, one at a time",
+                "correct": true
+              },
+              {
+                "text": "The whole list",
+                "correct": false
+              },
+              {
+                "text": "The number of runners",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which LINQ method puts the biggest score first?",
+            "explanation": "OrderByDescending sorts from biggest to smallest. OrderBy goes smallest first.",
+            "options": [
+              {
+                "text": "OrderByDescending",
+                "correct": true
+              },
+              {
+                "text": "OrderBy",
+                "correct": false
+              },
+              {
+                "text": "Select",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "linq",
@@ -1558,7 +1699,216 @@
       "sortOrder": 5,
       "ageBand": "Builder",
       "estimatedMinutes": 20,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## LINQ: filter, sort and group\n\n**LINQ** (*Language Integrated Query*) is a set of methods for asking questions of any `IEnumerable<T>`: lists, arrays, dictionaries, and later in this track, database tables through Entity Framework Core.\n\n### Lambdas\n\nMost LINQ methods take a **lambda**, a small function with no name. `s => s.Units >= 10` takes a sale `s` and returns whether it's a large one.\n\n### The everyday operators\n\n```csharp\nvar big = sales.Where(s => s.Units >= 10);   // filter\nvar names = sales.Select(s => s.Product);    // project\nvar sorted = sales\n    .OrderByDescending(s => s.Total)         // sort...\n    .ThenBy(s => s.Product);                 // ...ties by name\nvar top3 = sorted.Take(3);                   // the first 3\n```\n\n`Select` is called **projection**: it turns each item into something else. For a second sort key, use `ThenBy`: a second `OrderBy` would throw away the first sort.\n\nThese **aggregates** return a single value: `Count`, `Sum`, `Average`, `Min`, `Max`, `Any`, `All`, `MinBy`, `MaxBy`, `First` and `FirstOrDefault`. `First` throws an exception on an empty sequence. `FirstOrDefault` returns the default instead: `null` for classes and strings, 0 for numbers.\n\n### Grouping\n\n`GroupBy` sorts items into buckets that share a key. Each group has a `Key`, and is itself a sequence of the items in it:\n\n```csharp\nforeach (var group in sales.GroupBy(s => s.Region))\n{\n    decimal revenue = group.Sum(s => s.Total);\n    Console.WriteLine($\"{group.Key}: {revenue}\");\n}\n```\n\n`ToDictionary` turns groups into a lookup table:\n\n```csharp\nDictionary<string, decimal> totals = sales\n    .GroupBy(s => s.Region)\n    .ToDictionary(g => g.Key, g => g.Sum(s => s.Total));\n```\n\n### Shaping results\n\n`Select` can build a new shape on the fly with an **anonymous type**, a type with no name that only lives inside the query:\n\n```csharp\nvar products = sales\n    .GroupBy(s => s.Product)\n    .Select(g => new { Name = g.Key, Units = g.Sum(s => s.Units) })\n    .OrderByDescending(p => p.Units);\n```\n\n### Deferred execution\n\nA query like `Where` doesn't run when you write it. It runs each time something loops over it, or calls `Count`, `ToList` and so on. That's **deferred execution**:\n\n```csharp\nvar large = sales.Where(s => s.Units >= 10);\nsales.Add(new Sale(\"West\", \"Drone\", 20, 120m));\nConsole.WriteLine(large.Count());  // includes the West sale!\n```\n\n**Gotcha:** when you need a snapshot, or you'll loop over an expensive query more than once, finish it with `ToList()` or `ToArray()`. That runs it once, right there.\n\n### Query syntax\n\nYou'll also see LINQ written like SQL: `from s in sales where s.Units >= 10 select s.Product`. It compiles to the same method calls. This course uses the method style.\n\n### New words\n\n- **LINQ** (*Language Integrated Query*): methods such as `Where`, `Select` and `GroupBy` for querying any `IEnumerable<T>`.\n- **Lambda**: a small unnamed function, like `s => s.Total`.\n- **Projection**: turning each item into a new shape with `Select`.\n- **Aggregate**: an operator that reduces a sequence to one value, like `Sum` or `Count`.\n- **Grouping**: sorting items into keyed buckets with `GroupBy`.\n- **Anonymous type**: a type with no name, created with `new { ... }`, for use inside one query.\n- **Deferred execution**: a query runs when its results are used, not when it's written.\n",
+      "exampleMarkdown": "Questions about a book list: filtering and projecting, sorting with a tie-breaker, grouping with averages, `Any`, and `FirstOrDefault` on a genre that isn't there. The last lines show deferred execution: the query sees the book added later, and the `ToList` snapshot doesn't.",
+      "exampleCode": "var books = new List<Book>\n{\n    new Book(\"Dune\", \"Sci-fi\", 1965, 4.6),\n    new Book(\"Matilda\", \"Kids\", 1988, 4.4),\n    new Book(\"Neuromancer\", \"Sci-fi\", 1984, 4.1),\n    new Book(\"Holes\", \"Kids\", 1998, 4.5),\n    new Book(\"Emma\", \"Classic\", 1815, 4.0),\n};\n\nvar modern = books.Where(b => b.Year >= 1980).Select(b => b.Title);\nConsole.WriteLine($\"Since 1980: {string.Join(\", \", modern)}\");\n\nBook best = books\n    .OrderByDescending(b => b.Rating)\n    .ThenBy(b => b.Title)\n    .First();\nConsole.WriteLine($\"Highest rated: {best.Title}\");\n\nforeach (var genre in books.GroupBy(b => b.Genre).OrderBy(g => g.Key))\n{\n    double average = genre.Average(b => b.Rating);\n    int count = genre.Count();\n    Console.WriteLine($\"{genre.Key}: average {average:F2} ({count} of them)\");\n}\n\nConsole.WriteLine($\"Any before 1900? {books.Any(b => b.Year < 1900)}\");\nBook poem = books.FirstOrDefault(b => b.Genre == \"Poetry\");\nConsole.WriteLine($\"First poetry book: {poem?.Title ?? \"none\"}\");\n\nvar kids = books.Where(b => b.Genre == \"Kids\");\nvar kidsNow = kids.ToList();\nbooks.Add(new Book(\"Wonder\", \"Kids\", 2012, 4.7));\nConsole.WriteLine($\"Query: {kids.Count()}, snapshot: {kidsNow.Count}\");\n\nrecord Book(string Title, string Genre, int Year, double Rating);\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Fix the sales report** in `Sales.cs`. Its numbers look plausible, but every method is wrong somewhere.\n\n1. **`TopProducts`** ranks single sales, so it misses that the Kite sold in three regions. Rank each *product* by the revenue of all its sales added up, highest first, ties by product name, and return at most `count` names.\n2. **`RevenueByRegion`**: return each region's total revenue.\n3. **`BestRegion`**: return the region with the most revenue, or `null` when there are no sales (right now it crashes).\n4. **`LargeOrders`**: return the sales of 10 units or more as a *snapshot*. `Program.cs` adds a sale after calling it, and that sale must not show up.\n\nThe report should print:\n\n```\nTop 2 products: Kite, Drone\nEast: 154.00\nNorth: 162.00\nSouth: 55.50\nBest region: North\nBest region with no sales: none\nLarge orders before the West sale: 3\n```",
+        "starterFiles": {
+          "Sales.cs": "// One sale: units of a product sold in a region, at a price per unit.\nrecord Sale(string Region, string Product, int Units, decimal Price)\n{\n    public decimal Total => Units * Price;\n}\n\nstatic class SalesReport\n{\n    // 1. The names of the products with the most revenue (all their sales\n    //    added up), highest first, ties by name, at most count of them.\n    public static List<string> TopProducts(IEnumerable<Sale> sales, int count)\n    {\n        return sales\n            .OrderByDescending(s => s.Total)\n            .Take(count)\n            .Select(s => s.Product)\n            .ToList();\n    }\n\n    // 2. Total revenue for each region.\n    public static Dictionary<string, decimal> RevenueByRegion(IEnumerable<Sale> sales)\n    {\n        return new Dictionary<string, decimal>();\n    }\n\n    // 3. The region with the most revenue, or null when there are no sales.\n    public static string BestRegion(IEnumerable<Sale> sales)\n    {\n        return sales.First().Region;\n    }\n\n    // 4. The sales of 10 units or more, as a snapshot: sales added to the\n    //    list later must not show up in it.\n    public static IEnumerable<Sale> LargeOrders(List<Sale> sales)\n    {\n        return sales.Where(s => s.Units >= 10);\n    }\n}\n",
+          "Program.cs": "var sales = new List<Sale>\n{\n    new Sale(\"North\", \"Kite\", 12, 8.50m),\n    new Sale(\"South\", \"Kite\", 3, 8.50m),\n    new Sale(\"North\", \"Yo-yo\", 30, 2.00m),\n    new Sale(\"East\", \"Drone\", 1, 120.00m),\n    new Sale(\"South\", \"Yo-yo\", 15, 2.00m),\n    new Sale(\"East\", \"Kite\", 4, 8.50m),\n};\n\nvar top = SalesReport.TopProducts(sales, 2);\nConsole.WriteLine($\"Top 2 products: {string.Join(\", \", top)}\");\n\nvar byRegion = SalesReport.RevenueByRegion(sales);\nforeach (var (region, revenue) in byRegion.OrderBy(pair => pair.Key))\n{\n    Console.WriteLine($\"{region}: {revenue:F2}\");\n}\n\nConsole.WriteLine($\"Best region: {SalesReport.BestRegion(sales) ?? \"none\"}\");\nstring noSales = SalesReport.BestRegion(new List<Sale>());\nConsole.WriteLine($\"Best region with no sales: {noSales ?? \"none\"}\");\n\nvar large = SalesReport.LargeOrders(sales);\nsales.Add(new Sale(\"West\", \"Drone\", 20, 120.00m));\nConsole.WriteLine($\"Large orders before the West sale: {large.Count()}\");\n"
+        },
+        "solutionFiles": {
+          "Sales.cs": "// One sale: units of a product sold in a region, at a price per unit.\nrecord Sale(string Region, string Product, int Units, decimal Price)\n{\n    public decimal Total => Units * Price;\n}\n\nstatic class SalesReport\n{\n    // 1. The names of the products with the most revenue (all their sales\n    //    added up), highest first, ties by name, at most count of them.\n    public static List<string> TopProducts(IEnumerable<Sale> sales, int count)\n    {\n        return sales\n            .GroupBy(s => s.Product)\n            .Select(g => new { Product = g.Key, Revenue = g.Sum(s => s.Total) })\n            .OrderByDescending(p => p.Revenue)\n            .ThenBy(p => p.Product)\n            .Take(count)\n            .Select(p => p.Product)\n            .ToList();\n    }\n\n    // 2. Total revenue for each region.\n    public static Dictionary<string, decimal> RevenueByRegion(IEnumerable<Sale> sales)\n    {\n        return sales\n            .GroupBy(s => s.Region)\n            .ToDictionary(g => g.Key, g => g.Sum(s => s.Total));\n    }\n\n    // 3. The region with the most revenue, or null when there are no sales.\n    public static string BestRegion(IEnumerable<Sale> sales)\n    {\n        return RevenueByRegion(sales)\n            .OrderByDescending(pair => pair.Value)\n            .Select(pair => pair.Key)\n            .FirstOrDefault();\n    }\n\n    // 4. The sales of 10 units or more, as a snapshot: sales added to the\n    //    list later must not show up in it.\n    public static IEnumerable<Sale> LargeOrders(List<Sale> sales)\n    {\n        return sales.Where(s => s.Units >= 10).ToList();\n    }\n}\n",
+          "Program.cs": "var sales = new List<Sale>\n{\n    new Sale(\"North\", \"Kite\", 12, 8.50m),\n    new Sale(\"South\", \"Kite\", 3, 8.50m),\n    new Sale(\"North\", \"Yo-yo\", 30, 2.00m),\n    new Sale(\"East\", \"Drone\", 1, 120.00m),\n    new Sale(\"South\", \"Yo-yo\", 15, 2.00m),\n    new Sale(\"East\", \"Kite\", 4, 8.50m),\n};\n\nvar top = SalesReport.TopProducts(sales, 2);\nConsole.WriteLine($\"Top 2 products: {string.Join(\", \", top)}\");\n\nvar byRegion = SalesReport.RevenueByRegion(sales);\nforeach (var (region, revenue) in byRegion.OrderBy(pair => pair.Key))\n{\n    Console.WriteLine($\"{region}: {revenue:F2}\");\n}\n\nConsole.WriteLine($\"Best region: {SalesReport.BestRegion(sales) ?? \"none\"}\");\nstring noSales = SalesReport.BestRegion(new List<Sale>());\nConsole.WriteLine($\"Best region with no sales: {noSales ?? \"none\"}\");\n\nvar large = SalesReport.LargeOrders(sales);\nsales.Add(new Sale(\"West\", \"Drone\", 20, 120.00m));\nConsole.WriteLine($\"Large orders before the West sale: {large.Count()}\");\n"
+        },
+        "tests": [
+          {
+            "label": "The report runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The program stopped before the end. Read the first error in the Output panel: it names the file and line to look at."
+          },
+          {
+            "label": "TopProducts adds up each product's sales",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var data = new List<Sale> { new Sale(\"North\", \"Kite\", 12, 8.50m), new Sale(\"South\", \"Kite\", 3, 8.50m), new Sale(\"North\", \"Yo-yo\", 30, 2.00m), new Sale(\"East\", \"Drone\", 1, 120.00m), new Sale(\"South\", \"Yo-yo\", 15, 2.00m), new Sale(\"East\", \"Kite\", 4, 8.50m) }; return string.Join(\", \", SalesReport.TopProducts(data, 10)); }))()",
+              "equals": "Kite, Drone, Yo-yo"
+            },
+            "failMessage": "With all their sales added up, Kite (161.50) beats Drone (120.00) and Yo-yo (90.00). Group the sales by product and Sum each group before sorting by that total. If you already do, check for a second OrderBy: it replaces the first sort, so use ThenBy for ties."
+          },
+          {
+            "label": "TopProducts breaks ties by name and stops at count",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var data = new List<Sale> { new Sale(\"A\", \"Zebra\", 1, 5m), new Sale(\"A\", \"Apple\", 1, 5m), new Sale(\"A\", \"Mango\", 2, 5m) }; return string.Join(\", \", SalesReport.TopProducts(data, 2)); }))()",
+              "equals": "Mango, Apple"
+            },
+            "failMessage": "Apple and Zebra both earn 5.00, so Apple comes first by name: add ThenBy after OrderByDescending. Then Take only count names."
+          },
+          {
+            "label": "RevenueByRegion totals each region",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var data = new List<Sale> { new Sale(\"North\", \"Kite\", 12, 8.50m), new Sale(\"South\", \"Kite\", 3, 8.50m), new Sale(\"North\", \"Yo-yo\", 30, 2.00m), new Sale(\"East\", \"Drone\", 1, 120.00m), new Sale(\"South\", \"Yo-yo\", 15, 2.00m), new Sale(\"East\", \"Kite\", 4, 8.50m) }; string M(decimal d) => d.ToString(\"F2\", System.Globalization.CultureInfo.InvariantCulture); return string.Join(\", \", SalesReport.RevenueByRegion(data).OrderBy(p => p.Key).Select(p => $\"{p.Key} {M(p.Value)}\")); }))()",
+              "equals": "East 154.00, North 162.00, South 55.50"
+            },
+            "failMessage": "Group the sales by region, then build a dictionary from each group's Key to the Sum of its totals."
+          },
+          {
+            "label": "BestRegion finds the top region, or null",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var data = new List<Sale> { new Sale(\"North\", \"Kite\", 12, 8.50m), new Sale(\"South\", \"Kite\", 3, 8.50m), new Sale(\"North\", \"Yo-yo\", 30, 2.00m), new Sale(\"East\", \"Drone\", 1, 120.00m), new Sale(\"South\", \"Yo-yo\", 15, 2.00m), new Sale(\"East\", \"Kite\", 4, 8.50m) }; return $\"{SalesReport.BestRegion(data)} / {SalesReport.BestRegion(new List<Sale>()) ?? \"null\"}\"; }))()",
+              "equals": "North / null"
+            },
+            "failMessage": "BestRegion should return North for the challenge's sales, and null for an empty list. First throws on an empty sequence; FirstOrDefault doesn't."
+          },
+          {
+            "label": "LargeOrders is a snapshot",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var data = new List<Sale> { new Sale(\"North\", \"Kite\", 12, 8.50m), new Sale(\"South\", \"Kite\", 3, 8.50m), new Sale(\"North\", \"Yo-yo\", 30, 2.00m), new Sale(\"East\", \"Drone\", 1, 120.00m), new Sale(\"South\", \"Yo-yo\", 15, 2.00m), new Sale(\"East\", \"Kite\", 4, 8.50m) }; var large = SalesReport.LargeOrders(data); data.Add(new Sale(\"West\", \"Drone\", 20, 1m)); return $\"{large.Count()} large orders\"; }))()",
+              "equals": "3 large orders"
+            },
+            "failMessage": "A sale added after calling LargeOrders still showed up, because a Where query runs again each time it's used. Finish the query with ToList()."
+          },
+          {
+            "label": "You grouped with GroupBy",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\.GroupBy\\s*\\(",
+              "file": "Sales.cs"
+            },
+            "failMessage": "Use GroupBy to collect each product's (or region's) sales together."
+          },
+          {
+            "label": "The report matches",
+            "kind": "consoleEquals",
+            "spec": {
+              "lines": [
+                "Top 2 products: Kite, Drone",
+                "East: 154.00",
+                "North: 162.00",
+                "South: 55.50",
+                "Best region: North",
+                "Best region with no sales: none",
+                "Large orders before the West sale: 3"
+              ]
+            },
+            "failMessage": "The program's output should match the instructions exactly."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`TopProducts` sorts single sales. What has to happen *before* sorting, so each product appears once with all its sales added up?",
+            "speechText": "TopProducts sorts single sales. What has to happen before sorting, so each product appears once with all its sales added up?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Group by product, `Select` each key with `g.Sum(s => s.Total)`, then sort, `ThenBy` name, `Take` and `Select` the names. `RevenueByRegion` is `GroupBy` plus `ToDictionary`, `BestRegion` can sort that dictionary and use `FirstOrDefault`, and `LargeOrders` needs `ToList()` to run right away.",
+            "speechText": "Group by product, select each key with the sum of its totals, then sort, break ties by name, take the count and select the names. RevenueByRegion is GroupBy plus ToDictionary, and BestRegion can sort that dictionary and use FirstOrDefault. LargeOrders needs To List so it runs right away.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "`TopProducts`, the method with the most steps:\n\n```csharp\nreturn sales\n    .GroupBy(s => s.Product)\n    .Select(g => new { Product = g.Key,\n                       Revenue = g.Sum(s => s.Total) })\n    .OrderByDescending(p => p.Revenue)\n    .ThenBy(p => p.Product)\n    .Take(count)\n    .Select(p => p.Product)\n    .ToList();\n```\n\nAnd `LargeOrders` returns `sales.Where(s => s.Units >= 10).ToList();`",
+            "speechText": "TopProducts groups by product, makes a name and revenue for each group, sorts by revenue then name, takes the count and selects the names. LargeOrders adds To List to the end of its query.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "var q = list.Where(x => x > 2); list.Add(5); What does q.Count() include?",
+            "explanation": "Deferred execution: the Where runs when Count is called, so it sees the 5 that was added afterwards.",
+            "options": [
+              {
+                "text": "The 5, because the query runs when Count is called",
+                "correct": true
+              },
+              {
+                "text": "Only the items that were there when q was written",
+                "correct": false
+              },
+              {
+                "text": "Nothing: adding to the list breaks the query",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What happens with First() and FirstOrDefault() on an empty list of strings?",
+            "explanation": "First throws an InvalidOperationException. FirstOrDefault returns the default, which is null for strings.",
+            "options": [
+              {
+                "text": "First throws; FirstOrDefault returns null",
+                "correct": true
+              },
+              {
+                "text": "Both return null",
+                "correct": false
+              },
+              {
+                "text": "Both throw",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does sales.GroupBy(s => s.Region) give you?",
+            "explanation": "A sequence of groups: each has a Key (the region) and contains that region's sales.",
+            "options": [
+              {
+                "text": "Groups, each with a Key and the sales that share it",
+                "correct": true
+              },
+              {
+                "text": "The sales sorted by region",
+                "correct": false
+              },
+              {
+                "text": "A dictionary from region to total",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "You want revenue highest first, and ties in name order. Which is right?",
+            "explanation": "ThenBy adds a second sort key. A second OrderBy would sort the whole sequence again and throw away the first order.",
+            "options": [
+              {
+                "text": "OrderByDescending(p => p.Revenue).ThenBy(p => p.Name)",
+                "correct": true
+              },
+              {
+                "text": "OrderByDescending(p => p.Revenue).OrderBy(p => p.Name)",
+                "correct": false
+              },
+              {
+                "text": "OrderBy(p => p.Name).OrderByDescending(p => p.Revenue).Take(1)",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does Select do?",
+            "explanation": "Select is projection: it turns each item into something else, like a sale into its product name.",
+            "options": [
+              {
+                "text": "Turns each item into something else",
+                "correct": true
+              },
+              {
+                "text": "Keeps only the items that match",
+                "correct": false
+              },
+              {
+                "text": "Picks one item from the list",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "nullable-explorer",

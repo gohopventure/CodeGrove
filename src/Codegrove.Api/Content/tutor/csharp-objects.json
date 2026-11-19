@@ -116,7 +116,7 @@
     "records": {
       "intro": [
         {
-          "displayText": "Most data in real apps is a value: a price, a date range, an address, a song. Records give you value equality, readable output and safe copies in one line, which is why they're everywhere in modern C#. You'll turn a Song class into a record, copy one with with, and fix a playlist whose equality quietly fails.",
+          "displayText": "Most data in real apps is a value: a price, a date range, an address, a song. Records give you value equality, readable output and safe copies in one line, which is why they're everywhere in modern C#. You'll turn a Song class into a record, copy one with a with expression, and fix a playlist whose equality quietly fails.",
           "speechText": "Most data in real apps is a value, like a price, a date range, an address or a song. Records give you value equality, readable output and safe copies in one line, which is why they're everywhere in modern C sharp. You'll turn a Song class into a record, copy one with a with expression, and fix a playlist whose equality quietly fails.",
           "mood": "Neutral"
         }
@@ -125,6 +125,38 @@
         {
           "displayText": "Duplicates disappear, copies leave the original alone, and two playlists with the same songs now count as equal. The gotcha: a record's equality is shallow, so a list inside it is compared by reference unless you write Equals and GetHashCode yourself. Next, LINQ lets you filter, sort and group collections like these.",
           "speechText": "Duplicates disappear, copies leave the original alone, and two playlists with the same songs now count as equal. The gotcha is that a record's equality is shallow, so a list inside it is compared by reference unless you write Equals and GetHashCode yourself. Next, link lets you filter, sort and group collections like these.",
+          "mood": "Encouraging"
+        }
+      ]
+    },
+    "linq-explorer": {
+      "intro": [
+        {
+          "displayText": "It's sports day in the Grove, and everyone wants to know the results. Your mission: ask the list of runners three questions, one line each!",
+          "speechText": "It's sports day in the Grove, and everyone wants to know the results. Your mission is to ask the list of runners three questions, one line each!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You counted the medals, ranked the runners and found who needs more practice, each in one line! Your new word is lambda: a tiny method with no name that answers a question about each item.",
+          "speechText": "You counted the medals, ranked the runners and found who needs more practice, each in one line! Your new word is lambda, which means a tiny method with no name that answers a question about each item.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "linq": {
+      "intro": [
+        {
+          "displayText": "Most code that works with real data is asking questions: which orders, how much per region, who's on top. LINQ does that in a few readable lines, and the same methods will later query a database through Entity Framework. You'll fix a sales report whose numbers look plausible but are quietly wrong.",
+          "speechText": "Most code that works with real data is asking questions, like which orders, how much per region, and who's on top. Link does that in a few readable lines, and the same methods will later query a database through Entity Framework. You'll fix a sales report whose numbers look plausible but are quietly wrong.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your report groups before it sorts, totals each region, copes with no sales, and keeps a real snapshot. The gotcha: a LINQ query runs every time you use it, not when you write it, so finish it with ToList when the results need to stay put. Next, nullable reference types let the compiler warn you before a null crashes your program.",
+          "speechText": "Your report groups before it sorts, totals each region, copes with no sales, and keeps a real snapshot. The gotcha is that a link query runs every time you use it, not when you write it, so finish it with To List when the results need to stay put. Next, nullable reference types let the compiler warn you before a null crashes your program.",
           "mood": "Encouraging"
         }
       ]
