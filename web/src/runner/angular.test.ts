@@ -3,7 +3,7 @@
  * frame by Angular's JIT compiler (vite-plugins/angularRuntime.ts), and the harness waits for Angular
  * to be stable before each test. Type checking uses Angular's real .d.ts files.
  */
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { DecoratorError, lowerDecorators, needsAngular } from './angular';
 import { runInJsdom } from './runInJsdom';
 import { nodeTypeChecker } from './typeCheckNode';
@@ -120,6 +120,12 @@ describe('lowerDecorators', () => {
 });
 
 describe('Angular pages in the preview', () => {
+  // The first Angular page pays for building the Angular runtime (vite-plugins/angularRuntime.ts bundles
+  // Angular's packages). On a cold CI machine that alone can exceed the 5 s test limit, so do it once here.
+  beforeAll(async () => {
+    await runInJsdom(page(COUNTER), []);
+  }, 120_000);
+
   it('renders a component, then re-renders after clicks', async () => {
     const run = await runInJsdom(
       page(COUNTER),

@@ -1044,7 +1044,151 @@
       "sortOrder": 4,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Lists and loops\n\nA treasure chest holds lots of treasures, not just one. To keep many values together, C# uses an **array**:\n\n```csharp\nstring[] treasures = { \"gold coin\", \"ruby\", \"silver key\" };\n```\n\nThe `[]` after the type means \"lots of these\". The values go in curly braces, with commas between them.\n\n### Counting from zero\n\nEach item has a number called its **index**. The first item is number **0**, not 1:\n\n```csharp\nConsole.WriteLine(treasures[0]);       // gold coin\nConsole.WriteLine(treasures[2]);       // silver key\nConsole.WriteLine(treasures.Length);   // 3, how many items there are\n```\n\nAsk for `treasures[3]` and the program stops with an error: there's no item number 3.\n\n### foreach: once for every item\n\nA **loop** repeats code. A `foreach` loop runs once for each item, and gives you that item in a variable:\n\n```csharp\nforeach (string treasure in treasures)\n{\n    Console.WriteLine($\"Found: {treasure}\");\n}\n```\n\n### for: counting\n\nA `for` loop counts. It has three parts, separated by semicolons: where to start, when to keep going, and what to do after each round:\n\n```csharp\nfor (int i = 0; i < treasures.Length; i++)\n{\n    Console.WriteLine($\"Treasure number {i}: {treasures[i]}\");\n}\n```\n\n`i++` means \"add 1 to i\". This loop runs with `i` as 0, then 1, then 2, and stops when `i < 3` is false.\n\n### Lists can grow\n\nAn array's size is fixed. A **List** can grow:\n\n```csharp\nList<string> backpack = new List<string>();\nbackpack.Add(\"map\");\nbackpack.Add(\"snack\");\nConsole.WriteLine(backpack.Count);   // 2\n```\n\n### New words\n\n- **Array**: a fixed-size set of values of one type, like `string[]`.\n- **Index**: an item's position number. The first item is index 0.\n- **Loop**: code that repeats.\n- **foreach loop**: a loop that runs once for each item in an array or list.\n- **for loop**: a loop that counts, with a start, a condition and a step.\n- **List**: like an array, but it can grow with `Add`.\n",
+      "exampleMarkdown": "An array of friends: index 0 is the first one, and `Length` says how many there are. The `foreach` greets each friend, the `for` loop counts to 3, and the list grows with `Add`.",
+      "exampleCode": "string[] friends = { \"Juni\", \"Bolt\", \"Pickles\" };\nConsole.WriteLine($\"First friend: {friends[0]}\");\nConsole.WriteLine($\"Number of friends: {friends.Length}\");\n\nforeach (string friend in friends)\n{\n    Console.WriteLine($\"Hi, {friend}!\");\n}\n\nfor (int i = 1; i <= 3; i++)\n{\n    Console.WriteLine($\"Jump number {i}!\");\n}\n\nList<string> backpack = new List<string>();\nbackpack.Add(\"map\");\nbackpack.Add(\"snack\");\nConsole.WriteLine($\"The backpack holds {backpack.Count} things.\");\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Count the treasure in the Grove's chest.\n\n1. Use a `foreach` loop to print every treasure, like `Found: ruby`.\n2. Use a `for` loop to add up all the numbers in `values`. Then print the total, like `Total value: 125`.\n\nLet the loop do the adding: the checks look for a `for` loop that uses `values[i]`.",
+        "starterFiles": {
+          "Program.cs": "// Mission: count the Grove's treasure!\nstring[] treasures = { \"gold coin\", \"ruby\", \"silver key\", \"pearl\" };\nint[] values = { 10, 50, 25, 40 };\n\n// 1. Use a foreach loop to print every treasure, like: Found: ruby\n\n// 2. Use a for loop to add up all the values.\n//    Then print the total, like: Total value: 125\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: count the Grove's treasure!\nstring[] treasures = { \"gold coin\", \"ruby\", \"silver key\", \"pearl\" };\nint[] values = { 10, 50, 25, 40 };\n\n// 1. Use a foreach loop to print every treasure, like: Found: ruby\nforeach (string treasure in treasures)\n{\n    Console.WriteLine($\"Found: {treasure}\");\n}\n\n// 2. Use a for loop to add up all the values.\n//    Then print the total, like: Total value: 125\nint total = 0;\nfor (int i = 0; i < values.Length; i++)\n{\n    total = total + values[i];\n}\nConsole.WriteLine($\"Total value: {total}\");\n"
+        },
+        "tests": [
+          {
+            "label": "The program runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Look at the Output panel: the red error names the line to fix."
+          },
+          {
+            "label": "A foreach loop prints the treasures",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bforeach\\s*\\("
+            },
+            "failMessage": "Print the treasures with a foreach loop: foreach (string treasure in treasures)"
+          },
+          {
+            "label": "The first treasure is found",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Found: gold coin",
+              "caseSensitive": true
+            },
+            "failMessage": "Inside the foreach, print each one like: Found: gold coin"
+          },
+          {
+            "label": "The last treasure is found",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Found: pearl",
+              "caseSensitive": true
+            },
+            "failMessage": "The loop should reach every treasure, all the way to the pearl."
+          },
+          {
+            "label": "A for loop adds up the values",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bfor\\s*\\([^)]*;[^)]*;[^)]*\\)[\\s\\S]*\\bvalues\\s*\\[\\s*\\w+\\s*\\]"
+            },
+            "failMessage": "Add the values with a for loop that reads values[i] each time round."
+          },
+          {
+            "label": "The total is 125",
+            "kind": "consoleIncludes",
+            "spec": {
+              "text": "Total value: 125",
+              "caseSensitive": true
+            },
+            "failMessage": "After the loop, print the total, like: Total value: 125"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "In `foreach (string treasure in treasures)`, what does `treasure` hold each time round the loop?",
+            "speechText": "In a foreach loop over the treasures, what does the treasure variable hold each time round the loop?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Inside the `foreach`, print `$\"Found: {treasure}\"`. For the total, start with `int total = 0;`, then loop with `for (int i = 0; i < values.Length; i++)` and add `values[i]` each time.",
+            "speechText": "Inside the foreach, print the word Found and the treasure in curly braces. For the total, start at zero, and use a for loop to add each value, from index zero up to the length of values.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The adding part:\n\n```csharp\nint total = 0;\nfor (int i = 0; i < values.Length; i++)\n{\n    total = total + values[i];\n}\n```\n\nPrint `Total value: {total}` after the loop, and write the `foreach` for the treasures.",
+            "speechText": "Start total at zero, and add the value at index i inside the for loop. Print the total after the loop ends, and use a foreach to print each treasure.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "With string[] pets = { \"cat\", \"dog\", \"fish\" }; what is pets[1]?",
+            "explanation": "Indexes start at 0: pets[0] is \"cat\", so pets[1] is \"dog\".",
+            "options": [
+              {
+                "text": "\"dog\"",
+                "correct": true
+              },
+              {
+                "text": "\"cat\"",
+                "correct": false
+              },
+              {
+                "text": "\"fish\"",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How many times does for (int i = 0; i < 3; i++) run?",
+            "explanation": "It runs with i as 0, 1 and 2. When i becomes 3, i < 3 is false and the loop stops.",
+            "options": [
+              {
+                "text": "3 times",
+                "correct": true
+              },
+              {
+                "text": "2 times",
+                "correct": false
+              },
+              {
+                "text": "4 times",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does a foreach loop do?",
+            "explanation": "foreach runs its code once for each item, from the first to the last.",
+            "options": [
+              {
+                "text": "Runs its code once for each item",
+                "correct": true
+              },
+              {
+                "text": "Runs its code forever",
+                "correct": false
+              },
+              {
+                "text": "Runs its code for the first item only",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "loops-and-collections",
@@ -1052,7 +1196,205 @@
       "sortOrder": 4,
       "ageBand": "Builder",
       "estimatedMinutes": 20,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Collections and loops\n\nReal programs process data by the hundred: orders, rows, messages. C# gives you collections to hold it and loops to walk through it.\n\n### Arrays\n\nAn **array** has a fixed length, set when it's created, and every element has one type:\n\n```csharp\nint[] scores = { 72, 95, 58 };      // initializer\nstring[] names = new string[3];    // three nulls, filled in later\nnames[0] = \"Ada\";\nConsole.WriteLine(scores.Length);  // 3\n```\n\nIndexes are **zero-based**: valid ones run from `0` to `Length - 1`. Read outside that range and you get an `IndexOutOfRangeException` at runtime. The compiler can't catch it.\n\n### List<T>\n\n`List<T>` is the workhorse collection: an array that grows. `T` is the element type, a **type parameter** (`List<int>`, `List<string>`).\n\n```csharp\nList<string> tasks = [\"write tests\", \"fix bug\"];   // collection expression (C# 12)\ntasks.Add(\"deploy\");\ntasks.Remove(\"fix bug\");\nConsole.WriteLine($\"{tasks.Count} tasks; first is {tasks[0]}\");\nbool hasDeploy = tasks.Contains(\"deploy\");\n```\n\nArrays have `Length`; lists have `Count`. Indexing a list out of range throws `ArgumentOutOfRangeException`.\n\n`Dictionary<TKey, TValue>` maps keys to values (`stock[\"apples\"] = 4;`). You'll use it in the project.\n\n### Loops\n\n| Loop | Use it when |\n| --- | --- |\n| `foreach (var x in items)` | you need each element, not its position |\n| `for (int i = 0; i < items.Count; i++)` | you need the index, or to step differently |\n| `while (condition)` | you don't know how many times in advance |\n| `do { … } while (condition);` | the body must run at least once |\n\nInside any loop, `break` leaves the loop immediately and `continue` skips to the next iteration.\n\n### Gotchas\n\n- **Off-by-one:** `i <= items.Count` runs one time too many and reads past the end. The usual condition is `i < items.Count`.\n- **Changing a list inside a foreach over it** (`Add`/`Remove`) throws `InvalidOperationException`. Build a new list instead, or loop with `for`.\n- An empty collection is normal input: code that divides by `Count` must handle zero.\n\n### New words\n\n- **Array**: a fixed-length, zero-based sequence of elements of one type.\n- **Zero-based**: numbered from 0, so the last index is `Length - 1`.\n- **List<T>**: a resizable collection of elements of type `T`.\n- **Type parameter**: the `T` in `List<T>`, filled in with a real type such as `int`.\n- **Iteration**: one run through a loop's body.\n- **Off-by-one error**: a loop that runs one time too many or too few.\n",
+      "exampleMarkdown": "A week of temperatures. `for` pairs each day with its reading by index, the list of warm days grows with `Add`, `while` with `break` finds the first hot day, and `continue` skips the cold readings.",
+      "exampleCode": "double[] temps = { 18.5, 21.0, 24.3, 19.8, 26.1 };\nstring[] days = { \"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\" };\n\n// for: when you need the index, here to pair the two arrays\nfor (int i = 0; i < temps.Length; i++)\n    Console.WriteLine($\"{days[i]}: {temps[i]:F1} C\");\n\n// A list that grows as we go\nList<string> warmDays = [];\nfor (int i = 0; i < temps.Length; i++)\n{\n    if (temps[i] > 20)\n        warmDays.Add(days[i]);\n}\nConsole.WriteLine($\"Warm days: {string.Join(\", \", warmDays)} ({warmDays.Count})\");\n\n// while + break: stop at the first hot day\nint day = 0;\nwhile (day < temps.Length)\n{\n    if (temps[day] > 25)\n        break;\n    day++;\n}\nConsole.WriteLine(day < temps.Length ? $\"First hot day: {days[day]}\" : \"No hot days\");\n\n// foreach + continue: skip the cold readings\ndouble warmTotal = 0;\nforeach (double t in temps)\n{\n    if (t <= 20)\n        continue;\n    warmTotal += t;\n}\nConsole.WriteLine($\"Average warm reading: {warmTotal / warmDays.Count:F1} C\");\n",
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Debug and finish the gradebook.** The report at the top calls three methods in the `Stats` class.\n\n1. `Average` has bugs. Press **Run** and start from the exception in the Output. When it's fixed, the average of the seven scores is 75.1, and an empty list averages 0.\n2. Write `CountPassing`: how many scores are **at or above** `passMark`.\n3. Write `Curved`: a **new** list with `bonus` added to each score, capped at 100. Leave the original list unchanged.\n\nThe checks call your methods with other lists too, including empty ones.",
+        "starterFiles": {
+          "Program.cs": "// Gradebook. This prints a report; the calculations live in the Stats class below.\nList<int> scores = [72, 95, 58, 88, 64, 100, 49];\n\nConsole.WriteLine($\"Scores: {string.Join(\", \", scores)}\");\nConsole.WriteLine($\"Average: {Stats.Average(scores):F1}\");\nConsole.WriteLine($\"Passing (60+): {Stats.CountPassing(scores, 60)}\");\nConsole.WriteLine($\"Curved by 5: {string.Join(\", \", Stats.Curved(scores, 5))}\");\n\nstatic class Stats\n{\n    // The mean of the scores, with the fraction kept. An empty list has an average of 0.\n    // This one has bugs: run the program and read the Output.\n    public static double Average(List<int> scores)\n    {\n        int total = 0;\n        for (int i = 0; i <= scores.Count; i++)\n            total += scores[i];\n        return total / scores.Count;\n    }\n\n    // How many scores are at or above passMark.\n    public static int CountPassing(List<int> scores, int passMark)\n    {\n        return 0;\n    }\n\n    // A NEW list: each score plus the bonus, but never more than 100.\n    // Don't change the list that was passed in.\n    public static List<int> Curved(List<int> scores, int bonus)\n    {\n        return new List<int>();\n    }\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Gradebook. This prints a report; the calculations live in the Stats class below.\nList<int> scores = [72, 95, 58, 88, 64, 100, 49];\n\nConsole.WriteLine($\"Scores: {string.Join(\", \", scores)}\");\nConsole.WriteLine($\"Average: {Stats.Average(scores):F1}\");\nConsole.WriteLine($\"Passing (60+): {Stats.CountPassing(scores, 60)}\");\nConsole.WriteLine($\"Curved by 5: {string.Join(\", \", Stats.Curved(scores, 5))}\");\n\nstatic class Stats\n{\n    // The mean of the scores, with the fraction kept. An empty list has an average of 0.\n    // This one has bugs: run the program and read the Output.\n    public static double Average(List<int> scores)\n    {\n        if (scores.Count == 0)\n            return 0;\n        int total = 0;\n        for (int i = 0; i < scores.Count; i++)\n            total += scores[i];\n        return (double)total / scores.Count;\n    }\n\n    // How many scores are at or above passMark.\n    public static int CountPassing(List<int> scores, int passMark)\n    {\n        int count = 0;\n        foreach (int score in scores)\n        {\n            if (score >= passMark)\n                count++;\n        }\n        return count;\n    }\n\n    // A NEW list: each score plus the bonus, but never more than 100.\n    // Don't change the list that was passed in.\n    public static List<int> Curved(List<int> scores, int bonus)\n    {\n        var curved = new List<int>();\n        foreach (int score in scores)\n            curved.Add(Math.Min(score + bonus, 100));\n        return curved;\n    }\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The program compiles and runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "The program stops with an error. Read the exception and its line number in the Output panel."
+          },
+          {
+            "label": "Average includes every score",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "Stats.Average(new List<int> { 10, 20, 30 })",
+              "equals": 20
+            },
+            "failMessage": "The average of 10, 20 and 30 should be 20. Check the loop runs from 0 to Count - 1."
+          },
+          {
+            "label": "Average keeps the fraction",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "Stats.Average(new List<int> { 1, 2 })",
+              "equals": 1.5
+            },
+            "failMessage": "The average of 1 and 2 should be 1.5: dividing two ints drops the fraction."
+          },
+          {
+            "label": "An empty list averages 0",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "Stats.Average(new List<int>())",
+              "equals": 0
+            },
+            "failMessage": "With no scores, return 0 instead of dividing by zero."
+          },
+          {
+            "label": "CountPassing counts scores at or above the mark",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "new[] { Stats.CountPassing(new List<int> { 60, 59, 61, 100 }, 60), Stats.CountPassing(new List<int>(), 60) }",
+              "equals": [
+                3,
+                0
+              ]
+            },
+            "failMessage": "60, 61 and 100 pass a mark of 60 (at or above), and an empty list has 0 passing."
+          },
+          {
+            "label": "Curved adds the bonus, capped at 100",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "Stats.Curved(new List<int> { 90, 97, 40 }, 5)",
+              "equals": [
+                95,
+                100,
+                45
+              ]
+            },
+            "failMessage": "Add the bonus to each score, but never go above 100 (Math.Min helps)."
+          },
+          {
+            "label": "Curved leaves the original list alone",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<bool>)(() => { var s = new List<int> { 50, 99 }; Stats.Curved(s, 5); return s[0] == 50 && s[1] == 99 && s.Count == 2; }))()",
+              "equals": true
+            },
+            "failMessage": "Build and return a new list; don't change the one that was passed in."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Run it and read the exception and its line number. With 7 scores, what's the last valid index, and does the loop stop before going past it?",
+            "speechText": "Run it, and read the exception and its line number. With seven scores, what's the last valid index, and does the loop stop before going past it?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Indexes run from 0 to `Count - 1`, so the condition is `i < scores.Count`. `total / scores.Count` divides two ints, so cast one side to `double`. Check for an empty list first, or you'll divide by zero.",
+            "speechText": "Indexes run from zero to the count minus one, so loop while i is less than the count. Dividing two ints drops the fraction, so cast the total to double first. Check for an empty list before dividing, or you'll divide by zero.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "`Curved` builds a new list:\n\n```csharp\nvar curved = new List<int>();\nforeach (int score in scores)\n    curved.Add(Math.Min(score + bonus, 100));\nreturn curved;\n```\n\n`CountPassing` has the same shape: a counter that goes up when `score >= passMark`.",
+            "speechText": "For Curved, make a new list, add each score plus the bonus capped with Math dot Min, and return it. CountPassing has the same shape, with a counter that goes up when a score reaches the pass mark.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "After int[] a = new int[3]; what happens when you read a[3]?",
+            "explanation": "The valid indexes are 0, 1 and 2. Reading a[3] throws IndexOutOfRangeException when the program runs.",
+            "options": [
+              {
+                "text": "It throws IndexOutOfRangeException",
+                "correct": true
+              },
+              {
+                "text": "It gives 0",
+                "correct": false
+              },
+              {
+                "text": "It's a compile error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's the main difference between int[] and List<int>?",
+            "explanation": "An array's length is fixed when it's created; a List grows and shrinks with Add and Remove. Both are zero-based and indexable.",
+            "options": [
+              {
+                "text": "An array's length is fixed; a List can grow",
+                "correct": true
+              },
+              {
+                "text": "Only a List can be indexed with [ ]",
+                "correct": false
+              },
+              {
+                "text": "Arrays can only hold numbers",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does continue do inside a loop?",
+            "explanation": "continue skips the rest of the current iteration and moves on to the next one. break leaves the loop entirely.",
+            "options": [
+              {
+                "text": "Skips to the next iteration",
+                "correct": true
+              },
+              {
+                "text": "Leaves the loop",
+                "correct": false
+              },
+              {
+                "text": "Starts the loop again from the first item",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What happens if you call Remove on a list inside a foreach over that same list?",
+            "explanation": "The list notices it changed during enumeration and throws InvalidOperationException. Build a new list, or loop with an index instead.",
+            "options": [
+              {
+                "text": "It throws InvalidOperationException",
+                "correct": true
+              },
+              {
+                "text": "The item is removed and the loop carries on",
+                "correct": false
+              },
+              {
+                "text": "It's a compile error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which loop always runs its body at least once?",
+            "explanation": "do ... while checks its condition after the body, so the body runs before the first check.",
+            "options": [
+              {
+                "text": "do ... while",
+                "correct": true
+              },
+              {
+                "text": "while",
+                "correct": false
+              },
+              {
+                "text": "for",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "methods-explorer",

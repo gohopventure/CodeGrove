@@ -182,7 +182,9 @@ internal static class TestEvaluator
             var inner = ex is System.Reflection.TargetInvocationException { InnerException: { } i } ? i : ex;
             if (GuardStopped(program) != StopReason.None)
                 return Fail(test, "(Codegrove had to stop your code while checking it: a loop or method kept going.)");
-            return Fail(test, $"(While checking, your code stopped with {DescribeException(inner, program)})");
+            // Short form: the full, plain-language message is already in the Output panel when the program hit it too.
+            var at = GuardLocation(program) is { } loc ? $" in {loc.File}, line {loc.Line}" : "";
+            return Fail(test, $"(While checking, your code stopped with {inner.GetType().Name}{at}.)");
         }
 
         var expected = test.Spec.ValueKind == JsonValueKind.Object && test.Spec.TryGetProperty("equals", out var e) ? e : default;

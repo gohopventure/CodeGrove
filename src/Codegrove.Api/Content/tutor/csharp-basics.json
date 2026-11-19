@@ -96,6 +96,38 @@
           "mood": "Encouraging"
         }
       ]
+    },
+    "loops-explorer": {
+      "intro": [
+        {
+          "displayText": "Treasure hunters have to keep track of lots of things at once. Your mission: list every treasure in the Grove's chest and add up what it's all worth.",
+          "speechText": "Treasure hunters have to keep track of lots of things at once. Your mission is to list every treasure in the Grove's chest and add up what it's all worth.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Every treasure is listed, and the total adds up! Your new word is loop: code that repeats, once for each item or a set number of times.",
+          "speechText": "Every treasure is listed, and the total adds up! Your new word is loop, which means code that repeats, once for each item or a set number of times.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "loops-and-collections": {
+      "intro": [
+        {
+          "displayText": "Real programs rarely handle one value at a time, but orders, rows, messages and scores by the hundred. Arrays, lists and loops are how C# deals with collections, and off-by-one mistakes in them are among the most common bugs in any language. You'll meet both kinds of collection, every kind of loop, and the exceptions you get when you step outside one. Then you'll debug and finish a gradebook.",
+          "speechText": "Real programs rarely handle one value at a time, but orders, rows, messages and scores by the hundred. Arrays, lists and loops are how C sharp deals with collections, and off by one mistakes in them are among the most common bugs in any language. You'll meet both kinds of collection, every kind of loop, and the exceptions you get when you step outside one. Then you'll debug and finish a gradebook.",
+          "mood": "Neutral"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The gradebook's numbers are right, even for an empty class. The gotcha: indexes run from 0 to Count - 1, so a loop condition with <= reads one past the end and throws. Next, you'll package code into your own methods, with parameters and return values.",
+          "speechText": "The gradebook's numbers are right, even for an empty class. The gotcha is that indexes run from zero to the count minus one, so a loop that keeps going while i is less than or equal to the count reads one past the end and throws. Next, you'll package code into your own methods, with parameters and return values.",
+          "mood": "Encouraging"
+        }
+      ]
     }
   }
 }
