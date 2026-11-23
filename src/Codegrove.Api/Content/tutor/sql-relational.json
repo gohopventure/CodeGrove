@@ -64,6 +64,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "missing-matches-explorer": {
+      "intro": [
+        {
+          "displayText": "The Grove built two new homes, but nobody has moved in yet. Your mission: find the empty homes, even though a plain join can't see them!",
+          "speechText": "The Grove built two new homes, but nobody has moved in yet. Your mission is to find the empty homes, even though a plain join can't see them!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You found both empty homes. Your new word is NULL: it means nothing is there at all.",
+          "speechText": "You found both empty homes. Your new word is null, and it means nothing is there at all.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "left-join": {
+      "intro": [
+        {
+          "displayText": "Inner joins show the matches, but lots of real questions are about what's missing: customers who never ordered, products nobody reviewed. Left joins answer those. You'll fix two Pixel Pier reports that quietly hide the missing rows, then write one that finds them.",
+          "speechText": "Inner joins show the matches, but lots of real questions are about what's missing, like customers who never ordered, or products nobody reviewed. Left joins answer those. You'll fix two Pixel Pier reports that quietly hide the missing rows, then write one that finds them.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Nimbus counts as zero, every game has a five-star count, and you found the games waiting for reviews. The gotcha to remember: a WHERE on the right table runs after a left join and throws the unmatched rows away. Put conditions on the right table in the ON instead.",
+          "speechText": "Nimbus counts as zero, every game has a five star count, and you found the games waiting for reviews. The gotcha to remember is that a where condition on the right table runs after a left join, and throws the unmatched rows away. Put conditions on the right table in the on part instead.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }

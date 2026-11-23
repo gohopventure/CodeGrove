@@ -948,7 +948,182 @@
       "sortOrder": 3,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Who has no match?\n\nThe Grove built two new homes: **Sunny Meadow** and **Cloud Nest**. Nobody lives in them yet. Watch what happens with the join you know:\n\n```sql\nSELECT homes.name, critters.name AS critter\nFROM homes\nJOIN critters\n  ON critters.home_id = homes.id;\n```\n\nThe new homes aren't in the result at all! A `JOIN` only keeps a home if it found a critter to match it with. No critter, no row.\n\n### LEFT JOIN keeps everyone on the left\n\nWrite `LEFT JOIN` instead, and **every** home stays in the result, even the empty ones:\n\n```sql\nSELECT homes.name, critters.name AS critter\nFROM homes\nLEFT JOIN critters\n  ON critters.home_id = homes.id;\n```\n\n| name | critter |\n|------|---------|\n| Lily Pond | Moss |\n| Sunny Meadow | NULL |\n| Cloud Nest | NULL |\n\n\"Left\" means the table written first, before `LEFT JOIN`: here, `homes`.\n\n### NULL means \"nothing here\"\n\nSunny Meadow has no critter, so its critter column says **NULL**. NULL isn't a name or a zero: it means there's nothing there at all.\n\nTo find the rows with nothing there, use `IS NULL`:\n\n```sql\nWHERE critters.id IS NULL\n```\n\nThat's how you find the empty homes: join, then keep the homes where no critter turned up.\n\n### New words\n\n- **LEFT JOIN**: a join that keeps every row from the first table, even if nothing matches it.\n- **NULL**: a special value that means \"nothing here\".\n- **IS NULL**: how you ask \"is there nothing here?\" in a `WHERE`.\n",
+      "exampleMarkdown": "This counts the critters in every home. `COUNT(critters.id)` only counts real critters, so the empty homes get a 0. Try changing `LEFT JOIN` to plain `JOIN`: which homes vanish?",
+      "exampleCode": "-- How many critters live in each home?\nSELECT homes.name,\n       COUNT(critters.id) AS critters\nFROM homes\nLEFT JOIN critters\n  ON critters.home_id = homes.id\nGROUP BY homes.name\nORDER BY critters DESC;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Sunny Meadow and Cloud Nest are waiting for critters.\n\n1. The first query should list **every** home, but press **Run**: the two new homes are missing. Change it so they show up too.\n2. The second query lists every home. Add a `WHERE` so it shows only the homes where no critter turned up.",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Critter Club: homes and critters\nCREATE TABLE homes (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  place TEXT NOT NULL\n);\nINSERT INTO homes VALUES\n  (1, 'Oak Hollow', 'tree'),\n  (2, 'Lily Pond', 'pond'),\n  (3, 'Bramble Burrow', 'burrow'),\n  (4, 'Mossy Log', 'woods'),\n  (5, 'Sunny Meadow', 'meadow'),\n  (6, 'Cloud Nest', 'tree');\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  home_id INTEGER NOT NULL REFERENCES homes(id)\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3),\n  (2, 'Pip', 'owl', 1),\n  (3, 'Moss', 'frog', 2),\n  (4, 'Bramble', 'hedgehog', 3),\n  (5, 'Nova', 'rabbit', 3),\n  (6, 'Pebble', 'turtle', 2),\n  (7, 'Fern', 'deer', 4),\n  (8, 'Wren', 'duck', 2);\n",
+          "query.sql": "-- 1. Every home and who lives there. Two\n--    new homes are missing from the list!\nSELECT homes.name, critters.name AS critter\nFROM homes\nJOIN critters\n  ON critters.home_id = homes.id\nORDER BY homes.name;\n\n-- 2. Which homes are still empty?\nSELECT homes.name\nFROM homes\nLEFT JOIN critters\n  ON critters.home_id = homes.id;\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Every home and who lives there. Two\n--    new homes are missing from the list!\nSELECT homes.name, critters.name AS critter\nFROM homes\nLEFT JOIN critters\n  ON critters.home_id = homes.id\nORDER BY homes.name;\n\n-- 2. Which homes are still empty?\nSELECT homes.name\nFROM homes\nLEFT JOIN critters\n  ON critters.home_id = homes.id\nWHERE critters.id IS NULL;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "Every home is in the first list",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "name",
+                "critter"
+              ],
+              "rows": [
+                [
+                  "Oak Hollow",
+                  "Pip"
+                ],
+                [
+                  "Lily Pond",
+                  "Moss"
+                ],
+                [
+                  "Lily Pond",
+                  "Pebble"
+                ],
+                [
+                  "Lily Pond",
+                  "Wren"
+                ],
+                [
+                  "Bramble Burrow",
+                  "Bramble"
+                ],
+                [
+                  "Bramble Burrow",
+                  "Juni"
+                ],
+                [
+                  "Bramble Burrow",
+                  "Nova"
+                ],
+                [
+                  "Mossy Log",
+                  "Fern"
+                ],
+                [
+                  "Sunny Meadow",
+                  null
+                ],
+                [
+                  "Cloud Nest",
+                  null
+                ]
+              ]
+            },
+            "failMessage": "The first query should list every home with its critters, and the empty homes with NULL. Change JOIN to LEFT JOIN."
+          },
+          {
+            "label": "The second list shows just the empty homes",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "name"
+              ],
+              "rows": [
+                [
+                  "Sunny Meadow"
+                ],
+                [
+                  "Cloud Nest"
+                ]
+              ]
+            },
+            "failMessage": "The second query should show only Sunny Meadow and Cloud Nest. Add WHERE critters.id IS NULL at the end. (Write IS NULL: = NULL never matches anything.)"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "A plain `JOIN` drops a home when no critter matches it. Which kind of join keeps every home?",
+            "speechText": "A plain join drops a home when no critter matches it. Which kind of join keeps every home?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "In the first query, write `LEFT JOIN` instead of `JOIN`. In the second, an empty home has NULL where a critter would be, so ask for `critters.id IS NULL`.",
+            "speechText": "In the first query, write left join instead of join. In the second, an empty home has null where a critter would be, so ask for critters dot id is null.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The first query's join line is `LEFT JOIN critters`. The second query ends with:\n\n```sql\n  ON critters.home_id = homes.id\nWHERE critters.id IS NULL;\n```",
+            "speechText": "The first query needs left join critters. The second query ends with where critters dot id is null.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Cloud Nest has no critters. Is it in homes JOIN critters?",
+            "explanation": "A plain JOIN only keeps rows that found a match, so an empty home is left out.",
+            "options": [
+              {
+                "text": "No: a plain JOIN leaves it out",
+                "correct": true
+              },
+              {
+                "text": "Yes, at the top",
+                "correct": false
+              },
+              {
+                "text": "Yes, with a 0",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does LEFT JOIN do differently?",
+            "explanation": "LEFT JOIN keeps every row from the first table, even the ones with no match.",
+            "options": [
+              {
+                "text": "It keeps every row from the first table, even with no match",
+                "correct": true
+              },
+              {
+                "text": "It only shows the left half of each table",
+                "correct": false
+              },
+              {
+                "text": "It sorts the rows from left to right",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does NULL mean in a result?",
+            "explanation": "NULL means there's nothing there at all. It isn't a zero or a name.",
+            "options": [
+              {
+                "text": "Nothing here",
+                "correct": true
+              },
+              {
+                "text": "Zero",
+                "correct": false
+              },
+              {
+                "text": "A critter called Null",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "left-join",
@@ -956,7 +1131,266 @@
       "sortOrder": 3,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## LEFT JOIN and missing rows\n\nAn inner join answers \"show me the matches\". Many real questions are about the **missing** matches: customers who never ordered, products nobody reviewed, publishers with no games. Those need an outer join.\n\n### LEFT JOIN\n\n```sql\nSELECT p.name, g.title\nFROM publishers AS p\nLEFT JOIN games AS g ON g.publisher_id = p.id;\n```\n\nA `LEFT JOIN` (also written `LEFT OUTER JOIN`) keeps **every row of the left table**, the one before `LEFT JOIN`. Rows that found matches come out as usual. A row with no match comes out once, with **NULL** in every column from the right table:\n\n| name | title |\n|------|-------|\n| Bitforge | Byte Racers |\n| Nimbus Interactive | NULL |\n\nWhich table is \"left\" matters: `games LEFT JOIN publishers` keeps every game instead.\n\n### Counting with a LEFT JOIN\n\nTo count matches per left row, count a column from the **right** table:\n\n```sql\nSELECT p.name, COUNT(g.id) AS games\nFROM publishers AS p\nLEFT JOIN games AS g ON g.publisher_id = p.id\nGROUP BY p.name;\n```\n\n`COUNT(g.id)` skips NULLs, so Nimbus gets 0. `COUNT(*)` counts rows, and Nimbus still has one row (the one full of NULLs), so it would say 1. That's a quiet, believable wrong answer.\n\n### Finding rows with no match (an anti-join)\n\nJoin, then keep only the rows where the right side came back empty:\n\n```sql\nSELECT p.name\nFROM publishers AS p\nLEFT JOIN games AS g ON g.publisher_id = p.id\nWHERE g.id IS NULL;\n```\n\nTest the right table's **primary key** (or another NOT NULL column). If you test a column that can be NULL anyway, a real match with a NULL in it would look like a missing match.\n\n### ON vs WHERE: the big LEFT JOIN gotcha\n\nWith an inner join, a condition can go in `ON` or `WHERE` with the same result. With a left join it can't:\n\n- `ON` decides which right rows **match**. Left rows are kept either way.\n- `WHERE` runs **after** the join and filters whole rows, including the kept ones.\n\nSo this \"every game with its 5-star reviews\" query is broken:\n\n```sql\nSELECT g.title, COUNT(r.id) AS five_stars\nFROM games AS g\nLEFT JOIN reviews AS r ON r.game_id = g.id\nWHERE r.stars = 5\nGROUP BY g.title;\n```\n\nA game with no 5-star review has `r.stars` NULL or 4, so `WHERE` throws it away, and the left join behaves like an inner join. Conditions on the **right** table belong in `ON`; conditions on the left table can stay in `WHERE`.\n\n### The other outer joins\n\n- `RIGHT JOIN` keeps every row of the right table. It's a LEFT JOIN written backwards, and most teams just swap the tables.\n- `FULL OUTER JOIN` keeps unmatched rows from both sides. Handy for comparing two lists.\n\n### In SQL Server\n\n- `LEFT JOIN`, `RIGHT JOIN` and `FULL OUTER JOIN` all work. (SQLite added RIGHT and FULL in 2022, version 3.39.)\n- To show something friendlier than NULL, use `COALESCE(g.title, 'no games')`, which works in both. SQL Server also has `ISNULL(g.title, 'no games')`.\n- An anti-join is often written with `NOT EXISTS (…)`, a subquery. You'll meet those in lesson 6.\n\n### New words\n\n- **Outer join**: a join that also keeps rows with no match. LEFT, RIGHT and FULL are the three kinds.\n- **LEFT JOIN**: keeps every row of the left (first) table, with NULLs where nothing matched.\n- **Anti-join**: finding the rows with no match, usually `LEFT JOIN … WHERE right.id IS NULL`.\n- **COALESCE**: a function that returns the first value in its list that isn't NULL.\n",
+      "exampleMarkdown": "Every publisher with its games: Nimbus Interactive has none, so it shows up once with NULL. `COALESCE` swaps that NULL for friendlier text. Try changing `LEFT JOIN` to `JOIN`, and Nimbus disappears.",
+      "exampleCode": "-- Every publisher, with its games if it has any\nSELECT p.name AS publisher,\n       COALESCE(g.title, '(no games yet)') AS game\nFROM publishers AS p\nLEFT JOIN games AS g ON g.publisher_id = p.id\nORDER BY publisher, game;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Pixel Pier wants three reports that include the things with **no** matches. Two new games, Comet Kart and Pixel Pets, have no reviews yet.\n\n1. **Games per publisher:** it lists every publisher, but look at Nimbus Interactive's count. Fix it.\n2. **Five-star counts:** every one of the 10 games should be listed, with 0 when it has no 5-star review. Run it and count the rows. Fix it without removing the 5-star condition.\n3. **Waiting for reviews:** write a new query listing the `title` of each game that has no reviews at all.",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop: publishers, games, reviews\nCREATE TABLE publishers (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  country TEXT NOT NULL\n);\nINSERT INTO publishers VALUES\n  (1, 'Starling Games', 'USA'),\n  (2, 'Lumen Works', 'Japan'),\n  (3, 'Bitforge', 'Canada'),\n  (4, 'Driftwood Studio', 'UK'),\n  (5, 'Nimbus Interactive', 'Brazil');\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  price REAL NOT NULL,\n  publisher_id INTEGER NOT NULL\n    REFERENCES publishers(id)\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 39.99, 2),\n  (2, 'Byte Racers', 'PC', 19.99, 3),\n  (3, 'Moonlight Mages', 'PlayStation', 59.99, 1),\n  (4, 'Puzzle Pond', 'Switch', 14.99, 4),\n  (5, 'Robo Rumble', 'Xbox', 49.99, 3),\n  (6, 'Ocean Odyssey', 'PC', 29.99, 4),\n  (7, 'Castle Quest', 'PlayStation', 39.99, 1),\n  (8, 'Tiny Tactics', 'Switch', 24.99, 2),\n  (9, 'Comet Kart', 'Switch', 44.99, 2),\n  (10, 'Pixel Pets', 'PC', 9.99, 3);\nCREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  game_id INTEGER NOT NULL REFERENCES games(id),\n  stars INTEGER NOT NULL\n    CHECK (stars BETWEEN 1 AND 5),\n  body TEXT\n);\nINSERT INTO reviews VALUES\n  (1, 1, 5, 'Calm and lovely.'),\n  (2, 1, 4, 'Great with friends.'),\n  (3, 2, 4, 'Fast and fun.'),\n  (4, 5, 2, 'Too short.'),\n  (5, 7, 5, 'Best castle ever.'),\n  (6, 3, 4, 'Spooky in a good way.'),\n  (7, 4, 5, 'So relaxing.'),\n  (8, 6, 2, 'Kept crashing.'),\n  (9, 8, 3, 'Fine, a bit slow.'),\n  (10, 3, 5, 'The music is magic.'),\n  (11, 7, 4, 'Hard but fair.');\n",
+          "query.sql": "-- 1. Games per publisher, including the\n--    ones with none yet. Check Nimbus.\nSELECT p.name AS publisher,\n       COUNT(*) AS games\nFROM publishers AS p\nLEFT JOIN games AS g ON g.publisher_id = p.id\nGROUP BY p.name\nORDER BY p.name;\n\n-- 2. Every game and its number of 5-star\n--    reviews. Games with none should say 0.\nSELECT g.title, COUNT(r.id) AS five_stars\nFROM games AS g\nLEFT JOIN reviews AS r\n  ON r.game_id = g.id\nWHERE r.stars = 5\nGROUP BY g.title\nORDER BY g.title;\n\n-- 3. Write it: the titles of the games with\n--    no reviews at all yet.\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Games per publisher, including the\n--    ones with none yet. Check Nimbus.\nSELECT p.name AS publisher,\n       COUNT(g.id) AS games\nFROM publishers AS p\nLEFT JOIN games AS g ON g.publisher_id = p.id\nGROUP BY p.name\nORDER BY p.name;\n\n-- 2. Every game and its number of 5-star\n--    reviews. Games with none should say 0.\nSELECT g.title, COUNT(r.id) AS five_stars\nFROM games AS g\nLEFT JOIN reviews AS r\n  ON r.game_id = g.id AND r.stars = 5\nGROUP BY g.title\nORDER BY g.title;\n\n-- 3. Write it: the titles of the games with\n--    no reviews at all yet.\nSELECT g.title\nFROM games AS g\nLEFT JOIN reviews AS r ON r.game_id = g.id\nWHERE r.id IS NULL;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "Nimbus Interactive has 0 games",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "publisher",
+                "games"
+              ],
+              "rows": [
+                [
+                  "Bitforge",
+                  3
+                ],
+                [
+                  "Driftwood Studio",
+                  2
+                ],
+                [
+                  "Lumen Works",
+                  3
+                ],
+                [
+                  "Nimbus Interactive",
+                  0
+                ],
+                [
+                  "Starling Games",
+                  2
+                ]
+              ],
+              "sortedBy": [
+                "publisher"
+              ]
+            },
+            "failMessage": "The first query should give every publisher with its number of games, and 0 for Nimbus Interactive. COUNT(*) counts Nimbus's row of NULLs; count a column from games instead."
+          },
+          {
+            "label": "Every game has a five-star count",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "title",
+                "five_stars"
+              ],
+              "rows": [
+                [
+                  "Byte Racers",
+                  0
+                ],
+                [
+                  "Castle Quest",
+                  1
+                ],
+                [
+                  "Comet Kart",
+                  0
+                ],
+                [
+                  "Moonlight Mages",
+                  1
+                ],
+                [
+                  "Ocean Odyssey",
+                  0
+                ],
+                [
+                  "Pixel Pets",
+                  0
+                ],
+                [
+                  "Puzzle Pond",
+                  1
+                ],
+                [
+                  "Robo Rumble",
+                  0
+                ],
+                [
+                  "Star Garden",
+                  1
+                ],
+                [
+                  "Tiny Tactics",
+                  0
+                ]
+              ],
+              "sortedBy": [
+                "title"
+              ]
+            },
+            "failMessage": "The second query should list all 10 games, with 0 for games that have no 5-star review. WHERE r.stars = 5 throws those games away; move that condition into the ON."
+          },
+          {
+            "label": "The games waiting for reviews are listed",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 2,
+              "columns": [
+                "title"
+              ],
+              "rows": [
+                [
+                  "Comet Kart"
+                ],
+                [
+                  "Pixel Pets"
+                ]
+              ]
+            },
+            "failMessage": "The third query should list just the titles of the games with no reviews. LEFT JOIN reviews, then keep the rows where r.id IS NULL. (= NULL never matches anything.)"
+          },
+          {
+            "label": "The 5-star condition is still there",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "stars\\s*=\\s*5"
+            },
+            "failMessage": "Keep the stars = 5 condition in the second query: move it, don't delete it."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "In step 2, `WHERE r.stars = 5` runs after the join. What happens to a game whose `r.stars` is NULL?",
+            "speechText": "In step 2, the where condition runs after the join. What happens to a game whose stars came back null?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Step 1: count `g.id`, which is NULL for Nimbus, instead of `*`. Step 2: put the stars condition in the join itself, `ON r.game_id = g.id AND r.stars = 5`, and delete the `WHERE` line.",
+            "speechText": "For step 1, count g dot id instead of star, since it's null for Nimbus. For step 2, put the stars condition in the on part of the join, joined with and, and delete the where line.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Step 3:\n\n```sql\nSELECT g.title\nFROM games AS g\nLEFT JOIN reviews AS r ON r.game_id = g.id\nWHERE r.id IS NULL;\n```",
+            "speechText": "For step 3, select the game titles from games, left join reviews on the game id, and keep the rows where the review's id is null.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "publishers LEFT JOIN games: what happens to a publisher with no games?",
+            "explanation": "A left join keeps every left row. With no match, it comes out once with NULL in the games columns.",
+            "options": [
+              {
+                "text": "It appears once, with NULL in the games columns",
+                "correct": true
+              },
+              {
+                "text": "It's left out of the result",
+                "correct": false
+              },
+              {
+                "text": "It appears once for every game in the table",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Nimbus has no games. In a LEFT JOIN grouped by publisher, what does COUNT(*) give for Nimbus?",
+            "explanation": "COUNT(*) counts rows, and Nimbus still has its one row of NULLs, so it says 1. COUNT(g.id) skips the NULL and says 0.",
+            "options": [
+              {
+                "text": "1, because Nimbus still has one row (full of NULLs)",
+                "correct": true
+              },
+              {
+                "text": "0",
+                "correct": false
+              },
+              {
+                "text": "NULL",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A LEFT JOIN query has WHERE r.stars = 5, on the right table. What's the effect?",
+            "explanation": "WHERE runs after the join and drops every row where r.stars isn't 5, including the NULL rows for unmatched games, so it acts like an inner join.",
+            "options": [
+              {
+                "text": "Rows with no match are dropped, so it acts like an inner join",
+                "correct": true
+              },
+              {
+                "text": "Nothing different: ON and WHERE always do the same",
+                "correct": false
+              },
+              {
+                "text": "It's a syntax error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which query finds games with no reviews?",
+            "explanation": "Left join, then keep the rows where the review side came back empty. Test the right table's primary key.",
+            "options": [
+              {
+                "text": "games LEFT JOIN reviews … WHERE r.id IS NULL",
+                "correct": true
+              },
+              {
+                "text": "games JOIN reviews … WHERE r.id IS NULL",
+                "correct": false
+              },
+              {
+                "text": "games LEFT JOIN reviews … WHERE r.id = NULL",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does COALESCE(g.title, '(no games yet)') return when g.title is NULL?",
+            "explanation": "COALESCE returns the first value that isn't NULL: here, the text.",
+            "options": [
+              {
+                "text": "'(no games yet)'",
+                "correct": true
+              },
+              {
+                "text": "NULL",
+                "correct": false
+              },
+              {
+                "text": "An empty string",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "many-to-many-explorer",
