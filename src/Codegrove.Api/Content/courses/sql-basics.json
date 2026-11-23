@@ -493,7 +493,178 @@
       "sortOrder": 2,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Finding the rows you want\n\n`SELECT` picks the **columns** you want. To pick which **rows** you want, add `WHERE` and a **condition**: a test that every row either passes or fails. Only the rows that pass end up in the result.\n\n```sql\nSELECT name FROM critters\nWHERE age > 3;\n```\n\nThis keeps only the critters older than 3. The condition `age > 3` is checked for every row, one at a time.\n\n### Ways to compare\n\n| Sign | Means | Example |\n|------|-------|---------|\n| `=` | is equal to | `kind = 'owl'` |\n| `<>` | is not equal to | `kind <> 'owl'` |\n| `>` | is more than | `age > 3` |\n| `<` | is less than | `age < 3` |\n| `>=` | is more than or equal to | `age >= 3` |\n| `<=` | is less than or equal to | `age <= 3` |\n\nText like `'owl'` always goes in **single quotes**. Numbers like `3` don't.\n\n### Two conditions at once\n\nJoin two conditions with `AND` when a row must pass **both** of them:\n\n```sql\nSELECT name FROM critters\nWHERE kind = 'fox' AND age > 3;\n```\n\nUse `OR` when passing **either one** is enough:\n\n```sql\nSELECT name FROM critters\nWHERE kind = 'owl' OR kind = 'frog';\n```\n\n### New words\n\n- **Condition**: a test, like `age > 3`, that each row passes or fails.\n- **Filter**: keeping only the rows that pass a condition. `WHERE` filters.\n- **AND**: both conditions must pass.\n- **OR**: at least one of the conditions must pass.\n",
+      "exampleMarkdown": "Which critters like to eat flies? `WHERE snack = 'flies'` checks every row and keeps only the ones whose snack is flies. Notice the single quotes around `'flies'`: it's text. Open the **Tables** tab to check the answer against the whole club.",
+      "exampleCode": "-- Who likes flies?\nSELECT name, kind\nFROM critters\nWHERE snack = 'flies';\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The Critter Club is planning a party, and each invitation goes to different critters. Each query below shows **every** critter. Add a `WHERE` to each one, just before the `;`, so it keeps only the right ones:\n\n1. Critters **older than 3**.\n2. The **owls** (their name and snack).\n3. **Frogs** that are **younger than 3**. This one needs `AND`.\n\nPress **Run** to see your three results.",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Critter Club\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  age INTEGER,\n  snack TEXT\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3, 'berries'),\n  (2, 'Pip', 'owl', 1, 'seeds'),\n  (3, 'Moss', 'frog', 2, 'flies'),\n  (4, 'Bramble', 'hedgehog', 4, 'apples'),\n  (5, 'Nova', 'rabbit', 2, 'carrots'),\n  (6, 'Pebble', 'turtle', 7, 'lettuce'),\n  (7, 'Hoot', 'owl', 5, 'berries'),\n  (8, 'Lily', 'frog', 1, 'flies'),\n  (9, 'Rusty', 'fox', 6, 'apples'),\n  (10, 'Tad', 'frog', 4, 'flies');\n",
+          "query.sql": "-- 1. Only critters older than 3.\nSELECT name FROM critters;\n\n-- 2. Only the owls.\nSELECT name, snack FROM critters;\n\n-- 3. Only frogs younger than 3.\nSELECT name FROM critters;\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Only critters older than 3.\nSELECT name FROM critters WHERE age > 3;\n\n-- 2. Only the owls.\nSELECT name, snack FROM critters WHERE kind = 'owl';\n\n-- 3. Only frogs younger than 3.\nSELECT name FROM critters\nWHERE kind = 'frog' AND age < 3;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "Query 1 finds the critters older than 3",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "name"
+              ],
+              "rows": [
+                [
+                  "Bramble"
+                ],
+                [
+                  "Pebble"
+                ],
+                [
+                  "Hoot"
+                ],
+                [
+                  "Rusty"
+                ],
+                [
+                  "Tad"
+                ]
+              ]
+            },
+            "failMessage": "Your first query should show only the critters older than 3. Try WHERE age > 3."
+          },
+          {
+            "label": "Query 2 finds the owls",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "name",
+                "snack"
+              ],
+              "rows": [
+                [
+                  "Pip",
+                  "seeds"
+                ],
+                [
+                  "Hoot",
+                  "berries"
+                ]
+              ]
+            },
+            "failMessage": "Your second query should show only the owls. Text like 'owl' goes in single quotes."
+          },
+          {
+            "label": "Query 3 finds the young frogs",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 2,
+              "columns": [
+                "name"
+              ],
+              "rows": [
+                [
+                  "Moss"
+                ],
+                [
+                  "Lily"
+                ]
+              ]
+            },
+            "failMessage": "Your third query should show only frogs younger than 3. Join the two conditions with AND."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which word goes between `FROM critters` and the `;` to keep only some of the rows?",
+            "speechText": "Which word goes between from critters and the end of the query, to keep only some of the rows?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Write `WHERE`, then a condition: a column, a sign and a value, like `age > 3`. Text like `'owl'` needs single quotes around it.",
+            "speechText": "Write where, then a condition: a column, a sign and a value, like age greater than 3. Text like owl needs single quotes around it.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The first query ends `WHERE age > 3;`. The third needs two conditions joined with `AND`: `kind = 'frog'` and `age < 3`.",
+            "speechText": "The first query ends with where age greater than 3. The third one needs two conditions joined with and: kind equals frog, and age less than 3.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does WHERE do in a query?",
+            "explanation": "WHERE checks a condition for every row and keeps only the rows that pass.",
+            "options": [
+              {
+                "text": "Keeps only the rows that pass a condition",
+                "correct": true
+              },
+              {
+                "text": "Picks which columns to show",
+                "correct": false
+              },
+              {
+                "text": "Puts the rows in order",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which one finds the owls?",
+            "explanation": "Text values go in single quotes, so it's kind = 'owl'.",
+            "options": [
+              {
+                "text": "WHERE kind = 'owl'",
+                "correct": true
+              },
+              {
+                "text": "WHERE kind = owl",
+                "correct": false
+              },
+              {
+                "text": "WHERE 'owl'",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which critters does WHERE kind = 'fox' AND age > 3 keep?",
+            "explanation": "With AND, a row must pass both conditions: it has to be a fox, and it has to be older than 3.",
+            "options": [
+              {
+                "text": "Only foxes older than 3",
+                "correct": true
+              },
+              {
+                "text": "Every fox, and every critter older than 3",
+                "correct": false
+              },
+              {
+                "text": "No critters, because AND isn't allowed",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "filtering-with-where",
@@ -501,7 +672,250 @@
       "sortOrder": 2,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Filtering with WHERE\n\nApps rarely want every row. A shop page shows one platform, a search box shows matches, and an admin screen shows what needs attention. `WHERE` filters rows with a **predicate**: a condition that's checked for each row. Rows where it's true stay; the rest are dropped.\n\n```sql\nSELECT title, price\nFROM games\nWHERE price < 30;\n```\n\nThe comparison operators are `=`, `<>` (or `!=`), `<`, `>`, `<=` and `>=`. Text goes in single quotes: `WHERE platform = 'PC'`.\n\n### AND, OR, NOT, and which comes first\n\nCombine predicates with `AND` (both true), `OR` (at least one true) and `NOT` (flips it). Like `*` before `+` in math, there's an **operator precedence**: `NOT` first, then `AND`, then `OR`. So this:\n\n```sql\nWHERE genre = 'RPG' AND price < 40 OR platform = 'PC'\n```\n\nmeans `(genre = 'RPG' AND price < 40) OR platform = 'PC'`: every PC game sneaks in, whatever its genre or price. When you mix `AND` and `OR`, add parentheses so the meaning is the one you intended.\n\n### Shortcuts: IN, BETWEEN and LIKE\n\n```sql\nWHERE platform IN ('PC', 'Switch')   -- one of a list\nWHERE price BETWEEN 20 AND 40        -- 20 and 40 included\nWHERE title LIKE 'Star%'             -- pattern match\n```\n\nIn a `LIKE` pattern, `%` matches any run of characters (including none) and `_` matches exactly one. So `'%Quest%'` finds `Quest` anywhere in the title. These patterns are called **wildcards**.\n\n### NULL: the value that isn't there\n\n`NULL` means \"no value\": unknown or missing, like a game that isn't on sale and so has no sale price. It isn't zero and it isn't empty text. Any comparison with `NULL`, even `NULL = NULL`, gives **unknown**, not true or false. SQL uses this **three-valued logic** (true, false, unknown), and `WHERE` keeps only rows where the predicate is *true*. So:\n\n```sql\nWHERE sale_price = NULL    -- never true: no rows\nWHERE sale_price <> NULL   -- never true either\nWHERE sale_price IS NULL   -- not on sale\nWHERE sale_price IS NOT NULL\n```\n\n### In SQL Server\n\nAll of this works the same in SQL Server. Whether `LIKE` (and `=`) cares about upper and lower case depends on the column's **collation**; the default is case-insensitive, like SQLite's `LIKE` for English letters. SQL Server's `LIKE` also allows `[abc]` to match one of a set of characters.\n\n### New words\n\n- **Predicate**: a condition that's true, false or unknown for each row, like `price < 30`.\n- **Operator precedence**: the order operators are worked out in. `AND` comes before `OR`.\n- **Wildcard**: a character that stands for others in a `LIKE` pattern: `%` for any run of characters, `_` for one.\n- **NULL**: a missing or unknown value. Test for it with `IS NULL` or `IS NOT NULL`.\n- **Three-valued logic**: SQL's true, false and unknown. Comparisons with `NULL` give unknown.\n- **Collation**: the rules a database uses to compare and sort text, including whether case matters.\n",
+      "exampleMarkdown": "Adventure games under $40. Both predicates must be true, so this uses `AND`. The second condition is on its own line, which is a common style for long `WHERE` clauses. Check the **Tables** tab: `Moon Quest` is an adventure too, but it's too expensive.",
+      "exampleCode": "-- Adventure games under $40\nSELECT title, platform, price\nFROM games\nWHERE genre = 'Adventure'\n  AND price < 40;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Pixel Pier needs three lists from the `games` table. Two of the queries are already written, but both have a bug: they run without an error and give the wrong rows.\n\n1. **Restock list:** Switch and PC games with fewer than 10 in stock. Right now it lists PC games with plenty of stock. Fix it.\n2. **Sale shelf:** every game that's on sale, meaning it has a `sale_price`. Right now it finds nothing. Fix it.\n3. **Search:** write a query for the `title` of every game with `Quest` anywhere in its title.\n\nKeep the columns each query already lists.",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  genre TEXT NOT NULL,\n  price REAL NOT NULL,\n  stock INTEGER NOT NULL,\n  sale_price REAL -- NULL when it isn't on sale\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 'Adventure', 39.99, 12, NULL),\n  (2, 'Byte Racers', 'PC', 'Racing', 19.99, 30, 14.99),\n  (3, 'Moonlight Mages', 'PlayStation', 'RPG', 59.99, 4, NULL),\n  (4, 'Puzzle Pond', 'Switch', 'Puzzle', 14.99, 0, 9.99),\n  (5, 'Robo Rumble', 'Xbox', 'Action', 49.99, 7, NULL),\n  (6, 'Ocean Odyssey', 'PC', 'Adventure', 29.99, 15, NULL),\n  (7, 'Castle Quest', 'PlayStation', 'RPG', 39.99, 9, 29.99),\n  (8, 'Tiny Tactics', 'Switch', 'Strategy', 24.99, 21, NULL),\n  (9, 'Questlings', 'Switch', 'RPG', 34.99, 3, NULL),\n  (10, 'Pixel Pets', 'PC', 'Simulation', 9.99, 8, NULL),\n  (11, 'Moon Quest', 'Xbox', 'Adventure', 44.99, 2, 34.99),\n  (12, 'Turbo Tennis', 'Switch', 'Sports', 29.99, 6, 19.99);\n",
+          "query.sql": "-- 1. Restock list: Switch and PC games\n--    with fewer than 10 in stock.\nSELECT title, platform, stock\nFROM games\nWHERE stock < 10 AND platform = 'Switch'\n   OR platform = 'PC';\n\n-- 2. Sale shelf: games with a sale price.\nSELECT title, price, sale_price\nFROM games\nWHERE sale_price <> NULL;\n\n-- 3. Search: titles with Quest anywhere.\n\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Restock list: Switch and PC games\n--    with fewer than 10 in stock.\nSELECT title, platform, stock\nFROM games\nWHERE stock < 10\n  AND platform IN ('Switch', 'PC');\n\n-- 2. Sale shelf: games with a sale price.\nSELECT title, price, sale_price\nFROM games\nWHERE sale_price IS NOT NULL;\n\n-- 3. Search: titles with Quest anywhere.\nSELECT title\nFROM games\nWHERE title LIKE '%Quest%';\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "The restock list has only low-stock Switch and PC games",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "title",
+                "platform",
+                "stock"
+              ],
+              "rows": [
+                [
+                  "Puzzle Pond",
+                  "Switch",
+                  0
+                ],
+                [
+                  "Questlings",
+                  "Switch",
+                  3
+                ],
+                [
+                  "Pixel Pets",
+                  "PC",
+                  8
+                ],
+                [
+                  "Turbo Tennis",
+                  "Switch",
+                  6
+                ]
+              ]
+            },
+            "failMessage": "The restock list should show only Switch and PC games with fewer than 10 in stock. AND is worked out before OR, so check what the WHERE clause really says."
+          },
+          {
+            "label": "The sale shelf has every game with a sale price",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "title",
+                "price",
+                "sale_price"
+              ],
+              "rows": [
+                [
+                  "Byte Racers",
+                  19.99,
+                  14.99
+                ],
+                [
+                  "Puzzle Pond",
+                  14.99,
+                  9.99
+                ],
+                [
+                  "Castle Quest",
+                  39.99,
+                  29.99
+                ],
+                [
+                  "Moon Quest",
+                  44.99,
+                  34.99
+                ],
+                [
+                  "Turbo Tennis",
+                  29.99,
+                  19.99
+                ]
+              ]
+            },
+            "failMessage": "The sale shelf should show every game that has a sale_price. A comparison with NULL is never true."
+          },
+          {
+            "label": "The sale shelf uses IS NOT NULL",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bis\\s+not\\s+null\\b"
+            },
+            "failMessage": "Test for a missing value with IS NULL or IS NOT NULL."
+          },
+          {
+            "label": "The search finds every Quest game",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 2,
+              "columns": [
+                "title"
+              ],
+              "rows": [
+                [
+                  "Castle Quest"
+                ],
+                [
+                  "Questlings"
+                ],
+                [
+                  "Moon Quest"
+                ]
+              ]
+            },
+            "failMessage": "The search should list the title of every game with Quest anywhere in it. Use LIKE with a % wildcard on each side."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at the first two results next to the `games` table. Which rows does each `WHERE` clause really keep, and why?",
+            "speechText": "Look at the first two results next to the games table. Which rows does each where clause really keep, and why?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "`AND` is worked out before `OR`, so the first query keeps every PC game, whatever its stock. And comparing anything with `NULL` gives unknown, never true, so the sale shelf keeps nothing.",
+            "speechText": "And is worked out before or, so the first query keeps every PC game, whatever its stock. Comparing anything with null gives unknown, never true, so the sale shelf keeps nothing.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Use `platform IN ('Switch', 'PC')` (or parentheses around the `OR`), then `sale_price IS NOT NULL`. The search is `WHERE title LIKE '%Quest%'`.",
+            "speechText": "Use platform in Switch and PC, or put parentheses around the or. Then use is not null for the sale shelf, and like with a percent sign on each side of Quest for the search.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does WHERE sale_price = NULL return?",
+            "explanation": "Comparing with NULL gives unknown, never true, and WHERE only keeps rows where the predicate is true. Use IS NULL.",
+            "options": [
+              {
+                "text": "No rows, because a comparison with NULL is never true",
+                "correct": true
+              },
+              {
+                "text": "The games with no sale price",
+                "correct": false
+              },
+              {
+                "text": "An error, because NULL can't be compared",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How is WHERE a OR b AND c worked out?",
+            "explanation": "AND has higher precedence than OR, so it's a OR (b AND c). Add parentheses to make your intent clear.",
+            "options": [
+              {
+                "text": "a OR (b AND c)",
+                "correct": true
+              },
+              {
+                "text": "(a OR b) AND c",
+                "correct": false
+              },
+              {
+                "text": "It depends on the order of the rows",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which titles does LIKE 'Q%' match?",
+            "explanation": "% matches any run of characters, so 'Q%' means \"starts with Q\".",
+            "options": [
+              {
+                "text": "Titles that start with Q",
+                "correct": true
+              },
+              {
+                "text": "Titles that contain a percent sign",
+                "correct": false
+              },
+              {
+                "text": "Only the title Q",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which prices does price BETWEEN 20 AND 40 include?",
+            "explanation": "BETWEEN includes both ends: it's the same as price >= 20 AND price <= 40.",
+            "options": [
+              {
+                "text": "20, 40 and everything in between",
+                "correct": true
+              },
+              {
+                "text": "Only prices strictly between 20 and 40",
+                "correct": false
+              },
+              {
+                "text": "20 but not 40",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which condition means the same as platform IN ('PC', 'Switch')?",
+            "explanation": "IN is a shortcut for several = comparisons joined with OR.",
+            "options": [
+              {
+                "text": "platform = 'PC' OR platform = 'Switch'",
+                "correct": true
+              },
+              {
+                "text": "platform = 'PC' AND platform = 'Switch'",
+                "correct": false
+              },
+              {
+                "text": "platform LIKE 'PC%Switch'",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "sorting-explorer",

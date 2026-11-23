@@ -32,6 +32,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "filtering-explorer": {
+      "intro": [
+        {
+          "displayText": "The Critter Club is planning a party, and each invitation goes to different critters. Your mission: use WHERE to find exactly the right ones!",
+          "speechText": "The Critter Club is planning a party, and each invitation goes to different critters. Your mission is to use where to find exactly the right ones!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Party invitations sorted! Your new word is condition: a test, like age > 3, that each row passes or fails.",
+          "speechText": "Party invitations sorted! Your new word is condition, a test like age greater than 3 that each row passes or fails.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "filtering-with-where": {
+      "intro": [
+        {
+          "displayText": "Real apps almost never want every row: a shop page shows one platform, and a search box shows only matches. WHERE is how you filter, and it's home to two of SQL's sneakiest bugs. You'll fix a restock list and a sale shelf, then write a title search.",
+          "speechText": "Real apps almost never want every row. A shop page shows one platform, and a search box shows only matches. Where is how you filter, and it's home to two of sequel's sneakiest bugs. You'll fix a restock list and a sale shelf, then write a title search.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You can filter with comparisons, AND, OR, IN, BETWEEN, LIKE and IS NULL. The gotcha to remember: = NULL and <> NULL never match anything, because a comparison with NULL is unknown. Use IS NULL and IS NOT NULL instead.",
+          "speechText": "You can filter with comparisons, and, or, in, between, like, and is null. The gotcha to remember is that equals null never matches anything, because a comparison with null is unknown. Use is null and is not null instead.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }
