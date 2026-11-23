@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codegrove.CSharpRunner.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codegrove.WebShim", "src\Codegrove.WebShim\Codegrove.WebShim.csproj", "{79211F43-DBA8-44EB-9BFD-9FD05A53059F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codegrove.WebApi.ParityTests", "tests\Codegrove.WebApi.ParityTests\Codegrove.WebApi.ParityTests.csproj", "{37690C74-0F13-4368-A5F7-3EF0CB982DDF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,18 @@ Global
 		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Release|x64.Build.0 = Release|Any CPU
 		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Release|x86.ActiveCfg = Release|Any CPU
 		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Release|x86.Build.0 = Release|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Debug|x64.Build.0 = Debug|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Debug|x86.Build.0 = Debug|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Release|x64.ActiveCfg = Release|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Release|x64.Build.0 = Release|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Release|x86.ActiveCfg = Release|Any CPU
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,5 +111,6 @@ Global
 		{1158D6C0-9835-457E-9EB8-97944C8EA538} = {646DD1EC-2FF8-48A2-8687-DD51D9B22D73}
 		{94CDD060-77A7-4E07-9C88-FEB25E2547D9} = {AC982860-F60D-405B-9064-BE292144E551}
 		{79211F43-DBA8-44EB-9BFD-9FD05A53059F} = {646DD1EC-2FF8-48A2-8687-DD51D9B22D73}
+		{37690C74-0F13-4368-A5F7-3EF0CB982DDF} = {AC982860-F60D-405B-9064-BE292144E551}
 	EndGlobalSection
 EndGlobal

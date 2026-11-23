@@ -67,18 +67,24 @@ internal static class WebServer
         return (exchange, problem);
     }
 
-    /// <summary>The usual cause: a class meant as a service that was never registered, so ASP.NET Core reads it as the body.</summary>
+    /// <summary>
+    /// One endpoint ASP.NET Core can't build stops every request (it builds them all together). The usual
+    /// cause: a class meant as a service that was never registered, so ASP.NET Core takes it for the body.
+    /// </summary>
     private static string DescribeSetup(string method, string path, RequestPipeline.EndpointSetupException setup)
     {
-        var names = string.Join(" and ", setup.BodyTypes.Distinct());
+        var unplaced = string.Join(" and ", setup.Unplaced.Distinct());
+        var endpointMethod = setup.EndpointText.Split(' ')[0].Split('/')[0];
         var why = setup.NoBodyMethod
-            ? $"ASP.NET Core thinks {names} should come from the request body, and a {method} request has no body."
-            : $"ASP.NET Core thinks {names} should all come from the request body, and a request has only one body.";
-        return $"{method} {path}{CantRun} {why} " +
-            $"If {names} is a service, register it before builder.Build(), like builder.Services.AddSingleton<{setup.BodyTypes[^1]}>(); ({setup.Message.Split(Environment.NewLine)[0]})";
+            ? $"It asks for {Article(unplaced)}, and ASP.NET Core thinks that should come from the request body, but a {endpointMethod} request has no body."
+            : $"It asks for {string.Join(" and ", setup.BodyTypes.Concat(setup.Unplaced).Distinct())}, and a request has only one body, so ASP.NET Core can't tell where {unplaced} should come from.";
+        return $"{method} {path}{CantRun} Every request fails until the endpoint {setup.EndpointText} is fixed. {why} " +
+            $"If {unplaced} is a service, register it before builder.Build(), like builder.Services.AddSingleton<{setup.Unplaced[^1]}>(); ({setup.Message.Split(Environment.NewLine)[0]})";
     }
 
-    internal const string CantRun = " can't run, so the server answered 500 Internal Server Error.";
+    private static string Article(string name) => ("aeiouAEIOU".Contains(name[0]) ? "an " : "a ") + name;
+
+    internal const string CantRun = " got 500 Internal Server Error, because one endpoint can't be built.";
 
     /// <summary>The plain-words middle of a <see cref="DescribeSetup"/> message, for a check's failure text.</summary>
     internal static string SetupReason(string problem)

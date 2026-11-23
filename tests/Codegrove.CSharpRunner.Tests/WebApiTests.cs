@@ -94,10 +94,10 @@ public class WebApiTests
     public async Task Binding_problems_are_400s_with_ASP_NET_Cores_messages()
     {
         var r = await Run(Pets, [Get("/page"), Get("/search?kind=owl&limit=x"), new("POST", "/pets"), new("POST", "/pets", "{not json")]);
-        Assert.Equal([400, 400, 400, 400], r.Responses!.Select(x => x.Status));
+        // POST with no body: with nullable off the Pet is optional, so it arrives as null and `pet with …` crashes (500).
+        Assert.Equal([400, 400, 500, 400], r.Responses!.Select(x => x.Status));
         Assert.Equal("Required parameter \"int number\" was not provided from query string.", r.Responses![0].Body);
-        Assert.Equal("Failed to bind parameter \"int? limit\" from \"x\".", r.Responses[1].Body);
-        Assert.StartsWith("Implicit body inferred for parameter \"Pet pet\" but no body was provided.", r.Responses[2].Body);
+        Assert.Equal("Failed to bind parameter \"Nullable<int> limit\" from \"x\".", r.Responses[1].Body);
         Assert.Equal("Failed to read parameter \"Pet pet\" from the request body as JSON.", r.Responses[3].Body);
 
         // With nullable off (the runner's default), a plain string is optional, as in ASP.NET Core.
@@ -115,10 +115,13 @@ public class WebApiTests
             var app = WebApplication.CreateBuilder(args).Build();
             app.MapGet("/a", (string name) => name);
             app.MapGet("/b", (string? name) => name ?? "nobody");
+            app.MapPost("/pets", (Pet pet) => pet.Name);
             app.Run();
-            """, [Get("/a"), Get("/b")]);
-        Assert.Equal([400, 200], r.Responses!.Select(x => x.Status));
+            record Pet(string Name);
+            """, [Get("/a"), Get("/b"), new("POST", "/pets")]);
+        Assert.Equal([400, 200, 400], r.Responses!.Select(x => x.Status));
         Assert.Equal("nobody", r.Responses![1].Body);
+        Assert.Equal("Implicit body inferred for parameter \"pet\" but no body was provided. Did you mean to use a Service instead?", r.Responses[2].Body);
     }
 
     [Fact]
@@ -295,20 +298,29 @@ public class WebApiTests
     [Fact]
     public async Task An_unregistered_service_on_a_GET_is_a_500_that_says_to_register_it()
     {
+        // One endpoint that can't be built stops every request, as in ASP.NET Core (checked by the parity tests).
         var r = await Run("""
             var app = WebApplication.CreateBuilder(args).Build();
+            app.MapGet("/ok", () => "fine");
             app.MapGet("/pets", (PetBook book) => book.Count);
-            app.MapPost("/pets", (Pet pet, PetBook book) => "added");
             app.Run();
             class PetBook { public int Count => 3; }
-            record Pet(string Name);
-            """, [Get("/pets"), new("POST", "/pets", """{"name":"Moss"}""")]);
+            """, [Get("/ok"), Get("/nowhere")]);
         Assert.Equal([500, 500], r.Responses!.Select(x => x.Status));
         Assert.StartsWith("System.InvalidOperationException: Body was inferred but the method does not allow inferred body parameters.", r.Responses![0].Body);
-        Assert.StartsWith("System.InvalidOperationException: Failure to infer one or more parameters.", r.Responses[1].Body);
         var errors = r.Console.Where(l => l.Level == "error").Select(l => l.Text).ToList();
-        Assert.StartsWith("GET /pets can't run, so the server answered 500 Internal Server Error. ASP.NET Core thinks PetBook should come from the request body, and a GET request has no body. If PetBook is a service, register it before builder.Build(), like builder.Services.AddSingleton<PetBook>();", errors[0]);
-        Assert.Contains("thinks Pet and PetBook should all come from the request body", errors[1]);
+        Assert.StartsWith("GET /ok got 500 Internal Server Error, because one endpoint can't be built. Every request fails until the endpoint GET /pets is fixed. It asks for a PetBook, and ASP.NET Core thinks that should come from the request body, but a GET request has no body. If PetBook is a service, register it before builder.Build(), like builder.Services.AddSingleton<PetBook>();", errors[0]);
+
+        var twoBodies = await Run("""
+            var app = WebApplication.CreateBuilder(args).Build();
+            app.MapPost("/pets", (Pet pet, PetBook book) => "added");
+            app.Run();
+            class PetBook { }
+            record Pet(string Name);
+            """, [new("POST", "/pets", """{"name":"Moss"}""")]);
+        Assert.StartsWith("System.InvalidOperationException: Failure to infer one or more parameters.", twoBodies.Responses![0].Body);
+        Assert.Contains("It asks for Pet and PetBook, and a request has only one body, so ASP.NET Core can't tell where PetBook should come from. If PetBook is a service, register it",
+            Assert.Single(twoBodies.Console, l => l.Level == "error").Text);
 
         var fixedUp = await Run("""
             var builder = WebApplication.CreateBuilder(args);
@@ -328,7 +340,7 @@ public class WebApiTests
             app.Run();
             class PetBook { public int Count => 3; }
             """, null, Http(1, new { path = "/pets", expectStatus = 200 }));
-        Assert.Equal("fail 1. (It answered 500 Internal Server Error. ASP.NET Core thinks PetBook should come from the request body, and a GET request has no body. If PetBook is a service, register it before builder.Build(), like builder.Services.AddSingleton<PetBook>();)",
+        Assert.Equal("fail 1. (It answered 500 Internal Server Error. Every request fails until the endpoint GET /pets is fixed. It asks for a PetBook, and ASP.NET Core thinks that should come from the request body, but a GET request has no body. If PetBook is a service, register it before builder.Build(), like builder.Services.AddSingleton<PetBook>();)",
             check.Results[0].Message);
     }
 

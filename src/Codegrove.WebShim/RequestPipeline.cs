@@ -22,6 +22,21 @@ internal static class RequestPipeline
 
         using var scope = app.Services.CreateScope();
         var context = new HttpContext(new HttpRequest(method, path, queryString, query, request.Body, headers), scope.ServiceProvider);
+
+        // ASP.NET Core builds every endpoint together, on the first request. If one can't be built, no request
+        // gets through: each one fails with the first broken endpoint's error, whatever its path.
+        foreach (var e in app.Endpoints)
+        {
+            try
+            {
+                CheckBodyParameters(e, app.Services);
+            }
+            catch (EndpointSetupException setup)
+            {
+                return Crashed(context, setup);
+            }
+        }
+
         var segments = path.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries).Select(Uri.UnescapeDataString).ToArray();
 
         // Routing: every endpoint whose route matches, then the most specific one for this method.
@@ -50,11 +65,6 @@ internal static class RequestPipeline
         try
         {
             args = Bind(endpoint, routeValues!, context);
-        }
-        catch (InvalidOperationException setupProblem)
-        {
-            // ASP.NET Core can't build this endpoint at all (see CheckBodyParameters): the request fails with 500.
-            return Crashed(context, setupProblem);
         }
         catch (BadRequestException bad)
         {
@@ -114,12 +124,19 @@ internal static class RequestPipeline
 
     // ---- Binding -------------------------------------------------------------------------------------
 
-    /// <summary>An endpoint ASP.NET Core can't build. <see cref="BodyTypes"/> names the parameters it took for body parameters.</summary>
-    internal sealed class EndpointSetupException(List<string> bodyTypes, bool noBody, string message) : InvalidOperationException(message)
+    /// <summary>
+    /// An endpoint ASP.NET Core can't build. <see cref="Unplaced"/> names the parameter types it couldn't find a
+    /// source for (the likely unregistered services); <see cref="BodyTypes"/> the one that did get the body.
+    /// </summary>
+    internal sealed class EndpointSetupException(Endpoint endpoint, List<string> bodyTypes, List<string> unplaced, bool noBodyMethod, string message)
+        : InvalidOperationException(message)
     {
+        /// <summary>"GET /pets"</summary>
+        public string EndpointText { get; } = $"{string.Join("/", endpoint.Methods)} {endpoint.Pattern.Text}";
         public List<string> BodyTypes { get; } = bodyTypes;
-        /// <summary>True: a GET/DELETE-style endpoint inferred a body. False: two body parameters.</summary>
-        public bool NoBodyMethod { get; } = noBody;
+        public List<string> Unplaced { get; } = unplaced;
+        /// <summary>True: a GET/DELETE-style endpoint inferred a body. False: a second body parameter.</summary>
+        public bool NoBodyMethod { get; } = noBodyMethod;
     }
 
     private sealed class BadRequestException(string message, int statusCode = 400) : Exception(message)
@@ -134,7 +151,6 @@ internal static class RequestPipeline
         var parameters = endpoint.Handler.Method.GetParameters();
         var routeNames = new HashSet<string>(endpoint.Pattern.ParameterNames, StringComparer.OrdinalIgnoreCase);
         var services = (ShimServiceProvider)context.RequestServices;
-        CheckBodyParameters(endpoint, parameters, routeNames, services);
         var args = new object?[parameters.Length];
 
         for (var i = 0; i < parameters.Length; i++)
@@ -164,44 +180,66 @@ internal static class RequestPipeline
     }
 
     /// <summary>
-    /// The endpoint-building rules RequestDelegateFactory enforces: a GET, DELETE, HEAD or OPTIONS endpoint
-    /// can't infer a parameter from the body, and no endpoint can have two body parameters. In ASP.NET Core
-    /// the endpoint fails to build, so its requests fail with 500 and this message. The usual cause is a
-    /// class the learner meant as a service but didn't register.
+    /// The endpoint-building rules RequestDelegateFactory enforces, with its messages (checked against
+    /// ASP.NET Core 10 by tests/Codegrove.WebApi.ParityTests):
+    /// - only one parameter can come from the body: the first [FromBody] or inferred one takes it, and any
+    ///   later one is "UNKNOWN" ("Failure to infer one or more parameters…");
+    /// - a GET, DELETE, HEAD or OPTIONS endpoint can't infer a body ("Body was inferred but the method does
+    ///   not allow inferred body parameters…").
+    /// The usual cause is a class the learner meant as a service but didn't register.
     /// </summary>
-    private static void CheckBodyParameters(Endpoint endpoint, ParameterInfo[] parameters, HashSet<string> routeNames, ShimServiceProvider services)
+    private static void CheckBodyParameters(Endpoint endpoint, ShimServiceProvider services)
     {
-        var inferred = parameters.Where(p => IsInferredBody(p, routeNames, services)).ToList();
-        var explicitBody = parameters.Where(p => p.GetCustomAttribute<FromBodyAttribute>() is not null).ToList();
-        if (inferred.Count == 0 && explicitBody.Count <= 1) return;
+        var parameters = endpoint.Handler.Method.GetParameters();
+        var routeNames = new HashSet<string>(endpoint.Pattern.ParameterNames, StringComparer.OrdinalIgnoreCase);
+        var rows = new List<(ParameterInfo P, string Source)>();
+        var bodyTaken = false;
+        foreach (var p in parameters)
+        {
+            var source = SourceOf(p, routeNames, services);
+            if (source is "Body (Inferred)" or "Body (Attribute)")
+            {
+                if (bodyTaken) source = "UNKNOWN";
+                bodyTaken = true;
+            }
+            rows.Add((p, source));
+        }
 
-        var table = string.Join(Environment.NewLine, inferred.Select(p => $"{p.Name,-20}| Body (Inferred)")
-            .Concat(explicitBody.Select(p => $"{p.Name,-20}| Body (Attribute)")));
+        string Table() =>
+            "Below is the list of parameters that we found: " + Environment.NewLine + Environment.NewLine +
+            $"{"Parameter",-20}| {"Source",-30}" + Environment.NewLine + new string('-', 81) + Environment.NewLine +
+            string.Join(Environment.NewLine, rows.Select(r => $"{r.P.Name,-20}| {r.Source,-15}".TrimEnd())) + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+
+        var unknown = rows.Where(r => r.Source == "UNKNOWN").ToList();
+        if (unknown.Count > 0)
+            throw new EndpointSetupException(endpoint, rows.Where(r => r.Source != "UNKNOWN" && r.Source.StartsWith("Body")).Select(r => TypeName(r.P.ParameterType)).ToList(),
+                unknown.Select(r => TypeName(r.P.ParameterType)).ToList(), noBodyMethod: false,
+                "Failure to infer one or more parameters." + Environment.NewLine + Table() +
+                "Did you mean to register the \"UNKNOWN\" parameters as a Service?");
+
         var noBodyMethods = new[] { "GET", "DELETE", "HEAD", "OPTIONS" };
-        var types = inferred.Concat(explicitBody).Select(p => TypeName(p.ParameterType)).ToList();
+        var inferred = rows.Where(r => r.Source == "Body (Inferred)").ToList();
         if (inferred.Count > 0 && endpoint.Methods.All(m => noBodyMethods.Contains(m)))
-            throw new EndpointSetupException(types, noBody: true,
-                "Body was inferred but the method does not allow inferred body parameters." + Environment.NewLine +
-                "Below is the list of parameters that we found: " + Environment.NewLine + Environment.NewLine + table + Environment.NewLine + Environment.NewLine +
-                "Did you mean to register the \"Body (Inferred)\" parameter(s) as a Service or apply the [FromServices] or [FromBody] attribute?");
-        if (inferred.Count + explicitBody.Count > 1)
-            throw new EndpointSetupException(types, noBody: false,
-                "Failure to infer one or more parameters." + Environment.NewLine +
-                "Below is the list of parameters that we found: " + Environment.NewLine + Environment.NewLine + table + Environment.NewLine + Environment.NewLine +
+            throw new EndpointSetupException(endpoint, [], inferred.Select(r => TypeName(r.P.ParameterType)).ToList(), noBodyMethod: true,
+                "Body was inferred but the method does not allow inferred body parameters." + Environment.NewLine + Table() +
                 "Did you mean to register the \"Body (Inferred)\" parameter(s) as a Service or apply the [FromServices] or [FromBody] attribute?");
     }
 
-    /// <summary>Same order of rules as Bind: a complex parameter with no attribute that isn't special, a route value or a service.</summary>
-    private static bool IsInferredBody(ParameterInfo p, HashSet<string> routeNames, ShimServiceProvider services)
+    /// <summary>Where a parameter's value comes from, in Bind's order, named as ASP.NET Core's table names them.</summary>
+    private static string SourceOf(ParameterInfo p, HashSet<string> routeNames, ShimServiceProvider services)
     {
         var type = p.ParameterType;
-        if (p.GetCustomAttributes().Any(a => a is FromRouteAttribute or FromQueryAttribute or FromHeaderAttribute or FromBodyAttribute or FromServicesAttribute or AsParametersAttribute))
-            return false;
+        if (p.GetCustomAttribute<FromRouteAttribute>() is not null) return "Route (Attribute)";
+        if (p.GetCustomAttribute<FromQueryAttribute>() is not null) return "Query (Attribute)";
+        if (p.GetCustomAttribute<FromHeaderAttribute>() is not null) return "Header (Attribute)";
+        if (p.GetCustomAttribute<FromBodyAttribute>() is not null) return "Body (Attribute)";
+        if (p.GetCustomAttribute<FromServicesAttribute>() is not null) return "Services (Attribute)";
         if (type == typeof(HttpContext) || type == typeof(HttpRequest) || type == typeof(HttpResponse)
-            || type == typeof(CancellationToken) || type == typeof(IServiceProvider)) return false;
-        if (routeNames.Contains(p.Name ?? "")) return false;
-        if (services.IsService(type)) return false;
-        return !IsSimple(type);
+            || type == typeof(CancellationToken) || type == typeof(IServiceProvider)) return "Special";
+        if (routeNames.Contains(p.Name ?? "")) return "Route (Inferred)";
+        if (services.IsService(type)) return "Services (Inferred)";
+        if (IsSimple(type)) return "Query String (Inferred)";
+        return "Body (Inferred)";
     }
 
     /// <summary>Strings and anything with a TryParse (numbers, bool, Guid, dates, enums) come from the route or query string.</summary>
@@ -245,9 +283,9 @@ internal static class RequestPipeline
         if (string.IsNullOrWhiteSpace(body))
         {
             if (p.HasDefaultValue) return p.DefaultValue;
-            if (IsOptional(p) && !implicitBody) return null;
+            if (IsOptional(p)) return null;
             throw new BadRequestException(implicitBody
-                ? $"Implicit body inferred for parameter \"{TypeName(p.ParameterType)} {p.Name}\" but no body was provided. Did you mean to use a Service instead?"
+                ? $"Implicit body inferred for parameter \"{p.Name}\" but no body was provided. Did you mean to use a Service instead?"
                 : $"Required parameter \"{TypeName(p.ParameterType)} {p.Name}\" was not provided from body.");
         }
         var contentType = context.Request.ContentType ?? "";
@@ -277,7 +315,7 @@ internal static class RequestPipeline
     }
 
     /// <summary>"int", "string", "Book": the short names ASP.NET Core uses in these messages.</summary>
-    private static string TypeName(Type type) => Nullable.GetUnderlyingType(type) is { } inner ? TypeName(inner) + "?" : type switch
+    private static string TypeName(Type type) => Nullable.GetUnderlyingType(type) is { } inner ? $"Nullable<{TypeName(inner)}>" : type switch
     {
         _ when type == typeof(int) => "int",
         _ when type == typeof(long) => "long",
@@ -326,6 +364,9 @@ internal static class RequestPipeline
                 return Task.CompletedTask;
             case IResult result:
                 return result.ExecuteAsync(context);
+            case null when declared == typeof(string) || declared == typeof(Task<string>) || declared == typeof(ValueTask<string>):
+                // ASP.NET Core passes the null straight to HttpResponse.WriteAsync(string), which throws (500).
+                throw new ArgumentNullException("text");
             case string text:
                 context.Response.StatusCode = 200;
                 context.Response.ContentType = "text/plain; charset=utf-8";

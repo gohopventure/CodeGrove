@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Parity tests for Codegrove's practice web server (src/Codegrove.WebShim): learner programs are compiled
+    against REAL ASP.NET Core here and run on Kestrel, and must answer the way the practice server does.
+    See README.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!--
+      The runner references Codegrove.WebShim, whose types have the same names as ASP.NET Core's. Keep the
+      shim out of this project's compile so the two don't clash; it's copied next to the tests and loaded
+      by name at run time instead (see ShimLoader).
+    -->
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Codegrove.CSharpRunner\Codegrove.CSharpRunner.csproj" />
+    <!-- Built and copied, but not referenced: see DisableTransitiveProjectReferences above. -->
+    <ProjectReference Include="..\..\src\Codegrove.WebShim\Codegrove.WebShim.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Target Name="CgCopyWebShim" AfterTargets="Build">
+    <Copy SourceFiles="..\..\src\Codegrove.WebShim\bin\$(Configuration)\$(TargetFramework)\Codegrove.WebShim.dll" DestinationFolder="$(OutDir)shim" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
