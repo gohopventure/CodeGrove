@@ -107,6 +107,20 @@ describe('SQL tests', () => {
     expect(run('SELECT name FROM pets;', [t]).results[0]!.message).toBe('Nope. (The right rows are there, but in a different order.)');
   });
 
+  it('sqlResultEquals: sortedBy allows ties in any order', () => {
+    const tie = "INSERT INTO pets (name, kind, age) VALUES ('Fern', 'cat', 3);\n";
+    const t = test(1, 'sqlResultEquals', { rows: [['Juni', 3], ['Fern', 3], ['Moss', 2], ['Pip', 1]], sortedBy: ['age desc'] });
+    expect(run(tie + 'SELECT name, age FROM pets ORDER BY age DESC, name;', [t]).results[0]!.passed).toBe(true);
+    expect(run(tie + 'SELECT name, age FROM pets ORDER BY age DESC, name DESC;', [t]).results[0]!.passed).toBe(true);
+    expect(run(tie + 'SELECT name, age FROM pets ORDER BY age;', [t]).results[0]!.message)
+      .toBe("Nope. (The right rows are there, but they aren't sorted by age (biggest first). Rows 1 and 2 are the wrong way round.)");
+    const two = test(2, 'sqlResultEquals', { rows: [['Juni', 3], ['Fern', 3]], sortedBy: ['age', 'name'] });
+    expect(run(tie + "SELECT name, age FROM pets WHERE age = 3 ORDER BY name;", [two]).results[0]!.passed).toBe(true);
+    expect(run(tie + "SELECT name, age FROM pets WHERE age = 3 ORDER BY name DESC;", [two]).results[0]!.message).toMatch(/sorted by age \(smallest first\), then name \(A to Z\)\. Rows 1 and 2/);
+    expect(run(tie + "SELECT name FROM pets WHERE age = 3;", [test(3, 'sqlResultEquals', { rows: [['Juni'], ['Fern']], sortedBy: ['age'] })]).results[0]!.message)
+      .toMatch(/needs a column called age/);
+  });
+
   it('sqlResultEquals: numbers within a tolerance, nulls, and which result set', () => {
     expect(run('SELECT AVG(age) FROM pets;', [test(1, 'sqlResultEquals', { rows: [[2.0]] })]).results[0]!.passed).toBe(true);
     expect(run('SELECT NULL;', [test(1, 'sqlResultEquals', { rows: [[null]] })]).results[0]!.passed).toBe(true);

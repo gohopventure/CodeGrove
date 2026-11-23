@@ -163,7 +163,8 @@ function ResultGrid({ set }: { set: SqlResultSet }) {
   const count = `${set.rows.length}${set.truncated ? '+' : ''} ${set.rows.length === 1 ? 'row' : 'rows'}`;
   return (
     <Grid
-      caption={<>{set.file}, line {set.line} <span className="text-[#9fb0c0]">· {count}</span></>}
+      // Each part stays on one line, so a narrow panel wraps between them, never inside "3 rows".
+      caption={<><span className="whitespace-nowrap">{set.file}, line {set.line}</span> <span className="whitespace-nowrap text-[#9fb0c0]">· {count}</span></>}
       columns={set.columns.map((name) => ({ name }))}
       rows={set.rows}
       footer={set.truncated ? `Only the first ${set.rows.length} rows are shown.` : set.rows.length === 0 ? 'No rows matched.' : undefined}
@@ -178,7 +179,7 @@ function Tables({ tables }: { tables: SqlTable[] }) {
       {tables.map((t) => (
         <Grid
           key={t.name}
-          caption={<>{t.name} <span className="text-[#9fb0c0]">· {t.rowCount} {t.rowCount === 1 ? 'row' : 'rows'}</span></>}
+          caption={<>{t.name} <span className="whitespace-nowrap text-[#9fb0c0]">· {t.rowCount} {t.rowCount === 1 ? 'row' : 'rows'}</span></>}
           columns={t.columns.map((c) => ({ name: c.name, note: [c.primaryKey ? 'key' : '', c.type.toLowerCase()].filter(Boolean).join(', ') }))}
           rows={t.rows}
           footer={t.rows.length < t.rowCount ? `Showing the first ${t.rows.length} rows.` : t.rowCount === 0 ? 'This table is empty.' : undefined}
@@ -196,9 +197,12 @@ function Grid({ caption, columns, rows, footer }: {
 }) {
   return (
     <div>
+      {/* A table's <caption> is only as wide as the table, so a 2-column result wrapped its label onto
+          two lines. The visible label sits above instead; the <caption> stays for screen readers. */}
+      <p className="mb-1 font-bold" aria-hidden="true">{caption}</p>
       <div className="overflow-x-auto">
         <table className="border-collapse text-left">
-          <caption className="mb-1 text-left font-bold">{caption}</caption>
+          <caption className="sr-only">{caption}</caption>
           <thead>
             <tr>
               {columns.map((c, i) => (

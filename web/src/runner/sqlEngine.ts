@@ -365,7 +365,7 @@ function pickResult(run: Run, which: unknown): SqlResultSet | undefined {
 }
 
 /**
- * Compares a result set with `{ columns?, rows, ordered?, caseSensitive? }`. Returns null when it
+ * Compares a result set with `{ columns?, rows, ordered?, sortedBy?, caseSensitive? }`. Returns null when it
  * matches, or a short sentence a learner can act on. Column names are compared without caring about
  * case; rows in any order unless `ordered` (for ORDER BY lessons).
  */
@@ -394,9 +394,51 @@ function compareResult(set: SqlResultSet, spec: Record<string, unknown>): string
     if (sameMultiset(set.rows, expected, same)) return 'The right rows are there, but in a different order.';
     return `Row ${bad + 1} should be ${showRow(expected[bad] ?? [])}, but it was ${showRow(set.rows[bad] ?? [])}.`;
   }
-  if (sameMultiset(set.rows, expected, same)) return null;
+  if (sameMultiset(set.rows, expected, same)) return sortProblem(set, spec.sortedBy);
   const extra = set.rows.find((row) => !expected.some((e) => same(row, e)));
   return extra ? `This row shouldn't be there: ${showRow(extra)}.` : 'Some of the rows have the wrong values.';
+}
+
+/**
+ * `sortedBy: ["age desc", "name"]` in a sqlResultEquals spec: the rows must be sorted by these result
+ * columns, but rows that tie on all of them may come in any order. That's what ORDER BY promises, so a
+ * learner who sorts by age alone isn't failed for the order SQLite happened to give two same-age rows.
+ * (`ordered: true` demands one exact order instead.) Compares like SQLite's default: NULL first, then
+ * numbers, then text by character code.
+ */
+function sortProblem(set: SqlResultSet, sortedBy: unknown): string | null {
+  if (!Array.isArray(sortedBy) || sortedBy.length === 0) return null;
+  const keys = (sortedBy as string[]).map((entry) => {
+    const [name = '', dir = ''] = entry.trim().split(/\s+/);
+    return { name, desc: dir.toLowerCase() === 'desc', index: set.columns.findIndex((c) => c.toLowerCase() === name.toLowerCase()) };
+  });
+  const missing = keys.find((k) => k.index < 0);
+  if (missing) return `The result needs a column called ${missing.name} to check how it's sorted.`;
+  for (let i = 1; i < set.rows.length; i++) {
+    for (const key of keys) {
+      const c = compareCells(set.rows[i - 1]![key.index] ?? null, set.rows[i]![key.index] ?? null) * (key.desc ? -1 : 1);
+      if (c < 0) break; // in order on this column: later columns don't matter for this pair
+      if (c > 0) {
+        const how = keys.map((k) => `${k.name} ${direction(set, k.index, k.desc)}`).join(', then ');
+        return `The right rows are there, but they aren't sorted by ${how}. Rows ${i} and ${i + 1} are the wrong way round.`;
+      }
+    }
+  }
+  return null;
+}
+
+/** "(A to Z)" for a text column, "(smallest first)" for numbers: what a learner would call it. */
+function direction(set: SqlResultSet, index: number, desc: boolean): string {
+  const text = set.rows.some((r) => typeof r[index] === 'string');
+  if (text) return desc ? '(Z to A)' : '(A to Z)';
+  return desc ? '(biggest first)' : '(smallest first)';
+}
+
+function compareCells(a: SqlCell, b: SqlCell): number {
+  const rank = (v: SqlCell) => (v === null ? 0 : typeof v === 'number' ? 1 : 2);
+  if (rank(a) !== rank(b)) return rank(a) - rank(b);
+  if (a === null || b === null) return 0;
+  return a < b ? -1 : a > b ? 1 : 0;
 }
 
 function sameMultiset(actual: SqlCell[][], expected: SqlCell[][], same: (a: SqlCell[], b: SqlCell[]) => boolean): boolean {

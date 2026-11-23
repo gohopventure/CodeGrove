@@ -6,7 +6,7 @@
  * - the example runs against the challenge's database with no error and returns rows;
  * - every test kind is one the engine knows;
  * - sqlResultEquals tests that check order say so only when the solution sorts (ORDER BY), since
- *   SQL makes no promise about row order otherwise.
+ *   SQL makes no promise about row order otherwise (the same goes for sortedBy).
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -70,7 +70,7 @@ describe('authored SQL challenges', () => {
     }
 
     const solutionSql = Object.entries(ch.solutionFiles).filter(([n]) => !n.startsWith('.')).map(([, t]) => stripComments(t)).join('\n');
-    const orderedWithoutSort = tests.filter((t) => t.kind === 'sqlResultEquals' && t.spec.ordered && !/\border\s+by\b/i.test(solutionSql));
+    const orderedWithoutSort = tests.filter((t) => t.kind === 'sqlResultEquals' && (t.spec.ordered || t.spec.sortedBy) && !/\border\s+by\b/i.test(solutionSql));
     expect(orderedWithoutSort.map((t) => t.label), 'ordered checks need an ORDER BY in the solution').toEqual([]);
   });
 });

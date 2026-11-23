@@ -64,6 +64,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "sorting-explorer": {
+      "intro": [
+        {
+          "displayText": "The Critter Club is lining up for the Grove parade! Your mission: put the critters in order, by name and by age, and pick the 3 leaders for the front.",
+          "speechText": "The Critter Club is lining up for the Grove parade! Your mission is to put the critters in order, by name and by age, and pick the 3 leaders for the front.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The parade is ready to march! Your new word is sort: putting rows in order, like A to Z or oldest first.",
+          "speechText": "The parade is ready to march! Your new word is sort, which means putting rows in order, like A to Z or oldest first.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "sorting-and-limiting": {
+      "intro": [
+        {
+          "displayText": "Every list in an app has an order: cheapest first, newest first, A to Z. You'll sort with ORDER BY, remove repeats with DISTINCT, and split long lists into pages with LIMIT and OFFSET. Then you'll fix Pixel Pier's price list and build its platform menu and catalog pages.",
+          "speechText": "Every list in an app has an order, like cheapest first, newest first, or A to Z. You'll sort with order by, remove repeats with distinct, and split long lists into pages with limit and offset. Then you'll fix Pixel Pier's price list and build its platform menu and catalog pages.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You can sort on several columns, remove repeats and page through results. The gotcha to remember: without ORDER BY, SQL promises no order at all, and rows that tie keep no promise either. Sort whenever order matters, and add a tiebreaker for paging.",
+          "speechText": "You can sort on several columns, remove repeats, and page through results. The gotcha to remember is that without order by, sequel promises no order at all, and rows that tie keep no promise either. Sort whenever order matters, and add a tiebreaker for paging.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }

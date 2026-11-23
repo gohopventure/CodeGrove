@@ -10,8 +10,8 @@
       "lines": {
         "firstFail": [
           {
-            "displayText": "Not yet, and that's totally normal. Read the checks under the preview for a clue.",
-            "speechText": "Not yet, and that's totally normal. Read the checks under the preview for a clue.",
+            "displayText": "Not yet, and that's totally normal. Read the checks below your code for a clue.",
+            "speechText": "Not yet, and that's totally normal. Read the checks below your code for a clue.",
             "mood": "Encouraging"
           },
           {
@@ -74,8 +74,8 @@
             "mood": "Celebrating"
           },
           {
-            "displayText": "Look at that preview! Your changes made it happen.",
-            "speechText": "Look at that preview! Your changes made it happen.",
+            "displayText": "Look at that result! Your changes made it happen.",
+            "speechText": "Look at that result! Your changes made it happen.",
             "mood": "Celebrating"
           },
           {

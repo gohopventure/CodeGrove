@@ -22,7 +22,7 @@
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
       "isPublished": true,
-      "learnMarkdown": "## Tables full of data\n\nApps remember lots of things: every player, every high score, every pet in a game. They keep it all in a **database**, an organized store of data that you can ask questions.\n\nMost databases keep their data in **tables**. A table looks a lot like a spreadsheet:\n\n| id | name | kind | age |\n|----|------|------|-----|\n| 1 | Juni | fox | 3 |\n| 2 | Pip | owl | 1 |\n| 3 | Moss | frog | 2 |\n\n- Each **row** is one thing: here, one critter.\n- Each **column** is one fact about it: its name, its kind, its age.\n- The `id` column gives every row its own number, so two critters called Pip never get mixed up.\n\n### Asking with SQL\n\nYou ask a database questions in **SQL**. You can say it \"sequel\" or \"S-Q-L\". The question \"show me every critter\" looks like this:\n\n```sql\nSELECT * FROM critters;\n```\n\n- `SELECT` means \"show me\".\n- `*` (a star) means \"every column\".\n- `FROM critters` says which table to look in.\n- The `;` at the end finishes the question.\n\nTo see only some of the columns, list them after `SELECT`, with commas between them:\n\n```sql\nSELECT name, age FROM critters;\n```\n\nThe answer comes back as a brand new table, called the **result**. It has just the columns you asked for, and one row for every critter.\n\n### New words\n\n- **Database**: an organized store of data that you can ask questions.\n- **Table**: data kept in rows and columns, like a spreadsheet.\n- **Row**: one thing in a table, like one critter.\n- **Column**: one fact about every row, like its name.\n- **SQL** (*Structured Query Language*): the language for asking a database questions.\n- **Query**: a question you ask a database, like `SELECT name FROM critters;`.\n",
+      "learnMarkdown": "## Tables full of data\n\nApps remember lots of things: every player, every high score, every pet in a game. They keep it all in a **database**, an organized store of data that you can ask questions.\n\nMost databases keep their data in **tables**. A table looks a lot like a spreadsheet:\n\n| id | name | kind | age |\n|----|------|------|-----|\n| 1 | Juni | fox | 3 |\n| 2 | Pip | owl | 1 |\n| 3 | Moss | frog | 2 |\n\n- Each **row** is one thing: here, one critter.\n- Each **column** is one fact about it: its name, its kind, its age.\n- The `id` column gives every row its own number, so two critters called Pip never get mixed up.\n\n### Asking with SQL\n\nYou ask a database questions in **SQL**. You can say it \"sequel\" or \"S-Q-L\". The question \"show me every critter\" looks like this:\n\n```sql\nSELECT * FROM critters;\n```\n\n- `SELECT` means \"show me\".\n- `*` (a star) means \"every column\".\n- `FROM critters` says which table to look in.\n- The `;` at the end finishes the question.\n\nTo see only some of the columns, list them after `SELECT`, with commas between them:\n\n```sql\nSELECT name, age FROM critters;\n```\n\nThe answer comes back as a brand new table, called the **result**. It has just the columns you asked for, and one row for every critter.\n\n### New words\n\n- **Database**: an organized store of data that you can ask questions.\n- **Table**: data kept in rows and columns, like a spreadsheet.\n- **Row**: one thing in a table, like one critter.\n- **Column**: one fact about every row, like its name.\n- **SQL** (*Structured Query Language*): the language for asking a database questions.\n- **Query**: a question you ask a database, like `SELECT name FROM critters`.\n",
       "exampleMarkdown": "This query asks the Critter Club's table for two columns, `name` and `snack`. The result has just those two columns, with one row for every critter. Try reading it out loud: *select name and snack from critters*. Then open the **Tables** tab to see the whole table it came from.",
       "exampleCode": "-- What does each critter like to eat?\nSELECT name, snack\nFROM critters;\n",
       "challenge": {
@@ -923,7 +923,239 @@
       "sortOrder": 3,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Putting rows in order\n\nA database doesn't promise to give you rows in any particular order. To **sort** them, add `ORDER BY` and the column to sort by:\n\n```sql\nSELECT name FROM critters\nORDER BY name;\n```\n\nText is sorted from A to Z, and numbers from smallest to biggest. That's called **ascending** order.\n\n### Biggest first\n\nAdd `DESC` after the column to flip it round, from Z to A or from biggest to smallest. That's **descending** order:\n\n```sql\nSELECT name, age FROM critters\nORDER BY age DESC;\n```\n\n### Just the first few\n\n`LIMIT` keeps only the first few rows of the result. It goes at the very end:\n\n```sql\nSELECT name FROM critters\nORDER BY age\nLIMIT 2;\n```\n\nThat's the 2 youngest critters. Sort first, then `LIMIT`: without `ORDER BY`, \"the first 2\" could be any 2!\n\n### New words\n\n- **Sort**: put rows in order, like A to Z or oldest first.\n- **Ascending**: from A to Z, or smallest to biggest. It's what `ORDER BY` does unless you say otherwise.\n- **Descending**: from Z to A, or biggest to smallest. Write `DESC` to get it.\n- **LIMIT**: keeps only the first few rows of a result.\n",
+      "exampleMarkdown": "This sorts the critters by their **snack**, from A to Z. Critters with the same snack, like the three that eat flies, end up next to each other. Try changing `snack` to `kind` and pressing **Run**.",
+      "exampleCode": "-- Critters sorted by their favorite snack\nSELECT name, snack\nFROM critters\nORDER BY snack;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The Critter Club is lining up for the Grove parade. Each query below lists the critters in no particular order. Add to each one, just before the `;`:\n\n1. Names in **A to Z** order.\n2. Names and ages, **oldest first**.\n3. Only the **3 oldest** critters: they lead the parade!",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Critter Club\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  age INTEGER,\n  snack TEXT\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3, 'berries'),\n  (2, 'Pip', 'owl', 1, 'seeds'),\n  (3, 'Moss', 'frog', 2, 'flies'),\n  (4, 'Bramble', 'hedgehog', 4, 'apples'),\n  (5, 'Nova', 'rabbit', 2, 'carrots'),\n  (6, 'Pebble', 'turtle', 7, 'lettuce'),\n  (7, 'Hoot', 'owl', 5, 'berries'),\n  (8, 'Lily', 'frog', 1, 'flies'),\n  (9, 'Rusty', 'fox', 6, 'apples'),\n  (10, 'Tad', 'frog', 4, 'flies');\n",
+          "query.sql": "-- 1. Names from A to Z.\nSELECT name FROM critters;\n\n-- 2. Names and ages, oldest first.\nSELECT name, age FROM critters;\n\n-- 3. Just the 3 oldest critters.\nSELECT name, age FROM critters;\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Names from A to Z.\nSELECT name FROM critters ORDER BY name;\n\n-- 2. Names and ages, oldest first.\nSELECT name, age FROM critters ORDER BY age DESC;\n\n-- 3. Just the 3 oldest critters.\nSELECT name, age FROM critters\nORDER BY age DESC LIMIT 3;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "Query 1 is in A to Z order",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "name"
+              ],
+              "rows": [
+                [
+                  "Bramble"
+                ],
+                [
+                  "Hoot"
+                ],
+                [
+                  "Juni"
+                ],
+                [
+                  "Lily"
+                ],
+                [
+                  "Moss"
+                ],
+                [
+                  "Nova"
+                ],
+                [
+                  "Pebble"
+                ],
+                [
+                  "Pip"
+                ],
+                [
+                  "Rusty"
+                ],
+                [
+                  "Tad"
+                ]
+              ],
+              "sortedBy": [
+                "name"
+              ]
+            },
+            "failMessage": "Your first query should list every name from A to Z. Add ORDER BY name."
+          },
+          {
+            "label": "Query 2 puts the oldest first",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "name",
+                "age"
+              ],
+              "rows": [
+                [
+                  "Pebble",
+                  7
+                ],
+                [
+                  "Rusty",
+                  6
+                ],
+                [
+                  "Hoot",
+                  5
+                ],
+                [
+                  "Bramble",
+                  4
+                ],
+                [
+                  "Tad",
+                  4
+                ],
+                [
+                  "Juni",
+                  3
+                ],
+                [
+                  "Moss",
+                  2
+                ],
+                [
+                  "Nova",
+                  2
+                ],
+                [
+                  "Pip",
+                  1
+                ],
+                [
+                  "Lily",
+                  1
+                ]
+              ],
+              "sortedBy": [
+                "age desc"
+              ]
+            },
+            "failMessage": "Your second query should list every critter, oldest first. Add ORDER BY age, then DESC."
+          },
+          {
+            "label": "Query 3 shows the 3 oldest",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 2,
+              "columns": [
+                "name",
+                "age"
+              ],
+              "rows": [
+                [
+                  "Pebble",
+                  7
+                ],
+                [
+                  "Rusty",
+                  6
+                ],
+                [
+                  "Hoot",
+                  5
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "Your third query should show only the 3 oldest critters, oldest first. Sort with DESC, then add LIMIT 3."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which two words go after `FROM critters` to put the rows in order?",
+            "speechText": "Which two words go after from critters to put the rows in order?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Add `ORDER BY` and a column, like `ORDER BY name`. Put `DESC` after the column to go from biggest to smallest, and `LIMIT 3` at the very end to keep just 3 rows.",
+            "speechText": "Add order by and a column, like order by name. Put desc after the column to go from biggest to smallest, and limit 3 at the very end to keep just 3 rows.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Query 2 ends `ORDER BY age DESC;`. Query 3 ends the same way, with `LIMIT 3` just before the `;`.",
+            "speechText": "Query two ends with order by age desc. Query three ends the same way, followed by limit 3.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does ORDER BY name do?",
+            "explanation": "ORDER BY sorts the rows. Text is sorted from A to Z unless you add DESC.",
+            "options": [
+              {
+                "text": "Sorts the rows by name, from A to Z",
+                "correct": true
+              },
+              {
+                "text": "Shows only the name column",
+                "correct": false
+              },
+              {
+                "text": "Keeps only critters that have a name",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which one puts the oldest critter first?",
+            "explanation": "DESC goes after the column and means biggest first.",
+            "options": [
+              {
+                "text": "ORDER BY age DESC",
+                "correct": true
+              },
+              {
+                "text": "ORDER BY age",
+                "correct": false
+              },
+              {
+                "text": "ORDER BY DESC age",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does LIMIT 3 do?",
+            "explanation": "LIMIT keeps only the first few rows of the result.",
+            "options": [
+              {
+                "text": "Keeps only the first 3 rows",
+                "correct": true
+              },
+              {
+                "text": "Shows only 3 columns",
+                "correct": false
+              },
+              {
+                "text": "Keeps only critters younger than 3",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "sorting-and-limiting",
@@ -931,7 +1163,273 @@
       "sortOrder": 3,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Sorting, DISTINCT and limits\n\nEvery list in an app has an order: cheapest first, newest first, A to Z. In SQL, rows have **no order unless you ask for one**. Without `ORDER BY`, the database returns rows in whatever order is quickest for it, and that order can change when the data, an index or the database version changes. If the order matters, sort.\n\n### ORDER BY\n\n```sql\nSELECT title, price\nFROM games\nORDER BY price DESC, title;\n```\n\n- `ASC` (ascending, the default) sorts smallest first and A to Z; `DESC` sorts biggest first.\n- List several columns to break **ties**: here, games with the same price are sorted by title. Each column gets its own `ASC` or `DESC`.\n- Rows that tie on every sort column still have no promised order, so add a **tiebreaker** column (often the primary key) when you need the same order every time, like for paging.\n- `NULL` sorts before every value in ascending order, and after in descending order.\n\n### The order SQL works in\n\nYou write `SELECT … FROM … WHERE … ORDER BY … LIMIT`, but the database works in this **logical order**: `FROM` (find the table), `WHERE` (filter rows), `SELECT` (work out the columns), `DISTINCT`, `ORDER BY`, then `LIMIT`. That's why `ORDER BY` can use an alias from the `SELECT`:\n\n```sql\nSELECT title, price * stock AS stock_value\nFROM games\nORDER BY stock_value DESC;\n```\n\n### DISTINCT\n\n`SELECT DISTINCT` removes duplicate rows from the result. It applies to the whole row, not one column: `SELECT DISTINCT platform, genre` gives each different *pair* once.\n\n### LIMIT and OFFSET: pages of results\n\n`LIMIT n` keeps the first `n` rows; `OFFSET m` skips `m` rows first. Together they give you **pagination**, like a store showing 4 games per page:\n\n```sql\n-- page 3, 4 per page: skip 8, take 4\nSELECT title FROM games\nORDER BY title, id\nLIMIT 4 OFFSET 8;\n```\n\nAlways sort before paging, or the same game can show up on two pages.\n\n### In SQL Server\n\nSQL Server has no `LIMIT`. Use `TOP` for the first few rows, and `OFFSET … FETCH` for pages (it needs an `ORDER BY`):\n\n```sql\nSELECT TOP (3) title FROM games\nORDER BY price DESC;\n\nSELECT title FROM games\nORDER BY title\nOFFSET 8 ROWS FETCH NEXT 4 ROWS ONLY;\n```\n\n`NULL` sorts first in ascending order there too.\n\n### New words\n\n- **Ascending** (`ASC`): smallest first, A to Z. The default.\n- **Descending** (`DESC`): biggest first, Z to A.\n- **Tiebreaker**: an extra sort column that decides the order of rows that tie on the first one.\n- **Logical order**: the order the database works through a query's clauses, which isn't the order you write them.\n- **DISTINCT**: removes duplicate rows from a result.\n- **Pagination**: splitting a long result into pages with `LIMIT` and `OFFSET`.\n",
+      "exampleMarkdown": "The 3 most expensive games. `ORDER BY price DESC` puts the most expensive first, then `LIMIT 3` keeps the top 3. In SQL Server you'd write `SELECT TOP (3) title, price` instead of `LIMIT 3`.",
+      "exampleCode": "-- The 3 most expensive games\nSELECT title, price\nFROM games\nORDER BY price DESC\nLIMIT 3;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Pixel Pier's website needs three lists from the `games` table.\n\n1. **Price list:** `title` and `price`, cheapest first, and games with the same price in title order. The query is written, but it doesn't sort anything. Fix it.\n2. **Platform menu:** each `platform` once, from A to Z.\n3. **Catalog, page 2:** the shop shows 4 games per page, sorted by `title`. Write the query for the `title` column of page 2.",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  genre TEXT NOT NULL,\n  price REAL NOT NULL,\n  stock INTEGER NOT NULL,\n  sale_price REAL -- NULL when it isn't on sale\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 'Adventure', 39.99, 12, NULL),\n  (2, 'Byte Racers', 'PC', 'Racing', 19.99, 30, 14.99),\n  (3, 'Moonlight Mages', 'PlayStation', 'RPG', 59.99, 4, NULL),\n  (4, 'Puzzle Pond', 'Switch', 'Puzzle', 14.99, 0, 9.99),\n  (5, 'Robo Rumble', 'Xbox', 'Action', 49.99, 7, NULL),\n  (6, 'Ocean Odyssey', 'PC', 'Adventure', 29.99, 15, NULL),\n  (7, 'Castle Quest', 'PlayStation', 'RPG', 39.99, 9, 29.99),\n  (8, 'Tiny Tactics', 'Switch', 'Strategy', 24.99, 21, NULL),\n  (9, 'Questlings', 'Switch', 'RPG', 34.99, 3, NULL),\n  (10, 'Pixel Pets', 'PC', 'Simulation', 9.99, 8, NULL),\n  (11, 'Moon Quest', 'Xbox', 'Adventure', 44.99, 2, 34.99),\n  (12, 'Turbo Tennis', 'Switch', 'Sports', 29.99, 6, 19.99);\n",
+          "query.sql": "-- 1. Price list: cheapest first, then by\n--    title when prices are the same.\nSELECT title, price\nFROM games\nORDER BY 'price';\n\n-- 2. Platform menu: each platform once, A to Z.\n\n\n-- 3. Catalog page 2 (4 games per page,\n--    sorted by title).\n\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Price list: cheapest first, then by\n--    title when prices are the same.\nSELECT title, price\nFROM games\nORDER BY price, title;\n\n-- 2. Platform menu: each platform once, A to Z.\nSELECT DISTINCT platform\nFROM games\nORDER BY platform;\n\n-- 3. Catalog page 2 (4 games per page,\n--    sorted by title).\nSELECT title\nFROM games\nORDER BY title\nLIMIT 4 OFFSET 4;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "The price list is sorted by price, then title",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "title",
+                "price"
+              ],
+              "rows": [
+                [
+                  "Pixel Pets",
+                  9.99
+                ],
+                [
+                  "Puzzle Pond",
+                  14.99
+                ],
+                [
+                  "Byte Racers",
+                  19.99
+                ],
+                [
+                  "Tiny Tactics",
+                  24.99
+                ],
+                [
+                  "Ocean Odyssey",
+                  29.99
+                ],
+                [
+                  "Turbo Tennis",
+                  29.99
+                ],
+                [
+                  "Questlings",
+                  34.99
+                ],
+                [
+                  "Castle Quest",
+                  39.99
+                ],
+                [
+                  "Star Garden",
+                  39.99
+                ],
+                [
+                  "Moon Quest",
+                  44.99
+                ],
+                [
+                  "Robo Rumble",
+                  49.99
+                ],
+                [
+                  "Moonlight Mages",
+                  59.99
+                ]
+              ],
+              "sortedBy": [
+                "price",
+                "title"
+              ]
+            },
+            "failMessage": "The price list should be sorted cheapest first, with same-price games in title order. Look closely at what's after ORDER BY."
+          },
+          {
+            "label": "The platform menu lists each platform once, A to Z",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "platform"
+              ],
+              "rows": [
+                [
+                  "PC"
+                ],
+                [
+                  "PlayStation"
+                ],
+                [
+                  "Switch"
+                ],
+                [
+                  "Xbox"
+                ]
+              ],
+              "sortedBy": [
+                "platform"
+              ]
+            },
+            "failMessage": "The platform menu should list each platform once, from A to Z. DISTINCT removes repeats."
+          },
+          {
+            "label": "Page 2 shows titles 5 to 8",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 2,
+              "columns": [
+                "title"
+              ],
+              "rows": [
+                [
+                  "Ocean Odyssey"
+                ],
+                [
+                  "Pixel Pets"
+                ],
+                [
+                  "Puzzle Pond"
+                ],
+                [
+                  "Questlings"
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "Page 2 should show the 5th to 8th games in title order. Skip the first page with OFFSET."
+          },
+          {
+            "label": "Page 2 uses LIMIT and OFFSET",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\blimit\\s+4\\s+offset\\s+4\\b"
+            },
+            "failMessage": "Get page 2 with LIMIT 4 OFFSET 4, so changing the page number only changes the OFFSET."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The price list has an `ORDER BY`, but is it really sorted? What does `'price'` in single quotes mean to SQL?",
+            "speechText": "The price list has an order by, but is it really sorted? What does price in single quotes mean to sequel?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "In single quotes, `'price'` is a piece of text, the same for every row, so nothing gets sorted. Two games cost 39.99, so the list also needs a second column to sort by.",
+            "speechText": "In single quotes, price is a piece of text, the same for every row, so nothing gets sorted. Two games cost the same, so the list also needs a second column to sort by.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Sort the price list with `ORDER BY price, title`. The menu is `SELECT DISTINCT platform` sorted by `platform`, and page 2 is sorted by `title` with `LIMIT 4 OFFSET 4`.",
+            "speechText": "Sort the price list by price, then title. Use select distinct for the platform menu, and for page two, sort by title with limit 4 offset 4.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Without ORDER BY, what order do rows come back in?",
+            "explanation": "SQL promises no order without ORDER BY. It can change when the data, an index or the database changes.",
+            "options": [
+              {
+                "text": "No promised order: it can change",
+                "correct": true
+              },
+              {
+                "text": "Always by primary key",
+                "correct": false
+              },
+              {
+                "text": "Always the order the rows were added",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does ORDER BY 'price' (in single quotes) do?",
+            "explanation": "In single quotes, 'price' is text: the same value for every row, so the rows aren't sorted at all.",
+            "options": [
+              {
+                "text": "Sorts by the same piece of text for every row, so nothing gets sorted",
+                "correct": true
+              },
+              {
+                "text": "Sorts by the price column",
+                "correct": false
+              },
+              {
+                "text": "Gives an error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does SELECT DISTINCT platform, genre return?",
+            "explanation": "DISTINCT works on the whole row, so you get each different platform and genre pair once.",
+            "options": [
+              {
+                "text": "Each different platform and genre pair once",
+                "correct": true
+              },
+              {
+                "text": "Each platform once",
+                "correct": false
+              },
+              {
+                "text": "Each genre once",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "With 10 games per page, which clause gets page 3?",
+            "explanation": "Page 3 skips the first 2 pages (20 rows), then takes 10.",
+            "options": [
+              {
+                "text": "LIMIT 10 OFFSET 20",
+                "correct": true
+              },
+              {
+                "text": "LIMIT 10 OFFSET 30",
+                "correct": false
+              },
+              {
+                "text": "LIMIT 30 OFFSET 10",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In SQL Server, how do you get just the first 3 rows?",
+            "explanation": "SQL Server has no LIMIT. Use TOP (3) after SELECT, or OFFSET … FETCH for pages.",
+            "options": [
+              {
+                "text": "SELECT TOP (3) …",
+                "correct": true
+              },
+              {
+                "text": "SELECT FIRST 3 …",
+                "correct": false
+              },
+              {
+                "text": "LIMIT 3 works the same",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "counting-explorer",
