@@ -78,11 +78,11 @@
       // ASP.NET Core Web API comes after this track, so it can use a real SQL Server database with EF Core.
       "slug": "databases",
       "title": "Databases and SQL",
-      "description": "Store data and ask it questions with SQL: tables and SELECT, filtering, sorting, totals, changing data and designing your own tables.",
+      "description": "Store data and ask it questions with SQL: tables and SELECT, filtering, sorting, totals and changing data, then link tables with keys and JOINs and design databases of your own.",
       "ageBand": "Both",
       "sortOrder": 7,
       "isPublished": true,
-      "courses": ["sql-basics"],
+      "courses": ["sql-basics", "sql-relational"],
       "prerequisites": ["csharp"]
     },
     {
@@ -199,6 +199,15 @@
       "iconUrl": "/badges/data-detective.svg",
       "ruleType": "CourseCompleted",
       "ruleCourseSlug": "sql-basics"
+    },
+    {
+      // Two tables linked by a key line, drawn from scratch. Red is the one hue no other badge uses.
+      "code": "table-linker",
+      "name": "Table Linker",
+      "description": "You finished SQL Relationships and made tables work together with keys and JOINs.",
+      "iconUrl": "/badges/table-linker.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "sql-relational"
     },
     {
       // A route branching to three endpoints, drawn from scratch.

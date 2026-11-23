@@ -1,0 +1,37 @@
+{
+  "course": "sql-relational",
+  "lessons": {
+    "keys-explorer": {
+      "intro": [
+        {
+          "displayText": "The Critter Club wants to remember where every critter lives, without writing each home's name over and over. Your mission: help Fern the deer move into a brand new home!",
+          "speechText": "The Critter Club wants to remember where every critter lives, without writing each home's name over and over. Your mission is to help Fern the deer move into a brand new home!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Fern is all moved in! Your new word is foreign key: a column like home_id that points at a row in another table.",
+          "speechText": "Fern is all moved in! Your new word is foreign key, a column like home id that points at a row in another table.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "foreign-keys": {
+      "intro": [
+        {
+          "displayText": "Real databases are many tables that point at each other, and foreign keys are what keep those links honest. Without them, you get reviews for games that don't exist and publishers that vanish while their games still name them. You'll add a foreign key to Pixel Pier's new reviews table and see exactly what it refuses.",
+          "speechText": "Real databases are many tables that point at each other, and foreign keys are what keep those links honest. Without them, you get reviews for games that don't exist, and publishers that vanish while their games still name them. You'll add a foreign key to Pixel Pier's new reviews table, and see exactly what it refuses.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your reviews can only point at real games now, and Driftwood left the shop cleanly. The gotcha to remember: a foreign key refuses to delete a parent that still has children, so move or delete the children first. And in SQL Server, remember to index foreign key columns yourself.",
+          "speechText": "Your reviews can only point at real games now, and Driftwood left the shop cleanly. The gotcha to remember is that a foreign key refuses to delete a parent that still has children, so move or delete the children first. And in sequel server, remember to index foreign key columns yourself.",
+          "mood": "Celebrating"
+        }
+      ]
+    }
+  }
+}

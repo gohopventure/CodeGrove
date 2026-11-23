@@ -385,6 +385,7 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         Assert.Contains("sharp-starter", codes);
         Assert.Contains("class-act", codes);
         Assert.Contains("data-detective", codes);
+        Assert.Contains("table-linker", codes);
         Assert.Contains("route-ranger", codes);
     }
 

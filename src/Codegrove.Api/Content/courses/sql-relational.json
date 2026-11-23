@@ -1,0 +1,554 @@
+{
+  "slug": "sql-relational",
+  "title": "SQL Relationships: Tables That Work Together",
+  "summary": "Link tables with primary and foreign keys, combine them with JOINs, model many-to-many relationships, design tables that keep each fact in one place, and finish by building a sports club database.",
+  "ageBand": "Both",
+  "estimatedMinutes": 140,
+  "isPublished": true,
+  "objectives": [
+    "Link tables with primary and foreign keys, and explain what a foreign key refuses",
+    "Combine rows from related tables with INNER JOIN",
+    "Find rows with no match using LEFT JOIN and IS NULL",
+    "Model many-to-many relationships with a junction table",
+    "Design tables that keep each fact in one place (normalization)",
+    "Ask questions inside questions with subqueries, and keep changes safe with transactions",
+    "Design a small relational database and write reports on it"
+  ],
+  "lessons": [
+    {
+      "slug": "keys-explorer",
+      "title": "Tables that point to each other",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Tables that point to each other\n\nThe Grove Critter Club wants to remember where every critter lives. You could write the home's name in every critter's row:\n\n| name | kind | home |\n|------|------|------|\n| Juni | fox | Bramble Burrow |\n| Bramble | hedgehog | Bramble Burrow |\n| Nova | rabbit | Bramble Burow |\n\nSpot the problem? Someone typed **Bramble Burow**, and now the database thinks it's a different home. And if the burrow gets a new name, you'd have to fix every row.\n\n### Give homes their own table\n\nA better plan is **two tables**. The `homes` table lists each home once, with its own `id`:\n\n| id | name | place |\n|----|------|-------|\n| 1 | Oak Hollow | tree |\n| 2 | Lily Pond | pond |\n| 3 | Bramble Burrow | burrow |\n\nThen each critter just stores its home's number, in a column called `home_id`:\n\n| id | name | kind | home_id |\n|----|------|------|---------|\n| 1 | Juni | fox | 3 |\n| 2 | Pip | owl | 1 |\n| 3 | Moss | frog | 2 |\n\nJuni's `home_id` is 3, so Juni lives in home number 3: Bramble Burrow. The name is written just once, so there's nothing to mistype.\n\n### Keys\n\n- The `id` in `homes` is its **primary key**: every home gets a different one.\n- `home_id` in `critters` is a **foreign key**: it points at a row in another table.\n\nOne home can have lots of critters, but each critter has one home. That's called **one-to-many**.\n\nTo find everyone who lives in Oak Hollow, use its id:\n\n```sql\nSELECT name FROM critters\nWHERE home_id = 1;\n```\n\n### The database keeps watch\n\nA foreign key has to point at a home that's really there. If you add a critter with `home_id` 9 and there's no home 9, the database stops you with an error. So when there's a new home, add the **home first**, then the critter who lives there.\n\n### New words\n\n- **Primary key**: a column that gives every row its own value, like `id`.\n- **Foreign key**: a column that points at a row in another table, like `home_id`.\n- **One-to-many**: one row in a table goes with many rows in another, like one home with many critters.\n",
+      "exampleMarkdown": "Bramble Burrow is home number 3 (open the **Tables** tab to check). So this query asks for every critter whose `home_id` is 3. Try changing the `3` to a `1`: who lives in Oak Hollow?",
+      "exampleCode": "-- Who lives in Bramble Burrow (home 3)?\nSELECT name, kind\nFROM critters\nWHERE home_id = 3;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Open the **Tables** tab: there's a `homes` table and a `critters` table.\n\n1. Find **Lily Pond**'s id in the `homes` table. Then change the first query so it shows only the critters who live there.\n2. Fern the deer is moving into a brand new home, **Mossy Log**. Press **Run** and read the red message. The two `INSERT`s are in the wrong order: fix it so the home is added first.\n3. Press **Run** again. Check the Tables tab: Mossy Log and Fern should both be there.",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Critter Club: homes and critters\nCREATE TABLE homes (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  place TEXT NOT NULL\n);\nINSERT INTO homes VALUES\n  (1, 'Oak Hollow', 'tree'),\n  (2, 'Lily Pond', 'pond'),\n  (3, 'Bramble Burrow', 'burrow');\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  home_id INTEGER NOT NULL REFERENCES homes(id)\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3),\n  (2, 'Pip', 'owl', 1),\n  (3, 'Moss', 'frog', 2),\n  (4, 'Bramble', 'hedgehog', 3),\n  (5, 'Nova', 'rabbit', 3),\n  (6, 'Pebble', 'turtle', 2);\n",
+          "query.sql": "-- 1. Which critters live at Lily Pond?\n--    Find its id in the Tables tab first.\nSELECT name FROM critters;\n\n-- 2. Fern the deer is moving into a brand new\n--    home, Mossy Log. Run this and read the\n--    red message: the order is a problem!\nINSERT INTO critters (name, kind, home_id)\nVALUES ('Fern', 'deer', 4);\n\nINSERT INTO homes (id, name, place)\nVALUES (4, 'Mossy Log', 'woods');\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Which critters live at Lily Pond?\n--    Find its id in the Tables tab first.\nSELECT name FROM critters\nWHERE home_id = 2;\n\n-- 2. Fern the deer is moving into a brand new\n--    home, Mossy Log. Run this and read the\n--    red message: the order is a problem!\nINSERT INTO homes (id, name, place)\nVALUES (4, 'Mossy Log', 'woods');\n\nINSERT INTO critters (name, kind, home_id)\nVALUES ('Fern', 'deer', 4);\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "The first query shows the Lily Pond critters",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "name"
+              ],
+              "rows": [
+                [
+                  "Moss"
+                ],
+                [
+                  "Pebble"
+                ]
+              ]
+            },
+            "failMessage": "The first query should show just the names of the critters whose home_id is Lily Pond's id. Add a WHERE."
+          },
+          {
+            "label": "Mossy Log is in the homes table",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT id, name, place FROM homes WHERE name = 'Mossy Log'",
+              "equals": [
+                [
+                  4,
+                  "Mossy Log",
+                  "woods"
+                ]
+              ],
+              "missing": "There's no Mossy Log in the homes table yet."
+            },
+            "failMessage": "Mossy Log should be in the homes table, with id 4. Add the home before the critter who lives there."
+          },
+          {
+            "label": "Fern lives in Mossy Log",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT name, kind, home_id FROM critters WHERE name = 'Fern'",
+              "equals": [
+                [
+                  "Fern",
+                  "deer",
+                  4
+                ]
+              ],
+              "missing": "There's no Fern in the critters table yet."
+            },
+            "failMessage": "Fern the deer should be in the critters table with home_id 4, which is Mossy Log."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Fern's `home_id` is 4. Is there a home number 4 yet when the first `INSERT` runs?",
+            "speechText": "Fern's home id is 4. Is there a home number 4 yet when the first insert runs?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Lily Pond's id is 2, so the first query needs `WHERE home_id = 2`. Then move the `INSERT INTO homes` so it comes before the `INSERT INTO critters`.",
+            "speechText": "Lily Pond's id is 2, so the first query needs where home id equals 2. Then move the insert into homes so it comes before the insert into critters.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The first query is:\n\n```sql\nSELECT name FROM critters\nWHERE home_id = 2;\n```\n\nThen cut the two lines that add Mossy Log and paste them above the two lines that add Fern.",
+            "speechText": "The first query is select name from critters where home id equals 2. Then cut the two lines that add Mossy Log, and paste them above the two lines that add Fern.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Juni's home_id is 3. What does that tell you?",
+            "explanation": "home_id is a foreign key: it points at the home whose id is 3, Bramble Burrow.",
+            "options": [
+              {
+                "text": "Juni lives in the home whose id is 3",
+                "correct": true
+              },
+              {
+                "text": "Juni is 3 years old",
+                "correct": false
+              },
+              {
+                "text": "Juni is the third critter",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why keep the homes in their own table?",
+            "explanation": "Each home's name is written just once, so there's nothing to mistype and only one place to change it.",
+            "options": [
+              {
+                "text": "Each home's name is written once, so it can't be mistyped in some rows",
+                "correct": true
+              },
+              {
+                "text": "SQL only allows three columns in a table",
+                "correct": false
+              },
+              {
+                "text": "So that critters can't have a home",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "You add a critter with home_id 9, but there's no home 9. What happens?",
+            "explanation": "A foreign key must point at a row that's really there, so the database stops you with an error.",
+            "options": [
+              {
+                "text": "The database stops you with an error",
+                "correct": true
+              },
+              {
+                "text": "The database makes home 9 for you",
+                "correct": false
+              },
+              {
+                "text": "The critter is added with no home",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "foreign-keys",
+      "title": "Primary and foreign keys",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Primary and foreign keys\n\nIn SQL Basics every table stood alone. Real databases have many tables that **relate** to each other: games and their publishers, players and their scores, orders and their items. That's the \"relational\" in relational database.\n\n### Why not one big table?\n\nYou could store the publisher's name and country in every game's row. Then:\n\n- The same facts are repeated, so they take more space and can disagree: one row says \"Lumen Works\", another \"Lumen Works Inc\".\n- Renaming a publisher means updating every one of its games, and missing one leaves the data inconsistent.\n- You can't store a publisher that has no games yet.\n\nSo each kind of thing gets its own table, and rows point at each other with keys.\n\n### Primary keys\n\nA **primary key** identifies each row: it's unique and never NULL. Most tables use a **surrogate key**, a number with no meaning of its own, like `id INTEGER PRIMARY KEY`. A **natural key** uses a real-world value instead, like an email address or an ISBN. Natural keys can change (people change their email), which is why `id` columns are so common.\n\n### Foreign keys\n\nA **foreign key** is a column whose value must match a primary key in another table:\n\n```sql\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  publisher_id INTEGER NOT NULL\n    REFERENCES publishers(id)\n);\n```\n\n`publishers` is the **parent** table and `games` is the **child**. One publisher has many games, and each game has one publisher: a **one-to-many** relationship. The foreign key always goes on the \"many\" side.\n\nLeaving out `NOT NULL` makes the relationship optional: a game with a NULL `publisher_id` has no publisher.\n\n### What a foreign key blocks\n\nThe database enforces **referential integrity**: no row may point at something that isn't there. With the key above, each of these fails with a FOREIGN KEY error:\n\n- inserting a game with a `publisher_id` that no publisher has;\n- updating a game's `publisher_id` to a missing publisher;\n- deleting a publisher that still has games.\n\nThe last one is the default, and you can choose another when you write the key:\n\n| Option | Deleting the parent… |\n|--------|----------------------|\n| (none) | is refused while children exist |\n| `ON DELETE CASCADE` | deletes its children too |\n| `ON DELETE SET NULL` | sets the children's key to NULL |\n\n`CASCADE` is handy for things that can't exist alone, like an order's items. It's dangerous for things that can, like games: one delete could wipe half the shop.\n\n### In SQLite\n\nSQLite only enforces foreign keys after `PRAGMA foreign_keys = ON;`, and it's off by default. Codegrove switches it on before every run, so you see the same errors SQL Server would give you.\n\n### In SQL Server\n\n- Foreign keys are always enforced. Give them a name, so errors and later changes can refer to them:\n\n```sql\nCONSTRAINT FK_games_publishers\n  FOREIGN KEY (publisher_id)\n  REFERENCES publishers (id)\n```\n\n- A violation is error 547: \"The INSERT statement conflicted with the FOREIGN KEY constraint…\".\n- SQL Server does **not** index foreign key columns for you. Add an index on columns like `publisher_id`, because joins and deletes look them up all the time.\n\n### New words\n\n- **Relational database**: a database of tables that relate to each other through keys.\n- **Primary key**: the column (or columns) that identifies each row. Unique and never NULL.\n- **Foreign key**: a column whose value must match a primary key in another table.\n- **Referential integrity**: the rule that no row points at a row that doesn't exist.\n- **One-to-many**: one parent row goes with many child rows, like one publisher with many games.\n- **CASCADE**: a foreign key option that deletes (or updates) child rows along with their parent.\n",
+      "exampleMarkdown": "The first query lists Starling Games' titles through the foreign key (Starling is publisher 1). The second asks SQLite how the `games` table's foreign key is defined: `publisher_id` points at `publishers.id`, and `on_delete` is `NO ACTION`, the default. Try changing the first query into an `INSERT` of a game with `publisher_id` 9, and press **Run**: there's no publisher 9, so the key refuses it.",
+      "exampleCode": "-- Starling Games is publisher 1.\nSELECT title, platform\nFROM games\nWHERE publisher_id = 1;\n\n-- How is the foreign key defined?\nSELECT \"from\", \"table\", \"to\", on_delete\nFROM pragma_foreign_key_list('games');\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Pixel Pier is adding customer reviews. Open the **Tables** tab: `games` already has a foreign key to `publishers`.\n\n1. **Relate reviews to games:** the starter's `reviews` table has a `game_id`, but nothing stops it from pointing at a game that doesn't exist. Make it a foreign key to `games`.\n2. **Import the reviews:** run it. Before step 1, every row got in. Now one is refused, because it's for a game that doesn't exist (the shop's game ids go from 1 to 8). Leave that row out.\n3. **Close Driftwood Studio:** the `DELETE` is refused while games still point at Driftwood. Move Driftwood's games to **Lumen Works** first, then delete Driftwood. Every game stays in the shop.",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop: publishers and games\nCREATE TABLE publishers (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  country TEXT NOT NULL\n);\nINSERT INTO publishers VALUES\n  (1, 'Starling Games', 'USA'),\n  (2, 'Lumen Works', 'Japan'),\n  (3, 'Bitforge', 'Canada'),\n  (4, 'Driftwood Studio', 'UK');\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  price REAL NOT NULL,\n  publisher_id INTEGER NOT NULL\n    REFERENCES publishers(id)\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 39.99, 2),\n  (2, 'Byte Racers', 'PC', 19.99, 3),\n  (3, 'Moonlight Mages', 'PlayStation', 59.99, 1),\n  (4, 'Puzzle Pond', 'Switch', 14.99, 4),\n  (5, 'Robo Rumble', 'Xbox', 49.99, 3),\n  (6, 'Ocean Odyssey', 'PC', 29.99, 4),\n  (7, 'Castle Quest', 'PlayStation', 39.99, 1),\n  (8, 'Tiny Tactics', 'Switch', 24.99, 2);\n",
+          "query.sql": "-- 1. Make game_id point at the games table.\nCREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  game_id INTEGER NOT NULL,\n  stars INTEGER NOT NULL\n    CHECK (stars BETWEEN 1 AND 5),\n  body TEXT\n);\n\n-- 2. Import the first reviews. Once step 1\n--    is done, one row will be refused.\nINSERT INTO reviews (game_id, stars, body)\nVALUES\n  (1, 5, 'Calm and lovely.'),\n  (2, 4, 'Fast and fun.'),\n  (5, 3, 'Too short.'),\n  (12, 2, 'Kept crashing.'),\n  (7, 5, 'Best castle ever.'),\n  (1, 4, 'Great with friends.');\n\n-- 3. Driftwood Studio closed. Its games move\n--    to Lumen Works, then Driftwood goes.\nDELETE FROM publishers\nWHERE name = 'Driftwood Studio';\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Make game_id point at the games table.\nCREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  game_id INTEGER NOT NULL\n    REFERENCES games(id),\n  stars INTEGER NOT NULL\n    CHECK (stars BETWEEN 1 AND 5),\n  body TEXT\n);\n\n-- 2. Import the first reviews. Once step 1\n--    is done, one row will be refused.\nINSERT INTO reviews (game_id, stars, body)\nVALUES\n  (1, 5, 'Calm and lovely.'),\n  (2, 4, 'Fast and fun.'),\n  (5, 3, 'Too short.'),\n  (7, 5, 'Best castle ever.'),\n  (1, 4, 'Great with friends.');\n\n-- 3. Driftwood Studio closed. Its games move\n--    to Lumen Works, then Driftwood goes.\nUPDATE games\nSET publisher_id = 2\nWHERE publisher_id = 4;\n\nDELETE FROM publishers\nWHERE name = 'Driftwood Studio';\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "reviews.game_id is a foreign key to games",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT \"table\" FROM pragma_foreign_key_list('reviews') WHERE \"from\" = 'game_id'",
+              "equals": "games",
+              "caseSensitive": false,
+              "missing": "reviews.game_id doesn't point at another table yet."
+            },
+            "failMessage": "Add REFERENCES games(id) to the game_id column, so a review can only be for a real game."
+          },
+          {
+            "label": "Every review is for a real game",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT COUNT(*) FROM reviews WHERE game_id NOT IN (SELECT id FROM games)",
+              "equals": 0,
+              "report": "Reviews for games that don't exist: {value}."
+            },
+            "failMessage": "No review should point at a game that isn't in the games table. Leave out the review for game 12."
+          },
+          {
+            "label": "The other reviews were imported",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT game_id, stars, body FROM reviews ORDER BY game_id, stars",
+              "equals": [
+                [
+                  1,
+                  4,
+                  "Great with friends."
+                ],
+                [
+                  1,
+                  5,
+                  "Calm and lovely."
+                ],
+                [
+                  2,
+                  4,
+                  "Fast and fun."
+                ],
+                [
+                  5,
+                  3,
+                  "Too short."
+                ],
+                [
+                  7,
+                  5,
+                  "Best castle ever."
+                ]
+              ],
+              "ordered": true,
+              "missing": "The reviews table is empty."
+            },
+            "failMessage": "The five reviews for real games should all be in the reviews table, unchanged."
+          },
+          {
+            "label": "Driftwood's games moved to Lumen Works",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT title, publisher_id FROM games WHERE title IN ('Puzzle Pond', 'Ocean Odyssey') ORDER BY title",
+              "equals": [
+                [
+                  "Ocean Odyssey",
+                  2
+                ],
+                [
+                  "Puzzle Pond",
+                  2
+                ]
+              ],
+              "ordered": true,
+              "missing": "Puzzle Pond and Ocean Odyssey aren't in the games table any more."
+            },
+            "failMessage": "Puzzle Pond and Ocean Odyssey should now have the publisher_id of Lumen Works (2). Change the games, not the publisher."
+          },
+          {
+            "label": "Driftwood Studio is gone",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT COUNT(*) FROM publishers WHERE name = 'Driftwood Studio'",
+              "equals": 0,
+              "report": "There's still {value} Driftwood Studio row."
+            },
+            "failMessage": "Delete Driftwood Studio from publishers, after its games have moved."
+          },
+          {
+            "label": "Every game is still in the shop",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT title FROM games ORDER BY title",
+              "equals": [
+                [
+                  "Byte Racers"
+                ],
+                [
+                  "Castle Quest"
+                ],
+                [
+                  "Moonlight Mages"
+                ],
+                [
+                  "Ocean Odyssey"
+                ],
+                [
+                  "Puzzle Pond"
+                ],
+                [
+                  "Robo Rumble"
+                ],
+                [
+                  "Star Garden"
+                ],
+                [
+                  "Tiny Tactics"
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "All 8 games should still be there. Move Driftwood's games instead of deleting them."
+          },
+          {
+            "label": "Foreign keys stay switched on",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "foreign_keys",
+              "max": 0
+            },
+            "failMessage": "Leave PRAGMA foreign_keys alone: the keys are there to protect the data."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The database refuses to delete Driftwood Studio. What in the `games` table still points at it?",
+            "speechText": "The database refuses to delete Driftwood Studio. What in the games table still points at it?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "A foreign key is written on the column: `game_id INTEGER NOT NULL REFERENCES games(id)`. For Driftwood, `UPDATE` the games whose `publisher_id` is 4 before the `DELETE`.",
+            "speechText": "A foreign key is written on the column, with references games and id in brackets. For Driftwood, update the games whose publisher id is 4, before the delete.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Delete the line `(12, 2, 'Kept crashing.'),` from the import. Above the `DELETE`, add:\n\n```sql\nUPDATE games\nSET publisher_id = 2\nWHERE publisher_id = 4;\n```",
+            "speechText": "Delete the review for game 12 from the import. Then, above the delete, update games, setting publisher id to 2 where publisher id is 4.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A publisher has many games, and each game has one publisher. Where does the foreign key go?",
+            "explanation": "In a one-to-many relationship, the foreign key goes on the \"many\" side: each game stores its publisher's id.",
+            "options": [
+              {
+                "text": "A publisher_id column in games",
+                "correct": true
+              },
+              {
+                "text": "A game_id column in publishers",
+                "correct": false
+              },
+              {
+                "text": "A new column in both tables",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "games.publisher_id REFERENCES publishers(id), with no ON DELETE option. What happens when you delete a publisher that still has games?",
+            "explanation": "With no option, the delete is refused while child rows still point at the parent.",
+            "options": [
+              {
+                "text": "The delete is refused with a FOREIGN KEY error",
+                "correct": true
+              },
+              {
+                "text": "The publisher's games are deleted too",
+                "correct": false
+              },
+              {
+                "text": "The games' publisher_id becomes NULL",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why do many tables use a surrogate key like id instead of a natural key like an email address?",
+            "explanation": "Real-world values can change, and every foreign key pointing at the old value would need changing too. A meaningless number never needs to change.",
+            "options": [
+              {
+                "text": "A natural key can change, and every foreign key pointing at it would have to change too",
+                "correct": true
+              },
+              {
+                "text": "SQL doesn't allow text in a primary key",
+                "correct": false
+              },
+              {
+                "text": "Surrogate keys can repeat, which is more flexible",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When is ON DELETE CASCADE a good choice?",
+            "explanation": "CASCADE suits rows that can't exist without their parent, like an order's items. For things that stand on their own it can delete far more than you meant.",
+            "options": [
+              {
+                "text": "For rows that make no sense without their parent, like an order's items",
+                "correct": true
+              },
+              {
+                "text": "For every foreign key, so deletes never fail",
+                "correct": false
+              },
+              {
+                "text": "When you want deletes to be refused",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In SQL Server, what should you usually add for a foreign key column like publisher_id?",
+            "explanation": "SQL Server doesn't index foreign key columns automatically, and joins and deletes look them up constantly.",
+            "options": [
+              {
+                "text": "An index, because SQL Server doesn't create one for it",
+                "correct": true
+              },
+              {
+                "text": "PRAGMA foreign_keys = ON",
+                "correct": false
+              },
+              {
+                "text": "A UNIQUE constraint",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "joins-explorer",
+      "title": "Joining tables",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "inner-join",
+      "title": "INNER JOIN",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    },
+    {
+      "slug": "missing-matches-explorer",
+      "title": "Who has no match?",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "left-join",
+      "title": "LEFT JOIN and missing rows",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    },
+    {
+      "slug": "many-to-many-explorer",
+      "title": "Lots of things to lots of things",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "junction-tables",
+      "title": "Many-to-many with junction tables",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    },
+    {
+      "slug": "one-fact-explorer",
+      "title": "One fact in one place",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "normalization",
+      "title": "Normalization",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    },
+    {
+      "slug": "questions-inside-explorer",
+      "title": "Questions inside questions",
+      "sortOrder": 6,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "subqueries-transactions-indexes",
+      "title": "Subqueries, transactions and indexes",
+      "sortOrder": 6,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    },
+    {
+      "slug": "relational-project-explorer",
+      "title": "Project: Grove sports day",
+      "sortOrder": 7,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "relational-project",
+      "title": "Project: Club league database",
+      "sortOrder": 7,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    }
+  ]
+}
