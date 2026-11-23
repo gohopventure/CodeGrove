@@ -2584,7 +2584,7 @@
       "ageBand": "Builder",
       "estimatedMinutes": 25,
       "isPublished": true,
-      "learnMarkdown": "## Subqueries, transactions and indexes\n\nThree tools that real applications lean on every day: **subqueries** to ask questions in steps, **transactions** to make several changes safely, and **indexes** to keep it all fast.\n\n### Subqueries\n\nA **subquery** is a `SELECT` inside another statement, in brackets. There are a few shapes:\n\n- **Scalar**: returns one value, used like a number.\n\n```sql\nSELECT title FROM games\nWHERE price > (SELECT AVG(price) FROM games);\n```\n\n- **IN**: returns a list of values.\n\n```sql\nSELECT title FROM games\nWHERE publisher_id IN\n  (SELECT id FROM publishers WHERE country = 'Japan');\n```\n\n- **EXISTS / NOT EXISTS**: asks \"is there at least one row?\". It's usually **correlated**: the inner query refers to the outer row (`r.game_id = g.id`), so it's checked once per outer row.\n\n```sql\nSELECT g.title FROM games AS g\nWHERE NOT EXISTS (\n  SELECT 1 FROM reviews AS r\n  WHERE r.game_id = g.id\n);\n```\n\nThat's the anti-join from lesson 3, written as a question. `SELECT 1` is a convention: EXISTS only cares whether a row exists, not what's in it.\n\n- **Derived table**: a subquery in `FROM`, used like a table. It needs an alias.\n\n### The NOT IN trap\n\n`NOT IN` with a subquery that returns even **one NULL** returns no rows at all. `x NOT IN (1, 2, NULL)` means `x <> 1 AND x <> 2 AND x <> NULL`, and `x <> NULL` is never true. Anonymous reviews have a NULL `player_id`, so \"players who never reviewed\" with `NOT IN` quietly comes back empty. Prefer `NOT EXISTS`, which has no such trap.\n\n### Pre-aggregating to avoid fan-out\n\nLesson 4's fan-out: joining games to reviews repeats each game once per review, so `SUM(g.price)` counts a game's price several times. `COUNT(DISTINCT)` fixes counts, but `SUM(DISTINCT price)` is wrong too: two games with the same price would count once. The real fix is to **aggregate the many side first**, in a derived table, so it has one row per game before you join:\n\n```sql\nLEFT JOIN (\n  SELECT game_id, COUNT(*) AS n\n  FROM reviews\n  GROUP BY game_id\n) AS rc ON rc.game_id = g.id\n```\n\n`WITH rc AS (SELECT …) SELECT …` writes the same thing as a **CTE** (common table expression), named up front. Both work in SQLite and SQL Server.\n\n### Transactions\n\nMoving 25 credits takes two `UPDATE`s. If the app crashed between them, the credits would vanish. A **transaction** groups statements so they happen **all or nothing**:\n\n```sql\nBEGIN TRANSACTION;\nUPDATE players SET credits = credits - 25 WHERE id = 1;\nUPDATE players SET credits = credits + 25 WHERE id = 5;\nCOMMIT;\n```\n\n`COMMIT` makes the changes permanent; `ROLLBACK` throws them all away. Until `COMMIT`, nobody else sees the half-finished state. The guarantees are called **ACID**: atomic (all or nothing), consistent (constraints hold), isolated (others don't see the middle) and durable (committed means saved).\n\nOne subtlety: when a statement inside a transaction fails, most databases don't undo the earlier statements for you. Your application decides: it catches the error and runs `ROLLBACK`.\n\n### Indexes\n\nAn **index** is a sorted lookup structure on one or more columns, like the index at the back of a book. Without one, finding the reviews for game 7 means reading every review (a **scan**); with one, the database jumps straight to them (a **seek**).\n\n```sql\nCREATE INDEX idx_reviews_game_id\n  ON reviews (game_id);\n```\n\nPrimary keys and UNIQUE constraints get an index automatically. Foreign key columns usually don't, and they're what joins look up. Indexes aren't free: every INSERT, UPDATE and DELETE has to update them too, so add them where queries need them. In SQLite, `EXPLAIN QUERY PLAN SELECT …` shows whether a query scans or uses an index.\n\n### In SQL Server\n\n- `BEGIN TRAN` / `COMMIT` / `ROLLBACK`. Wrap the work in `BEGIN TRY … END TRY BEGIN CATCH ROLLBACK; THROW; END CATCH`, and `SET XACT_ABORT ON` makes most errors roll back the whole transaction.\n- The **clustered index** (usually the primary key) is the table itself, stored in key order; every other index is **nonclustered**. SSMS's execution plan shows Index Seek vs Index Scan.\n- Subqueries, `EXISTS` and CTEs (`WITH`) are written the same way.\n\n### New words\n\n- **Subquery**: a query inside another statement, in brackets.\n- **Correlated subquery**: a subquery that refers to the outer query's current row.\n- **Derived table**: a subquery in FROM, used like a table.\n- **CTE** (*common table expression*): a named subquery written with `WITH` before the main query.\n- **Transaction**: statements grouped so they all happen or none do. `COMMIT` saves, `ROLLBACK` undoes.\n- **ACID** (*atomic, consistent, isolated, durable*): the guarantees a transaction gives.\n- **Index**: a sorted lookup structure that lets the database find rows without reading the whole table.\n",
+      "learnMarkdown": "## Subqueries, transactions and indexes\n\nThree tools that real applications lean on every day: **subqueries** to ask questions in steps, **transactions** to make several changes safely, and **indexes** to keep it all fast.\n\n### Subqueries\n\nA **subquery** is a `SELECT` inside another statement, in brackets. There are a few shapes:\n\n- **Scalar**: returns one value, used like a number.\n\n```sql\nSELECT title FROM games\nWHERE price > (SELECT AVG(price) FROM games);\n```\n\n- **IN**: returns a list of values.\n\n```sql\nSELECT title FROM games\nWHERE publisher_id IN\n  (SELECT id FROM publishers WHERE country = 'Japan');\n```\n\n- **EXISTS / NOT EXISTS**: asks \"is there at least one row?\". It's usually **correlated**: the inner query refers to the outer row (`r.game_id = g.id`), so it's checked once per outer row.\n\n```sql\nSELECT g.title FROM games AS g\nWHERE NOT EXISTS (\n  SELECT 1 FROM reviews AS r\n  WHERE r.game_id = g.id\n);\n```\n\nThat's the anti-join from lesson 3, written as a question. `SELECT 1` is a convention: EXISTS only cares whether a row exists, not what's in it.\n\n- **Derived table**: a subquery in `FROM`, used like a table. It needs an alias.\n\n### The NOT IN trap\n\n`NOT IN` with a subquery that returns even **one NULL** returns no rows at all. These two mean the same:\n\n```sql\nx NOT IN (1, 2, NULL)\nx <> 1 AND x <> 2 AND x <> NULL\n```\n\nand `x <> NULL` is never true. Anonymous reviews have a NULL `player_id`, so \"players who never reviewed\" with `NOT IN` quietly comes back empty. Prefer `NOT EXISTS`, which has no such trap.\n\n### Pre-aggregating to avoid fan-out\n\nLesson 4's fan-out: joining games to reviews repeats each game once per review, so `SUM(g.price)` counts a game's price several times. `COUNT(DISTINCT)` fixes counts, but `SUM(DISTINCT price)` is wrong too: two games with the same price would count once. The real fix is to **aggregate the many side first**, in a derived table, so it has one row per game before you join:\n\n```sql\nLEFT JOIN (\n  SELECT game_id, COUNT(*) AS n\n  FROM reviews\n  GROUP BY game_id\n) AS rc ON rc.game_id = g.id\n```\n\n`WITH rc AS (SELECT …) SELECT …` writes the same thing as a **CTE** (common table expression), named up front. Both work in SQLite and SQL Server.\n\n### Transactions\n\nMoving 25 credits takes two `UPDATE` statements. If the app crashed between them, the credits would vanish. A **transaction** groups statements so they happen **all or nothing**:\n\n```sql\nBEGIN TRANSACTION;\nUPDATE players SET credits = credits - 25 WHERE id = 1;\nUPDATE players SET credits = credits + 25 WHERE id = 5;\nCOMMIT;\n```\n\n`COMMIT` makes the changes permanent; `ROLLBACK` throws them all away. Until `COMMIT`, nobody else sees the half-finished state. The guarantees are called **ACID**: atomic (all or nothing), consistent (constraints hold), isolated (others don't see the middle) and durable (committed means saved).\n\nOne subtlety: when a statement inside a transaction fails, most databases don't undo the earlier statements for you. Your application decides: it catches the error and runs `ROLLBACK`.\n\n### Indexes\n\nAn **index** is a sorted lookup structure on one or more columns, like the index at the back of a book. Without one, finding the reviews for game 7 means reading every review (a **scan**); with one, the database jumps straight to them (a **seek**).\n\n```sql\nCREATE INDEX idx_reviews_game_id\n  ON reviews (game_id);\n```\n\nPrimary keys and UNIQUE constraints get an index automatically. Foreign key columns usually don't, and they're what joins look up. Indexes aren't free: every INSERT, UPDATE and DELETE has to update them too, so add them where queries need them. In SQLite, `EXPLAIN QUERY PLAN SELECT …` shows whether a query scans or uses an index.\n\n### In SQL Server\n\n- `BEGIN TRAN` / `COMMIT` / `ROLLBACK`. `SET XACT_ABORT ON` makes most errors roll back the whole transaction, and TRY/CATCH lets you roll back yourself:\n\n```sql\nBEGIN TRY\n  BEGIN TRAN;\n  -- the UPDATEs\n  COMMIT;\nEND TRY\nBEGIN CATCH\n  ROLLBACK;\n  THROW;\nEND CATCH\n```\n\n- The **clustered index** (usually the primary key) is the table itself, stored in key order; every other index is **nonclustered**. SSMS's execution plan shows Index Seek vs Index Scan.\n- Subqueries, `EXISTS` and CTEs (`WITH`) are written the same way.\n\n### New words\n\n- **Subquery**: a query inside another statement, in brackets.\n- **Correlated subquery**: a subquery that refers to the outer query's current row.\n- **Derived table**: a subquery in FROM, used like a table.\n- **CTE** (*common table expression*): a named subquery written with `WITH` before the main query.\n- **Transaction**: statements grouped so they all happen or none do. `COMMIT` saves, `ROLLBACK` undoes.\n- **ACID** (*atomic, consistent, isolated, durable*): the guarantees a transaction gives.\n- **Index**: a sorted lookup structure that lets the database find rows without reading the whole table.\n",
       "exampleMarkdown": "The subquery in `HAVING` works out the shop-wide average once; each game's own average is compared with it. Try selecting just the inner query, `SELECT AVG(stars) FROM reviews;`, on a line of its own.",
       "exampleCode": "-- Games rated above the shop's average\nSELECT g.title,\n       ROUND(AVG(r.stars), 2) AS avg_stars\nFROM games AS g\nJOIN reviews AS r ON r.game_id = g.id\nGROUP BY g.title\nHAVING AVG(r.stars) >\n       (SELECT AVG(stars) FROM reviews)\nORDER BY avg_stars DESC;\n",
       "challenge": {
@@ -2847,16 +2847,567 @@
       "title": "Project: Grove sports day",
       "sortOrder": 7,
       "ageBand": "Explorer",
-      "estimatedMinutes": 5,
-      "isPublished": false
+      "estimatedMinutes": 10,
+      "isPublished": true,
+      "learnMarkdown": "## Project: Grove sports day\n\nIt's sports day in the Grove! The critters are split into two teams, and every event gives them points. You'll run the scoreboard using everything from this course.\n\n### The database\n\nOpen the **Tables** tab to see it:\n\n- `teams`: the **Pond Team** and the **Burrow Team**.\n- `critters`: each critter has a `team_id`, a foreign key that points at its team.\n- `events`: the **Sack race**, the **Acorn toss** and the **Leaf relay**.\n- `results`: a junction table. Each row is one critter's points in one event.\n\n### Your toolbox\n\n| You want to… | Use |\n|--------------|-----|\n| add a row that points at another table | `INSERT`, with the other row's id |\n| put names next to ids | `JOIN … ON` |\n| find rows with no match | `LEFT JOIN` + `IS NULL` |\n| add up points for each team | `SUM` + `GROUP BY` |\n\nRemember: when two tables have a column called `name`, write `critters.name` or `teams.name`, and use `AS` to give the result a clear name.\n\n### New words\n\n- **Scoreboard**: a report that brings the teams, critters, events and points together. It's made with joins!\n",
+      "exampleMarkdown": "This shows every result for the Acorn toss, with each critter's name. It joins `results` to `critters` and to `events`. Try changing `'Acorn toss'` to `'Leaf relay'`.",
+      "exampleCode": "-- Who scored in the Acorn toss?\nSELECT critters.name, results.points\nFROM results\nJOIN critters\n  ON critters.id = results.critter_id\nJOIN events\n  ON events.id = results.event_id\nWHERE events.name = 'Acorn toss';\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 20,
+        "instructionsMarkdown": "**Your project!** Run the sports day scoreboard. Do the five missions in order: each one builds on the last.\n\n1. Fern wants to join the **Burrow Team**. Add Fern to `critters`.\n2. Fern scored **7 points** in the **Sack race**. Add a row to `results`. Press **Run** after Mission 1 to see Fern's id in the Tables tab.\n3. The results board: show `critter`, `event` and `points`, most points first.\n4. Who hasn't scored yet? Show the `name` of each critter with no results.\n5. Who wins? Show each `team` and its total `points`, most first.",
+        "starterFiles": {
+          ".setup.sql": "-- Grove sports day\nCREATE TABLE teams (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE\n);\nINSERT INTO teams VALUES\n  (1, 'Pond Team'),\n  (2, 'Burrow Team');\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  team_id INTEGER NOT NULL REFERENCES teams(id)\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 1),\n  (2, 'Pip', 2),\n  (3, 'Moss', 1),\n  (4, 'Bramble', 2),\n  (5, 'Nova', 1),\n  (6, 'Wren', 2);\nCREATE TABLE events (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE\n);\nINSERT INTO events VALUES\n  (1, 'Sack race'),\n  (2, 'Acorn toss'),\n  (3, 'Leaf relay');\n-- One row per critter per event they took part in\nCREATE TABLE results (\n  critter_id INTEGER NOT NULL REFERENCES critters(id),\n  event_id INTEGER NOT NULL REFERENCES events(id),\n  points INTEGER NOT NULL,\n  PRIMARY KEY (critter_id, event_id)\n);\nINSERT INTO results VALUES\n  (1, 1, 5),\n  (1, 2, 3),\n  (2, 1, 4),\n  (3, 3, 6),\n  (4, 2, 5),\n  (4, 3, 2),\n  (5, 1, 3),\n  (5, 2, 4);\n",
+          "query.sql": "-- Mission 1: Fern wants to join the Burrow\n-- Team. Add Fern to critters.\n\n-- Mission 2: Fern scored 7 points in the Sack\n-- race! Add a row to results. (Fern's id and\n-- the race's id are in the Tables tab after\n-- you run Mission 1.)\n\n-- Mission 3: The results board. Show critter,\n-- event and points, most points first.\n\n-- Mission 4: Who hasn't scored yet? Show the\n-- names of critters with no results.\n\n-- Mission 5: Who wins? Show each team and its\n-- total points, most first.\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- Mission 1: Fern wants to join the Burrow\n-- Team. Add Fern to critters.\nINSERT INTO critters (name, team_id)\nVALUES ('Fern', 2);\n\n-- Mission 2: Fern scored 7 points in the Sack\n-- race! Add a row to results. (Fern's id and\n-- the race's id are in the Tables tab after\n-- you run Mission 1.)\nINSERT INTO results (critter_id, event_id, points)\nVALUES (7, 1, 7);\n\n-- Mission 3: The results board. Show critter,\n-- event and points, most points first.\nSELECT critters.name AS critter,\n       events.name AS event,\n       results.points\nFROM results\nJOIN critters ON critters.id = results.critter_id\nJOIN events ON events.id = results.event_id\nORDER BY results.points DESC;\n\n-- Mission 4: Who hasn't scored yet? Show the\n-- names of critters with no results.\nSELECT critters.name\nFROM critters\nLEFT JOIN results\n  ON results.critter_id = critters.id\nWHERE results.critter_id IS NULL;\n\n-- Mission 5: Who wins? Show each team and its\n-- total points, most first.\nSELECT teams.name AS team,\n       SUM(results.points) AS points\nFROM teams\nJOIN critters ON critters.team_id = teams.id\nJOIN results ON results.critter_id = critters.id\nGROUP BY teams.name\nORDER BY points DESC;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "Mission 1: Fern is on the Burrow Team",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT c.name, t.name FROM critters AS c JOIN teams AS t ON t.id = c.team_id WHERE c.name = 'Fern'",
+              "equals": [
+                [
+                  "Fern",
+                  "Burrow Team"
+                ]
+              ],
+              "missing": "There's no Fern in the critters table yet."
+            },
+            "failMessage": "Add Fern to critters with the Burrow Team's id as team_id."
+          },
+          {
+            "label": "Mission 2: Fern has 7 points in the Sack race",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT r.points FROM results AS r JOIN critters AS c ON c.id = r.critter_id JOIN events AS e ON e.id = r.event_id WHERE c.name = 'Fern' AND e.name = 'Sack race'",
+              "equals": 7,
+              "missing": "Fern has no Sack race result yet."
+            },
+            "failMessage": "Add a row to results with Fern's id, the Sack race's id, and 7 points."
+          },
+          {
+            "label": "Mission 3: the results board",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "critter",
+                "event",
+                "points"
+              ],
+              "rows": [
+                [
+                  "Fern",
+                  "Sack race",
+                  7
+                ],
+                [
+                  "Moss",
+                  "Leaf relay",
+                  6
+                ],
+                [
+                  "Juni",
+                  "Sack race",
+                  5
+                ],
+                [
+                  "Bramble",
+                  "Acorn toss",
+                  5
+                ],
+                [
+                  "Pip",
+                  "Sack race",
+                  4
+                ],
+                [
+                  "Nova",
+                  "Acorn toss",
+                  4
+                ],
+                [
+                  "Juni",
+                  "Acorn toss",
+                  3
+                ],
+                [
+                  "Nova",
+                  "Sack race",
+                  3
+                ],
+                [
+                  "Bramble",
+                  "Leaf relay",
+                  2
+                ]
+              ],
+              "sortedBy": [
+                "points desc"
+              ]
+            },
+            "failMessage": "The board should show every result, Fern's too, with columns critter, event and points, most points first. Join results to critters and to events."
+          },
+          {
+            "label": "Mission 4: who hasn't scored",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "name"
+              ],
+              "rows": [
+                [
+                  "Wren"
+                ]
+              ]
+            },
+            "failMessage": "Show the names of critters with no results: LEFT JOIN results, then WHERE results.critter_id IS NULL."
+          },
+          {
+            "label": "Mission 5: the team totals",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 2,
+              "columns": [
+                "team",
+                "points"
+              ],
+              "rows": [
+                [
+                  "Pond Team",
+                  21
+                ],
+                [
+                  "Burrow Team",
+                  18
+                ]
+              ],
+              "sortedBy": [
+                "points desc"
+              ]
+            },
+            "failMessage": "Show each team and the total of its critters' points, most first. Join teams to critters to results, then SUM and GROUP BY the team."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "For Mission 2, how do you find out Fern's id, now that Fern is in the `critters` table?",
+            "speechText": "For Mission 2, how do you find out Fern's id, now that Fern is in the critters table?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "The Burrow Team is team 2, and Fern becomes critter 7. The Sack race is event 1. For Mission 3, start `FROM results` and join `critters` and `events`, like the example.",
+            "speechText": "The Burrow Team is team 2, Fern becomes critter 7, and the Sack race is event 1. For Mission 3, start from results and join critters and events, like the example.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Missions 4 and 5:\n\n```sql\nSELECT critters.name\nFROM critters\nLEFT JOIN results\n  ON results.critter_id = critters.id\nWHERE results.critter_id IS NULL;\n\nSELECT teams.name AS team,\n       SUM(results.points) AS points\nFROM teams\nJOIN critters ON critters.team_id = teams.id\nJOIN results ON results.critter_id = critters.id\nGROUP BY teams.name\nORDER BY points DESC;\n```",
+            "speechText": "For Mission 4, left join results to critters and keep the ones where the result is null. For Mission 5, join teams to critters to results, sum the points, and group by the team's name.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "results has a critter_id and an event_id. What kind of table is it?",
+            "explanation": "Each row pairs one critter with one event (plus the points), so it's a junction table.",
+            "options": [
+              {
+                "text": "A junction table",
+                "correct": true
+              },
+              {
+                "text": "A table of teams",
+                "correct": false
+              },
+              {
+                "text": "A table with no keys",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Wren has no results. Which join keeps Wren in the list?",
+            "explanation": "LEFT JOIN keeps every critter, even with no matching results.",
+            "options": [
+              {
+                "text": "LEFT JOIN",
+                "correct": true
+              },
+              {
+                "text": "JOIN",
+                "correct": false
+              },
+              {
+                "text": "No join can",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why did Fern's 7 points change the team totals?",
+            "explanation": "The totals are worked out from the results table every time, so a new result changes them straight away.",
+            "options": [
+              {
+                "text": "The totals add up the results table every time they're asked",
+                "correct": true
+              },
+              {
+                "text": "Fern typed the totals in by hand",
+                "correct": false
+              },
+              {
+                "text": "The totals only change at midnight",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "relational-project",
       "title": "Project: Club league database",
       "sortOrder": 7,
       "ageBand": "Builder",
-      "estimatedMinutes": 15,
-      "isPublished": false
+      "estimatedMinutes": 30,
+      "isPublished": true,
+      "learnMarkdown": "## Project: Club league database\n\nThe Grove Valley junior football league has kept its results in a spreadsheet. You'll design the `matches` table, move the season into it, and write the reports the league actually wants. Everything from the course comes back: keys, constraints, cleaning, `INSERT … SELECT`, joins, `LEFT JOIN`, aggregates and subqueries.\n\n### Two foreign keys to the same table\n\nA match has a home team **and** an away team. Both are teams, so both columns reference `teams`:\n\n```sql\nhome_team_id INTEGER NOT NULL REFERENCES teams(id),\naway_team_id INTEGER NOT NULL REFERENCES teams(id),\n```\n\nWhen you join, the same table appears twice in different **roles**, so each copy needs its own alias:\n\n```sql\nFROM matches AS m\nJOIN teams AS h ON h.id = m.home_team_id\nJOIN teams AS a ON a.id = m.away_team_id\n```\n\n### A rule across two columns\n\nA CHECK can compare columns in the same row. Written after the columns, it's a **table-level constraint**:\n\n```sql\nCHECK (home_team_id <> away_team_id)\n```\n\n### Importing by name\n\nThe spreadsheet has team **names**, the new table needs **ids**. Join the import to `teams` by name to swap one for the other. But an inner join silently drops a row whose name doesn't match, typo and all. After an import, always compare counts: rows in, rows out.\n\n### CASE: SQL's \"if\"\n\nA team scores its home goals in home matches and its away goals in away matches. `CASE` picks the right one for each row:\n\n```sql\nCASE WHEN m.home_team_id = t.id\n     THEN m.home_goals\n     ELSE m.away_goals END\n```\n\nTo find all of a team's matches, join on **either** role: `ON m.home_team_id = t.id OR m.away_team_id = t.id`. A LEFT JOIN keeps teams that haven't played, and `COALESCE(…, 0)` turns their NULL sum into 0.\n\n### In SQL Server\n\n- The same design works as is. Name the constraints (`CONSTRAINT FK_matches_home_team …`, `CONSTRAINT CK_matches_two_teams …`) so error messages tell you which rule broke.\n- SQL Server refuses two `ON DELETE CASCADE` paths from `teams` into `matches` (\"may cause cycles or multiple cascade paths\"), so keep the default (no action) here.\n- `CASE` is the same; SQL Server also has the shorter `IIF(condition, a, b)`.\n\n### New words\n\n- **Role**: the part a row plays in a relationship, like home team or away team. One table can fill two roles.\n- **Table-level constraint**: a rule written after the columns that can check several of them at once.\n- **CASE**: an expression that picks a value with WHEN … THEN … ELSE … END.\n",
+      "exampleMarkdown": "This lists the matches the secretary typed in, with each name looked up in `teams`. A LEFT JOIN keeps rows whose name has no match, so `h.id` shows NULL for any typo. Run it and look for the NULL.",
+      "exampleCode": "-- Which import names don't match a team?\nSELECT mi.played_on, mi.home_team,\n       h.id AS home_id\nFROM match_import AS mi\nLEFT JOIN teams AS h\n  ON h.name = mi.home_team\nORDER BY home_id, mi.played_on;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 25,
+        "instructionsMarkdown": "**Your project!** Move the league's season out of `match_import` and into a proper `matches` table, then write two reports. Open the **Tables** tab first.\n\n1. **Design:** create `matches` with `id`, `played_on`, `home_team_id`, `away_team_id`, `home_goals` and `away_goals`. Both team ids are foreign keys to `teams`, goals can't be negative, and a team can't play itself.\n2. **Import:** fill `matches` from `match_import` with `INSERT … SELECT`, joining `teams` once for the home team and once for the away team. All 10 matches must arrive, so compare the counts before you trust it.\n3. **Standings:** columns `team`, `played` and `goals_for`, one row for **every** team (0 and 0 for a team with no matches), most goals first, then by team.\n4. **Home games:** list the `team` of every team that hasn't hosted a home match yet, using `NOT EXISTS`.",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Valley junior football league\nCREATE TABLE teams (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE\n);\nINSERT INTO teams VALUES\n  (1, 'Riverton Otters'),\n  (2, 'Hilltop Hawks'),\n  (3, 'Lakeside Lynx'),\n  (4, 'Meadow Mice'),\n  (5, 'Canyon Comets');\n-- Results typed into a spreadsheet by the\n-- league secretary: team names, not ids\nCREATE TABLE match_import (\n  played_on TEXT NOT NULL,\n  home_team TEXT NOT NULL,\n  away_team TEXT NOT NULL,\n  home_goals INTEGER NOT NULL,\n  away_goals INTEGER NOT NULL\n);\nINSERT INTO match_import VALUES\n  ('2026-09-06', 'Riverton Otters', 'Hilltop Hawks', 2, 1),\n  ('2026-09-06', 'Lakeside Lynx', 'Meadow Mice', 0, 0),\n  ('2026-09-13', 'Hilltop Hawks', 'Lakeside Lynx', 3, 2),\n  ('2026-09-13', 'Rivertown Otters', 'Meadow Mice', 1, 1),\n  ('2026-09-20', 'Lakeside Lynx', 'Riverton Otters', 1, 2),\n  ('2026-09-20', 'Hilltop Hawks', 'Meadow Mice', 0, 1),\n  ('2026-09-27', 'Riverton Otters', 'Lakeside Lynx', 3, 3),\n  ('2026-09-27', 'Hilltop Hawks', 'Riverton Otters', 2, 0),\n  ('2026-10-04', 'Lakeside Lynx', 'Hilltop Hawks', 1, 1),\n  ('2026-10-04', 'Riverton Otters', 'Meadow Mice', 4, 0);\n",
+          "query.sql": "-- 1. Create matches: id, played_on,\n--    home_team_id, away_team_id, home_goals,\n--    away_goals. Both team ids point at teams,\n--    goals can't be negative, and a team can't\n--    play itself.\n\n-- 2. Fill matches from match_import with\n--    INSERT ... SELECT, joining teams twice.\n--    All 10 matches must make it in.\n\n-- 3. Standings: team, played, goals_for, for\n--    every team (0s if no matches), most goals\n--    first, then by team.\n\n-- 4. Teams that haven't hosted a home match\n--    yet (column team), using NOT EXISTS.\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Create matches: id, played_on,\n--    home_team_id, away_team_id, home_goals,\n--    away_goals. Both team ids point at teams,\n--    goals can't be negative, and a team can't\n--    play itself.\nCREATE TABLE matches (\n  id INTEGER PRIMARY KEY,\n  played_on TEXT NOT NULL,\n  home_team_id INTEGER NOT NULL\n    REFERENCES teams(id),\n  away_team_id INTEGER NOT NULL\n    REFERENCES teams(id),\n  home_goals INTEGER NOT NULL\n    CHECK (home_goals >= 0),\n  away_goals INTEGER NOT NULL\n    CHECK (away_goals >= 0),\n  CHECK (home_team_id <> away_team_id)\n);\n\n-- 2. Fill matches from match_import with\n--    INSERT ... SELECT, joining teams twice.\n--    All 10 matches must make it in.\nUPDATE match_import\nSET home_team = 'Riverton Otters'\nWHERE home_team = 'Rivertown Otters';\n\nINSERT INTO matches (played_on, home_team_id,\n  away_team_id, home_goals, away_goals)\nSELECT mi.played_on, h.id, a.id,\n       mi.home_goals, mi.away_goals\nFROM match_import AS mi\nJOIN teams AS h ON h.name = mi.home_team\nJOIN teams AS a ON a.name = mi.away_team;\n\n-- 3. Standings: team, played, goals_for, for\n--    every team (0s if no matches), most goals\n--    first, then by team.\nSELECT t.name AS team,\n       COUNT(m.id) AS played,\n       COALESCE(SUM(\n         CASE WHEN m.home_team_id = t.id\n              THEN m.home_goals\n              ELSE m.away_goals END\n       ), 0) AS goals_for\nFROM teams AS t\nLEFT JOIN matches AS m\n  ON m.home_team_id = t.id\n  OR m.away_team_id = t.id\nGROUP BY t.name\nORDER BY goals_for DESC, team;\n\n-- 4. Teams that haven't hosted a home match\n--    yet (column team), using NOT EXISTS.\nSELECT t.name AS team\nFROM teams AS t\nWHERE NOT EXISTS (\n  SELECT 1 FROM matches AS m\n  WHERE m.home_team_id = t.id\n);\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "Both team ids are foreign keys to teams",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT group_concat(\"from\" || ' > ' || \"table\", ', ') FROM (SELECT \"from\", \"table\" FROM pragma_foreign_key_list('matches') ORDER BY \"from\")",
+              "equals": "away_team_id > teams, home_team_id > teams",
+              "caseSensitive": false,
+              "missing": "There's no matches table yet, or it has no foreign keys."
+            },
+            "failMessage": "home_team_id and away_team_id should each REFERENCES teams(id)."
+          },
+          {
+            "label": "All 10 matches were imported",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT m.played_on, h.name, a.name, m.home_goals, m.away_goals FROM matches AS m JOIN teams AS h ON h.id = m.home_team_id JOIN teams AS a ON a.id = m.away_team_id ORDER BY m.played_on, h.name",
+              "equals": [
+                [
+                  "2026-09-06",
+                  "Lakeside Lynx",
+                  "Meadow Mice",
+                  0,
+                  0
+                ],
+                [
+                  "2026-09-06",
+                  "Riverton Otters",
+                  "Hilltop Hawks",
+                  2,
+                  1
+                ],
+                [
+                  "2026-09-13",
+                  "Hilltop Hawks",
+                  "Lakeside Lynx",
+                  3,
+                  2
+                ],
+                [
+                  "2026-09-13",
+                  "Riverton Otters",
+                  "Meadow Mice",
+                  1,
+                  1
+                ],
+                [
+                  "2026-09-20",
+                  "Hilltop Hawks",
+                  "Meadow Mice",
+                  0,
+                  1
+                ],
+                [
+                  "2026-09-20",
+                  "Lakeside Lynx",
+                  "Riverton Otters",
+                  1,
+                  2
+                ],
+                [
+                  "2026-09-27",
+                  "Hilltop Hawks",
+                  "Riverton Otters",
+                  2,
+                  0
+                ],
+                [
+                  "2026-09-27",
+                  "Riverton Otters",
+                  "Lakeside Lynx",
+                  3,
+                  3
+                ],
+                [
+                  "2026-10-04",
+                  "Lakeside Lynx",
+                  "Hilltop Hawks",
+                  1,
+                  1
+                ],
+                [
+                  "2026-10-04",
+                  "Riverton Otters",
+                  "Meadow Mice",
+                  4,
+                  0
+                ]
+              ],
+              "ordered": true,
+              "missing": "The matches table is empty."
+            },
+            "failMessage": "matches should hold all 10 matches from the import. A join on team names drops any row whose name doesn't match a team: find it and fix the import first."
+          },
+          {
+            "label": "The import used INSERT … SELECT",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "insert\\s+into\\s+matches[^;]*?\\bselect\\b"
+            },
+            "failMessage": "Fill matches with INSERT INTO matches … SELECT … FROM match_import, so the data comes from the import."
+          },
+          {
+            "label": "The standings are right",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "team",
+                "played",
+                "goals_for"
+              ],
+              "rows": [
+                [
+                  "Riverton Otters",
+                  6,
+                  12
+                ],
+                [
+                  "Hilltop Hawks",
+                  5,
+                  7
+                ],
+                [
+                  "Lakeside Lynx",
+                  5,
+                  7
+                ],
+                [
+                  "Meadow Mice",
+                  4,
+                  2
+                ],
+                [
+                  "Canyon Comets",
+                  0,
+                  0
+                ]
+              ],
+              "sortedBy": [
+                "goals_for desc",
+                "team"
+              ]
+            },
+            "failMessage": "Every team should be there with its matches played (home or away) and goals scored, Canyon Comets with 0 and 0, most goals first, then by team. LEFT JOIN matches ON either team id, and use CASE to pick the right goals."
+          },
+          {
+            "label": "The teams with no home match are listed",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "team"
+              ],
+              "rows": [
+                [
+                  "Meadow Mice"
+                ],
+                [
+                  "Canyon Comets"
+                ]
+              ]
+            },
+            "failMessage": "The last query should list each team with no match where it's the home team."
+          },
+          {
+            "label": "The last query uses NOT EXISTS",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "not\\s+exists"
+            },
+            "failMessage": "Use NOT EXISTS for the home-games query."
+          },
+          {
+            "label": "A team can't play itself, and goals can't be negative",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "INSERT OR IGNORE INTO matches (played_on, home_team_id, away_team_id, home_goals, away_goals) VALUES ('2099-01-01', 1, 1, 0, 0), ('2099-01-02', 1, 2, -1, 0), ('2099-01-03', 1, 2, 0, -2); SELECT COUNT(*) FROM matches WHERE played_on LIKE '2099-%'",
+              "equals": 0,
+              "report": "{value} of the 3 bad matches got in."
+            },
+            "failMessage": "matches needs CHECK (home_team_id <> away_team_id), and a CHECK that each goals column is >= 0."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Your import ran, but how many rows does `matches` have compared with `match_import`? Which team names in the import don't appear in `teams`?",
+            "speechText": "Your import ran, but how many rows does matches have, compared with match import? Which team names in the import don't appear in teams?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "One row says `Rivertown Otters`: `UPDATE match_import` to fix it before the `INSERT`. For the standings, `LEFT JOIN matches AS m ON m.home_team_id = t.id OR m.away_team_id = t.id`, count `m.id`, and sum a `CASE` that picks home or away goals.",
+            "speechText": "One row says Rivertown Otters, so update the import to fix it before the insert. For the standings, left join matches on either team id, count the match ids, and sum a case expression that picks home or away goals.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Step 2's insert:\n\n```sql\nINSERT INTO matches (played_on, home_team_id,\n  away_team_id, home_goals, away_goals)\nSELECT mi.played_on, h.id, a.id,\n       mi.home_goals, mi.away_goals\nFROM match_import AS mi\nJOIN teams AS h ON h.name = mi.home_team\nJOIN teams AS a ON a.name = mi.away_team;\n```\n\nStep 4: `WHERE NOT EXISTS (SELECT 1 FROM matches AS m WHERE m.home_team_id = t.id)`.",
+            "speechText": "For step 2, insert into matches a select from the import, joining teams once as h for the home team and once as a for the away team. Step 4 uses not exists, with a subquery for a match whose home team id is this team's id.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "matches has home_team_id and away_team_id, both referencing teams. How do you show both names?",
+            "explanation": "Join teams twice with different aliases, one per role.",
+            "options": [
+              {
+                "text": "Join teams twice, with aliases like h and a",
+                "correct": true
+              },
+              {
+                "text": "Join teams once; SQL picks the right name for each column",
+                "correct": false
+              },
+              {
+                "text": "It can't be done: one table can only be joined once",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "The import JOINs teams by name, and one row says 'Rivertown Otters'. What happens to that match?",
+            "explanation": "An inner join drops rows with no match, so the match silently disappears. Compare counts after an import.",
+            "options": [
+              {
+                "text": "It's silently left out of matches",
+                "correct": true
+              },
+              {
+                "text": "It's imported with NULL team ids",
+                "correct": false
+              },
+              {
+                "text": "The INSERT fails with an error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which constraint stops a team playing itself?",
+            "explanation": "A table-level CHECK can compare two columns in the same row.",
+            "options": [
+              {
+                "text": "CHECK (home_team_id <> away_team_id)",
+                "correct": true
+              },
+              {
+                "text": "UNIQUE (home_team_id, away_team_id)",
+                "correct": false
+              },
+              {
+                "text": "A foreign key on home_team_id",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Canyon Comets has no matches. How does the standings query still show it with 0 goals?",
+            "explanation": "LEFT JOIN keeps the team; SUM over no rows is NULL, and COALESCE turns it into 0.",
+            "options": [
+              {
+                "text": "LEFT JOIN keeps it, and COALESCE turns the NULL sum into 0",
+                "correct": true
+              },
+              {
+                "text": "COUNT(*) adds a 0 row for it automatically",
+                "correct": false
+              },
+              {
+                "text": "An INNER JOIN with ORDER BY",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does CASE WHEN m.home_team_id = t.id THEN m.home_goals ELSE m.away_goals END give?",
+            "explanation": "For each match row, the goals of team t: home goals when t was at home, away goals otherwise.",
+            "options": [
+              {
+                "text": "The goals team t scored in that match",
+                "correct": true
+              },
+              {
+                "text": "The total goals in the match",
+                "correct": false
+              },
+              {
+                "text": "Always the home team's goals",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

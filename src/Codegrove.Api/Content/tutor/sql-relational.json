@@ -192,6 +192,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "relational-project-explorer": {
+      "intro": [
+        {
+          "displayText": "It's sports day in the Grove, and the scoreboard needs you! Your mission: add Fern, record the scores, and find out which team wins.",
+          "speechText": "It's sports day in the Grove, and the scoreboard needs you! Your mission is to add Fern, record the scores, and find out which team wins.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The scoreboard works, and you used keys, joins and a junction table to build it. Your new word is scoreboard: one report that brings lots of tables together.",
+          "speechText": "The scoreboard works, and you used keys, joins and a junction table to build it. Your new word is scoreboard, one report that brings lots of tables together.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "relational-project": {
+      "intro": [
+        {
+          "displayText": "This is the job database developers do all the time: take data that lives in a spreadsheet, design proper tables for it, move it across without losing anything, and report on it. You'll build the junior league's matches table and its standings. Everything from this course comes back, so take your time and check the counts.",
+          "speechText": "This is a job database developers do all the time. You take data that lives in a spreadsheet, design proper tables for it, move it across without losing anything, and report on it. You'll build the junior league's matches table, and its standings. Everything from this course comes back, so take your time and check the counts.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The league has a real database now, and you finished SQL Relationships. The gotcha to remember: a join on names quietly drops anything that doesn't match, so always compare row counts after an import.",
+          "speechText": "The league has a real database now, and you finished the sequel relationships course. The gotcha to remember is that a join on names quietly drops anything that doesn't match. Always compare row counts after an import.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }
