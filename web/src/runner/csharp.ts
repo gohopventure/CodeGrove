@@ -24,6 +24,34 @@ export interface CSharpDiagnostic {
   friendly: string;
 }
 
+/** A request for the learner's web server (Contracts.cs → HttpRequestSpec). A body is sent as JSON. */
+export interface CSharpHttpRequest {
+  method: string;
+  path: string;
+  body?: string;
+  headers?: Record<string, string>;
+}
+
+/** What the learner's server answered (Contracts.cs → HttpExchange). */
+export interface CSharpHttpExchange {
+  method: string;
+  path: string;
+  status: number;
+  /** "Not Found" for 404. */
+  reason: string;
+  contentType: string | null;
+  body: string;
+  headers: Record<string, string>;
+}
+
+/** The web server a program started, if it built one (Contracts.cs → ServerInfo). */
+export interface CSharpServerInfo {
+  running: boolean;
+  url: string;
+  /** "GET /pets/{id:int}" */
+  endpoints: string[];
+}
+
 export type CSharpStopReason = 'None' | 'CompileErrors' | 'Exception' | 'TooManySteps' | 'TooDeep' | 'TooMuchOutput';
 
 /** What a run produced (Contracts.cs → RunResult), or how it failed to produce anything. */
@@ -37,6 +65,10 @@ export interface CSharpRunResult {
   results: TestResult[];
   compileMs: number;
   runMs: number;
+  /** Set when the program built a web app (the Web API course). */
+  server?: CSharpServerInfo | null;
+  /** Answers to the requests passed to runCSharp, in order. */
+  responses?: CSharpHttpExchange[] | null;
   /** Set by this module when the run produced nothing: stopped after the time limit, or C# couldn't run. */
   notRun?: 'timedOut' | 'unavailable';
 }
@@ -120,8 +152,16 @@ export function preloadCSharp(): void {
   document.body.appendChild(frame);
 }
 
-/** Compiles and runs the .cs files, then the tests. Never rejects: problems come back as console lines. */
-export function runCSharp(files: Record<string, string>, tests: TestSpec[] = [], input?: string): Promise<CSharpRunResult> {
+/**
+ * Compiles and runs the .cs files, then the tests. Never rejects: problems come back as console lines.
+ * `requests` are sent, in order, to the web server the program starts (if it starts one).
+ */
+export function runCSharp(
+  files: Record<string, string>,
+  tests: TestSpec[] = [],
+  input?: string,
+  requests?: CSharpHttpRequest[],
+): Promise<CSharpRunResult> {
   preloadCSharp();
   const id = crypto.randomUUID();
   return new Promise((resolve) => {
@@ -132,7 +172,7 @@ export function runCSharp(files: Record<string, string>, tests: TestSpec[] = [],
         resolve(problem('unavailable', "C# didn't answer. Check your internet connection, then reload the page."));
       }, NO_ANSWER_MS),
     });
-    send({ type: 'cg:cs-run', id, request: { files, tests, input } });
+    send({ type: 'cg:cs-run', id, request: { files, tests, input, requests } });
   });
 }
 
@@ -152,4 +192,9 @@ export function useCSharpStatus(): { status: CSharpStatus; detail?: string } {
 /** Test results for a run that couldn't check anything (every test fails with the same reason). */
 export function failAll(tests: TestSpec[], reason: string): TestResult[] {
   return tests.map((t) => ({ testId: t.id, passed: false, message: `${t.failMessage} (${reason})` }));
+}
+
+/** Whether these files are a web server (Web API course): the same rule as CSharpCodeRunner.IsWebProgram. */
+export function isWebProgram(files: Record<string, string>): boolean {
+  return Object.entries(files).some(([name, code]) => name.endsWith('.cs') && code.includes('WebApplication'));
 }

@@ -26,6 +26,12 @@
       everything those assemblies can reach is rooted below. The analyzer can't know that, so its warnings are off.
     -->
     <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+    <!--
+      The practice web server (Codegrove.WebShim) turns learner records into JSON and back. Their types only
+      exist once the learner's code is compiled, so System.Text.Json needs reflection (off by default in
+      trimmed apps). The runner's own messages still use the source-generated RunnerJson.
+    -->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,6 +46,8 @@
   <ItemGroup>
     <TrimmerRootAssembly Include="System.Private.CoreLib;System.Runtime;System.Console;System.Collections;System.Linq" />
     <TrimmerRootAssembly Include="Microsoft.CodeAnalysis;Microsoft.CodeAnalysis.CSharp;Codegrove.CSharpRunner" />
+    <!-- Learner servers call into the practice web server, which serializes their types with System.Text.Json. -->
+    <TrimmerRootAssembly Include="Codegrove.WebShim;System.Text.Json" />
   </ItemGroup>
 
 </Project>

@@ -258,7 +258,7 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
     {
         var client = _factory.NewClient();
         var tracks = (await client.GetJson("/api/tracks")).EnumerateArray().Select(t => t.GetProperty("slug").GetString()).ToList();
-        Assert.Equal(["web-foundations", "javascript", "typescript", "angular", "frontend-frameworks", "csharp", "databases"], tracks);
+        Assert.Equal(["web-foundations", "javascript", "typescript", "angular", "frontend-frameworks", "csharp", "databases", "web-apis"], tracks);
 
         // Angular challenges are TypeScript projects: the API sends kind "Angular" with .ts starter files.
         var (_, child, _) = await FamilyWithConsentedExplorer("NgFox");
@@ -385,6 +385,7 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         Assert.Contains("sharp-starter", codes);
         Assert.Contains("class-act", codes);
         Assert.Contains("data-detective", codes);
+        Assert.Contains("route-ranger", codes);
     }
 
     /// <summary>Maps each quiz question to its correct option by matching prompts against the seed file.</summary>

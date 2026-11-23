@@ -60,8 +60,8 @@
       // The first backend track, after the frontend ones (the curriculum's order: React, then C#, then SQL).
       // TypeScript is the prerequisite because it introduces static types, classes and interfaces, which C#
       // builds on. C# runs in the browser on .NET for WebAssembly (src/Codegrove.CSharpRunner.Wasm).
-      // Planned courses: csharp-basics, then C# objects (OOP), then ASP.NET Core Web API, which comes after
-      // the SQL track so it can use a real database with EF Core.
+      // Courses: csharp-basics, then csharp-objects (OOP). ASP.NET Core Web API is the web-apis track, after
+      // SQL, so its database lessons can build on what the Databases track teaches.
       "slug": "csharp",
       "title": "C#",
       "description": "Write real programs in C#, the language behind ASP.NET Core and Unity: the compiler, variables, decisions, loops, methods and classes, then exceptions, inheritance, interfaces, records and LINQ.",
@@ -84,6 +84,20 @@
       "isPublished": true,
       "courses": ["sql-basics"],
       "prerequisites": ["csharp"]
+    },
+    {
+      // C# course 3: ASP.NET Core Web API, after both C# and SQL (the curriculum's order), leading into the
+      // capstone. Lessons 1-5 (HTTP, routes, request bodies, services, controllers) need only C#; lessons 6-7
+      // use Entity Framework Core and build on the Databases track. Servers run on Codegrove's practice
+      // server in the browser (src/Codegrove.WebShim), with the real ASP.NET Core names.
+      "slug": "web-apis",
+      "title": "Web APIs with C#",
+      "description": "Build the server side of an app with ASP.NET Core: answer HTTP requests, read and validate what clients send, organize code with services and controllers, and save data with Entity Framework Core.",
+      "ageBand": "Both",
+      "sortOrder": 8,
+      "isPublished": true,
+      "courses": ["csharp-web-api"],
+      "prerequisites": ["csharp", "databases"]
     }
   ],
   "badges": [
@@ -185,6 +199,15 @@
       "iconUrl": "/badges/data-detective.svg",
       "ruleType": "CourseCompleted",
       "ruleCourseSlug": "sql-basics"
+    },
+    {
+      // A route branching to three endpoints, drawn from scratch.
+      "code": "route-ranger",
+      "name": "Route Ranger",
+      "description": "You finished C# Web APIs and built servers that answer requests.",
+      "iconUrl": "/badges/route-ranger.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "csharp-web-api"
     },
     {
       "code": "app-architect",

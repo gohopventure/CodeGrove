@@ -1,0 +1,540 @@
+{
+  "slug": "csharp-web-api",
+  "title": "C# Web APIs: Build a Server",
+  "summary": "Build the server side of an app with ASP.NET Core: answer HTTP requests with minimal APIs, read route values, query strings and JSON bodies, validate input, organize code with services and controllers, and save data with Entity Framework Core.",
+  "ageBand": "Both",
+  "estimatedMinutes": 180,
+  "isPublished": true,
+  "objectives": [
+    "Explain HTTP requests and responses: methods, paths, headers, bodies and status codes",
+    "Build endpoints with ASP.NET Core minimal APIs that answer with text, JSON and the right status code",
+    "Read route values, query strings and JSON request bodies, and validate what clients send",
+    "Organize a server with services, dependency injection and controllers",
+    "Save and query data with Entity Framework Core"
+  ],
+  "lessons": [
+    {
+      "slug": "web-api-explorer",
+      "title": "Your first server",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Your first server\n\nWhen you open a website or an app, your device sends a message across the internet: *\"Please send me the weather\"*. A **server** is a program that waits for those messages and answers them.\n\n- The message your device sends is a **request**.\n- The server's answer is a **response**.\n\nA server that answers with data (not whole web pages) is called an **API**. Apps, games and websites all ask APIs for things.\n\n### A request has a method and a path\n\n```\nGET /weather\n```\n\n- **GET** is the *method*: it means \"please send me something\".\n- **/weather** is the *path*: which thing you want.\n\n### Your first server in C#\n\nHere's a whole server. It's real C#: the same code works on a real computer.\n\n```csharp\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\napp.MapGet(\"/\", () => \"Welcome to the Grove!\");\n\napp.Run();\n```\n\n1. The first two lines **build** the app.\n2. `app.MapGet` makes an **endpoint**: *\"when someone asks for GET /, run this and send back what it returns\"*.\n3. `app.Run()` **starts** the server, so it can answer requests. It always goes last.\n\nThe part with `() =>` is a little method with no name. Whatever it returns becomes the response.\n\n### Answering with an object\n\nReturn text and the server sends text. Return an object, and C# turns it into **JSON** for you, the format almost every API uses:\n\n```csharp\napp.MapGet(\"/weather\", () => new { sky = \"sunny\", temperature = 21 });\n```\n\nThe response looks like this:\n\n```json\n{ \"sky\": \"sunny\", \"temperature\": 21 }\n```\n\n### Did it work? Status codes\n\nEvery response starts with a number called a **status code**:\n\n- **200 OK**: it worked.\n- **404 Not Found**: there's nothing at that path.\n\nAsk this server for `GET /dragons` and it answers **404**, because no endpoint has that path.\n\n### Try it!\n\nCodegrove runs your server right here. Press **Run** to start it, then use **Try it** under the Output panel to send it a request and see the response.\n\n### New words\n\n- **Server**: a program that waits for requests and sends back responses.\n- **Request**: a message asking a server for something, like `GET /weather`.\n- **Response**: the server's answer: a status code and some data.\n- **API** (*Application Programming Interface*): a server that answers with data for other programs to use.\n- **Endpoint**: one path the server answers, made with `app.MapGet`.\n- **JSON** (*JavaScript Object Notation*): the text format APIs use to send objects, like `{ \"sky\": \"sunny\" }`.\n",
+      "exampleMarkdown": "A Grove weather server with two endpoints. It doesn't print anything: it waits for requests. Press **Run**, then in **Try it** send `GET /` and then `GET /weather`. Try `GET /dragons` too, and see the **404**.",
+      "exampleCode": "var builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\napp.MapGet(\"/\", () => \"Welcome to the Grove weather station!\");\n\napp.MapGet(\"/weather\", () => new { sky = \"sunny\", temperature = 21 });\n\napp.Run();\n",
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The Grove needs a notice board server, so everyone can find out what's happening.\n\n1. The server never starts. Add `app.Run();` on the last line. Press **Run**, then send `GET /` in **Try it**.\n2. Add an endpoint for `GET /hello` that answers with the text `Hello from the Grove!`\n3. Add an endpoint for `GET /notice` that answers with an object: `title` is `\"Frog race\"` and `day` is `\"Saturday\"`. Send `GET /notice` and look at the JSON that comes back:\n\n```json\n{ \"title\": \"Frog race\", \"day\": \"Saturday\" }\n```",
+        "starterFiles": {
+          "Program.cs": "// Mission: open the Grove notice board server!\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\n// This endpoint is ready.\napp.MapGet(\"/\", () => \"Welcome to the Grove notice board!\");\n\n// 2. Add an endpoint for GET /hello that\n//    answers: Hello from the Grove!\n\n// 3. Add an endpoint for GET /notice that\n//    answers with an object: title \"Frog race\",\n//    day \"Saturday\"\n\n// 1. Start the server here, on the last line.\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: open the Grove notice board server!\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\n// This endpoint is ready.\napp.MapGet(\"/\", () => \"Welcome to the Grove notice board!\");\n\n// 2. Add an endpoint for GET /hello that\n//    answers: Hello from the Grove!\napp.MapGet(\"/hello\", () => \"Hello from the Grove!\");\n\n// 3. Add an endpoint for GET /notice that\n//    answers with an object: title \"Frog race\",\n//    day \"Saturday\"\napp.MapGet(\"/notice\", () => new { title = \"Frog race\", day = \"Saturday\" });\n\n// 1. Start the server here, on the last line.\napp.Run();\n"
+        },
+        "tests": [
+          {
+            "label": "The server starts and answers GET /",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/",
+              "expectStatus": 200,
+              "expectBody": "Welcome to the Grove notice board!"
+            },
+            "failMessage": "GET / should answer with the welcome message."
+          },
+          {
+            "label": "GET /hello says hello",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/hello",
+              "expectStatus": 200,
+              "expectBody": "Hello from the Grove!"
+            },
+            "failMessage": "GET /hello should answer with the text Hello from the Grove! Add app.MapGet(\"/hello\", () => \"Hello from the Grove!\"); before app.Run()."
+          },
+          {
+            "label": "GET /notice answers with JSON",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/notice",
+              "expectStatus": 200,
+              "expectContentType": "application/json",
+              "expectJson": {
+                "title": "Frog race",
+                "day": "Saturday"
+              }
+            },
+            "failMessage": "GET /notice should answer with an object: title \"Frog race\" and day \"Saturday\". Return new { title = \"Frog race\", day = \"Saturday\" } from the endpoint."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "What does a server need to do before it can answer anyone?",
+            "speechText": "What does a server need to do before it can answer anyone?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Add `app.Run();` as the very last line. For each new endpoint, copy the `app.MapGet` line that's already there, then change the path and the answer.",
+            "speechText": "Add app dot Run as the very last line. For each new endpoint, copy the map get line that's already there, then change the path and the answer.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The notice endpoint returns an object, and C# turns it into JSON:\n\n```csharp\napp.MapGet(\"/notice\", () => new { title = \"Frog race\", day = \"Saturday\" });\n```\n\nPut it above `app.Run();`.",
+            "speechText": "The notice endpoint returns a new object with a title of Frog race and a day of Saturday. Put it above the line that starts the server.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is a server?",
+            "explanation": "A server is a program that waits for requests and sends back responses. An API is a server that answers with data.",
+            "options": [
+              {
+                "text": "A program that waits for requests and answers them",
+                "correct": true
+              },
+              {
+                "text": "A program that only draws pictures on the screen",
+                "correct": false
+              },
+              {
+                "text": "The cable that connects you to the internet",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Your server has app.MapGet(\"/hello\", …) and nothing else. What does GET /goodbye get back?",
+            "explanation": "No endpoint has the path /goodbye, so the server answers 404 Not Found.",
+            "options": [
+              {
+                "text": "404 Not Found",
+                "correct": true
+              },
+              {
+                "text": "200 OK",
+                "correct": false
+              },
+              {
+                "text": "The /hello answer",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does app.Run() go on the last line?",
+            "explanation": "app.Run() starts the server and keeps it waiting for requests, so the endpoints must be set up before it.",
+            "options": [
+              {
+                "text": "It starts the server, so the endpoints must be added before it",
+                "correct": true
+              },
+              {
+                "text": "It deletes the endpoints above it",
+                "correct": false
+              },
+              {
+                "text": "C# reads programs from the bottom up",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "web-api-basics",
+      "title": "HTTP and your first endpoint",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## HTTP and your first endpoint\n\nAlmost every app you use is split in two: a **client** (the app on your phone, a website in your browser, a game) and a **server** somewhere else that stores the data and does the work. They talk over **HTTP**, by sending **requests** and **responses**. A server built for other programs to call, answering with data instead of web pages, is a **web API**.\n\n### What's in a request\n\n```http\nPOST /scores HTTP/1.1\nHost: api.skyline-racers.test\nContent-Type: application/json\n\n{ \"player\": \"ByteRunner\", \"time\": 92.4 }\n```\n\n- **Method**: what kind of action. `GET` reads, `POST` creates, `PUT` replaces, `PATCH` changes part of something, `DELETE` removes.\n- **Path**: which thing, like `/scores` or `/players/42`. It can end with a **query string**: `/scores?top=10`.\n- **Headers**: extra details as `Name: value` lines, like `Content-Type`, the format of the body.\n- **Body**: the data being sent, if any. `GET` requests usually have none.\n\n### What's in a response\n\n```http\nHTTP/1.1 201 Created\nContent-Type: application/json; charset=utf-8\nLocation: /scores/317\n\n{ \"id\": 317, \"player\": \"ByteRunner\", \"time\": 92.4 }\n```\n\nThe first line has the **status code**. Its first digit tells you the family:\n\n| Code | Family | Common ones |\n|---|---|---|\n| 2xx | Success | 200 OK, 201 Created, 204 No Content |\n| 3xx | Go somewhere else | 301 Moved Permanently, 304 Not Modified |\n| 4xx | The client got something wrong | 400 Bad Request, 404 Not Found, 409 Conflict |\n| 5xx | The server failed | 500 Internal Server Error, 503 Service Unavailable |\n\nClients make decisions from status codes, so picking the right one matters as much as the body.\n\n### A minimal API in ASP.NET Core\n\n**ASP.NET Core** is .NET's framework for web servers. `dotnet new web` gives you this `Program.cs`:\n\n```csharp\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\napp.MapGet(\"/\", () => \"Hello World!\");\n\napp.Run();\n```\n\n- `WebApplication.CreateBuilder(args)` sets up configuration, logging and **services** (lesson 4).\n- `builder.Build()` makes the app.\n- `app.MapGet(path, handler)` adds an **endpoint**: requests with that method and path run the **handler**, a lambda whose return value becomes the response. There's `MapPost`, `MapPut`, `MapPatch` and `MapDelete` too.\n- `app.Run()` starts the server and **blocks**: it keeps waiting for requests until the server stops, so nothing after it runs.\n\nThis style is called **minimal APIs**. Lesson 5 shows the other style, controllers. Web projects import the ASP.NET Core namespaces for you, so there are no `using` lines.\n\n### What the handler returns decides the response\n\n| Handler returns | Status | Content-Type | Body |\n|---|---|---|---|\n| a `string` | 200 | `text/plain; charset=utf-8` | the text |\n| any other object | 200 | `application/json; charset=utf-8` | the object as JSON |\n| an `IResult` | you choose | depends | depends |\n\nJSON property names are **camelCase**: a `record Lap(int LapNumber)` comes out as `{ \"lapNumber\": 1 }`.\n\nWhen you need a status other than 200, return an `IResult` from the `Results` class:\n\n```csharp\napp.MapGet(\"/leaderboard\", () => isEmpty\n    ? Results.NoContent()                 // 204, no body\n    : Results.Ok(topTen));                // 200 + JSON\n\napp.MapGet(\"/race\", () => Results.Problem(\n    \"Track closed for repairs.\", statusCode: 503));\n```\n\n`Results.Problem` sends **problem details**: a standard JSON shape for errors (`application/problem+json`) with `type`, `title`, `status` and `detail`. Clients can show `detail` to the user.\n\nBoth branches of a `? :` must have the same type, which is why both sides use `Results.…`: mixing `Results.NoContent()` with a plain `topTen` list won't compile.\n\n### Running it in Codegrove\n\nIn a real project, `app.Run()` starts **Kestrel**, ASP.NET Core's web server, on a port like `http://localhost:5000`, and you'd call it with a browser, `curl` or an `.http` file. Here, Codegrove's practice server stands in for Kestrel inside your browser, so press **Run**, then send requests from **Try it**. The C# is exactly what you'd write in a real project. A request that matches no endpoint gets **404**; a path that exists with the wrong method gets **405 Method Not Allowed**.\n\n### New words\n\n- **HTTP** (*Hypertext Transfer Protocol*): the rules clients and servers use to send requests and responses.\n- **Web API** (*Application Programming Interface*): a server that other programs call over HTTP, answering with data.\n- **Method**: the kind of request: GET, POST, PUT, PATCH or DELETE.\n- **Status code**: the three-digit number at the start of a response that says how it went.\n- **Header**: a `Name: value` line with extra details about a request or response.\n- **Endpoint**: a method and path the server answers, with the handler that runs.\n- **Minimal API**: ASP.NET Core's style of mapping endpoints straight onto the app with `app.MapGet` and friends.\n- **Problem details**: the standard JSON format for error responses (`application/problem+json`).\n",
+      "exampleMarkdown": "A small game-server API. `/` answers with text, `/laps` with JSON (look at the camelCase names), and `/season` picks its status code with `Results`. Press **Run**, then send each one from **Try it**. Try `POST /laps` too: the path exists, but not for that method.",
+      "exampleCode": "var builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nvar laps = new List<Lap> { new(1, 31.2), new(2, 30.8) };\nvar seasonOpen = false;\n\napp.MapGet(\"/\", () => \"Skyline Racers API\");\n\napp.MapGet(\"/laps\", () => laps);\n\napp.MapGet(\"/season\", () => seasonOpen\n    ? Results.Ok(new { season = 3 })\n    : Results.Problem(\"Season 3 starts on Friday.\", statusCode: 409));\n\napp.Run();\n\nrecord Lap(int LapNumber, double Seconds);\n",
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn.** The Skyline Racers status API has three endpoints, and other teams depend on each one answering in a particular way. Right now none of them does.\n\n1. **`GET /health`**: the load balancer checks this every few seconds and expects the plain text `Healthy` (`Content-Type: text/plain`), not JSON.\n2. **`GET /version`**: the launcher reads JSON: `{ \"name\": \"Skyline Racers\", \"version\": \"2.4.1\" }`. Right now it gets a sentence of text.\n3. **`GET /play`**: while `maintenance` is `true`, answer **503 Service Unavailable** with problem details whose `detail` is `Servers are down for maintenance.` When it's `false`, keep answering the text `Let's race!`.\n\nUse **Try it** to send each request and check the status, the `Content-Type` and the body before you press **Check my code**.",
+        "starterFiles": {
+          "Program.cs": "var builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nvar version = new AppVersion(\"Skyline Racers\", \"2.4.1\");\nvar maintenance = true;\n\n// TODO 1: the load balancer wants plain text\n// \"Healthy\", not JSON.\napp.MapGet(\"/health\", () => new { status = \"Healthy\" });\n\n// TODO 2: clients want JSON:\n// { \"name\": \"...\", \"version\": \"...\" }\napp.MapGet(\"/version\", () => $\"{version.Name} {version.Version}\");\n\n// TODO 3: while maintenance is true, answer 503\n// problem details: \"Servers are down for\n// maintenance.\" Otherwise: \"Let's race!\"\napp.MapGet(\"/play\", () => \"Let's race!\");\n\napp.Run();\n\nrecord AppVersion(string Name, string Version);\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "var builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nvar version = new AppVersion(\"Skyline Racers\", \"2.4.1\");\nvar maintenance = true;\n\n// TODO 1: the load balancer wants plain text\n// \"Healthy\", not JSON.\napp.MapGet(\"/health\", () => \"Healthy\");\n\n// TODO 2: clients want JSON:\n// { \"name\": \"...\", \"version\": \"...\" }\napp.MapGet(\"/version\", () => version);\n\n// TODO 3: while maintenance is true, answer 503\n// problem details: \"Servers are down for\n// maintenance.\" Otherwise: \"Let's race!\"\napp.MapGet(\"/play\", () => maintenance\n    ? Results.Problem(\"Servers are down for maintenance.\", statusCode: 503)\n    : Results.Text(\"Let's race!\"));\n\napp.Run();\n\nrecord AppVersion(string Name, string Version);\n"
+        },
+        "tests": [
+          {
+            "label": "GET /health answers the text Healthy",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/health",
+              "expectStatus": 200,
+              "expectContentType": "text/plain",
+              "expectBody": "Healthy"
+            },
+            "failMessage": "GET /health should answer 200 with the plain text Healthy (Content-Type text/plain). A handler that returns an object sends JSON; return the string itself."
+          },
+          {
+            "label": "GET /version answers JSON",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/version",
+              "expectStatus": 200,
+              "expectContentType": "application/json",
+              "expectJson": {
+                "name": "Skyline Racers",
+                "version": "2.4.1"
+              }
+            },
+            "failMessage": "GET /version should answer JSON with name and version. Return the AppVersion record itself: ASP.NET Core serializes it, with camelCase names."
+          },
+          {
+            "label": "GET /play answers 503 during maintenance",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/play",
+              "expectStatus": 503
+            },
+            "failMessage": "While maintenance is true, GET /play should answer 503 with problem details. Return Results.Problem(\"Servers are down for maintenance.\", statusCode: 503)."
+          },
+          {
+            "label": "The 503 is problem details",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/play",
+              "expectContentType": "application/problem+json",
+              "expectJson": {
+                "status": 503,
+                "detail": "Servers are down for maintenance."
+              }
+            },
+            "failMessage": "The 503 response should be problem details (application/problem+json) with status 503 and detail Servers are down for maintenance."
+          },
+          {
+            "label": "Both outcomes are still there",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "Let's race!"
+            },
+            "failMessage": "Keep the Let's race! answer for when maintenance is false: use maintenance ? Results.Problem(…) : Results.Text(\"Let's race!\")."
+          },
+          {
+            "label": "/play decides from maintenance",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "maintenance\\s*\\?|if\\s*\\(\\s*!?\\s*maintenance"
+            },
+            "failMessage": "GET /play should check maintenance, so it answers Let's race! again once maintenance is false."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "For each endpoint, what Content-Type does a `string` return value get, and what does an object get?",
+            "speechText": "For each endpoint, what content type does a string return value get, and what does an object get?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Health should return the string itself, and version should return the record itself. For play, both sides of `? :` need the same type, so use `Results.Problem(…, statusCode: 503)` on one side and `Results.Text(\"Let's race!\")` on the other.",
+            "speechText": "Health should return the string itself, and version should return the record itself. For play, both sides of the condition need the same type. Use Results dot Problem with a status code of 503 on one side, and Results dot Text on the other.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the shape of the play endpoint:\n\n```csharp\napp.MapGet(\"/play\", () => maintenance\n    ? Results.Problem(\"…\", statusCode: 503)\n    : Results.Text(\"Let's race!\"));\n```\n\nFill in the detail text from the instructions.",
+            "speechText": "The play endpoint uses the conditional operator. When maintenance is true it returns Results dot Problem with the detail text and a status code of 503, and otherwise Results dot Text with Let's race.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A handler returns a record. What does the response look like?",
+            "explanation": "Anything that isn't a string or an IResult is serialized to JSON, with camelCase property names, and sent with status 200 and Content-Type application/json.",
+            "options": [
+              {
+                "text": "200, application/json, the record as camelCase JSON",
+                "correct": true
+              },
+              {
+                "text": "200, text/plain, the record's ToString() text",
+                "correct": false
+              },
+              {
+                "text": "204 No Content, because records have no body",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which status code family means the client sent something wrong?",
+            "explanation": "4xx codes mean the request was the problem (400 Bad Request, 404 Not Found, 409 Conflict). 5xx means the server failed.",
+            "options": [
+              {
+                "text": "4xx",
+                "correct": true
+              },
+              {
+                "text": "2xx",
+                "correct": false
+              },
+              {
+                "text": "5xx",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "The app has app.MapGet(\"/laps\", …) only. What does POST /laps get?",
+            "explanation": "The path exists but not for POST, so ASP.NET Core answers 405 Method Not Allowed, with an Allow header listing GET.",
+            "options": [
+              {
+                "text": "405 Method Not Allowed",
+                "correct": true
+              },
+              {
+                "text": "404 Not Found",
+                "correct": false
+              },
+              {
+                "text": "200 OK with an empty body",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What happens to code written after app.Run()?",
+            "explanation": "app.Run() blocks while the server runs, so code after it only runs once the server shuts down. Map endpoints before calling it.",
+            "options": [
+              {
+                "text": "It only runs after the server shuts down",
+                "correct": true
+              },
+              {
+                "text": "It runs once for every request",
+                "correct": false
+              },
+              {
+                "text": "It runs first, before the endpoints",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does isEmpty ? Results.NoContent() : topTen not compile?",
+            "explanation": "Both branches of ? : need one type. NoContent is an IResult and topTen is a list, so wrap the list too: Results.Ok(topTen).",
+            "options": [
+              {
+                "text": "The two branches have different types; use Results.Ok(topTen)",
+                "correct": true
+              },
+              {
+                "text": "Results.NoContent() needs a body",
+                "correct": false
+              },
+              {
+                "text": "A lambda can't contain the ? : operator",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "routes-explorer",
+      "title": "Paths with blanks",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    },
+    {
+      "slug": "routes-and-parameters",
+      "title": "Routes, route values and query strings",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    },
+    {
+      "slug": "sending-data-explorer",
+      "title": "Sending data to the server",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    },
+    {
+      "slug": "request-bodies",
+      "title": "POST, PUT, DELETE and validation",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    },
+    {
+      "slug": "services-explorer",
+      "title": "Helpers the server can ask for",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    },
+    {
+      "slug": "dependency-injection",
+      "title": "Services and dependency injection",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    },
+    {
+      "slug": "controllers-explorer",
+      "title": "Controllers: a room for each job",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    },
+    {
+      "slug": "controllers",
+      "title": "Controllers and ActionResult",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    },
+    {
+      "slug": "database-explorer",
+      "title": "Saving to a database",
+      "sortOrder": 6,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    },
+    {
+      "slug": "ef-core",
+      "title": "Entity Framework Core",
+      "sortOrder": 6,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    },
+    {
+      "slug": "web-api-project-explorer",
+      "title": "Project: Grove Lost & Found",
+      "sortOrder": 7,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    },
+    {
+      "slug": "web-api-project",
+      "title": "Project: Event tickets API",
+      "sortOrder": 7,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false,
+      "learnMarkdown": null,
+      "exampleMarkdown": null,
+      "exampleCode": null,
+      "videoUrl": null,
+      "captionsUrl": null,
+      "challenge": null,
+      "quiz": null
+    }
+  ]
+}

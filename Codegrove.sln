@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codegrove.CSharpRunner", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codegrove.CSharpRunner.Tests", "tests\Codegrove.CSharpRunner.Tests\Codegrove.CSharpRunner.Tests.csproj", "{94CDD060-77A7-4E07-9C88-FEB25E2547D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codegrove.WebShim", "src\Codegrove.WebShim\Codegrove.WebShim.csproj", "{79211F43-DBA8-44EB-9BFD-9FD05A53059F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,18 @@ Global
 		{94CDD060-77A7-4E07-9C88-FEB25E2547D9}.Release|x64.Build.0 = Release|Any CPU
 		{94CDD060-77A7-4E07-9C88-FEB25E2547D9}.Release|x86.ActiveCfg = Release|Any CPU
 		{94CDD060-77A7-4E07-9C88-FEB25E2547D9}.Release|x86.Build.0 = Release|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Debug|x64.Build.0 = Debug|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Debug|x86.Build.0 = Debug|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Release|x64.ActiveCfg = Release|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Release|x64.Build.0 = Release|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Release|x86.ActiveCfg = Release|Any CPU
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -82,5 +96,6 @@ Global
 		{FAD6298B-B220-4F42-8408-B70B34445E8B} = {AC982860-F60D-405B-9064-BE292144E551}
 		{1158D6C0-9835-457E-9EB8-97944C8EA538} = {646DD1EC-2FF8-48A2-8687-DD51D9B22D73}
 		{94CDD060-77A7-4E07-9C88-FEB25E2547D9} = {AC982860-F60D-405B-9064-BE292144E551}
+		{79211F43-DBA8-44EB-9BFD-9FD05A53059F} = {646DD1EC-2FF8-48A2-8687-DD51D9B22D73}
 	EndGlobalSection
 EndGlobal

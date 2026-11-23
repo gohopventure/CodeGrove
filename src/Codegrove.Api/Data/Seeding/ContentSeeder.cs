@@ -406,7 +406,7 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
 
     /// <summary>Test kinds the C# runner understands (src/Codegrove.CSharpRunner/TestEvaluator.cs).</summary>
     public static readonly IReadOnlySet<string> CSharpTestKinds =
-        new HashSet<string> { "noErrors", "consoleIncludes", "consoleEquals", "compileError", "compileWarning", "noWarnings", "csharpExpression", "sourceMatches" };
+        new HashSet<string> { "noErrors", "consoleIncludes", "consoleEquals", "compileError", "compileWarning", "noWarnings", "csharpExpression", "sourceMatches", "httpRequest" };
 
     /// <summary>Test kinds the SQL runner understands (web/src/runner/sqlEngine.ts, SQL_TEST_KINDS).</summary>
     public static readonly IReadOnlySet<string> SqlTestKinds =
@@ -452,7 +452,7 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
                     if (c.Tests.FirstOrDefault(t => !CSharpTestKinds.Contains(t.Kind)) is { } bad)
                         Fail($"test '{bad.Label}' has kind '{bad.Kind}', which C# challenges can't use. Known: {string.Join(", ", CSharpTestKinds)}.");
                 }
-                else if (c.Tests.FirstOrDefault(t => t.Kind is "consoleEquals" or "compileError" or "compileWarning" or "noWarnings" or "csharpExpression") is { } csOnly)
+                else if (c.Tests.FirstOrDefault(t => t.Kind is "consoleEquals" or "compileError" or "compileWarning" or "noWarnings" or "csharpExpression" or "httpRequest") is { } csOnly)
                     Fail($"test '{csOnly.Label}' has kind '{csOnly.Kind}', which only works in C# challenges.");
                 // SQL runs in the in-browser SQL runner (web/src/runner/sqlEngine.ts): SQLite, starting every run
                 // from the hidden .setup.sql in the starter files, which the learner can't see or edit.

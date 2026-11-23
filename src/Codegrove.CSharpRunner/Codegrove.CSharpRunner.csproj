@@ -21,6 +21,11 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- The practice web server learner code compiles against in the Web API course (see its .csproj). -->
+    <ProjectReference Include="..\Codegrove.WebShim\Codegrove.WebShim.csproj" />
+  </ItemGroup>
+
   <!--
     Learner code compiles against .NET's reference assemblies, embedded here so the browser needs no
     file system. Only this allow-list is offered: no System.Net.*, System.IO.FileSystem, reflection
@@ -38,6 +43,19 @@
       <EmbeddedResource Include="@(_CgReference)" LogicalName="ref/%(Filename)%(Extension)" />
     </ItemGroup>
     <Error Condition="'@(_CgReference->Count())' != '4'" Text="Expected 4 .NET reference assemblies to embed for learner code, found @(_CgReference->Count()): @(_CgReference->'%(Filename)')." />
+  </Target>
+
+  <!--
+    The practice web server (Codegrove.WebShim) is embedded the same way, so learner code can compile
+    against it in the browser. Its own output is the reference: it has no private API worth hiding beyond
+    what `internal` already hides.
+  -->
+  <Target Name="CgEmbedWebShim" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <_CgShim Include="@(ReferencePath)" Condition="'%(Filename)' == 'Codegrove.WebShim'" />
+      <EmbeddedResource Include="@(_CgShim)" LogicalName="ref/%(Filename)%(Extension)" />
+    </ItemGroup>
+    <Error Condition="'@(_CgShim->Count())' != '1'" Text="Expected to embed Codegrove.WebShim.dll for learner code, found @(_CgShim->Count())." />
   </Target>
 
 </Project>

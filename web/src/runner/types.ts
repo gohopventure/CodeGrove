@@ -27,6 +27,7 @@ export type TestKind =
   | 'compileWarning' // { code?, contains?, line?, file? }: the compiler DOES report a matching warning
   | 'noWarnings' // { code?, file? }: it compiles with no warnings (or none whose code starts with code, e.g. "CS86")
   | 'csharpExpression' // { expression, equals }: a C# expression run after the program, against the learner's classes
+  | 'httpRequest' // { method?, path, body?, before?, expectStatus?, expectJson?, expectBody?, expectHeader? … }: the learner's web server answers as expected (WebChecks.cs). C# only.
   | 'sourceMatches' // { pattern, file?, ignoreCase?, min?, max? }: the code (comments removed) matches a regex (max: 0 = must not). C# and SQL.
   // SQL only (evaluated by src/runner/sqlEngine.ts). noErrors and sourceMatches work for SQL too.
   | 'sqlResultEquals' // { rows, columns?, ordered?, caseSensitive?, result? }: a result set has exactly these rows

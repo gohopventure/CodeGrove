@@ -23,6 +23,9 @@ public static class FriendlyErrors
         ["CS0117"] = "This class has nothing with that name. Check the spelling and capital letters, or add it if it doesn't exist yet.",
         ["CS1061"] = "That value has no method or property with this name. Check the spelling and capital letters, or add it if it doesn't exist yet.",
         ["CS0246"] = "C# can't find a type with this name. Check the spelling and capital letters.",
+        // Web API course: a handler lambda that returns different types, like an IResult on one side of ?: and a string on the other.
+        ["CS8917"] = "C# can't work out what this lambda returns. If it can return two different kinds of things (an IResult and a string, say), make them the same: wrap the plain value too, like Results.Text(\"…\") or Results.Ok(value).",
+        ["CS0173"] = "The two sides of ? : give different types, so C# can't pick one. Make both sides the same type: in an endpoint, wrap both in Results, like Results.Ok(value) and Results.NotFound().",
         ["CS0029"] = "This value is the wrong type for where you're putting it, like text where a number should go.",
         ["CS0266"] = "This value might not fit the type you're putting it in, so C# won't convert it on its own.",
         ["CS0019"] = "This operator can't be used with these two kinds of values.",
@@ -113,8 +116,16 @@ public static class FriendlyErrors
     private static readonly System.Text.RegularExpressions.Regex InterfaceConversion =
         new(@"convert type '(\w+)' to '(I[A-Z]\w*)'");
 
+    /// <summary>The typed results (Web API course), which need `using Microsoft.AspNetCore.Http.HttpResults;`.</summary>
+    private static readonly System.Text.RegularExpressions.Regex HttpResultType =
+        new(@"'(Ok|Created|Accepted|NoContent|NotFound|BadRequest|Conflict|UnprocessableEntity|ValidationProblem|ProblemHttpResult|JsonHttpResult|ContentHttpResult)(<>)?'");
+
     public static string ForCompilerError(string code, string message = "")
     {
+        // Web API course: `Results<Ok<Book>, NotFound>` and friends without the using for typed results.
+        if ((code == "CS0246" && HttpResultType.IsMatch(message))
+            || (code == "CS0308" && message.Contains("'Results'", StringComparison.Ordinal)))
+            return "The typed results (Ok<T>, NotFound, Results<…> and the rest) live in their own namespace. Add using Microsoft.AspNetCore.Http.HttpResults; at the top of the file.";
         // `if (x = 10)`: one = assigns, so the condition is an int, not a bool.
         if (code == "CS0029" && message.EndsWith("to 'bool'", StringComparison.Ordinal))
             return "A condition must be true or false. To compare two values, use == (two equals signs); one = puts a value into a variable.";

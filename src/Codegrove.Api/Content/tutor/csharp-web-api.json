@@ -1,0 +1,37 @@
+{
+  "course": "csharp-web-api",
+  "lessons": {
+    "web-api-explorer": {
+      "intro": [
+        {
+          "displayText": "Every app you use asks a server for things, like the weather or your game scores. Your mission: build the Grove's very own notice board server, and send it requests yourself!",
+          "speechText": "Every app you use asks a server for things, like the weather or your game scores. Your mission: build the Grove's very own notice board server, and send it requests yourself!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your notice board server is up and answering requests! Your new word is endpoint: one path your server answers, like GET /hello.",
+          "speechText": "Your notice board server is up and answering requests! Your new word is endpoint, which means one path your server answers, like get hello.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "web-api-basics": {
+      "intro": [
+        {
+          "displayText": "Every mobile app, website and multiplayer game talks to a server through a web API. In this course you'll build one with ASP.NET Core, the same framework that runs huge production services. First come the basics: requests, responses, status codes, and your first endpoints.",
+          "speechText": "Every mobile app, website and multiplayer game talks to a server through a web API. In this course you'll build one with A-S-P dot net Core, the same framework that runs huge production services. First come the basics: requests, responses, status codes, and your first endpoints.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your status API now answers the way its clients expect, down to the Content-Type. The gotcha to remember: a handler that returns a string sends plain text, and anything else becomes JSON. When the status code matters, return an IResult from Results, and keep both branches of a condition the same type.",
+          "speechText": "Your status API now answers the way its clients expect, down to the content type. The gotcha to remember is that a handler that returns a string sends plain text, and anything else becomes JSON. When the status code matters, return a result from the Results class, and keep both branches of a condition the same type.",
+          "mood": "Celebrating"
+        }
+      ]
+    }
+  }
+}

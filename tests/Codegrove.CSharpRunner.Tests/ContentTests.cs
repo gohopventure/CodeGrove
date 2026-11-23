@@ -76,6 +76,15 @@ public class ContentTests
         var result = await CSharpCodeRunner.RunAsync(new RunRequest(new() { ["Program.cs"] = example! }));
         Assert.True(result.Stopped == StopReason.None, $"{file} → {slug}: the example stopped ({result.Stopped}): {string.Join(" | ", result.Console.Select(l => l.Text))}");
         Assert.Empty(result.Diagnostics.Where(d => d.Severity == "warning").Select(d => $"line {d.Line}: {d.Message}"));
-        Assert.NotEmpty(result.Output);
+        if (result.Server is { } server)
+        {
+            // A web server prints nothing: it waits for requests. It must start and have endpoints to try.
+            Assert.True(server.Running, $"{file} → {slug}: the example builds a web app but never calls app.Run().");
+            Assert.NotEmpty(server.Endpoints);
+        }
+        else
+        {
+            Assert.NotEmpty(result.Output);
+        }
     }
 }

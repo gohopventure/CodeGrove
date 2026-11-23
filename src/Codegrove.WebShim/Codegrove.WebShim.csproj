@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    A small, in-browser stand-in for ASP.NET Core, for the Web API course (csharp-web-api).
+
+    Real ASP.NET Core can't run on .NET for WebAssembly (no sockets, no Kestrel, no
+    Microsoft.AspNetCore.App shared framework), so learner servers are hosted here instead: the
+    same type names, namespaces and behavior (status codes, JSON, binding rules, DI errors) as the
+    real thing, for the part of the API the lessons teach. Code a learner writes against it should
+    paste into `dotnet new web` and work unchanged.
+
+    Rules for changing it:
+      - Only add what a lesson uses, and match real ASP.NET Core's names and behavior exactly.
+      - Deliberate differences are listed in README.md next to this file.
+      - Learner code can see the public surface (it compiles against this assembly), so anything
+        that isn't ASP.NET Core API is internal, visible to the runner only.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Microsoft.AspNetCore</RootNamespace>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codegrove.CSharpRunner" />
+    <InternalsVisibleTo Include="Codegrove.CSharpRunner.Tests" />
+  </ItemGroup>
+
+</Project>

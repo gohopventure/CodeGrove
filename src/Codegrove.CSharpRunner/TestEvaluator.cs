@@ -18,12 +18,13 @@ namespace Codegrove.CSharpRunner;
 /// <item><c>compileError</c> { code?, contains?, line?, file? }: the compiler DOES report a matching error (lessons about reading errors).</item>
 /// <item><c>csharpExpression</c> { expression, equals }: a C# expression, run after the program, against the learner's classes. Compared with the JSON value.</item>
 /// <item><c>sourceMatches</c> { pattern, file?, ignoreCase?, min? }: the code (comments removed) matches a regex at least <c>min</c> times (default 1).</item>
+/// <item><c>httpRequest</c> { method, path, body?, before?, expectStatus?, expectJson?, … }: the learner's web server answers a request as expected (see <see cref="WebChecks"/>).</item>
 /// </list>
 /// </summary>
 internal static class TestEvaluator
 {
     public static readonly IReadOnlySet<string> Kinds =
-        new HashSet<string> { "noErrors", "consoleIncludes", "consoleEquals", "compileError", "compileWarning", "noWarnings", "csharpExpression", "sourceMatches" };
+        new HashSet<string> { "noErrors", "consoleIncludes", "consoleEquals", "compileError", "compileWarning", "noWarnings", "csharpExpression", "sourceMatches", WebChecks.Kind };
 
     /// <summary>
     /// Evaluates every test. <paramref name="context"/> is null when the program didn't compile, so
@@ -36,7 +37,12 @@ internal static class TestEvaluator
         var expressionResults = context is null
             ? expressionTests.ToDictionary(t => t.Id, t => Fail(t, "Your code needs to compile before this can be checked."))
             : await EvaluateExpressionsAsync(expressionTests, context);
-        return tests.Select(t => expressionResults.TryGetValue(t.Id, out var r) ? r : EvaluateStatic(t, files, diagnostics, outcome)).ToList();
+        // Web checks run after the expression checks: each one restarts the program, which would reset its state.
+        var webResults = await WebChecks.EvaluateAsync(tests.Where(t => t.Kind == WebChecks.Kind).ToList(), context);
+        return tests.Select(t =>
+            expressionResults.TryGetValue(t.Id, out var r) ? r
+            : webResults.TryGetValue(t.Id, out var w) ? w
+            : EvaluateStatic(t, files, diagnostics, outcome)).ToList();
     }
 
     private static TestResult EvaluateStatic(TestSpec test, Dictionary<string, string> files, List<Diagnostic> diagnostics, RunOutcome outcome)

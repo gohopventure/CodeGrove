@@ -37,6 +37,22 @@ public static class CSharpCodeRunner
         [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("CgChecks")]
         """;
 
+    /// <summary>
+    /// The extra usings a `dotnet new web` project gets (Microsoft.NET.Sdk.Web), for programs that build a
+    /// web app, so Web API lessons look exactly like a real project. Only the namespaces the practice
+    /// server has; System.Net.Http stays out.
+    /// </summary>
+    private const string WebGlobalUsings = """
+        global using Microsoft.AspNetCore.Builder;
+        global using Microsoft.AspNetCore.Http;
+        global using Microsoft.AspNetCore.Routing;
+        global using Microsoft.Extensions.DependencyInjection;
+        """;
+
+    /// <summary>Whether the learner's program is a web server (Web API course): it mentions WebApplication.</summary>
+    internal static bool IsWebProgram(IEnumerable<string> sources) =>
+        sources.Any(s => s.Contains("WebApplication", StringComparison.Ordinal));
+
     private static ImmutableArray<MetadataReference> s_references;
 
     /// <summary>The allow-listed reference assemblies embedded in this library (see the .csproj).</summary>
@@ -85,9 +101,12 @@ public static class CSharpCodeRunner
             .Select(f => CSharpSyntaxTree.ParseText(SourceText.From(f.Value, Encoding.UTF8), LearnerParseOptions, path: f.Key))
             .ToList();
 
+        var isWeb = IsWebProgram(sources.Select(f => f.Value));
+        List<SyntaxTree> generated = [Generated(GlobalUsings, "__cg_usings.cs"), Generated(Guard.Source, "__cg_guard.cs")];
+        if (isWeb) generated.Add(Generated(WebGlobalUsings, "__cg_web_usings.cs"));
         var compilation = CSharpCompilation.Create(
             ProgramAssemblyName,
-            [.. trees, Generated(GlobalUsings, "__cg_usings.cs"), Generated(Guard.Source, "__cg_guard.cs")],
+            [.. trees, .. generated],
             References,
             CompilationOptions(OutputKind.ConsoleApplication));
 
@@ -146,11 +165,21 @@ public static class CSharpCodeRunner
             var program = context.LoadFromStream(new MemoryStream(pe));
             context.Program = program;
             context.ProgramImage = pe;
-            var outcome = await RunProgramAsync(program, request.Input, console);
+            var slot = Codegrove.WebShim.ShimHost.Begin();
+            RunOutcome outcome;
+            try
+            {
+                outcome = await RunProgramAsync(program, request.Input, console);
+            }
+            finally
+            {
+                Codegrove.WebShim.ShimHost.End();
+            }
+            var (server, responses) = await WebServer.AfterRunAsync(slot, outcome, program, request.Requests, console);
             var results = await TestEvaluator.EvaluateAllAsync(tests, request.Files, diagnostics, outcome, context);
             runWatch.Stop();
             return new RunResult(true, diagnostics, console, outcome.Output, outcome.Stopped, results,
-                compileWatch.ElapsedMilliseconds, runWatch.ElapsedMilliseconds);
+                compileWatch.ElapsedMilliseconds, runWatch.ElapsedMilliseconds, server, responses);
         }
         finally
         {
@@ -213,7 +242,7 @@ public static class CSharpCodeRunner
     /// <summary>What happened when the program ran. <paramref name="Error"/> is the learner's exception, if any.</summary>
     internal sealed record RunOutcome(Assembly? Program, string Output, StopReason Stopped, Exception? Error);
 
-    private static async Task<RunOutcome> RunProgramAsync(Assembly program, string? input, List<ConsoleLine> console)
+    internal static async Task<RunOutcome> RunProgramAsync(Assembly program, string? input, List<ConsoleLine> console)
     {
         var capture = new ConsoleCapture(console);
         // Console.In can't even be read in the browser, so it isn't saved and restored: it's left empty after the run.
@@ -239,6 +268,8 @@ public static class CSharpCodeRunner
         }
         finally
         {
+            // app.Run() ends the program on purpose (a real server waits there): not an error.
+            if (error is Codegrove.WebShim.ServerStartedSignal) error = null;
             capture.Flush();
             Console.SetOut(oldOut);
             Console.SetError(oldErr);
