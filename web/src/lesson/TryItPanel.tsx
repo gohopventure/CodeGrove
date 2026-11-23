@@ -9,6 +9,10 @@ import type { CSharpHttpExchange, CSharpHttpRequest, CSharpServerInfo } from '..
  * sent since the code last changed, then the new one. So a POST followed by a GET finds what was posted,
  * just as it would on a real running server, and changing the code restarts with fresh data (as a real
  * restart would).
+ *
+ * Paths from the endpoint buttons keep their route blanks, like /pets/{id}. Sending one as-is would put the
+ * text "{id}" in the blank, so the blank is selected (typing replaces it), a note says what to do, and Send
+ * waits until it's filled in.
  */
 export function TryItPanel({ server, filesKey, send, busy }: {
   /** From the last run; null until the program has run once. */
@@ -27,6 +31,22 @@ export function TryItPanel({ server, filesKey, send, busy }: {
   const [answer, setAnswer] = useState<CSharpHttpExchange | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const lastKey = useRef(filesKey);
+  const pathInput = useRef<HTMLInputElement>(null);
+
+  /** Focuses the path and selects its first {blank}, so typing replaces it. */
+  function selectBlank(p: string) {
+    const blank = findBlank(p);
+    if (!blank) return;
+    requestAnimationFrame(() => {
+      const input = pathInput.current;
+      if (!input) return;
+      input.focus();
+      input.setSelectionRange(blank.start, blank.end);
+    });
+  }
+
+  const blank = findBlank(path);
+  const fillWith = blank && blankIsNumber(server, blank.name) ? 'a whole number' : 'a value';
 
   useEffect(() => {
     if (lastKey.current === filesKey) return;
@@ -45,6 +65,12 @@ export function TryItPanel({ server, filesKey, send, busy }: {
 
   async function onSend(event: React.FormEvent) {
     event.preventDefault();
+    if (blank) {
+      // The hint under the path already says what to do (and is read out with it): just go back to the blank.
+      setNote(null);
+      selectBlank(path);
+      return;
+    }
     let request: CSharpHttpRequest = { method, path: path.trim() || '/' };
     if (hasBody && body.trim()) {
       try {
@@ -81,9 +107,11 @@ export function TryItPanel({ server, filesKey, send, busy }: {
         <label className="flex min-w-40 flex-1 flex-col text-xs font-bold text-muted">
           Path
           <input
+            ref={pathInput}
             className="input mt-1 py-1 font-mono text-sm text-ink"
             value={path}
             onChange={(e) => setPath(e.target.value)}
+            aria-describedby={blank ? `${ids}-blank` : undefined}
             spellCheck={false}
             autoComplete="off"
           />
@@ -91,6 +119,11 @@ export function TryItPanel({ server, filesKey, send, busy }: {
         <button type="submit" className="btn-primary px-4 py-1 text-sm" disabled={busy}>
           {busy ? 'Sending…' : 'Send'}
         </button>
+        {blank && (
+          <p id={`${ids}-blank`} className="w-full text-xs text-muted">
+            Replace <code className="font-mono text-ink">{`{${blank.name}}`}</code> in the path with {fillWith}, then press Send.
+          </p>
+        )}
         {hasBody && (
           <label className="flex w-full flex-col text-xs font-bold text-muted">
             Body (JSON)
@@ -115,6 +148,8 @@ export function TryItPanel({ server, filesKey, send, busy }: {
                   const [m, p] = splitEndpoint(e);
                   setMethod(m);
                   setPath(p);
+                  setNote(null);
+                  selectBlank(p);
                 }}
               >
                 {e}
@@ -182,6 +217,22 @@ function pretty(body: string): string {
 function splitEndpoint(endpoint: string): [string, string] {
   const [methods = 'GET', path = '/'] = endpoint.split(' ');
   return [methods.split('/')[0] ?? 'GET', path.replace(/\{(\w+)[^}]*\}/g, '{$1}')];
+}
+
+/** The first route blank in a path, like {id} in /pets/{id}: where it is, and its name. */
+export function findBlank(path: string): { start: number; end: number; name: string } | null {
+  const match = /\{([^}]*)\}/.exec(path);
+  if (!match) return null;
+  const name = (match[1] ?? '').split(':')[0]?.replace(/[*?]/g, '').trim() || 'value';
+  return { start: match.index, end: match.index + match[0].length, name };
+}
+
+/** Whether the server's routes constrain this blank to a number ({id:int}, {page:long}…). */
+export function blankIsNumber(server: CSharpServerInfo | null, name: string): boolean {
+  // The name comes from what the learner typed, so it's escaped before going into a pattern.
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`\\{\\*?${escaped}:(int|long|decimal|double|float|min|max|range)\\b`, 'i');
+  return server?.endpoints.some((e) => pattern.test(e)) ?? false;
 }
 
 function firstPath(server: CSharpServerInfo | null): string | null {
