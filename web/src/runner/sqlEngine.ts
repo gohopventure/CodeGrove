@@ -256,6 +256,8 @@ const FRIENDLY: [RegExp, (m: RegExpExecArray) => string][] = [
   [/^unrecognized token: "?'/, () => "There's a quote ' that never closes. Text values need a quote at both ends, like 'Juni'."],
   [/^unrecognized token: "([^"]+)"/, (m) => `SQL doesn't know what "${m[1]}" is. Text values go in single quotes, like 'Juni'.`],
   [/^no such table: (\S+)/, (m) => `There's no table called ${m[1]}. Look at the Tables tab for the exact table names.`],
+  // With a table in front (clubs.name), the usual cause is a table the query never joined, not a missing quote.
+  [/^no such column: (\w+)\.(\S+)/, (m) => `There's no column called ${m[1]}.${m[2]}. Check the spelling against the Tables tab, and check that ${m[1]} is in the query's FROM or a JOIN.`],
   [/^no such column: (\S+)/, (m) => `There's no column called ${m[1]}. Check the spelling against the Tables tab. If you meant a piece of text, put it in single quotes, like '${(m[1] ?? '').replace(/^.*\./, '')}'.`],
   [/^ambiguous column name: (\S+)/, (m) => `More than one table has a column called ${m[1]}, so SQL doesn't know which one you mean. Write the table's name (or its alias), a dot, then ${m[1]}.`],
   [/^no such function: (\S+)/, (m) => `SQL doesn't have a function called ${m[1]}. Check the spelling.`],
@@ -264,7 +266,13 @@ const FRIENDLY: [RegExp, (m: RegExpExecArray) => string][] = [
   [/^(\d+) values for (\d+) columns/, (m) => `You listed ${m[2]} columns but gave ${m[1]} values. They need to match, one value for each column.`],
   [/^all VALUES must have the same number of terms/, () => 'Every row in VALUES needs the same number of values.'],
   [/^NOT NULL constraint failed: (\S+)/, (m) => `${m[1]} can't be empty (NULL): this column must always have a value.`],
-  [/^UNIQUE constraint failed: (\S+)/, (m) => `There's already a row with that ${m[1]}. This column can't have the same value twice.`],
+  [/^UNIQUE constraint failed: (.+)$/, (m) => {
+    // A key over several columns (a junction table's) lists them all: "t.a, t.b".
+    const columns = (m[1] ?? '').split(/,\s*/);
+    return columns.length > 1
+      ? `There's already a row with that ${columns.join(' and ')} together. Each pair can only be in the table once.`
+      : `There's already a row with that ${columns[0]}. This column can't have the same value twice.`;
+  }],
   [/^CHECK constraint failed: (.+)/, (m) => `A value broke one of the table's rules (CHECK ${m[1]}).`],
   [/^FOREIGN KEY constraint failed/, () => "That would leave a row pointing at something that doesn't exist. A foreign key must match a row in the other table, and you can't delete a row that other rows still point at."],
   [/^datatype mismatch/, () => "A value is the wrong type for its column, like text in a whole-number id column."],

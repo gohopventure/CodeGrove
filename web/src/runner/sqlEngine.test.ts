@@ -53,6 +53,20 @@ describe('running SQL', () => {
     expect(r.error?.friendly).toContain("no column called nme");
   });
 
+  it('suggests a missing JOIN when a qualified column is unknown', () => {
+    const r = run('SELECT pets.name\nFROM pets\nWHERE toys.toy = \'ball\';');
+    expect(r.error).toMatchObject({ line: 3, message: 'no such column: toys.toy' });
+    expect(r.error?.friendly).toBe("There's no column called toys.toy. Check the spelling against the Tables tab, and check that toys is in the query's FROM or a JOIN.");
+    expect(run('SELECT nme FROM pets;').error?.friendly).toContain("put it in single quotes, like 'nme'");
+  });
+
+  it('words a duplicate in a two-column key as a pair', () => {
+    const r = run('CREATE TABLE likes (pet_id INTEGER, toy_id INTEGER, PRIMARY KEY (pet_id, toy_id));\nINSERT INTO likes VALUES (1, 1), (1, 1);');
+    expect(r.error?.message).toBe('UNIQUE constraint failed: likes.pet_id, likes.toy_id');
+    expect(r.error?.friendly).toBe("There's already a row with that likes.pet_id and likes.toy_id together. Each pair can only be in the table once.");
+    expect(run("INSERT INTO pets VALUES (1, 'Rex', 'dog', 2);").error?.friendly).toBe("There's already a row with that pets.id. This column can't have the same value twice.");
+  });
+
   it('points an ambiguous column error at the unqualified name, not the start of the query', () => {
     const r = run('SELECT name, toy\nFROM pets\nJOIN toys ON pet_id = id;');
     expect(r.error).toMatchObject({ line: 3, message: 'ambiguous column name: id' });

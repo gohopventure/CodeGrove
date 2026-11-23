@@ -1134,7 +1134,7 @@
       "isPublished": true,
       "learnMarkdown": "## LEFT JOIN and missing rows\n\nAn inner join answers \"show me the matches\". Many real questions are about the **missing** matches: customers who never ordered, products nobody reviewed, publishers with no games. Those need an outer join.\n\n### LEFT JOIN\n\n```sql\nSELECT p.name, g.title\nFROM publishers AS p\nLEFT JOIN games AS g ON g.publisher_id = p.id;\n```\n\nA `LEFT JOIN` (also written `LEFT OUTER JOIN`) keeps **every row of the left table**, the one before `LEFT JOIN`. Rows that found matches come out as usual. A row with no match comes out once, with **NULL** in every column from the right table:\n\n| name | title |\n|------|-------|\n| Bitforge | Byte Racers |\n| Nimbus Interactive | NULL |\n\nWhich table is \"left\" matters: `games LEFT JOIN publishers` keeps every game instead.\n\n### Counting with a LEFT JOIN\n\nTo count matches per left row, count a column from the **right** table:\n\n```sql\nSELECT p.name, COUNT(g.id) AS games\nFROM publishers AS p\nLEFT JOIN games AS g ON g.publisher_id = p.id\nGROUP BY p.name;\n```\n\n`COUNT(g.id)` skips NULLs, so Nimbus gets 0. `COUNT(*)` counts rows, and Nimbus still has one row (the one full of NULLs), so it would say 1. That's a quiet, believable wrong answer.\n\n### Finding rows with no match (an anti-join)\n\nJoin, then keep only the rows where the right side came back empty:\n\n```sql\nSELECT p.name\nFROM publishers AS p\nLEFT JOIN games AS g ON g.publisher_id = p.id\nWHERE g.id IS NULL;\n```\n\nTest the right table's **primary key** (or another NOT NULL column). If you test a column that can be NULL anyway, a real match with a NULL in it would look like a missing match.\n\n### ON vs WHERE: the big LEFT JOIN gotcha\n\nWith an inner join, a condition can go in `ON` or `WHERE` with the same result. With a left join it can't:\n\n- `ON` decides which right rows **match**. Left rows are kept either way.\n- `WHERE` runs **after** the join and filters whole rows, including the kept ones.\n\nSo this \"every game with its 5-star reviews\" query is broken:\n\n```sql\nSELECT g.title, COUNT(r.id) AS five_stars\nFROM games AS g\nLEFT JOIN reviews AS r ON r.game_id = g.id\nWHERE r.stars = 5\nGROUP BY g.title;\n```\n\nA game with no 5-star review has `r.stars` NULL or 4, so `WHERE` throws it away, and the left join behaves like an inner join. Conditions on the **right** table belong in `ON`; conditions on the left table can stay in `WHERE`.\n\n### The other outer joins\n\n- `RIGHT JOIN` keeps every row of the right table. It's a LEFT JOIN written backwards, and most teams just swap the tables.\n- `FULL OUTER JOIN` keeps unmatched rows from both sides. Handy for comparing two lists.\n\n### In SQL Server\n\n- `LEFT JOIN`, `RIGHT JOIN` and `FULL OUTER JOIN` all work. (SQLite added RIGHT and FULL in 2022, version 3.39.)\n- To show something friendlier than NULL, use `COALESCE(g.title, 'no games')`, which works in both. SQL Server also has `ISNULL(g.title, 'no games')`.\n- An anti-join is often written with `NOT EXISTS (…)`, a subquery. You'll meet those in lesson 6.\n\n### New words\n\n- **Outer join**: a join that also keeps rows with no match. LEFT, RIGHT and FULL are the three kinds.\n- **LEFT JOIN**: keeps every row of the left (first) table, with NULLs where nothing matched.\n- **Anti-join**: finding the rows with no match, usually `LEFT JOIN … WHERE right.id IS NULL`.\n- **COALESCE**: a function that returns the first value in its list that isn't NULL.\n",
       "exampleMarkdown": "Every publisher with its games: Nimbus Interactive has none, so it shows up once with NULL. `COALESCE` swaps that NULL for friendlier text. Try changing `LEFT JOIN` to `JOIN`, and Nimbus disappears.",
-      "exampleCode": "-- Every publisher, with its games if it has any\nSELECT p.name AS publisher,\n       COALESCE(g.title, '(no games yet)') AS game\nFROM publishers AS p\nLEFT JOIN games AS g ON g.publisher_id = p.id\nORDER BY publisher, game;\n",
+      "exampleCode": "-- Every publisher, with its games\nSELECT p.name AS publisher,\n       COALESCE(g.title, '(no games yet)')\n         AS game\nFROM publishers AS p\nLEFT JOIN games AS g ON g.publisher_id = p.id\nORDER BY publisher, game;\n",
       "challenge": {
         "kind": "Sql",
         "xpReward": 15,
@@ -1398,15 +1398,501 @@
       "sortOrder": 4,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Lots of things to lots of things\n\nThe Grove has clubs now: the **Swim Club**, the **Star Gazers** and the **Acorn Collectors**. A critter can be in lots of clubs, and a club has lots of critters. Juni is in the Star Gazers *and* the Acorn Collectors!\n\n### Why a club_id column won't work\n\nFor homes, each critter had one `home_id`. But Juni needs two clubs. A `club_id` column only holds one number, and adding `club_id_2`, `club_id_3`… never ends.\n\n### A table in the middle\n\nThe answer is a third table, just for who is in which club. Each row is one critter in one club:\n\n| critter_id | club_id |\n|------------|---------|\n| 1 | 2 |\n| 1 | 3 |\n| 5 | 2 |\n\nCritter 1 (Juni) is in clubs 2 and 3. Critter 5 (Nova) is in club 2. To join a club, add a row. To leave, delete one. This middle table is called a **junction table**.\n\n### Each pair only once\n\nIn `club_members`, the **pair** `critter_id` + `club_id` is the primary key. So the same critter can't join the same club twice: the database stops you with an error.\n\n### Joining through the middle\n\nTo get names, join all three tables. Start in the middle and join out to each side:\n\n```sql\nSELECT critters.name, clubs.name AS club\nFROM club_members\nJOIN critters\n  ON critters.id = club_members.critter_id\nJOIN clubs\n  ON clubs.id = club_members.club_id;\n```\n\n### New words\n\n- **Many-to-many**: lots of rows in one table go with lots of rows in another, like critters and clubs.\n- **Junction table**: a table in the middle that stores the pairs, one row for each critter in each club.\n",
+      "exampleMarkdown": "This joins through `club_members` to find Juni's clubs. Try changing `'Juni'` to `'Moss'`. Which clubs is Moss in?",
+      "exampleCode": "-- Which clubs is Juni in?\nSELECT clubs.name AS club\nFROM club_members\nJOIN critters\n  ON critters.id = club_members.critter_id\nJOIN clubs\n  ON clubs.id = club_members.club_id\nWHERE critters.name = 'Juni';\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Open the **Tables** tab: there's `critters`, `clubs`, and the junction table `club_members` in the middle.\n\n1. Pip wants to join the **Star Gazers**. Add a row to `club_members` with Pip's id and the club's id.\n2. Moss signed up for the Swim Club twice. Press **Run** and read the red message, then delete that extra sign-up.\n3. The last query should list the Star Gazers, but it stops with an error. Add the missing `JOIN` to the `clubs` table.",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Critter Club: homes and critters\nCREATE TABLE homes (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  place TEXT NOT NULL\n);\nINSERT INTO homes VALUES\n  (1, 'Oak Hollow', 'tree'),\n  (2, 'Lily Pond', 'pond'),\n  (3, 'Bramble Burrow', 'burrow'),\n  (4, 'Mossy Log', 'woods'),\n  (5, 'Sunny Meadow', 'meadow'),\n  (6, 'Cloud Nest', 'tree');\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  home_id INTEGER NOT NULL REFERENCES homes(id)\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3),\n  (2, 'Pip', 'owl', 1),\n  (3, 'Moss', 'frog', 2),\n  (4, 'Bramble', 'hedgehog', 3),\n  (5, 'Nova', 'rabbit', 3),\n  (6, 'Pebble', 'turtle', 2),\n  (7, 'Fern', 'deer', 4),\n  (8, 'Wren', 'duck', 2);\n-- Clubs, and who is in which club\nCREATE TABLE clubs (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL\n);\nINSERT INTO clubs VALUES\n  (1, 'Swim Club'),\n  (2, 'Star Gazers'),\n  (3, 'Acorn Collectors');\nCREATE TABLE club_members (\n  critter_id INTEGER NOT NULL REFERENCES critters(id),\n  club_id INTEGER NOT NULL REFERENCES clubs(id),\n  PRIMARY KEY (critter_id, club_id)\n);\nINSERT INTO club_members VALUES\n  (3, 1),\n  (6, 1),\n  (8, 1),\n  (1, 2),\n  (5, 2),\n  (1, 3),\n  (4, 3),\n  (7, 3);\n",
+          "query.sql": "-- 1. Pip wants to join the Star Gazers. Add a\n--    row to club_members. Find Pip's id and the\n--    club's id in the Tables tab.\n\n-- 2. Moss signed up for Swim Club twice! Run\n--    it, read the message, then delete this\n--    extra sign-up.\nINSERT INTO club_members (critter_id, club_id)\nVALUES (3, 1);\n\n-- 3. Who's in the Star Gazers? This query is\n--    missing a JOIN to the clubs table.\nSELECT critters.name\nFROM club_members\nJOIN critters\n  ON critters.id = club_members.critter_id\nWHERE clubs.name = 'Star Gazers';\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Pip wants to join the Star Gazers. Add a\n--    row to club_members. Find Pip's id and the\n--    club's id in the Tables tab.\nINSERT INTO club_members (critter_id, club_id)\nVALUES (2, 2);\n\n-- 3. Who's in the Star Gazers? This query is\n--    missing a JOIN to the clubs table.\nSELECT critters.name\nFROM club_members\nJOIN critters\n  ON critters.id = club_members.critter_id\nJOIN clubs\n  ON clubs.id = club_members.club_id\nWHERE clubs.name = 'Star Gazers';\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "Pip is a Star Gazer",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT COUNT(*) FROM club_members WHERE critter_id = 2 AND club_id = 2",
+              "equals": 1,
+              "report": "Pip's Star Gazers rows: {value}."
+            },
+            "failMessage": "Add one row to club_members for Pip in the Star Gazers. Both ids are in the Tables tab: Pip's in critters, the club's in clubs."
+          },
+          {
+            "label": "Nobody else joined or left a club",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT critter_id, club_id FROM club_members ORDER BY critter_id, club_id",
+              "equals": [
+                [
+                  1,
+                  2
+                ],
+                [
+                  1,
+                  3
+                ],
+                [
+                  2,
+                  2
+                ],
+                [
+                  3,
+                  1
+                ],
+                [
+                  4,
+                  3
+                ],
+                [
+                  5,
+                  2
+                ],
+                [
+                  6,
+                  1
+                ],
+                [
+                  7,
+                  3
+                ],
+                [
+                  8,
+                  1
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "club_members should have the starting rows plus Pip in the Star Gazers, and nothing else."
+          },
+          {
+            "label": "The Star Gazers list is right",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "name"
+              ],
+              "rows": [
+                [
+                  "Juni"
+                ],
+                [
+                  "Nova"
+                ],
+                [
+                  "Pip"
+                ]
+              ]
+            },
+            "failMessage": "The query should list the names of every Star Gazer, Pip too. Add JOIN clubs ON clubs.id = club_members.club_id above the WHERE."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The last query says `clubs.name`, but which tables does it join so far?",
+            "speechText": "The last query asks for clubs dot name, but which tables does it join so far?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Pip is critter 2 and the Star Gazers are club 2, so add `INSERT INTO club_members (critter_id, club_id) VALUES (2, 2);`. Delete the two lines that add Moss again.",
+            "speechText": "Pip is critter 2 and the Star Gazers are club 2, so insert the values 2 and 2 into club members. Then delete the two lines that add Moss again.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Above the `WHERE`, add:\n\n```sql\nJOIN clubs\n  ON clubs.id = club_members.club_id\n```",
+            "speechText": "Above the where line, add join clubs, on clubs dot id equals club members dot club id.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A critter can be in many clubs, and a club has many critters. What is that called?",
+            "explanation": "Lots of rows on both sides going together is a many-to-many relationship.",
+            "options": [
+              {
+                "text": "Many-to-many",
+                "correct": true
+              },
+              {
+                "text": "One-to-many",
+                "correct": false
+              },
+              {
+                "text": "One-to-one",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's in each row of club_members?",
+            "explanation": "Each row is one pair: one critter in one club.",
+            "options": [
+              {
+                "text": "One critter's id and one club's id",
+                "correct": true
+              },
+              {
+                "text": "Every club a critter is in, in one row",
+                "correct": false
+              },
+              {
+                "text": "A club's name and its address",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Moss is already in the Swim Club. What happens if you add the same pair again?",
+            "explanation": "The pair is the primary key, so the same pair can't go in twice: you get an error.",
+            "options": [
+              {
+                "text": "An error: each pair can only be in the table once",
+                "correct": true
+              },
+              {
+                "text": "Moss is in the Swim Club twice",
+                "correct": false
+              },
+              {
+                "text": "Moss leaves the Swim Club",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "junction-tables",
       "title": "Many-to-many with junction tables",
       "sortOrder": 4,
       "ageBand": "Builder",
-      "estimatedMinutes": 15,
-      "isPublished": false
+      "estimatedMinutes": 20,
+      "isPublished": true,
+      "learnMarkdown": "## Many-to-many with junction tables\n\nOne-to-many covers a lot: one publisher, many games. But many relationships go both ways. A game has several tags (co-op, racing) and a tag is on many games. A student takes many classes and a class has many students. That's **many-to-many**, and no single foreign key can hold it.\n\n### Designs that don't work\n\n- **Numbered columns** (`tag1`, `tag2`, `tag3`): there's always a game with one more tag, every query has to check every column, and empty slots are NULL.\n- **A list in one column** (`tags = 'co-op,racing'`): the database can't check that the tags exist, can't index them, and `LIKE '%co-op%'` is slow and fragile.\n\n### The junction table\n\nStore each pairing as its own row in a table between the two:\n\n```sql\nCREATE TABLE game_tags (\n  game_id INTEGER NOT NULL REFERENCES games(id),\n  tag_id INTEGER NOT NULL REFERENCES tags(id),\n  PRIMARY KEY (game_id, tag_id)\n);\n```\n\n- Both columns are foreign keys, so every pairing points at a real game and a real tag.\n- The **composite primary key** (a key made of two columns) means each pair appears once. Tagging a game \"co-op\" twice is refused.\n- Many-to-many is really two one-to-many relationships: one game, many `game_tags` rows; one tag, many `game_tags` rows.\n\nJunction tables go by many names: link table, bridge table, associative table. A pairing can also carry its own data, like `added_on` or a player's `rating`. Then it's a full table in its own right (often named for what it is, like `enrollments`).\n\n`ON DELETE CASCADE` suits junction tables well: if a game is deleted, its tag pairings mean nothing and can go with it.\n\n### Querying through it\n\nTwo joins, one to each side:\n\n```sql\nSELECT g.title\nFROM games AS g\nJOIN game_tags AS gt ON gt.game_id = g.id\nJOIN tags AS t ON t.id = gt.tag_id\nWHERE t.name = 'co-op';\n```\n\n### The fan-out gotcha\n\nJoining a table to **two** different \"many\" sides multiplies rows. Star Garden has 2 tags and 2 reviews; joined to both, it gets 2 × 2 = 4 rows, so `COUNT(gt.tag_id)` and `COUNT(r.id)` both say 4. Sums are inflated the same way. Fixes:\n\n- `COUNT(DISTINCT gt.tag_id)` for counts of distinct things;\n- or aggregate each side separately first (a subquery, lesson 6), then join the totals.\n\nWatch for this whenever a report suddenly looks too big.\n\n### In SQL Server\n\n- The same design. Name the key: `CONSTRAINT PK_game_tags PRIMARY KEY (game_id, tag_id)`.\n- The primary key's index leads with `game_id`, so looking up \"all games with tag 5\" can't use it well. Add an index on `tag_id` too.\n- To turn a game's tags into one string, SQLite has `GROUP_CONCAT(t.name, ', ')` and SQL Server has `STRING_AGG(t.name, ', ')`.\n- Entity Framework Core creates a junction table for you when two entities each have a collection of the other (a skip navigation), as you'll see in the Web API course.\n\n### New words\n\n- **Many-to-many**: rows on both sides can relate to many rows on the other.\n- **Junction table**: a table whose rows each pair one row from each side. Also called a link, bridge or associative table.\n- **Composite key**: a primary (or unique) key made of more than one column.\n- **Fan-out**: rows multiplying when a query joins more than one \"many\" side, which inflates counts and sums.\n",
+      "exampleMarkdown": "This lists every tag with its games, joining through `game_tags` and combining the titles with `GROUP_CONCAT`. Try adding `WHERE t.name = 'cozy'` above `GROUP BY` to see just one tag.",
+      "exampleCode": "-- Each tag and the games that have it\nSELECT t.name AS tag,\n       COUNT(*) AS games,\n       GROUP_CONCAT(g.title, ', ') AS titles\nFROM tags AS t\nJOIN game_tags AS gt ON gt.tag_id = t.id\nJOIN games AS g ON g.id = gt.game_id\nGROUP BY t.name\nORDER BY games DESC, tag;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Open the **Tables** tab: `game_tags` is a junction table between `games` and `tags`, and there's a new `players` table.\n\n1. **Tags and reviews per game:** the counts are too big for some games. Fix them so each counts the right number.\n2. **Wishlists:** create the junction table `wishlist_items` with `player_id` and `game_id`. Both are foreign keys, and the pair is the primary key. Then run the import below it: one row is in there twice, so your key should refuse it. Delete the copy.\n3. **Most wished-for:** write a query with the columns `title` and `wishes` (how many players wished for it), most wishes first, then by title.",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop: publishers, games, reviews\nCREATE TABLE publishers (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  country TEXT NOT NULL\n);\nINSERT INTO publishers VALUES\n  (1, 'Starling Games', 'USA'),\n  (2, 'Lumen Works', 'Japan'),\n  (3, 'Bitforge', 'Canada'),\n  (4, 'Driftwood Studio', 'UK'),\n  (5, 'Nimbus Interactive', 'Brazil');\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  price REAL NOT NULL,\n  publisher_id INTEGER NOT NULL\n    REFERENCES publishers(id)\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 39.99, 2),\n  (2, 'Byte Racers', 'PC', 19.99, 3),\n  (3, 'Moonlight Mages', 'PlayStation', 59.99, 1),\n  (4, 'Puzzle Pond', 'Switch', 14.99, 4),\n  (5, 'Robo Rumble', 'Xbox', 49.99, 3),\n  (6, 'Ocean Odyssey', 'PC', 29.99, 4),\n  (7, 'Castle Quest', 'PlayStation', 39.99, 1),\n  (8, 'Tiny Tactics', 'Switch', 24.99, 2),\n  (9, 'Comet Kart', 'Switch', 44.99, 2),\n  (10, 'Pixel Pets', 'PC', 9.99, 3);\nCREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  game_id INTEGER NOT NULL REFERENCES games(id),\n  stars INTEGER NOT NULL\n    CHECK (stars BETWEEN 1 AND 5),\n  body TEXT\n);\nINSERT INTO reviews VALUES\n  (1, 1, 5, 'Calm and lovely.'),\n  (2, 1, 4, 'Great with friends.'),\n  (3, 2, 4, 'Fast and fun.'),\n  (4, 5, 2, 'Too short.'),\n  (5, 7, 5, 'Best castle ever.'),\n  (6, 3, 4, 'Spooky in a good way.'),\n  (7, 4, 5, 'So relaxing.'),\n  (8, 6, 2, 'Kept crashing.'),\n  (9, 8, 3, 'Fine, a bit slow.'),\n  (10, 3, 5, 'The music is magic.'),\n  (11, 7, 4, 'Hard but fair.');\n-- Tags, and which game has which tag\nCREATE TABLE tags (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE\n);\nINSERT INTO tags VALUES\n  (1, 'co-op'),\n  (2, 'racing'),\n  (3, 'puzzle'),\n  (4, 'fantasy'),\n  (5, 'strategy'),\n  (6, 'cozy');\nCREATE TABLE game_tags (\n  game_id INTEGER NOT NULL\n    REFERENCES games(id) ON DELETE CASCADE,\n  tag_id INTEGER NOT NULL\n    REFERENCES tags(id) ON DELETE CASCADE,\n  PRIMARY KEY (game_id, tag_id)\n);\nINSERT INTO game_tags VALUES\n  (1, 6),\n  (1, 1),\n  (2, 2),\n  (2, 1),\n  (3, 4),\n  (3, 5),\n  (4, 3),\n  (4, 6),\n  (5, 1),\n  (6, 6),\n  (7, 4),\n  (7, 1),\n  (8, 5),\n  (8, 3),\n  (9, 2),\n  (9, 1),\n  (10, 6);\n-- Shop accounts (usernames only)\nCREATE TABLE players (\n  id INTEGER PRIMARY KEY,\n  username TEXT NOT NULL UNIQUE\n);\nINSERT INTO players VALUES\n  (1, 'nova_k'),\n  (2, 'byteboss'),\n  (3, 'quietfox'),\n  (4, 'lumen_lu');\n",
+          "query.sql": "-- 1. Each game's number of tags and reviews.\n--    Check them against the Tables tab.\nSELECT g.title,\n       COUNT(gt.tag_id) AS tags,\n       COUNT(r.id) AS reviews\nFROM games AS g\nLEFT JOIN game_tags AS gt ON gt.game_id = g.id\nLEFT JOIN reviews AS r ON r.game_id = g.id\nGROUP BY g.title\nORDER BY g.title;\n\n-- 2. Wishlists: a player can wish for many\n--    games, and a game can be on many lists.\n--    Create wishlist_items (player_id,\n--    game_id): both foreign keys, and the pair\n--    is the primary key.\n\n-- The import has one row twice. Your primary\n-- key should refuse it: then delete the copy.\nINSERT INTO wishlist_items (player_id, game_id)\nVALUES\n  (1, 9),\n  (1, 3),\n  (2, 9),\n  (2, 5),\n  (3, 9),\n  (3, 1),\n  (2, 9),\n  (3, 3),\n  (4, 1);\n\n-- 3. Write it: most wished-for games, with\n--    title and wishes, most first, then by\n--    title.\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Each game's number of tags and reviews.\n--    Check them against the Tables tab.\nSELECT g.title,\n       COUNT(DISTINCT gt.tag_id) AS tags,\n       COUNT(DISTINCT r.id) AS reviews\nFROM games AS g\nLEFT JOIN game_tags AS gt ON gt.game_id = g.id\nLEFT JOIN reviews AS r ON r.game_id = g.id\nGROUP BY g.title\nORDER BY g.title;\n\n-- 2. Wishlists: a player can wish for many\n--    games, and a game can be on many lists.\n--    Create wishlist_items (player_id,\n--    game_id): both foreign keys, and the pair\n--    is the primary key.\nCREATE TABLE wishlist_items (\n  player_id INTEGER NOT NULL\n    REFERENCES players(id),\n  game_id INTEGER NOT NULL\n    REFERENCES games(id),\n  PRIMARY KEY (player_id, game_id)\n);\n\n-- The import has one row twice. Your primary\n-- key should refuse it: then delete the copy.\nINSERT INTO wishlist_items (player_id, game_id)\nVALUES\n  (1, 9),\n  (1, 3),\n  (2, 9),\n  (2, 5),\n  (3, 9),\n  (3, 1),\n  (3, 3),\n  (4, 1);\n\n-- 3. Write it: most wished-for games, with\n--    title and wishes, most first, then by\n--    title.\nSELECT g.title, COUNT(*) AS wishes\nFROM wishlist_items AS w\nJOIN games AS g ON g.id = w.game_id\nGROUP BY g.title\nORDER BY wishes DESC, g.title;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "Tag and review counts are right",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "title",
+                "tags",
+                "reviews"
+              ],
+              "rows": [
+                [
+                  "Byte Racers",
+                  2,
+                  1
+                ],
+                [
+                  "Castle Quest",
+                  2,
+                  2
+                ],
+                [
+                  "Comet Kart",
+                  2,
+                  0
+                ],
+                [
+                  "Moonlight Mages",
+                  2,
+                  2
+                ],
+                [
+                  "Ocean Odyssey",
+                  1,
+                  1
+                ],
+                [
+                  "Pixel Pets",
+                  1,
+                  0
+                ],
+                [
+                  "Puzzle Pond",
+                  2,
+                  1
+                ],
+                [
+                  "Robo Rumble",
+                  1,
+                  1
+                ],
+                [
+                  "Star Garden",
+                  2,
+                  2
+                ],
+                [
+                  "Tiny Tactics",
+                  2,
+                  1
+                ]
+              ],
+              "sortedBy": [
+                "title"
+              ]
+            },
+            "failMessage": "Each game's tags and reviews should be counted once each. Joining both makes the rows multiply: count DISTINCT ids."
+          },
+          {
+            "label": "wishlist_items has a two-column primary key",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT group_concat(name, ', ') FROM (SELECT name FROM pragma_table_info('wishlist_items') WHERE pk > 0 ORDER BY name)",
+              "equals": "game_id, player_id",
+              "missing": "There's no wishlist_items table yet, or it has no primary key."
+            },
+            "failMessage": "wishlist_items needs PRIMARY KEY (player_id, game_id), so each player can wish for a game only once."
+          },
+          {
+            "label": "Both columns are foreign keys",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT group_concat(\"table\", ', ') FROM (SELECT \"table\" FROM pragma_foreign_key_list('wishlist_items') ORDER BY \"table\")",
+              "equals": "games, players",
+              "caseSensitive": false,
+              "missing": "wishlist_items has no foreign keys yet."
+            },
+            "failMessage": "player_id should REFERENCES players(id), and game_id should REFERENCES games(id)."
+          },
+          {
+            "label": "The wishlist import is in, once each",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT player_id, game_id FROM wishlist_items ORDER BY player_id, game_id",
+              "equals": [
+                [
+                  1,
+                  3
+                ],
+                [
+                  1,
+                  9
+                ],
+                [
+                  2,
+                  5
+                ],
+                [
+                  2,
+                  9
+                ],
+                [
+                  3,
+                  1
+                ],
+                [
+                  3,
+                  3
+                ],
+                [
+                  3,
+                  9
+                ],
+                [
+                  4,
+                  1
+                ]
+              ],
+              "ordered": true,
+              "missing": "wishlist_items is empty."
+            },
+            "failMessage": "wishlist_items should hold the import's 8 different rows, each pair once."
+          },
+          {
+            "label": "Most wished-for games are right",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "title",
+                "wishes"
+              ],
+              "rows": [
+                [
+                  "Comet Kart",
+                  3
+                ],
+                [
+                  "Moonlight Mages",
+                  2
+                ],
+                [
+                  "Robo Rumble",
+                  1
+                ],
+                [
+                  "Star Garden",
+                  2
+                ]
+              ],
+              "sortedBy": [
+                "wishes desc",
+                "title"
+              ]
+            },
+            "failMessage": "The last query should give each wished-for game's title and wishes (its number of wishlist rows), most first, then by title."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Star Garden has 2 tags and 2 reviews. How many rows does it get when the query joins both tables?",
+            "speechText": "Star Garden has 2 tags and 2 reviews. How many rows does it get when the query joins both tables?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Step 1: `COUNT(DISTINCT gt.tag_id)` and `COUNT(DISTINCT r.id)`. Step 2: write `CREATE TABLE wishlist_items` like `game_tags` in the Learn section, with `players` instead of `tags`, and delete the second `(2, 9)`.",
+            "speechText": "For step 1, count distinct tag ids and distinct review ids. For step 2, create wishlist items like the game tags table in the learn section, with players instead of tags, and delete the second copy of 2 and 9.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Step 2:\n\n```sql\nCREATE TABLE wishlist_items (\n  player_id INTEGER NOT NULL\n    REFERENCES players(id),\n  game_id INTEGER NOT NULL\n    REFERENCES games(id),\n  PRIMARY KEY (player_id, game_id)\n);\n```\n\nStep 3 joins `wishlist_items` to `games`, groups by title, and orders by `wishes DESC, g.title`.",
+            "speechText": "For step 2, create wishlist items with a player id and a game id, each referencing its table, and a primary key of both. Step 3 joins wishlist items to games, groups by title, and orders by wishes, highest first, then title.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A game has many tags and a tag is on many games. How do you store that?",
+            "explanation": "A many-to-many relationship needs a junction table, with one row per game-tag pair.",
+            "options": [
+              {
+                "text": "A junction table with one row per game-tag pair",
+                "correct": true
+              },
+              {
+                "text": "A tag_id column in games",
+                "correct": false
+              },
+              {
+                "text": "A tags column with a comma-separated list",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why is PRIMARY KEY (game_id, tag_id) a good key for game_tags?",
+            "explanation": "A composite key on the pair stops the same game getting the same tag twice, and needs no extra id column.",
+            "options": [
+              {
+                "text": "Each game-tag pair can only be stored once",
+                "correct": true
+              },
+              {
+                "text": "Each game can only have one tag",
+                "correct": false
+              },
+              {
+                "text": "Each tag can only be on one game",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Star Garden has 2 tags and 2 reviews. A query joins games to both and uses COUNT(r.id). What does it say?",
+            "explanation": "Joining two many sides multiplies rows: 2 × 2 = 4 rows, so the count says 4. COUNT(DISTINCT r.id) says 2.",
+            "options": [
+              {
+                "text": "4",
+                "correct": true
+              },
+              {
+                "text": "2",
+                "correct": false
+              },
+              {
+                "text": "0",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which is a many-to-many relationship?",
+            "explanation": "A student takes many classes and each class has many students.",
+            "options": [
+              {
+                "text": "Students and classes",
+                "correct": true
+              },
+              {
+                "text": "Publishers and the games they make",
+                "correct": false
+              },
+              {
+                "text": "Games and their price",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In SQL Server, game_tags has PRIMARY KEY (game_id, tag_id). Which extra index helps \"find every game with tag 5\"?",
+            "explanation": "The primary key's index starts with game_id, so lookups by tag_id need their own index.",
+            "options": [
+              {
+                "text": "An index on tag_id",
+                "correct": true
+              },
+              {
+                "text": "An index on game_id",
+                "correct": false
+              },
+              {
+                "text": "None: the primary key covers it",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "one-fact-explorer",

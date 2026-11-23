@@ -96,6 +96,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "many-to-many-explorer": {
+      "intro": [
+        {
+          "displayText": "The Grove has clubs now, and some critters are in more than one. Your mission: sign Pip up for the Star Gazers and make the club list work!",
+          "speechText": "The Grove has clubs now, and some critters are in more than one. Your mission is to sign Pip up for the Star Gazers, and make the club list work!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Pip is a Star Gazer now! Your new word is junction table: a table in the middle that stores which critter is in which club.",
+          "speechText": "Pip is a Star Gazer now! Your new word is junction table, a table in the middle that stores which critter is in which club.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "junction-tables": {
+      "intro": [
+        {
+          "displayText": "Lots of real data is many-to-many: tags on posts, students in classes, players and their wishlists. A junction table is how every relational database stores it. You'll fix a report that counts too much, build Pixel Pier's wishlist table, and find the most wished-for games.",
+          "speechText": "Lots of real data is many to many, like tags on posts, students in classes, and players and their wishlists. A junction table is how every relational database stores it. You'll fix a report that counts too much, build Pixel Pier's wishlist table, and find the most wished for games.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Wishlists work, and each pair can only go in once. The gotcha to remember is fan-out: join two many sides at once and the rows multiply, so counts and sums come out too big.",
+          "speechText": "Wishlists work, and each pair can only go in once. The gotcha to remember is fan out. Join two many sides at once and the rows multiply, so counts and sums come out too big.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }
