@@ -209,7 +209,8 @@ export function describeError(err: SqlError): string {
 
 /** "INSERT added 2 rows." and friends: feedback for statements that don't return rows. */
 function describeChange(sql: string, changed: number): string {
-  const words = stripComments(sql).trim().split(/\s+/).map((w) => w.toUpperCase());
+  // Drop the final semicolon, or one-word statements read as "COMMIT;" and match nothing.
+  const words = stripComments(sql).trim().replace(/;$/, '').trim().split(/\s+/).map((w) => w.toUpperCase());
   const rows = (n: number) => `${n} ${n === 1 ? 'row' : 'rows'}`;
   switch (words[0]) {
     case 'INSERT':

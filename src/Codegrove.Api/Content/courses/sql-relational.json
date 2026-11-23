@@ -28,7 +28,7 @@
       "challenge": {
         "kind": "Sql",
         "xpReward": 10,
-        "instructionsMarkdown": "**Your turn!** Open the **Tables** tab: there's a `homes` table and a `critters` table.\n\n1. Find **Lily Pond**'s id in the `homes` table. Then change the first query so it shows only the critters who live there.\n2. Fern the deer is moving into a brand new home, **Mossy Log**. Press **Run** and read the red message. The two `INSERT`s are in the wrong order: fix it so the home is added first.\n3. Press **Run** again. Check the Tables tab: Mossy Log and Fern should both be there.",
+        "instructionsMarkdown": "**Your turn!** Open the **Tables** tab: there's a `homes` table and a `critters` table.\n\n1. Find **Lily Pond**'s id in the `homes` table. Then change the first query so it shows only the critters who live there.\n2. Fern the deer is moving into a brand new home, **Mossy Log**. Press **Run** and read the red message. The two `INSERT` statements are in the wrong order: fix it so the home is added first.\n3. Press **Run** again. Check the Tables tab: Mossy Log and Fern should both be there.",
         "starterFiles": {
           ".setup.sql": "-- The Grove Critter Club: homes and critters\nCREATE TABLE homes (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  place TEXT NOT NULL\n);\nINSERT INTO homes VALUES\n  (1, 'Oak Hollow', 'tree'),\n  (2, 'Lily Pond', 'pond'),\n  (3, 'Bramble Burrow', 'burrow');\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  home_id INTEGER NOT NULL REFERENCES homes(id)\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3),\n  (2, 'Pip', 'owl', 1),\n  (3, 'Moss', 'frog', 2),\n  (4, 'Bramble', 'hedgehog', 3),\n  (5, 'Nova', 'rabbit', 3),\n  (6, 'Pebble', 'turtle', 2);\n",
           "query.sql": "-- 1. Which critters live at Lily Pond?\n--    Find its id in the Tables tab first.\nSELECT name FROM critters;\n\n-- 2. Fern the deer is moving into a brand new\n--    home, Mossy Log. Run this and read the\n--    red message: the order is a problem!\nINSERT INTO critters (name, kind, home_id)\nVALUES ('Fern', 'deer', 4);\n\nINSERT INTO homes (id, name, place)\nVALUES (4, 'Mossy Log', 'woods');\n"
@@ -2106,7 +2106,7 @@
       "ageBand": "Builder",
       "estimatedMinutes": 20,
       "isPublished": true,
-      "learnMarkdown": "## Normalization\n\nData often arrives flat: a spreadsheet export, a CSV from an old system, one row per thing that happened. **Normalization** is the design process that splits it into related tables so that **each fact is stored once**. It's what the last four lessons have been building towards.\n\n### What goes wrong in a flat table\n\nPixel Pier's old system exported orders like this, one row per game in an order:\n\n| order_id | username | email | game_id | title | price |\n|----------|----------|-------|---------|-------|-------|\n| 1 | nova_k | nova@mail.test | 9 | Comet Kart | 44.99 |\n| 1 | nova_k | nova@mail.test | 4 | Puzzle Pond | 14.99 |\n| 4 | byteboss | bytebos@mail.test | 2 | Byte Racers | 19.99 |\n\nThe same facts repeat, which causes three classic **anomalies**:\n\n- **Update anomaly**: nova_k changes their email, and every one of their rows has to change. Miss one and the data contradicts itself (byteboss already has two emails).\n- **Insert anomaly**: you can't store a customer who hasn't ordered yet: there's no row to put them in.\n- **Delete anomaly**: delete someone's only order and their account details go with it.\n\n### The normal forms, in plain words\n\nEach **normal form** is a rule. Each one builds on the one before:\n\n- **First normal form (1NF)**: every column holds one value, and there are no repeating groups. No `tags = 'co-op,racing'`, no `tag1`, `tag2` (lesson 4).\n- **Second normal form (2NF)**: every non-key column depends on the **whole** key. In an order line keyed by (order_id, game_id), `title` depends on the game alone, so it belongs in `games`.\n- **Third normal form (3NF)**: no non-key column depends on another non-key column. `email` depends on the customer, not the order, so it belongs in `customers`.\n\nThe old summary: every column depends on \"the key, the whole key, and nothing but the key\".\n\n### Splitting the flat table\n\n| Table | Holds | Key |\n|-------|-------|-----|\n| `customers` | username, email | `id` |\n| `orders` | which customer, when | `id` |\n| `order_items` | which game, how many, at what price | `(order_id, game_id)` |\n| `games` | title, list price | `id` (already exists) |\n\n`INSERT … SELECT` moves the data. `SELECT DISTINCT` collapses the repeats: an order with two games is two flat rows but one `orders` row.\n\n```sql\nINSERT INTO customers (username, email)\nSELECT DISTINCT username, email\nFROM flat_orders;\n```\n\nClean the data **before** you split it. If one username has two emails, `DISTINCT` gives two customer rows, and a `UNIQUE` key on `username` refuses the second one.\n\n### Not every repeat is redundancy\n\n`order_items.unit_price` looks like a copy of `games.price`, but it isn't: it's the price **at the time of the sale**. Comet Kart cost 44.99 on 1 November and 39.99 on 4 November. Prices change, and old orders must not. Ask \"is this the same fact, or a different fact that happens to match today?\"\n\n### When to stop\n\nMost applications aim for 3NF. Reports and analytics databases sometimes **denormalize** on purpose, storing copies to make reads faster. That's a deliberate trade, not an accident.\n\n### In SQL Server\n\n- Everything above is the same. `SELECT … INTO new_table FROM …` copies rows into a brand-new table in one step.\n- A **view** (`CREATE VIEW order_lines AS SELECT … JOIN …`) gives people the old flat shape back without storing it twice.\n\n### New words\n\n- **Normalization**: designing tables so each fact is stored once, by splitting data into related tables.\n- **Anomaly**: a problem caused by repeated data: an update, insert or delete that leaves the data wrong or loses it.\n- **Normal form**: a rule for table design. 1NF, 2NF and 3NF are the common ones.\n- **Denormalize**: store copies on purpose, usually to make reports faster.\n",
+      "learnMarkdown": "## Normalization\n\nData often arrives flat: a spreadsheet export, a CSV from an old system, one row per thing that happened. **Normalization** is the design process that splits it into related tables so that **each fact is stored once**. It's what the last four lessons have been building towards.\n\n### What goes wrong in a flat table\n\nPixel Pier's old system exported orders like this, one row per game in an order:\n\n| order_id | username | email | game_id | title | price |\n|----------|----------|-------|---------|-------|-------|\n| 1 | nova_k | `nova@mail.test` | 9 | Comet Kart | 44.99 |\n| 1 | nova_k | `nova@mail.test` | 4 | Puzzle Pond | 14.99 |\n| 4 | byteboss | `bytebos@mail.test` | 2 | Byte Racers | 19.99 |\n\nThe same facts repeat, which causes three classic **anomalies**:\n\n- **Update anomaly**: nova_k changes their email, and every one of their rows has to change. Miss one and the data contradicts itself (byteboss already has two emails).\n- **Insert anomaly**: you can't store a customer who hasn't ordered yet: there's no row to put them in.\n- **Delete anomaly**: delete someone's only order and their account details go with it.\n\n### The normal forms, in plain words\n\nEach **normal form** is a rule. Each one builds on the one before:\n\n- **First normal form (1NF)**: every column holds one value, and there are no repeating groups. No `tags = 'co-op,racing'`, no `tag1`, `tag2` (lesson 4).\n- **Second normal form (2NF)**: every non-key column depends on the **whole** key. In an order line keyed by (order_id, game_id), `title` depends on the game alone, so it belongs in `games`.\n- **Third normal form (3NF)**: no non-key column depends on another non-key column. `email` depends on the customer, not the order, so it belongs in `customers`.\n\nThe old summary: every column depends on \"the key, the whole key, and nothing but the key\".\n\n### Splitting the flat table\n\n| Table | Holds | Key |\n|-------|-------|-----|\n| `customers` | username, email | `id` |\n| `orders` | which customer, when | `id` |\n| `order_items` | which game, how many, at what price | `(order_id, game_id)` |\n| `games` | title, list price | `id` (already exists) |\n\n`INSERT … SELECT` moves the data. `SELECT DISTINCT` collapses the repeats: an order with two games is two flat rows but one `orders` row.\n\n```sql\nINSERT INTO customers (username, email)\nSELECT DISTINCT username, email\nFROM flat_orders;\n```\n\nClean the data **before** you split it. If one username has two emails, `DISTINCT` gives two customer rows, and a `UNIQUE` key on `username` refuses the second one.\n\n### Not every repeat is redundancy\n\n`order_items.unit_price` looks like a copy of `games.price`, but it isn't: it's the price **at the time of the sale**. Comet Kart cost 44.99 on 1 November and 39.99 on 4 November. Prices change, and old orders must not. Ask \"is this the same fact, or a different fact that happens to match today?\"\n\n### When to stop\n\nMost applications aim for 3NF. Reports and analytics databases sometimes **denormalize** on purpose, storing copies to make reads faster. That's a deliberate trade, not an accident.\n\n### In SQL Server\n\n- Everything above is the same. `SELECT … INTO new_table FROM …` copies rows into a brand-new table in one step.\n- A **view** (`CREATE VIEW order_lines AS SELECT … JOIN …`) gives people the old flat shape back without storing it twice.\n\n### New words\n\n- **Normalization**: designing tables so each fact is stored once, by splitting data into related tables.\n- **Anomaly**: a problem caused by repeated data: an update, insert or delete that leaves the data wrong or loses it.\n- **Normal form**: a rule for table design. 1NF, 2NF and 3NF are the common ones.\n- **Denormalize**: store copies on purpose, usually to make reports faster.\n",
       "exampleMarkdown": "The import repeats each customer's email on every row of every order, so `COUNT(*)` counts the copies. Try adding `email,` after `username,` and to the `GROUP BY`: byteboss shows up twice, with two different emails.",
       "exampleCode": "-- How often is each customer's email stored?\nSELECT username,\n       COUNT(*) AS copies\nFROM flat_orders\nGROUP BY username\nORDER BY copies DESC;\n",
       "challenge": {
@@ -2419,15 +2419,428 @@
       "sortOrder": 6,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Questions inside questions\n\nWho is older than the average critter? That's really two questions:\n\n1. What is the average age?\n2. Who is older than that?\n\nYou could work out the average yourself and type it in:\n\n```sql\nSELECT name FROM critters\nWHERE age > 2.5;\n```\n\nBut when a new critter joins, the average changes, and your 2.5 is out of date.\n\n### Put the first question inside\n\nInstead, put the first question **inside** the second one, in brackets:\n\n```sql\nSELECT name FROM critters\nWHERE age > (SELECT AVG(age) FROM critters);\n```\n\nThe database answers the inside question first (the average age), then uses that answer. A question inside a question is called a **subquery**. It's always up to date, because it's asked fresh every time.\n\n### Subqueries with IN\n\nA subquery can also give back a whole list. `IN` checks if a value is in that list:\n\n```sql\nSELECT name FROM critters\nWHERE home_id IN\n  (SELECT id FROM homes WHERE place = 'pond');\n```\n\nThe inside question finds the ids of every pond home. The outside question finds the critters who live in one of them.\n\n### New words\n\n- **Subquery**: a query inside another query, in brackets. The database answers it first.\n- **IN**: checks whether a value is in a list, like `home_id IN (2, 4)`.\n",
+      "exampleMarkdown": "The inside question finds the youngest age. The outside question finds every critter that age. Try changing `MIN` to `MAX` to find the oldest.",
+      "exampleCode": "-- Who is the youngest?\nSELECT name, age\nFROM critters\nWHERE age = (SELECT MIN(age) FROM critters);\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Oakley the owl, who is 9, has just moved into **Cloud Nest**. The starter adds Oakley first.\n\n1. The first query uses an average that was worked out by hand before Oakley came. Replace `2.5` with a subquery that works out the average age.\n2. The second query only checks home 1, but Cloud Nest is a tree home too. Replace `(1)` with a subquery that finds the ids of every home whose `place` is `'tree'`.",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Critter Club: homes and critters\nCREATE TABLE homes (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  place TEXT NOT NULL\n);\nINSERT INTO homes VALUES\n  (1, 'Oak Hollow', 'tree'),\n  (2, 'Lily Pond', 'pond'),\n  (3, 'Bramble Burrow', 'burrow'),\n  (4, 'Mossy Log', 'woods'),\n  (5, 'Sunny Meadow', 'meadow'),\n  (6, 'Cloud Nest', 'tree');\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  age INTEGER NOT NULL,\n  home_id INTEGER NOT NULL REFERENCES homes(id)\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3, 3),\n  (2, 'Pip', 'owl', 1, 1),\n  (3, 'Moss', 'frog', 2, 2),\n  (4, 'Bramble', 'hedgehog', 4, 3),\n  (5, 'Nova', 'rabbit', 2, 3),\n  (6, 'Pebble', 'turtle', 5, 2),\n  (7, 'Fern', 'deer', 2, 4),\n  (8, 'Wren', 'duck', 1, 2);\n",
+          "query.sql": "-- Oakley the owl (9) moves into Cloud Nest.\nINSERT INTO critters (name, kind, age, home_id)\nVALUES ('Oakley', 'owl', 9, 6);\n\n-- 1. Who is older than the average age? The\n--    2.5 was worked out before Oakley came.\nSELECT name, age\nFROM critters\nWHERE age > 2.5;\n\n-- 2. Who lives in a tree home? This only\n--    checks home 1. Ask the homes table.\nSELECT name\nFROM critters\nWHERE home_id IN (1);\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- Oakley the owl (9) moves into Cloud Nest.\nINSERT INTO critters (name, kind, age, home_id)\nVALUES ('Oakley', 'owl', 9, 6);\n\n-- 1. Who is older than the average age? The\n--    2.5 was worked out before Oakley came.\nSELECT name, age\nFROM critters\nWHERE age > (SELECT AVG(age) FROM critters);\n\n-- 2. Who lives in a tree home? This only\n--    checks home 1. Ask the homes table.\nSELECT name\nFROM critters\nWHERE home_id IN\n  (SELECT id FROM homes WHERE place = 'tree');\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "The older-than-average list is right",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "name",
+                "age"
+              ],
+              "rows": [
+                [
+                  "Bramble",
+                  4
+                ],
+                [
+                  "Pebble",
+                  5
+                ],
+                [
+                  "Oakley",
+                  9
+                ]
+              ]
+            },
+            "failMessage": "The first query should show the critters older than today's average age, Oakley included. Use WHERE age > (SELECT AVG(age) FROM critters)."
+          },
+          {
+            "label": "The tree list is right",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "name"
+              ],
+              "rows": [
+                [
+                  "Pip"
+                ],
+                [
+                  "Oakley"
+                ]
+              ]
+            },
+            "failMessage": "The second query should show everyone who lives in a tree home, Oakley too. Use IN (SELECT id FROM homes WHERE place = 'tree')."
+          },
+          {
+            "label": "Both queries ask a question inside",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\(\\s*select\\b",
+              "min": 2
+            },
+            "failMessage": "Use a subquery in both queries, in brackets: (SELECT …). Then the answers stay right when critters move in."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "What would you write to ask the database for the average age on its own?",
+            "speechText": "What would you write to ask the database for the average age on its own?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "The average is `SELECT AVG(age) FROM critters`. Put it in brackets where `2.5` was. The tree homes' ids are `SELECT id FROM homes WHERE place = 'tree'`.",
+            "speechText": "Put select average age from critters in brackets, where 2.5 was. The tree homes are select id from homes where place equals tree.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The two `WHERE` lines are:\n\n```sql\nWHERE age > (SELECT AVG(age) FROM critters);\n\nWHERE home_id IN\n  (SELECT id FROM homes WHERE place = 'tree');\n```",
+            "speechText": "The first where line is, age greater than the average age in brackets. The second is, home id in the ids of the tree homes, in brackets.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is a subquery?",
+            "explanation": "A subquery is a query inside another query, in brackets. The database answers it first.",
+            "options": [
+              {
+                "text": "A query inside another query",
+                "correct": true
+              },
+              {
+                "text": "A query that runs below the table",
+                "correct": false
+              },
+              {
+                "text": "A slower kind of SELECT",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why is (SELECT AVG(age) FROM critters) better than typing 2.5?",
+            "explanation": "The subquery works out the average every time, so it's still right after critters join.",
+            "options": [
+              {
+                "text": "It stays right when new critters join",
+                "correct": true
+              },
+              {
+                "text": "It's shorter to type",
+                "correct": false
+              },
+              {
+                "text": "2.5 isn't allowed in SQL",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does home_id IN (SELECT id FROM homes WHERE place = 'tree') do?",
+            "explanation": "The subquery gives a list of tree home ids, and IN keeps critters whose home_id is in that list.",
+            "options": [
+              {
+                "text": "Keeps critters whose home is a tree home",
+                "correct": true
+              },
+              {
+                "text": "Moves every critter into a tree",
+                "correct": false
+              },
+              {
+                "text": "Counts the tree homes",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "subqueries-transactions-indexes",
       "title": "Subqueries, transactions and indexes",
       "sortOrder": 6,
       "ageBand": "Builder",
-      "estimatedMinutes": 15,
-      "isPublished": false
+      "estimatedMinutes": 25,
+      "isPublished": true,
+      "learnMarkdown": "## Subqueries, transactions and indexes\n\nThree tools that real applications lean on every day: **subqueries** to ask questions in steps, **transactions** to make several changes safely, and **indexes** to keep it all fast.\n\n### Subqueries\n\nA **subquery** is a `SELECT` inside another statement, in brackets. There are a few shapes:\n\n- **Scalar**: returns one value, used like a number.\n\n```sql\nSELECT title FROM games\nWHERE price > (SELECT AVG(price) FROM games);\n```\n\n- **IN**: returns a list of values.\n\n```sql\nSELECT title FROM games\nWHERE publisher_id IN\n  (SELECT id FROM publishers WHERE country = 'Japan');\n```\n\n- **EXISTS / NOT EXISTS**: asks \"is there at least one row?\". It's usually **correlated**: the inner query refers to the outer row (`r.game_id = g.id`), so it's checked once per outer row.\n\n```sql\nSELECT g.title FROM games AS g\nWHERE NOT EXISTS (\n  SELECT 1 FROM reviews AS r\n  WHERE r.game_id = g.id\n);\n```\n\nThat's the anti-join from lesson 3, written as a question. `SELECT 1` is a convention: EXISTS only cares whether a row exists, not what's in it.\n\n- **Derived table**: a subquery in `FROM`, used like a table. It needs an alias.\n\n### The NOT IN trap\n\n`NOT IN` with a subquery that returns even **one NULL** returns no rows at all. `x NOT IN (1, 2, NULL)` means `x <> 1 AND x <> 2 AND x <> NULL`, and `x <> NULL` is never true. Anonymous reviews have a NULL `player_id`, so \"players who never reviewed\" with `NOT IN` quietly comes back empty. Prefer `NOT EXISTS`, which has no such trap.\n\n### Pre-aggregating to avoid fan-out\n\nLesson 4's fan-out: joining games to reviews repeats each game once per review, so `SUM(g.price)` counts a game's price several times. `COUNT(DISTINCT)` fixes counts, but `SUM(DISTINCT price)` is wrong too: two games with the same price would count once. The real fix is to **aggregate the many side first**, in a derived table, so it has one row per game before you join:\n\n```sql\nLEFT JOIN (\n  SELECT game_id, COUNT(*) AS n\n  FROM reviews\n  GROUP BY game_id\n) AS rc ON rc.game_id = g.id\n```\n\n`WITH rc AS (SELECT …) SELECT …` writes the same thing as a **CTE** (common table expression), named up front. Both work in SQLite and SQL Server.\n\n### Transactions\n\nMoving 25 credits takes two `UPDATE`s. If the app crashed between them, the credits would vanish. A **transaction** groups statements so they happen **all or nothing**:\n\n```sql\nBEGIN TRANSACTION;\nUPDATE players SET credits = credits - 25 WHERE id = 1;\nUPDATE players SET credits = credits + 25 WHERE id = 5;\nCOMMIT;\n```\n\n`COMMIT` makes the changes permanent; `ROLLBACK` throws them all away. Until `COMMIT`, nobody else sees the half-finished state. The guarantees are called **ACID**: atomic (all or nothing), consistent (constraints hold), isolated (others don't see the middle) and durable (committed means saved).\n\nOne subtlety: when a statement inside a transaction fails, most databases don't undo the earlier statements for you. Your application decides: it catches the error and runs `ROLLBACK`.\n\n### Indexes\n\nAn **index** is a sorted lookup structure on one or more columns, like the index at the back of a book. Without one, finding the reviews for game 7 means reading every review (a **scan**); with one, the database jumps straight to them (a **seek**).\n\n```sql\nCREATE INDEX idx_reviews_game_id\n  ON reviews (game_id);\n```\n\nPrimary keys and UNIQUE constraints get an index automatically. Foreign key columns usually don't, and they're what joins look up. Indexes aren't free: every INSERT, UPDATE and DELETE has to update them too, so add them where queries need them. In SQLite, `EXPLAIN QUERY PLAN SELECT …` shows whether a query scans or uses an index.\n\n### In SQL Server\n\n- `BEGIN TRAN` / `COMMIT` / `ROLLBACK`. Wrap the work in `BEGIN TRY … END TRY BEGIN CATCH ROLLBACK; THROW; END CATCH`, and `SET XACT_ABORT ON` makes most errors roll back the whole transaction.\n- The **clustered index** (usually the primary key) is the table itself, stored in key order; every other index is **nonclustered**. SSMS's execution plan shows Index Seek vs Index Scan.\n- Subqueries, `EXISTS` and CTEs (`WITH`) are written the same way.\n\n### New words\n\n- **Subquery**: a query inside another statement, in brackets.\n- **Correlated subquery**: a subquery that refers to the outer query's current row.\n- **Derived table**: a subquery in FROM, used like a table.\n- **CTE** (*common table expression*): a named subquery written with `WITH` before the main query.\n- **Transaction**: statements grouped so they all happen or none do. `COMMIT` saves, `ROLLBACK` undoes.\n- **ACID** (*atomic, consistent, isolated, durable*): the guarantees a transaction gives.\n- **Index**: a sorted lookup structure that lets the database find rows without reading the whole table.\n",
+      "exampleMarkdown": "The subquery in `HAVING` works out the shop-wide average once; each game's own average is compared with it. Try selecting just the inner query, `SELECT AVG(stars) FROM reviews;`, on a line of its own.",
+      "exampleCode": "-- Games rated above the shop's average\nSELECT g.title,\n       ROUND(AVG(r.stars), 2) AS avg_stars\nFROM games AS g\nJOIN reviews AS r ON r.game_id = g.id\nGROUP BY g.title\nHAVING AVG(r.stars) >\n       (SELECT AVG(stars) FROM reviews)\nORDER BY avg_stars DESC;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Open the **Tables** tab: reviews now have a `player_id` (NULL for old anonymous ones), and players have `credits`. A new game, Glade Garden, has no reviews yet.\n\n1. **Players with no reviews:** the query returns nothing, but two players have never written one. Fix it with `NOT EXISTS`.\n2. **Publisher report:** `games` and `catalog_value` come out too big for publishers whose games have several reviews. Fix it by counting the reviews per game in a subquery **before** joining. (`DISTINCT` won't save `catalog_value`: Lumen Works has two games at 24.99.)\n3. **Gift:** nova_k gives pixel_pal 25 credits. Write the two `UPDATE` statements inside a transaction.\n4. **Speed:** create an index on `reviews (game_id)`.",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop\nCREATE TABLE publishers (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  country TEXT NOT NULL\n);\nINSERT INTO publishers VALUES\n  (1, 'Starling Games', 'USA'),\n  (2, 'Lumen Works', 'Japan'),\n  (3, 'Bitforge', 'Canada'),\n  (4, 'Driftwood Studio', 'UK'),\n  (5, 'Nimbus Interactive', 'Brazil');\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  price REAL NOT NULL,\n  publisher_id INTEGER NOT NULL\n    REFERENCES publishers(id)\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 39.99, 2),\n  (2, 'Byte Racers', 'PC', 19.99, 3),\n  (3, 'Moonlight Mages', 'PlayStation', 59.99, 1),\n  (4, 'Puzzle Pond', 'Switch', 14.99, 4),\n  (5, 'Robo Rumble', 'Xbox', 49.99, 3),\n  (6, 'Ocean Odyssey', 'PC', 29.99, 4),\n  (7, 'Castle Quest', 'PlayStation', 39.99, 1),\n  (8, 'Tiny Tactics', 'Switch', 24.99, 2),\n  (9, 'Comet Kart', 'Switch', 44.99, 2),\n  (10, 'Pixel Pets', 'PC', 9.99, 3),\n  (11, 'Glade Garden', 'Switch', 24.99, 2);\nCREATE TABLE players (\n  id INTEGER PRIMARY KEY,\n  username TEXT NOT NULL UNIQUE,\n  credits INTEGER NOT NULL CHECK (credits >= 0)\n);\nINSERT INTO players VALUES\n  (1, 'nova_k', 120),\n  (2, 'byteboss', 40),\n  (3, 'quietfox', 75),\n  (4, 'lumen_lu', 10),\n  (5, 'pixel_pal', 0);\n-- player_id is NULL for old anonymous reviews\nCREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  game_id INTEGER NOT NULL REFERENCES games(id),\n  player_id INTEGER REFERENCES players(id),\n  stars INTEGER NOT NULL\n    CHECK (stars BETWEEN 1 AND 5),\n  body TEXT\n);\nINSERT INTO reviews VALUES\n  (1, 1, 1, 5, 'Calm and lovely.'),\n  (2, 1, 2, 4, 'Great with friends.'),\n  (3, 2, 1, 4, 'Fast and fun.'),\n  (4, 5, NULL, 2, 'Too short.'),\n  (5, 7, 3, 5, 'Best castle ever.'),\n  (6, 3, 1, 4, 'Spooky in a good way.'),\n  (7, 4, 3, 5, 'So relaxing.'),\n  (8, 6, NULL, 2, 'Kept crashing.'),\n  (9, 8, 1, 3, 'Fine, a bit slow.'),\n  (10, 3, 3, 5, 'The music is magic.'),\n  (11, 7, 1, 4, 'Hard but fair.');\n",
+          "query.sql": "-- 1. Players who haven't reviewed anything\n--    yet. Run it: why are there no rows?\nSELECT username\nFROM players AS p\nWHERE p.id NOT IN\n  (SELECT player_id FROM reviews);\n\n-- 2. Publisher report: games, catalog_value\n--    (sum of list prices) and reviews.\nSELECT pb.name AS publisher,\n       COUNT(g.id) AS games,\n       SUM(g.price) AS catalog_value,\n       COUNT(r.id) AS reviews\nFROM publishers AS pb\nJOIN games AS g ON g.publisher_id = pb.id\nLEFT JOIN reviews AS r ON r.game_id = g.id\nGROUP BY pb.name\nORDER BY pb.name;\n\n-- 3. Write it: nova_k gives pixel_pal 25\n--    credits. Both changes happen, or neither:\n--    use a transaction.\n\n-- 4. Write it: an index on reviews.game_id,\n--    which joins look up all the time.\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Players who haven't reviewed anything\n--    yet. Run it: why are there no rows?\nSELECT username\nFROM players AS p\nWHERE NOT EXISTS (\n  SELECT 1 FROM reviews AS r\n  WHERE r.player_id = p.id\n);\n\n-- 2. Publisher report: games, catalog_value\n--    (sum of list prices) and reviews.\nSELECT pb.name AS publisher,\n       COUNT(g.id) AS games,\n       SUM(g.price) AS catalog_value,\n       SUM(COALESCE(rc.n, 0)) AS reviews\nFROM publishers AS pb\nJOIN games AS g ON g.publisher_id = pb.id\nLEFT JOIN (\n  SELECT game_id, COUNT(*) AS n\n  FROM reviews\n  GROUP BY game_id\n) AS rc ON rc.game_id = g.id\nGROUP BY pb.name\nORDER BY pb.name;\n\n-- 3. Write it: nova_k gives pixel_pal 25\n--    credits. Both changes happen, or neither:\n--    use a transaction.\nBEGIN TRANSACTION;\nUPDATE players SET credits = credits - 25\nWHERE username = 'nova_k';\nUPDATE players SET credits = credits + 25\nWHERE username = 'pixel_pal';\nCOMMIT;\n\n-- 4. Write it: an index on reviews.game_id,\n--    which joins look up all the time.\nCREATE INDEX idx_reviews_game_id\n  ON reviews (game_id);\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "The players with no reviews are found",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "username"
+              ],
+              "rows": [
+                [
+                  "lumen_lu"
+                ],
+                [
+                  "pixel_pal"
+                ]
+              ]
+            },
+            "failMessage": "The first query should list lumen_lu and pixel_pal. NOT IN returns nothing when the subquery has a NULL in it: use WHERE NOT EXISTS (SELECT 1 FROM reviews AS r WHERE r.player_id = p.id)."
+          },
+          {
+            "label": "The first query uses NOT EXISTS",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "not\\s+exists"
+            },
+            "failMessage": "Use NOT EXISTS for the first query: it can't be tripped up by NULLs the way NOT IN can."
+          },
+          {
+            "label": "The publisher report is right",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "publisher",
+                "games",
+                "catalog_value",
+                "reviews"
+              ],
+              "rows": [
+                [
+                  "Bitforge",
+                  3,
+                  79.97,
+                  2
+                ],
+                [
+                  "Driftwood Studio",
+                  2,
+                  44.98,
+                  2
+                ],
+                [
+                  "Lumen Works",
+                  4,
+                  134.96,
+                  3
+                ],
+                [
+                  "Starling Games",
+                  2,
+                  99.98,
+                  4
+                ]
+              ],
+              "sortedBy": [
+                "publisher"
+              ]
+            },
+            "failMessage": "Each publisher should show its real number of games, the sum of their list prices, and its number of reviews. Count reviews per game in a subquery (GROUP BY game_id), then LEFT JOIN that to games."
+          },
+          {
+            "label": "The credits moved",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT username, credits FROM players ORDER BY id",
+              "equals": [
+                [
+                  "nova_k",
+                  95
+                ],
+                [
+                  "byteboss",
+                  40
+                ],
+                [
+                  "quietfox",
+                  75
+                ],
+                [
+                  "lumen_lu",
+                  10
+                ],
+                [
+                  "pixel_pal",
+                  25
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "nova_k should have 25 credits fewer and pixel_pal 25 more. Nobody else changes."
+          },
+          {
+            "label": "The gift is a transaction",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bbegin\\b[\\s\\S]*update[\\s\\S]*update[\\s\\S]*\\bcommit\\b"
+            },
+            "failMessage": "Put BEGIN TRANSACTION; before the two UPDATEs and COMMIT; after them."
+          },
+          {
+            "label": "reviews.game_id has an index",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT COUNT(*) FROM pragma_index_list('reviews') AS il, pragma_index_info(il.name) AS ii WHERE ii.name = 'game_id' AND ii.seqno = 0",
+              "equals": 1,
+              "report": "Indexes that start with game_id: {value}."
+            },
+            "failMessage": "Add CREATE INDEX idx_reviews_game_id ON reviews (game_id);"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Two reviews have a NULL `player_id`. What is `5 <> NULL`: true, false, or neither?",
+            "speechText": "Two reviews have a null player id. Is five not equal to null true, false, or neither?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Step 1: `WHERE NOT EXISTS (SELECT 1 FROM reviews AS r WHERE r.player_id = p.id)`. Step 2: replace the `LEFT JOIN reviews` with a `LEFT JOIN` to `(SELECT game_id, COUNT(*) AS n FROM reviews GROUP BY game_id) AS rc`, and sum `COALESCE(rc.n, 0)`.",
+            "speechText": "For step 1, use not exists, with a subquery that finds a review whose player id is this player's id. For step 2, left join a subquery that counts reviews per game, and sum those counts instead.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Steps 3 and 4:\n\n```sql\nBEGIN TRANSACTION;\nUPDATE players SET credits = credits - 25\nWHERE username = 'nova_k';\nUPDATE players SET credits = credits + 25\nWHERE username = 'pixel_pal';\nCOMMIT;\n\nCREATE INDEX idx_reviews_game_id\n  ON reviews (game_id);\n```",
+            "speechText": "For step 3, begin a transaction, take 25 credits from nova k, give 25 to pixel pal, then commit. For step 4, create an index on reviews, on the game id column.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "The subquery in id NOT IN (SELECT player_id FROM reviews) returns one NULL. What does the query return?",
+            "explanation": "x NOT IN (…, NULL) includes x <> NULL, which is never true, so no row qualifies.",
+            "options": [
+              {
+                "text": "No rows at all",
+                "correct": true
+              },
+              {
+                "text": "Every player",
+                "correct": false
+              },
+              {
+                "text": "Only the players with reviews",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What makes a subquery correlated?",
+            "explanation": "A correlated subquery refers to the outer query's current row, like r.game_id = g.id, so it's evaluated per outer row.",
+            "options": [
+              {
+                "text": "It refers to a column of the outer query's current row",
+                "correct": true
+              },
+              {
+                "text": "It returns more than one column",
+                "correct": false
+              },
+              {
+                "text": "It's written in the FROM clause",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Joining publishers → games → reviews makes SUM(g.price) too big. What's the reliable fix?",
+            "explanation": "Aggregate reviews per game first (a derived table or CTE), so each game is one row before the join. SUM(DISTINCT) breaks when two games share a price.",
+            "options": [
+              {
+                "text": "Count the reviews per game in a subquery before joining",
+                "correct": true
+              },
+              {
+                "text": "Use SUM(DISTINCT g.price)",
+                "correct": false
+              },
+              {
+                "text": "Use an INNER JOIN instead of LEFT JOIN",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A transfer is BEGIN; UPDATE (take); UPDATE (give); COMMIT. What does the transaction guarantee?",
+            "explanation": "Atomicity: either both updates are kept or neither is.",
+            "options": [
+              {
+                "text": "Both updates happen, or neither does",
+                "correct": true
+              },
+              {
+                "text": "The updates run faster",
+                "correct": false
+              },
+              {
+                "text": "Nobody can ever read the players table",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does an index on reviews(game_id) cost?",
+            "explanation": "Every INSERT, UPDATE and DELETE on reviews also has to update the index, and it takes space.",
+            "options": [
+              {
+                "text": "Slower writes and extra space, since every change updates the index",
+                "correct": true
+              },
+              {
+                "text": "Nothing: indexes only make things faster",
+                "correct": false
+              },
+              {
+                "text": "It stops game_id from repeating",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "relational-project-explorer",

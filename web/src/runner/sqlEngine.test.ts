@@ -60,6 +60,16 @@ describe('running SQL', () => {
     expect(run('SELECT nme FROM pets;').error?.friendly).toContain("put it in single quotes, like 'nme'");
   });
 
+  it('reports one-word transaction statements, semicolon and all', () => {
+    const texts = (q: string) => run(q).console.map((l) => l.text);
+    expect(texts("BEGIN;\nUPDATE pets SET age = 4 WHERE id = 1;\nCOMMIT;")).toEqual([
+      'BEGIN started a transaction.', 'UPDATE changed 1 row.', 'COMMIT saved the transaction.',
+    ]);
+    expect(texts("BEGIN TRANSACTION;\nDELETE FROM toys;\nROLLBACK;")).toEqual([
+      'BEGIN started a transaction.', 'DELETE removed 1 row.', 'ROLLBACK undid the transaction.',
+    ]);
+  });
+
   it('words a duplicate in a two-column key as a pair', () => {
     const r = run('CREATE TABLE likes (pet_id INTEGER, toy_id INTEGER, PRIMARY KEY (pet_id, toy_id));\nINSERT INTO likes VALUES (1, 1), (1, 1);');
     expect(r.error?.message).toBe('UNIQUE constraint failed: likes.pet_id, likes.toy_id');

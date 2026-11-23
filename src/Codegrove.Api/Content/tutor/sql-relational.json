@@ -160,6 +160,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "questions-inside-explorer": {
+      "intro": [
+        {
+          "displayText": "Oakley the owl just moved into Cloud Nest, and now some of the club's lists are out of date. Your mission: put a question inside a question, so the lists keep themselves right!",
+          "speechText": "Oakley the owl just moved into Cloud Nest, and now some of the club's lists are out of date. Your mission is to put a question inside a question, so the lists keep themselves right!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Both lists include Oakley now, and they'll stay right when the next critter moves in. Your new word is subquery: a question inside another question.",
+          "speechText": "Both lists include Oakley now, and they'll stay right when the next critter moves in. Your new word is subquery, a question inside another question.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "subqueries-transactions-indexes": {
+      "intro": [
+        {
+          "displayText": "Subqueries, transactions and indexes are the tools that keep real apps correct and fast: asking questions in steps, making changes that can't half-happen, and finding rows without reading every one. You'll fix two reports with subqueries, move credits safely in a transaction, and add an index.",
+          "speechText": "Subqueries, transactions and indexes are the tools that keep real apps correct and fast. They let you ask questions in steps, make changes that can't half happen, and find rows without reading every one. You'll fix two reports with subqueries, move credits safely in a transaction, and add an index.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Four tools in one lesson, nicely done. The gotcha to remember: NOT IN returns nothing at all if its subquery has a single NULL in it, so reach for NOT EXISTS instead.",
+          "speechText": "Four tools in one lesson, nicely done. The gotcha to remember is that not in returns nothing at all if its subquery has a single null in it. Reach for not exists instead.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }
