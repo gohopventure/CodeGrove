@@ -170,7 +170,7 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
       )}
 
       {step === 'example' && (
-        <ExampleStep lesson={lesson} headingRef={headingRef} onNext={() => setStep(lesson.challenge ? 'challenge' : 'quiz')} />
+        <ExampleStep lesson={lesson} dark={dark} headingRef={headingRef} onNext={() => setStep(lesson.challenge ? 'challenge' : 'quiz')} />
       )}
 
       {step === 'challenge' && lesson.challenge && (
@@ -221,37 +221,66 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
   );
 }
 
-function ExampleStep({ lesson, headingRef, onNext }: { lesson: Lesson; headingRef: React.RefObject<HTMLHeadingElement | null>; onNext: () => void }) {
+/**
+ * The worked example. Its code is editable, so "try changing 7 to another number" works: web examples
+ * re-render as the learner types; C# and SQL run when they press Run. Reset puts the original back.
+ * Edits aren't saved anywhere: the example is a sandbox, the challenge is where work counts.
+ *
+ * The editor keys its text by file name, so the example uses its own names (example.html, Example.cs,
+ * example.sql) and never shares an editor model with the challenge's index.html or Program.cs.
+ */
+function ExampleStep({ lesson, dark, headingRef, onNext }: {
+  lesson: Lesson;
+  dark: boolean;
+  headingRef: React.RefObject<HTMLHeadingElement | null>;
+  onNext: () => void;
+}) {
   const preview = useRef<LivePreviewHandle>(null);
-  // C# examples are a whole Program.cs; the Output panel runs them itself (autoRun). SQL examples run
-  // against the challenge's starting database, so the example and the challenge share their tables.
   const isCSharp = lesson.challenge?.kind === 'CSharp';
+  // SQL examples run against the challenge's starting database, so the example and the challenge share tables.
   const isSql = lesson.challenge?.kind === 'Sql';
-  const exampleFiles = useMemo<Files>(
-    () => ({ [isSql ? 'example.sql' : 'Program.cs']: lesson.exampleCode ?? '' }),
-    [lesson.exampleCode, isSql],
-  );
+  const original = lesson.exampleCode ?? '';
+  const fileName = isSql ? 'example.sql' : isCSharp ? 'Example.cs' : 'example.html';
+  const [code, setCode] = useState(original);
+  useEffect(() => setCode(original), [original]); // a different lesson: start from its example
+  const files = useMemo<Files>(() => ({ [fileName]: code }), [fileName, code]);
+  const changed = code !== original;
+  // Tall enough to show the whole example (the old read-only block always did), within limits.
+  // ~22 px per line at the default text size, plus the tab bar and the keyboard tip.
+  const height = Math.min(640, Math.max(isSql ? 384 : 320, original.split('\n').length * 22 + 96));
+
+  // Web examples: re-render 400 ms after typing stops, like the challenge's live preview.
   useEffect(() => {
-    if (lesson.exampleCode && !isCSharp && !isSql) void preview.current?.run({ 'index.html': lesson.exampleCode }, []);
-  }, [lesson.exampleCode, isCSharp, isSql]);
+    if (!original || isCSharp || isSql) return;
+    const t = window.setTimeout(() => void preview.current?.run({ 'index.html': code }, []), code === original ? 0 : 400);
+    return () => window.clearTimeout(t);
+  }, [code, original, isCSharp, isSql]);
 
   return (
     <section className="card space-y-4">
       <h2 ref={headingRef} tabIndex={-1} className="text-2xl font-bold">Example</h2>
       <Markdown>{lesson.exampleMarkdown}</Markdown>
-      {lesson.exampleCode && (
+      {original && (
         // C# output is a few lines of text, so the code gets more of the width than a web preview allows.
         <div className={`grid gap-4 ${isCSharp ? 'lg:grid-cols-[3fr_2fr]' : 'lg:grid-cols-2'}`}>
-          <div className="min-w-0">
-            <p className="mb-1 text-sm font-bold">The code</p>
-            {/* Long lines wrap instead of scrolling sideways: kids miss code hidden past the edge. */}
-            <pre tabIndex={0} className="whitespace-pre-wrap rounded-card bg-[#1b2128] p-4 font-mono text-sm text-[#e8edf2] [overflow-wrap:anywhere]"><code>{lesson.exampleCode}</code></pre>
+          <div className="flex min-w-0 flex-col">
+            <div className="mb-1 flex items-center gap-2">
+              <p className="text-sm font-bold">The code <span className="font-normal text-muted">(you can change it)</span></p>
+              {changed && (
+                <button type="button" className="btn-secondary ml-auto px-3 py-0.5 text-sm" onClick={() => setCode(original)}>
+                  Reset example
+                </button>
+              )}
+            </div>
+            <div style={{ height }}>
+              <CodeEditor files={files} onChange={(next) => setCode(next[fileName] ?? '')} dark={dark} label="Example code" />
+            </div>
           </div>
-          <div className={isSql ? 'h-96' : 'h-72'}>
+          <div className="lg:mt-7" style={{ height }}>
             {isCSharp
-              ? <CSharpOutput files={exampleFiles} autoRun title="What it prints" />
+              ? <CSharpOutput files={files} autoRun title="What it prints" />
               : isSql
-                ? <SqlOutput setup={lesson.challenge?.starterFiles[SETUP_FILE] ?? ''} files={exampleFiles} autoRun title="What it returns" />
+                ? <SqlOutput setup={lesson.challenge?.starterFiles[SETUP_FILE] ?? ''} files={files} autoRun title="What it returns" />
                 : <LivePreview ref={preview} title="Example preview" />}
           </div>
         </div>
