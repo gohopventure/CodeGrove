@@ -48,6 +48,8 @@
     <TrimmerRootAssembly Include="Microsoft.CodeAnalysis;Microsoft.CodeAnalysis.CSharp;Codegrove.CSharpRunner" />
     <!-- Learner servers call into the practice web server, which serializes their types with System.Text.Json. -->
     <TrimmerRootAssembly Include="Codegrove.WebShim;System.Text.Json" />
+    <!-- Learner code uses DataAnnotations attributes ([Required], [Range], [StringLength]…) the shim never names. -->
+    <TrimmerRootAssembly Include="System.ComponentModel.Annotations" />
   </ItemGroup>
 
 </Project>

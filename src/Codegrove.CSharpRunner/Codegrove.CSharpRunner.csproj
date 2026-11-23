@@ -41,10 +41,10 @@
   -->
   <Target Name="CgEmbedReferenceAssemblies" AfterTargets="ResolveTargetingPackAssets">
     <ItemGroup>
-      <_CgReference Include="@(Reference)" Condition="'%(Reference.FrameworkReferenceName)' == 'Microsoft.NETCore.App' and ('%(Filename)' == 'System.Runtime' or '%(Filename)' == 'System.Console' or '%(Filename)' == 'System.Collections' or '%(Filename)' == 'System.Linq')" />
+      <_CgReference Include="@(Reference)" Condition="'%(Reference.FrameworkReferenceName)' == 'Microsoft.NETCore.App' and ('%(Filename)' == 'System.Runtime' or '%(Filename)' == 'System.Console' or '%(Filename)' == 'System.Collections' or '%(Filename)' == 'System.Linq' or '%(Filename)' == 'System.ComponentModel.Annotations')" />
       <EmbeddedResource Include="@(_CgReference)" LogicalName="ref/%(Filename)%(Extension)" />
     </ItemGroup>
-    <Error Condition="'@(_CgReference->Count())' != '4'" Text="Expected 4 .NET reference assemblies to embed for learner code, found @(_CgReference->Count()): @(_CgReference->'%(Filename)')." />
+    <Error Condition="'@(_CgReference->Count())' != '5'" Text="Expected 5 .NET reference assemblies to embed for learner code, found @(_CgReference->Count()): @(_CgReference->'%(Filename)')." />
   </Target>
 
   <!--

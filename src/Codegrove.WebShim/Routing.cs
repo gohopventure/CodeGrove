@@ -86,13 +86,21 @@ namespace Microsoft.AspNetCore.Builder
 namespace Codegrove.WebShim
 {
     /// <summary>One mapped endpoint: methods + route + the learner's handler.</summary>
-    internal sealed class Endpoint(string[] methods, RoutePattern pattern, Delegate handler)
+    /// <summary>
+    /// One mapped endpoint: methods + route + either a minimal API handler or a controller action.
+    /// No methods means any method (a controller action without [Http…]).
+    /// </summary>
+    internal sealed class Endpoint(string[] methods, RoutePattern pattern, Delegate? handler, ControllerAction? action = null)
     {
         public string[] Methods { get; } = methods;
         public RoutePattern Pattern { get; } = pattern;
-        public Delegate Handler { get; } = handler;
+        public Delegate? Handler { get; } = handler;
+        public ControllerAction? Action { get; } = action;
         public string? Name { get; set; }
-        public override string ToString() => $"HTTP: {string.Join(", ", Methods)} {Pattern.Text}";
+        public bool Allows(string method) => Methods.Length == 0 || Methods.Contains(method);
+        public override string ToString() => Action is { } a
+            ? $"{a.Controller.FullName}.{a.Method.Name} (LearnerApp)"
+            : $"HTTP: {string.Join(", ", Methods)} {Pattern.Text}";
     }
 
     /// <summary>A parsed route template: "/books/{id:int}" → a literal segment and a parameter with a constraint.</summary>

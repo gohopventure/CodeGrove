@@ -132,6 +132,28 @@ internal sealed class ShimServiceProvider : IServiceProvider, IServiceScopeFacto
 
     public IServiceScope CreateScope() => new Scope(new ShimServiceProvider(Root));
 
+    /// <summary>
+    /// Creates a type that isn't registered, with its constructor's services from this scope, as
+    /// ActivatorUtilities does for controllers (with its message when a service is missing).
+    /// </summary>
+    public object CreateInstance(Type type)
+    {
+        var ctor = PickConstructor(type);
+        var args = ctor.GetParameters().Select(p =>
+            GetService(p.ParameterType)
+            ?? (p.HasDefaultValue ? p.DefaultValue
+                : throw new InvalidOperationException($"Unable to resolve service for type '{p.ParameterType.FullName}' while attempting to activate '{type.FullName}'."))).ToArray();
+        try
+        {
+            return ctor.Invoke(args);
+        }
+        catch (TargetInvocationException tie) when (tie.InnerException is not null)
+        {
+            System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(tie.InnerException).Throw();
+            throw;
+        }
+    }
+
     /// <summary>ValidateOnBuild: every registration must be constructible, without creating anything.</summary>
     public void Validate()
     {

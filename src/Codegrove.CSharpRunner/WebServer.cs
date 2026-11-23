@@ -24,7 +24,7 @@ internal static class WebServer
             if (running is null)
                 console.Add(new("info", "Your app was built but never started, so it can't answer requests. Add app.Run(); as the last line of Program.cs."));
             else if (server.Endpoints.Count == 0)
-                console.Add(new("info", $"Your server is running at {server.Url}, but it has no endpoints yet, so every request gets 404 Not Found. Add one with app.MapGet."));
+                console.Add(new("info", $"Your server is running at {server.Url}, but it has no endpoints yet, so every request gets 404 Not Found. Add one with app.MapGet, or map your controllers with app.MapControllers()."));
             else
                 console.Add(new("info", $"Your server is running at {server.Url}. Its endpoints: {string.Join(", ", server.Endpoints)}."));
         }
@@ -41,7 +41,7 @@ internal static class WebServer
     }
 
     public static List<string> Endpoints(WebApplication app) =>
-        app.Core.Endpoints.Select(e => $"{string.Join("/", e.Methods)} {e.Pattern.Text}").ToList();
+        app.Core.Endpoints.Select(e => $"{(e.Methods.Length == 0 ? "ANY" : string.Join("/", e.Methods))} {e.Pattern.Text}").ToList();
 
     /// <summary>
     /// Sends one request. A crash in the learner's endpoint comes back as a 500 plus a plain-words problem

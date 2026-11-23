@@ -25,7 +25,7 @@ internal static class RequestPipeline
 
         // ASP.NET Core builds every endpoint together, on the first request. If one can't be built, no request
         // gets through: each one fails with the first broken endpoint's error, whatever its path.
-        foreach (var e in app.Endpoints)
+        foreach (var e in app.Endpoints.Where(e => e.Handler is not null))
         {
             try
             {
@@ -45,7 +45,7 @@ internal static class RequestPipeline
             .Where(m => m.Values is not null)
             .ToList();
         if (matches.Count == 0) return Finish(context, 404);
-        var forMethod = matches.Where(m => m.Endpoint.Methods.Contains(method)).ToList();
+        var forMethod = matches.Where(m => m.Endpoint.Allows(method)).ToList();
         if (forMethod.Count == 0)
         {
             context.Response.Headers["Allow"] = string.Join(", ", matches.SelectMany(m => m.Endpoint.Methods).Distinct());
@@ -60,6 +60,19 @@ internal static class RequestPipeline
             return Crashed(context, error);
         }
         var (endpoint, routeValues) = best[0];
+
+        if (endpoint.Action is not null)
+        {
+            try
+            {
+                await Controllers.InvokeAsync(app, endpoint, routeValues!, context);
+            }
+            catch (Exception ex)
+            {
+                return Crashed(context, ex is TargetInvocationException { InnerException: { } inner } ? inner : ex);
+            }
+            return Finish(context, context.Response.StatusCode);
+        }
 
         object?[] args;
         try
@@ -77,9 +90,10 @@ internal static class RequestPipeline
 
         try
         {
-            var returned = endpoint.Handler.Method.Invoke(endpoint.Handler.Target, args);
-            var value = await Unwrap(returned, endpoint.Handler.Method.ReturnType);
-            await WriteResult(context, value, endpoint.Handler.Method.ReturnType);
+            var handler = endpoint.Handler!;
+            var returned = handler.Method.Invoke(handler.Target, args);
+            var value = await Unwrap(returned, handler.Method.ReturnType);
+            await WriteResult(context, value, handler.Method.ReturnType);
         }
         catch (Exception ex)
         {
@@ -148,7 +162,7 @@ internal static class RequestPipeline
 
     private static object?[] Bind(Endpoint endpoint, Dictionary<string, string> routeValues, HttpContext context)
     {
-        var parameters = endpoint.Handler.Method.GetParameters();
+        var parameters = endpoint.Handler!.Method.GetParameters();
         var routeNames = new HashSet<string>(endpoint.Pattern.ParameterNames, StringComparer.OrdinalIgnoreCase);
         var services = (ShimServiceProvider)context.RequestServices;
         var args = new object?[parameters.Length];
@@ -190,7 +204,7 @@ internal static class RequestPipeline
     /// </summary>
     private static void CheckBodyParameters(Endpoint endpoint, ShimServiceProvider services)
     {
-        var parameters = endpoint.Handler.Method.GetParameters();
+        var parameters = endpoint.Handler!.Method.GetParameters();
         var routeNames = new HashSet<string>(endpoint.Pattern.ParameterNames, StringComparer.OrdinalIgnoreCase);
         var rows = new List<(ParameterInfo P, string Source)>();
         var bodyTaken = false;

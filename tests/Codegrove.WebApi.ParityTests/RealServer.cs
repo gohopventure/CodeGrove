@@ -7,6 +7,7 @@ using System.Text;
 using Codegrove.CSharpRunner;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -73,7 +74,7 @@ internal static class RealServer
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
         Environment.SetEnvironmentVariable("Logging__LogLevel__Default", "Warning");
 
-        var built = HostCapture.Expect();
+        var built = HostCapture.Expect(program);
         var exited = new TaskCompletionSource<Exception?>(TaskCreationOptions.RunContinuationsAsynchronously);
         var entry = program.EntryPoint!;
         var thread = new Thread(() =>
@@ -127,15 +128,30 @@ internal static class RealServer
     private static class HostCapture
     {
         private static TaskCompletionSource<IHost>? s_next;
+        private static Assembly? s_program;
 
         static HostCapture() => DiagnosticListener.AllListeners.Subscribe(new ListenerObserver());
 
         /// <summary>Apps start one at a time (each test class runs its cases in order, and these are in one collection).</summary>
-        public static Task<IHost> Expect()
+        public static Task<IHost> Expect(Assembly program)
         {
             var tcs = new TaskCompletionSource<IHost>(TaskCreationOptions.RunContinuationsAsynchronously);
             s_next = tcs;
+            s_program = program;
             return tcs.Task;
+        }
+
+        /// <summary>
+        /// MVC looks for controllers in the entry assembly, which here is the test host, not the learner's
+        /// program. Add the program as an application part (what AddApplicationPart does) before the
+        /// services are built, so its controllers are found as they would be in a real project.
+        /// </summary>
+        private static void AddProgramAsApplicationPart(IServiceCollection services)
+        {
+            if (s_program is null) return;
+            var manager = services.FirstOrDefault(d => d.ServiceType == typeof(ApplicationPartManager))?.ImplementationInstance as ApplicationPartManager;
+            if (manager is not null && !manager.ApplicationParts.OfType<AssemblyPart>().Any(p => p.Assembly == s_program))
+                manager.ApplicationParts.Add(new AssemblyPart(s_program));
         }
 
         private sealed class ListenerObserver : IObserver<DiagnosticListener>
@@ -153,6 +169,11 @@ internal static class RealServer
             public void OnNext(KeyValuePair<string, object?> e)
             {
                 if (e.Key == "HostBuilt" && e.Value is IHost host) s_next?.TrySetResult(host);
+                if (e.Key == "HostBuilding")
+                {
+                    if (e.Value is IHostApplicationBuilder app) AddProgramAsApplicationPart(app.Services);
+                    else if (e.Value is IHostBuilder builder) builder.ConfigureServices((_, services) => AddProgramAsApplicationPart(services));
+                }
             }
             public void OnCompleted() { }
             public void OnError(Exception error) { }

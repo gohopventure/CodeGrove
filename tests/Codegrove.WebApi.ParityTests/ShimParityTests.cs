@@ -104,6 +104,164 @@ public class ShimParityTests
             """,
             [new("POST", "/req"), new("POST", "/req", "{}"), new("POST", "/opt"), new("POST", "/opt", """{"name":"Moss"}"""), Get("/nothing")]),
 
+        ["controllers with [ApiController]"] = ("""
+            using Microsoft.AspNetCore.Mvc;
+
+            var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddControllers();
+            builder.Services.AddSingleton<Shelf>();
+            var app = builder.Build();
+            app.MapControllers();
+            app.Run();
+
+            public class Shelf
+            {
+                public List<Book> Books { get; } = [new(1, "Hatchet", 1987), new(2, "Holes", 1998)];
+            }
+
+            public record Book(int Id, string Title, int Year);
+            public record NewBook(string Title, int Year);
+
+            [ApiController]
+            [Route("api/[controller]")]
+            public class BooksController(Shelf shelf) : ControllerBase
+            {
+                [HttpGet]
+                public IEnumerable<Book> GetAll() => shelf.Books;
+
+                [HttpGet("{id:int}")]
+                public ActionResult<Book> GetById(int id) =>
+                    shelf.Books.FirstOrDefault(b => b.Id == id) is { } book ? book : NotFound();
+
+                [HttpGet("raw/{id}")]
+                public Book Raw(int id) => shelf.Books.FirstOrDefault(b => b.Id == id);
+
+                [HttpGet("text")]
+                public string Text() => "plain";
+
+                [HttpGet("search")]
+                public IEnumerable<Book> Search(string title, int year = 0) =>
+                    shelf.Books.Where(b => (title == null || b.Title.Contains(title)) && (year == 0 || b.Year == year));
+
+                [HttpPost]
+                public ActionResult<Book> Create(NewBook input)
+                {
+                    var book = new Book(shelf.Books.Count + 1, input.Title, input.Year);
+                    shelf.Books.Add(book);
+                    return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);
+                }
+
+                [HttpDelete("{id:int}")]
+                public IActionResult Delete(int id) =>
+                    shelf.Books.RemoveAll(b => b.Id == id) > 0 ? NoContent() : NotFound();
+
+                [HttpGet("closed")]
+                public IActionResult Closed() => Problem("Shelf closed.", statusCode: 503);
+
+                [HttpGet("bad")]
+                public IActionResult Bad() => BadRequest("Nope.");
+
+                [HttpGet("{id:int}/title")]
+                public IActionResult TitleOf(int id) => Ok(shelf.Books.First(b => b.Id == id).Title);
+            }
+            """,
+            [Get("/api/books"), Get("/api/books/1"), Get("/api/books/9"), Get("/api/books/abc"), Get("/API/Books/2/"),
+             Get("/api/books/raw/9"), Get("/api/books/raw/abc"), Get("/api/books/text"),
+             Get("/api/books/search?title=Hol"), Get("/api/books/search?year=x"), Get("/api/books/search"),
+             new("POST", "/api/books", """{"title":"Wonder","year":2012}"""), Get("/api/books/3"),
+             new("POST", "/api/books", "{}"), new("POST", "/api/books"), new("POST", "/api/books", "{bad"),
+             new("DELETE", "/api/books/1"), new("DELETE", "/api/books/9"), new("PUT", "/api/books"),
+             Get("/api/books/closed"), Get("/api/books/bad"), Get("/api/books/2/title"), Get("/api/books/7/title")]),
+
+        ["controller validation with nullable enabled"] = ("""
+            #nullable enable
+            using System.ComponentModel.DataAnnotations;
+            using Microsoft.AspNetCore.Mvc;
+
+            var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddControllers();
+            var app = builder.Build();
+            app.MapControllers();
+            app.Run();
+
+            public record NewBook([Required, StringLength(20)] string Title, [Range(1450, 2100)] int Year, string? Note);
+
+            [ApiController]
+            [Route("books")]
+            public class BooksController : ControllerBase
+            {
+                [HttpPost]
+                public IActionResult Create(NewBook input) => Ok(input);
+
+                [HttpGet]
+                public string Find(string title) => title;
+
+                [HttpGet("optional")]
+                public string Optional(string? title) => title ?? "none";
+            }
+            """,
+            [new("POST", "/books", """{"title":"Holes","year":1998}"""), new("POST", "/books", """{"year":1998}"""),
+             new("POST", "/books", """{"title":"A very long title indeed","year":3000}"""), new("POST", "/books", """{"title":"","year":1998}"""),
+             Get("/books"), Get("/books?title=Holes"), Get("/books/optional")]),
+
+        ["controllers without [ApiController]"] = ("""
+            using System.ComponentModel.DataAnnotations;
+            using Microsoft.AspNetCore.Mvc;
+
+            var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddControllers();
+            var app = builder.Build();
+            app.MapControllers();
+            app.Run();
+
+            public record NewBook([Required] string Title, int Year);
+
+            [Route("books")]
+            public class BooksController : ControllerBase
+            {
+                [HttpPost]
+                public IActionResult Create(NewBook input) => Ok(input);
+
+                [HttpPost("checked")]
+                public IActionResult Checked([FromBody] NewBook input) =>
+                    ModelState.IsValid ? Ok(input) : ValidationProblem(ModelState);
+
+                [HttpGet("{id:int}")]
+                public IActionResult Get(int id) => id == 1 ? Ok(new { id }) : NotFound();
+            }
+
+            class HiddenController : ControllerBase
+            {
+                [HttpGet("/hidden")]
+                public string Get() => "found";
+            }
+            """,
+            [new("POST", "/books", """{"title":"Holes","year":1998}"""), new("POST", "/books?title=Holes&year=1998"),
+             new("POST", "/books/checked", """{"year":1998}"""), new("POST", "/books/checked", """{"title":"Holes","year":1998}"""),
+             Get("/books/1"), Get("/books/2"), Get("/hidden")]),
+
+        ["controllers with a missing service"] = ("""
+            using Microsoft.AspNetCore.Mvc;
+
+            var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddControllers();
+            var app = builder.Build();
+            app.MapGet("/ok", () => "fine");
+            app.MapControllers();
+            app.Run();
+
+            public class Shelf { }
+
+            [ApiController]
+            [Route("books")]
+            public class BooksController(Shelf shelf) : ControllerBase
+            {
+                [HttpGet]
+                public string Get() => "books";
+            }
+            """,
+            [Get("/books"), Get("/ok")]),
+
         ["services and scopes"] = ("""
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddSingleton<ICounter, Counter>();
@@ -189,20 +347,26 @@ public class ShimParityTests
         """)]
     [InlineData("""
         var builder = WebApplication.CreateBuilder(args);
+        var app = builder.Build();
+        app.MapControllers();
+        app.Run();
+        """)]
+    [InlineData("""
+        var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddScoped<Report>();
         var app = builder.Build();
         app.Run();
         interface IClock { }
         class Report(IClock clock) { }
         """)]
-    public async Task DI_validation_fails_at_Build_with_the_same_message(string code)
+    public async Task Startup_errors_have_the_same_message(string code)
     {
         var files = new Dictionary<string, string> { ["Program.cs"] = code };
         var shim = await CSharpCodeRunner.RunAsync(new RunRequest(files));
         var shimError = Assert.Single(shim.Console, l => l.Level == "error").Text;
 
         var failed = await Assert.ThrowsAsync<ProgramFailedException>(() => RealServer.StartAsync(RealServer.Compile(files)));
-        var real = Assert.IsType<AggregateException>(failed.InnerException);
-        Assert.Contains(real.Message, shimError);
+        Assert.Equal(failed.InnerException!.GetType().Name, shimError.Split(' ')[0]);
+        Assert.Contains(failed.InnerException.Message, shimError);
     }
 }

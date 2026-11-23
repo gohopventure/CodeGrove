@@ -45,10 +45,18 @@ internal static class Parity
         return problems.Count == 0 ? null : $"{shim.Method} {shim.Path}: " + string.Join("; ", problems);
     }
 
-    /// <summary>Allow lists methods; their order isn't part of the meaning.</summary>
-    private static bool Same(string header, string mine, string theirs) => header != "Allow"
-        ? mine == theirs
-        : Methods(mine).SetEquals(Methods(theirs));
+    /// <summary>
+    /// Allow lists methods; their order isn't part of the meaning. An absolute Location (CreatedAtAction)
+    /// names the server's own host and port, which differ between the two, so only its path is compared.
+    /// </summary>
+    private static bool Same(string header, string mine, string theirs) => header switch
+    {
+        "Allow" => Methods(mine).SetEquals(Methods(theirs)),
+        "Location" => PathOf(mine) == PathOf(theirs),
+        _ => mine == theirs,
+    };
+
+    private static string PathOf(string url) => Uri.TryCreate(url, UriKind.Absolute, out var u) ? u.PathAndQuery : url;
 
     private static HashSet<string> Methods(string allow) => allow.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToHashSet();
 

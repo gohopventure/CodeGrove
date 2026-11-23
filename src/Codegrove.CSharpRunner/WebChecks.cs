@@ -87,6 +87,8 @@ internal static class WebChecks
             {
                 if (!got.Headers.TryGetValue(h.Name, out var value)) return "header";
                 var want = h.Value.ToString();
+                // CreatedAtAction writes an absolute URL; a check that expects a path compares the path part.
+                if (want.StartsWith('/') && Uri.TryCreate(value, UriKind.Absolute, out var absolute)) value = absolute.PathAndQuery;
                 if (want != "*" && !string.Equals(value, want, StringComparison.Ordinal)) return "header";
             }
         }

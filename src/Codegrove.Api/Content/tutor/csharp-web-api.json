@@ -97,6 +97,38 @@
         }
       ]
     },
+    "controllers-explorer": {
+      "intro": [
+        {
+          "displayText": "The Grove's server is getting busy, so the quests are moving into their own room, called a controller. Your mission: switch the controllers on, then add a way to look up one quest!",
+          "speechText": "The Grove's server is getting busy, so the quests are moving into their own room, called a controller. Your mission: switch the controllers on, then add a way to look up one quest!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The quest board is open, and its endpoints all live in one tidy room. Your new word is action: a method in a controller that answers requests.",
+          "speechText": "The quest board is open, and its endpoints all live in one tidy room. Your new word is action, which is a method in a controller that answers requests.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "controllers": {
+      "intro": [
+        {
+          "displayText": "Most ASP.NET Core APIs you'll meet at work are built from controllers, so knowing how they bind, validate and answer pays off quickly. This lesson covers attribute routing, ActionResult, validation and what the ApiController attribute really does. Then you'll fix a books controller that quietly saves empty records.",
+          "speechText": "Most A-S-P dot net Core APIs you'll meet at work are built from controllers, so knowing how they bind, validate and answer pays off quickly. This lesson covers attribute routing, Action Result, validation and what the Api Controller attribute really does. Then you'll fix a books controller that quietly saves empty records.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The books controller now reads its body, refuses bad input, answers 404 and 201 properly, and can delete. The gotcha to remember: without ApiController, a controller ignores the JSON body and skips the automatic 400. And an action that returns null for a plain type answers 204, not 404.",
+          "speechText": "The books controller now reads its body, refuses bad input, answers four oh four and two oh one properly, and can delete. The gotcha to remember is that without the Api Controller attribute, a controller ignores the JSON body and skips the automatic four hundred. And an action that returns null for a plain type answers two oh four, not four oh four.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
     "web-api-explorer": {
       "intro": [
         {

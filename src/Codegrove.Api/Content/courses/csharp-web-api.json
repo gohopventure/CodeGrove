@@ -1822,14 +1822,166 @@
       "sortOrder": 5,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "isPublished": true,
+      "learnMarkdown": "## Controllers: a room for each job\n\nAs a server grows, `Program.cs` fills up with endpoints. Big servers sort them into **controllers**: one class for each kind of thing, like a room for quests and a room for pets. Each endpoint becomes a method in that class, called an **action**.\n\n### A controller is a class\n\n```csharp\nusing Microsoft.AspNetCore.Mvc;\n\n[ApiController]\n[Route(\"pets\")]\npublic class PetsController : ControllerBase\n{\n    [HttpGet]\n    public List<Pet> GetAll() => Pets;\n}\n```\n\nThe words in square brackets are **attributes**: labels that tell ASP.NET Core how to use the class.\n\n- `[ApiController]` says \"this controller is part of an API\".\n- `[Route(\"pets\")]` is the start of every path in this room: `/pets`.\n- `[HttpGet]` makes `GetAll` answer `GET /pets`.\n- `: ControllerBase` gives the class helpers like `Ok` and `NotFound`.\n- The class must be **`public`**, or ASP.NET Core won't find it.\n\n### Blanks work here too\n\n```csharp\n[HttpGet(\"{id:int}\")]\npublic IActionResult GetById(int id)\n{\n    var pet = Pets.FirstOrDefault(p => p.Id == id);\n    if (pet is null)\n    {\n        return NotFound();\n    }\n    return Ok(pet);\n}\n```\n\n`[HttpGet(\"{id:int}\")]` adds to the room's path, so this answers `GET /pets/3`. `IActionResult` means \"some kind of answer\": here `Ok(pet)` (200) or `NotFound()` (404).\n\n### Two lines in Program.cs\n\nControllers need two lines, one on each side of `builder.Build()`:\n\n```csharp\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\n```\n\n`AddControllers` gets the helpers ready, and `MapControllers` turns every action into an endpoint. Forget `MapControllers` and the server has no endpoints at all!\n\n### New words\n\n- **Controller**: a class that holds the endpoints for one kind of thing, like quests.\n- **Action**: a method in a controller that answers requests.\n- **Attribute**: a label in square brackets, like `[HttpGet]`, that tells C# or ASP.NET Core something about the code below it.\n",
+      "exampleMarkdown": "A garden room with two actions. Press **Run**, then in **Try it** send `GET /garden`, then `GET /garden/moss`. Try `GET /garden/cactus` too: there's no cactus, so it's a **404**.",
+      "exampleCode": "using Microsoft.AspNetCore.Mvc;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n\n[ApiController]\n[Route(\"garden\")]\npublic class GardenController : ControllerBase\n{\n    private static readonly List<Plant> Plants =\n    [\n        new(\"sunflower\", \"tall\"),\n        new(\"moss\", \"tiny\"),\n        new(\"fern\", \"feathery\"),\n    ];\n\n    [HttpGet]\n    public List<Plant> GetAll() => Plants;\n\n    [HttpGet(\"{name}\")]\n    public IActionResult GetOne(string name)\n    {\n        var plant = Plants.FirstOrDefault(p => p.Name == name);\n        if (plant is null)\n        {\n            return NotFound();\n        }\n        return Ok(plant);\n    }\n}\n\npublic record Plant(string Name, string Size);\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The Grove's quests live in their own room: `QuestsController.cs`. But the server doesn't use it yet. Press **Run**: it says there are no endpoints.\n\n1. In `Program.cs`, add `builder.Services.AddControllers();` before `builder.Build()`, and `app.MapControllers();` after it. Now `GET /quests` lists the quests.\n2. In `QuestsController.cs`, add an action for `GET /quests/{id:int}`. It answers with that quest (`GET /quests/2` is *Count the fireflies*), or `NotFound()` when there's no quest with that id.",
+        "starterFiles": {
+          "Program.cs": "// Mission: open the Grove quest board!\nvar builder = WebApplication.CreateBuilder(args);\n// 1. Add the controllers service here.\n\nvar app = builder.Build();\n// 1. Map the controllers here.\n\napp.Run();\n",
+          "QuestsController.cs": "using Microsoft.AspNetCore.Mvc;\n\n// The quest room: all the quest endpoints.\n[ApiController]\n[Route(\"quests\")]\npublic class QuestsController : ControllerBase\n{\n    private static readonly List<Quest> Quests =\n    [\n        new(1, \"Find the golden acorn\", 10),\n        new(2, \"Count the fireflies\", 5),\n        new(3, \"Map the mushroom ring\", 8),\n    ];\n\n    // GET /quests: every quest.\n    [HttpGet]\n    public List<Quest> GetAll() => Quests;\n\n    // 2. Add GET /quests/{id:int}: one quest,\n    //    or NotFound() if there's no such quest.\n}\n\npublic record Quest(\n    int Id, string Name, int Stars);\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: open the Grove quest board!\nvar builder = WebApplication.CreateBuilder(args);\n// 1. Add the controllers service here.\nbuilder.Services.AddControllers();\n\nvar app = builder.Build();\n// 1. Map the controllers here.\napp.MapControllers();\n\napp.Run();\n",
+          "QuestsController.cs": "using Microsoft.AspNetCore.Mvc;\n\n// The quest room: all the quest endpoints.\n[ApiController]\n[Route(\"quests\")]\npublic class QuestsController : ControllerBase\n{\n    private static readonly List<Quest> Quests =\n    [\n        new(1, \"Find the golden acorn\", 10),\n        new(2, \"Count the fireflies\", 5),\n        new(3, \"Map the mushroom ring\", 8),\n    ];\n\n    // GET /quests: every quest.\n    [HttpGet]\n    public List<Quest> GetAll() => Quests;\n\n    // 2. Add GET /quests/{id:int}: one quest,\n    //    or NotFound() if there's no such quest.\n    [HttpGet(\"{id:int}\")]\n    public IActionResult GetById(int id)\n    {\n        var quest = Quests.FirstOrDefault(q => q.Id == id);\n        if (quest is null)\n        {\n            return NotFound();\n        }\n        return Ok(quest);\n    }\n}\n\npublic record Quest(\n    int Id, string Name, int Stars);\n"
+        },
+        "tests": [
+          {
+            "label": "Controllers are added",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "Services\\s*\\.\\s*AddControllers\\s*\\(",
+              "file": "Program.cs"
+            },
+            "failMessage": "Add builder.Services.AddControllers(); in Program.cs, before builder.Build()."
+          },
+          {
+            "label": "Controllers are mapped",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "app\\s*\\.\\s*MapControllers\\s*\\(",
+              "file": "Program.cs"
+            },
+            "failMessage": "Add app.MapControllers(); in Program.cs, after builder.Build() and before app.Run()."
+          },
+          {
+            "label": "GET /quests lists the quests",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/quests",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "id": 1
+                },
+                {
+                  "id": 2
+                },
+                {
+                  "id": 3
+                }
+              ]
+            },
+            "failMessage": "GET /quests should answer the three quests. It needs both lines in Program.cs."
+          },
+          {
+            "label": "GET /quests/2 finds a quest",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/quests/2",
+              "expectStatus": 200,
+              "expectJson": {
+                "name": "Count the fireflies",
+                "stars": 5
+              }
+            },
+            "failMessage": "GET /quests/2 should answer Count the fireflies. Add an action with [HttpGet(\"{id:int}\")] that finds the quest and returns Ok(quest)."
+          },
+          {
+            "label": "An unknown quest is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/quests/9",
+              "expectStatus": 404
+            },
+            "failMessage": "GET /quests/9 should answer 404 Not Found. Return NotFound() when there's no quest with that id."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which two lines does a server need before it can use controllers, and which side of `builder.Build()` does each go on?",
+            "speechText": "Which two lines does a server need before it can use controllers, and which side of builder dot Build does each go on?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "`builder.Services.AddControllers();` goes before `builder.Build()`, and `app.MapControllers();` goes after it. For the new action, copy the shape of `GetAll` and give `[HttpGet]` a path: `[HttpGet(\"{id:int}\")]`.",
+            "speechText": "Add Controllers goes before the build line, and Map Controllers goes after it. For the new action, put a path with an id in the Http Get attribute.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Inside the action, find the quest first:\n\n```csharp\nvar quest = Quests.FirstOrDefault(q => q.Id == id);\n```\n\nThen return `NotFound()` if it's `null`, and `Ok(quest)` if not. The method's return type is `IActionResult`.",
+            "speechText": "Find the quest with First Or Default. If it's null, return Not Found, and otherwise return Ok with the quest.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is a controller?",
+            "explanation": "A controller is a class that holds the endpoints (actions) for one kind of thing, like quests.",
+            "options": [
+              {
+                "text": "A class that holds the endpoints for one kind of thing",
+                "correct": true
+              },
+              {
+                "text": "A cable that controls the server",
+                "correct": false
+              },
+              {
+                "text": "A list of every request ever sent",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "[Route(\"pets\")] is on the controller, and [HttpGet(\"{id:int}\")] is on an action. Which request runs that action?",
+            "explanation": "The action's path goes after the controller's path, so it answers GET /pets/3.",
+            "options": [
+              {
+                "text": "GET /pets/3",
+                "correct": true
+              },
+              {
+                "text": "GET /3",
+                "correct": false
+              },
+              {
+                "text": "POST /pets",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "You wrote a controller but forgot app.MapControllers(). What happens?",
+            "explanation": "MapControllers turns every action into an endpoint. Without it, the server has no endpoints, so every request is 404.",
+            "options": [
+              {
+                "text": "Every request gets 404, because there are no endpoints",
+                "correct": true
+              },
+              {
+                "text": "It works anyway",
+                "correct": false
+              },
+              {
+                "text": "The controller runs twice",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "controllers",
@@ -1837,14 +1989,348 @@
       "sortOrder": 5,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "isPublished": true,
+      "learnMarkdown": "## Controllers and ActionResult\n\nMinimal APIs map one lambda per endpoint. **Controllers** group related endpoints into a class, with routing and validation declared by attributes. Most existing ASP.NET Core APIs at work use controllers, so you'll read and change them often.\n\n### Anatomy of an API controller\n\n```csharp\n[ApiController]\n[Route(\"api/[controller]\")]        // [controller] = \"Books\"\npublic class BooksController(BookStore store) : ControllerBase\n{\n    [HttpGet]                      // GET /api/books\n    public IEnumerable<Book> GetAll() => store.All();\n\n    [HttpGet(\"{id:int}\")]          // GET /api/books/3\n    public ActionResult<Book> GetById(int id) { … }\n}\n```\n\n- `services.AddControllers()` and `app.MapControllers()` switch controllers on. MapControllers finds every **public** class that derives from `ControllerBase` (or is named `…Controller`). An `internal` controller is silently skipped: every request is 404.\n- **Attribute routing**: the class route plus each action's template. `[controller]` becomes the class name without \"Controller\", capital letter included: `/api/Books`. Routing ignores case, so `/api/books` works too, but URLs ASP.NET Core *generates* keep the capital. A template that starts with `/` ignores the class route.\n- Controllers are created **per request**, with services from the constructor (here a primary constructor). That's dependency injection, as in lesson 4.\n\n### What an action can return\n\n| Return type | Use it for |\n|---|---|\n| `T` (like `Book`) | always 200 + JSON |\n| `ActionResult<T>` | a `T` **or** a result like `NotFound()` |\n| `IActionResult` | any result, no single value type |\n\n`ControllerBase` has the helpers: `Ok(x)`, `NotFound()`, `BadRequest(x)`, `NoContent()`, `Conflict()`, `Problem(…)`, `CreatedAtAction(…)`.\n\n**Gotcha:** an action whose return type is `Book` and that returns `null` doesn't answer 404 or `null`. MVC answers **204 No Content**, which clients often treat as success. Use `ActionResult<Book>` and return `NotFound()`.\n\n### What [ApiController] does\n\nWithout it, a controller still works, but differently:\n\n| | With `[ApiController]` | Without |\n|---|---|---|\n| Complex parameter (`NewBook input`) | read from the **JSON body** | built from the route and **query string**: the body is ignored |\n| Validation errors | automatic **400** with problem details; the action doesn't run | the action runs anyway; check `ModelState.IsValid` yourself |\n| `NotFound()`, `BadRequest()` | send problem details | send an empty body |\n\nForgetting `[ApiController]` doesn't fail loudly: POSTs just save empty records.\n\n### Validation with DataAnnotations\n\n```csharp\npublic record NewBook(\n    [Required, StringLength(40)] string Title,\n    [Range(1450, 2100)] int Year);\n```\n\nWith `[ApiController]`, a bad body gets a 400 before your action runs:\n\n```json\n{ \"title\": \"One or more validation errors occurred.\",\n  \"status\": 400,\n  \"errors\": { \"Title\": [\"The Title field is required.\"] } }\n```\n\nThe keys are the C# property names. With nullable enabled, a non-nullable `string` is treated as `[Required]` even without the attribute; `string?` is optional.\n\n### Created, with a Location\n\n```csharp\nreturn CreatedAtAction(nameof(GetById), new { id = book.Id }, book);\n```\n\nThis answers **201 Created**, the book as JSON, and a `Location` header with the URL of `GetById` for that id, like `http://localhost:5000/api/Books/3`. `nameof` keeps it right if you rename the action.\n\n### Minimal APIs or controllers?\n\nBoth run on the same routing, DI and JSON. Minimal APIs are less code and a little faster; controllers suit big APIs with many endpoints per resource, shared filters and lots of validation. New services often start minimal; you'll meet plenty of both.\n\n### New words\n\n- **Controller**: a class whose public methods (actions) handle requests for one resource.\n- **Action**: a controller method mapped to a route and HTTP method.\n- **Attribute routing**: routes declared with attributes like `[Route]` and `[HttpGet(\"{id}\")]`.\n- **`ActionResult<T>`**: a return type that's either a `T` or a result like `NotFound()`.\n- **DataAnnotations**: validation attributes like `[Required]` and `[Range]` from `System.ComponentModel.DataAnnotations`.\n- **Model state**: what model binding and validation found wrong, by field (`ModelState`).\n",
+      "exampleMarkdown": "A players controller with validation and `CreatedAtAction`. Press **Run**, then in **Try it**: POST `/api/players` with `{ \"name\": \"PixelFox\", \"rating\": 2155 }` (look at the `Location` header), POST `{ \"rating\": 5000 }` (two validation errors, and the action never runs), and `GET /api/players/9` (problem details for the 404).",
+      "exampleCode": "#nullable enable\nusing System.ComponentModel.DataAnnotations;\nusing Microsoft.AspNetCore.Mvc;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nbuilder.Services.AddSingleton<Roster>();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n\npublic record Player(int Id, string Name, int Rating);\npublic record NewPlayer(\n    [Required, StringLength(16)] string Name,\n    [Range(0, 3000)] int Rating);\n\npublic class Roster\n{\n    public List<Player> Players { get; } = [new(1, \"ByteRunner\", 2310)];\n}\n\n[ApiController]\n[Route(\"api/[controller]\")]\npublic class PlayersController(Roster roster) : ControllerBase\n{\n    [HttpGet(\"{id:int}\")]\n    public ActionResult<Player> GetById(int id)\n    {\n        var player = roster.Players.FirstOrDefault(p => p.Id == id);\n        if (player is null)\n        {\n            return NotFound();\n        }\n        return player;\n    }\n\n    [HttpPost]\n    public ActionResult<Player> Create(NewPlayer input)\n    {\n        var player = new Player(roster.Players.Count + 1, input.Name, input.Rating);\n        roster.Players.Add(player);\n        return CreatedAtAction(nameof(GetById), new { id = player.Id }, player);\n    }\n}\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn.** The library team moved its book API to a controller, and things quietly broke. `Program.cs` and `Books.cs` are fine; fix `BooksController.cs`.\n\n1. **POST saves empty books.** `POST /api/books` with `{ \"title\": \"Wonder\", \"author\": \"R. J. Palacio\" }` saves a book with no title, and invalid input isn't refused. One missing attribute causes both. Once it's there, a missing title or one over 40 characters gets an automatic **400** with the validation errors.\n2. **Missing books answer 204.** `GET /api/books/9` should be **404 Not Found**. Change the return type so the action can return either a book or `NotFound()`.\n3. **Created, with a Location.** A new book should answer **201 Created** with the book and a `Location` pointing at `GetById` for its id: `http://localhost:5000/api/Books/3` for the first new book (`[controller]` keeps the capital B). Use `CreatedAtAction`.\n4. **Delete.** Add `DELETE /api/books/{id:int}`: **204** if the book was there, **404** if not.",
+        "starterFiles": {
+          "Program.cs": "var builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nbuilder.Services.AddSingleton<BookStore>();\n\nvar app = builder.Build();\napp.MapControllers();\n\napp.Run();\n",
+          "BooksController.cs": "#nullable enable\nusing System.ComponentModel.DataAnnotations;\nusing Microsoft.AspNetCore.Mvc;\n\n// TODO 1: a missing attribute means POST reads\n// the query string, not the body, and never\n// validates. Add it.\n[Route(\"api/[controller]\")]\npublic class BooksController(BookStore store)\n    : ControllerBase\n{\n    [HttpGet]\n    public IEnumerable<Book> GetAll() => store.All();\n\n    // TODO 2: a missing book should be 404,\n    // not 204 No Content.\n    [HttpGet(\"{id:int}\")]\n    public Book? GetById(int id) => store.Find(id);\n\n    // TODO 3: answer 201 Created, with a\n    // Location that points at GetById.\n    [HttpPost]\n    public IActionResult Create(NewBook input)\n    {\n        var book = store.Add(input);\n        return Ok(book);\n    }\n\n    // TODO 4: DELETE /api/books/{id}: 204 if it\n    // was there, 404 if not.\n}\n",
+          "Books.cs": "#nullable enable\nusing System.ComponentModel.DataAnnotations;\n\n// Finished: you don't need to change this file.\npublic record Book(\n    int Id, string Title, string Author);\n\n// What a client sends to add a book.\npublic record NewBook(\n    [Required, StringLength(40)] string Title,\n    [Required] string Author);\n\npublic class BookStore\n{\n    private readonly List<Book> _books =\n    [\n        new(1, \"Hatchet\", \"Gary Paulsen\"),\n        new(2, \"Holes\", \"Louis Sachar\"),\n    ];\n    private int _nextId = 3;\n\n    public IReadOnlyList<Book> All() => _books;\n\n    public Book? Find(int id) =>\n        _books.FirstOrDefault(b => b.Id == id);\n\n    public Book Add(NewBook input)\n    {\n        var book = new Book(_nextId++, input.Title, input.Author);\n        _books.Add(book);\n        return book;\n    }\n\n    public bool Remove(int id) =>\n        _books.RemoveAll(b => b.Id == id) > 0;\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "var builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nbuilder.Services.AddSingleton<BookStore>();\n\nvar app = builder.Build();\napp.MapControllers();\n\napp.Run();\n",
+          "BooksController.cs": "#nullable enable\nusing System.ComponentModel.DataAnnotations;\nusing Microsoft.AspNetCore.Mvc;\n\n// TODO 1: a missing attribute means POST reads\n// the query string, not the body, and never\n// validates. Add it.\n[ApiController]\n[Route(\"api/[controller]\")]\npublic class BooksController(BookStore store)\n    : ControllerBase\n{\n    [HttpGet]\n    public IEnumerable<Book> GetAll() => store.All();\n\n    // TODO 2: a missing book should be 404,\n    // not 204 No Content.\n    [HttpGet(\"{id:int}\")]\n    public ActionResult<Book> GetById(int id)\n    {\n        var book = store.Find(id);\n        if (book is null)\n        {\n            return NotFound();\n        }\n        return book;\n    }\n\n    // TODO 3: answer 201 Created, with a\n    // Location that points at GetById.\n    [HttpPost]\n    public ActionResult<Book> Create(NewBook input)\n    {\n        var book = store.Add(input);\n        return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);\n    }\n\n    // TODO 4: DELETE /api/books/{id}: 204 if it\n    // was there, 404 if not.\n    [HttpDelete(\"{id:int}\")]\n    public IActionResult Delete(int id) =>\n        store.Remove(id) ? NoContent() : NotFound();\n}\n",
+          "Books.cs": "#nullable enable\nusing System.ComponentModel.DataAnnotations;\n\n// Finished: you don't need to change this file.\npublic record Book(\n    int Id, string Title, string Author);\n\n// What a client sends to add a book.\npublic record NewBook(\n    [Required, StringLength(40)] string Title,\n    [Required] string Author);\n\npublic class BookStore\n{\n    private readonly List<Book> _books =\n    [\n        new(1, \"Hatchet\", \"Gary Paulsen\"),\n        new(2, \"Holes\", \"Louis Sachar\"),\n    ];\n    private int _nextId = 3;\n\n    public IReadOnlyList<Book> All() => _books;\n\n    public Book? Find(int id) =>\n        _books.FirstOrDefault(b => b.Id == id);\n\n    public Book Add(NewBook input)\n    {\n        var book = new Book(_nextId++, input.Title, input.Author);\n        _books.Add(book);\n        return book;\n    }\n\n    public bool Remove(int id) =>\n        _books.RemoveAll(b => b.Id == id) > 0;\n}\n"
+        },
+        "tests": [
+          {
+            "label": "GET /api/books lists the books",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/books",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "title": "Hatchet"
+                },
+                {
+                  "title": "Holes"
+                }
+              ]
+            },
+            "failMessage": "GET /api/books should list the two books."
+          },
+          {
+            "label": "POST reads the body",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/books",
+              "body": {
+                "title": "Wonder",
+                "author": "R. J. Palacio"
+              },
+              "expectJson": {
+                "title": "Wonder",
+                "author": "R. J. Palacio"
+              }
+            },
+            "failMessage": "POST /api/books saved a book without the title and author that were sent: without [ApiController], a NewBook parameter is built from the query string, not the JSON body. Add [ApiController] to the controller."
+          },
+          {
+            "label": "POST answers 201 Created",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/books",
+              "body": {
+                "title": "Wonder",
+                "author": "R. J. Palacio"
+              },
+              "expectStatus": 201,
+              "expectJson": {
+                "id": 3
+              }
+            },
+            "failMessage": "POST /api/books should answer 201 Created with the new book (id 3). Return CreatedAtAction(nameof(GetById), new { id = book.Id }, book)."
+          },
+          {
+            "label": "Created points at the new book",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/books",
+              "body": {
+                "title": "Wonder",
+                "author": "R. J. Palacio"
+              },
+              "expectHeader": {
+                "Location": "/api/Books/3"
+              }
+            },
+            "failMessage": "The 201 should have a Location header pointing at GetById for the new book: /api/Books/3. CreatedAtAction needs the action's name and its route values: nameof(GetById) and new { id = book.Id }."
+          },
+          {
+            "label": "A missing title is refused",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/books",
+              "body": {
+                "author": "Nobody"
+              },
+              "expectStatus": 400,
+              "expectContentType": "application/problem+json",
+              "expectJson": {
+                "errors": {
+                  "Title": [
+                    "The Title field is required."
+                  ]
+                }
+              }
+            },
+            "failMessage": "A book with no title should get an automatic 400 whose errors include Title: [\"The Title field is required.\"]. That happens once the controller has [ApiController]."
+          },
+          {
+            "label": "A long title is refused",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/books",
+              "body": {
+                "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "author": "Nobody"
+              },
+              "expectStatus": 400,
+              "expectJson": {
+                "errors": {
+                  "Title": [
+                    "The field Title must be a string with a maximum length of 40."
+                  ]
+                }
+              }
+            },
+            "failMessage": "A 41-character title should get a 400 with Title: [\"The field Title must be a string with a maximum length of 40.\"]."
+          },
+          {
+            "label": "A refused book isn't saved",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/books",
+                  "body": {
+                    "author": "Nobody"
+                  }
+                }
+              ],
+              "path": "/api/books",
+              "expectJson": [
+                {
+                  "id": 1
+                },
+                {
+                  "id": 2
+                }
+              ]
+            },
+            "failMessage": "An invalid book shouldn't be added: with [ApiController], the action doesn't even run."
+          },
+          {
+            "label": "A missing book is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/books/9",
+              "expectStatus": 404
+            },
+            "failMessage": "GET /api/books/9 should answer 404, not 204. An action whose return type is Book answers 204 No Content when it returns null: return ActionResult<Book> and NotFound()."
+          },
+          {
+            "label": "The 404 is problem details",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/books/9",
+              "expectContentType": "application/problem+json",
+              "expectJson": {
+                "status": 404,
+                "title": "Not Found"
+              }
+            },
+            "failMessage": "With [ApiController], NotFound() answers with problem details (application/problem+json)."
+          },
+          {
+            "label": "A real book is still found",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/books/1",
+              "expectStatus": 200,
+              "expectJson": {
+                "id": 1,
+                "title": "Hatchet"
+              }
+            },
+            "failMessage": "GET /api/books/1 should still answer Hatchet."
+          },
+          {
+            "label": "DELETE answers 204",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "DELETE",
+              "path": "/api/books/1",
+              "expectStatus": 204
+            },
+            "failMessage": "DELETE /api/books/1 should answer 204 No Content. Add an action with [HttpDelete(\"{id:int}\")] that returns NoContent()."
+          },
+          {
+            "label": "A deleted book is gone",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "DELETE",
+                  "path": "/api/books/1"
+                }
+              ],
+              "path": "/api/books/1",
+              "expectStatus": 404
+            },
+            "failMessage": "After DELETE /api/books/1, GET /api/books/1 should answer 404."
+          },
+          {
+            "label": "DELETE on a missing book is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "DELETE",
+              "path": "/api/books/9",
+              "expectStatus": 404
+            },
+            "failMessage": "DELETE /api/books/9 should answer 404: return NotFound() when store.Remove finds nothing."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which attribute changes where a controller reads complex parameters from, and whether invalid input reaches the action?",
+            "speechText": "Which attribute changes where a controller reads complex parameters from, and whether invalid input reaches the action?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Add `[ApiController]` above `[Route(…)]`. Make `GetById` return `ActionResult<Book>` so it can `return NotFound();` or `return book;`. In `Create`, return `CreatedAtAction(nameof(GetById), new { id = book.Id }, book)`.",
+            "speechText": "Add the Api Controller attribute. Make Get By Id return an Action Result of Book, so it can return Not Found or the book. In Create, return Created At Action with the name of Get By Id, the new id, and the book.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The delete action is short:\n\n```csharp\n[HttpDelete(\"{id:int}\")]\npublic IActionResult Delete(int id) =>\n    store.Remove(id) ? NoContent() : NotFound();\n```\n\n(Both sides of `? :` work here because the return type is `IActionResult`.)",
+            "speechText": "For delete, use an Http Delete attribute with the id, and return No Content when store dot Remove succeeds, and Not Found when it doesn't.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "An action's return type is Book, and it returns null. What does the client get?",
+            "explanation": "MVC turns a null value into 204 No Content. Use ActionResult<Book> and return NotFound() for a missing book.",
+            "options": [
+              {
+                "text": "204 No Content",
+                "correct": true
+              },
+              {
+                "text": "404 Not Found",
+                "correct": false
+              },
+              {
+                "text": "200 OK with null",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A controller has no [ApiController], and a POST action takes a NewBook record. Where does NewBook come from?",
+            "explanation": "Without [ApiController], complex parameters are built from the route and query string; the JSON body is ignored unless you add [FromBody].",
+            "options": [
+              {
+                "text": "The route and query string; the JSON body is ignored",
+                "correct": true
+              },
+              {
+                "text": "The JSON body, as usual",
+                "correct": false
+              },
+              {
+                "text": "Dependency injection",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "With [ApiController], a POST body fails a [Required] check. What happens?",
+            "explanation": "MVC answers 400 with validation problem details before the action runs.",
+            "options": [
+              {
+                "text": "An automatic 400 with the errors, and the action doesn't run",
+                "correct": true
+              },
+              {
+                "text": "The action runs with ModelState.IsValid false",
+                "correct": false
+              },
+              {
+                "text": "500 Internal Server Error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does CreatedAtAction(nameof(GetById), new { id = book.Id }, book) send?",
+            "explanation": "201 Created, the book as JSON, and a Location header with the URL that GetById answers for that id.",
+            "options": [
+              {
+                "text": "201, the book, and a Location header with GetById's URL for it",
+                "correct": true
+              },
+              {
+                "text": "200 with the book",
+                "correct": false
+              },
+              {
+                "text": "A redirect to GetById",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A controller class is declared without public. What happens?",
+            "explanation": "MapControllers only finds public controllers, so its actions aren't mapped and requests get 404.",
+            "options": [
+              {
+                "text": "Its routes aren't mapped, so requests get 404",
+                "correct": true
+              },
+              {
+                "text": "It works the same",
+                "correct": false
+              },
+              {
+                "text": "The build fails",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "database-explorer",
