@@ -164,6 +164,19 @@ describe('helpers', () => {
     expect(stripComments("SELECT '--not' -- yes\n/* gone */ FROM t")).toBe("SELECT '--not'       \n           FROM t");
   });
 
+  it('blames the line the error is about, not just where the statement starts', () => {
+    expect(run('SELECT kind, SUM(age) AS total\nFROM pets\nWHERE SUM(age) > 3\nGROUP BY kind;').error?.line).toBe(3);
+    expect(run('SELECT name,\n       kind,\n       agee\nFROM pets;').error?.line).toBe(3);
+    expect(run('SELECT name\nFROM pet\nWHERE age > 1;').error?.line).toBe(2);
+    expect(run('SELECT p.name\nFROM pets AS q;').error?.line).toBe(1); // p.name: the word is on line 1
+  });
+
+  it('explains an aggregate in WHERE, however SQLite words it', () => {
+    expect(run('SELECT kind FROM pets WHERE SUM(age) > 3;').error?.friendly)
+      .toBe("SUM() works on groups of rows, so it can't go in WHERE, which checks one row at a time. To filter groups, use HAVING after GROUP BY.");
+    expect(run('SELECT kind FROM pets WHERE COUNT(*) > 1 GROUP BY kind;').error?.friendly).toMatch(/^COUNT\(\) works on groups/);
+  });
+
   it('has plain words for the errors beginners hit most', () => {
     for (const message of [
       'near "FORM": syntax error', 'incomplete input', 'no such table: pet', 'no such column: nme',

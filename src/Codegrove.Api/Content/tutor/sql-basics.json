@@ -96,6 +96,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "counting-explorer": {
+      "intro": [
+        {
+          "displayText": "It's acorn-counting day at the Critter Club! Your mission: count the critters, add up every acorn, and find out how many of each kind there are.",
+          "speechText": "It's acorn-counting day at the Critter Club! Your mission is to count the critters, add up every acorn, and find out how many of each kind there are.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Every acorn is counted! Your new word is aggregate: a function like COUNT or SUM that turns lots of rows into one answer.",
+          "speechText": "Every acorn is counted! Your new word is aggregate, which means a function like count or sum that turns lots of rows into one answer.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "aggregates-and-grouping": {
+      "intro": [
+        {
+          "displayText": "Dashboards, reports and leaderboards are built from totals, counts and averages. You'll use aggregate functions, group rows with GROUP BY, and filter the groups with HAVING. Then you'll build Pixel Pier's platform report and fix two queries that count wrong.",
+          "speechText": "Dashboards, reports and leaderboards are built from totals, counts and averages. You'll use aggregate functions, group rows with group by, and filter the groups with having. Then you'll build Pixel Pier's platform report and fix two queries that count wrong.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You can summarize a whole table, or each group in it. The gotcha to remember: WHERE filters rows before they're grouped, so a condition on SUM or COUNT goes in HAVING. And COUNT(column) skips NULLs, while COUNT(*) counts every row.",
+          "speechText": "You can summarize a whole table, or each group in it. The gotcha to remember is that where filters rows before they're grouped, so a condition on a sum or a count goes in having. And counting a column skips nulls, while count star counts every row.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }

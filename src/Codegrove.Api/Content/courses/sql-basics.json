@@ -1437,7 +1437,169 @@
       "sortOrder": 4,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Counting and totals\n\nSo far, every query has given back rows from the table. Sometimes you want **one answer** about lots of rows instead: how many are there, what do they add up to, which is the biggest? That's what **aggregate** functions do.\n\n```sql\nSELECT COUNT(*) FROM critters;\n```\n\nThis gives back a single number: how many critters there are.\n\n| Function | What it gives you |\n|----------|-------------------|\n| `COUNT(*)` | how many rows there are |\n| `SUM(acorns)` | all the acorns added up |\n| `AVG(age)` | the average (the mean) age |\n| `MIN(age)` | the smallest age |\n| `MAX(age)` | the biggest age |\n\n### One answer for each group\n\n`GROUP BY` sorts the rows into groups first, then works out one answer **for each group**:\n\n```sql\nSELECT kind, COUNT(*)\nFROM critters\nGROUP BY kind;\n```\n\nEvery fox goes in one group, every owl in another, and so on. The result has one row per kind, with how many critters are that kind.\n\n### New words\n\n- **Aggregate**: a function, like `COUNT` or `SUM`, that turns lots of rows into one answer.\n- **COUNT**: counts rows.\n- **SUM**: adds numbers up.\n- **Average**: the total divided by how many there are. `AVG` works it out.\n- **GROUP BY**: splits rows into groups, so an aggregate gives one answer per group.\n",
+      "exampleMarkdown": "The oldest and youngest critters' ages, in one row. `MAX` finds the biggest age and `MIN` the smallest, and `AS` gives each answer a name. Open the **Tables** tab: there's a new `acorns` column for today's challenge.",
+      "exampleCode": "-- The oldest and youngest ages\nSELECT MAX(age) AS oldest,\n       MIN(age) AS youngest\nFROM critters;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** It's acorn-counting day at the Critter Club. Each query below lists rows, but the club wants **answers**. Change each one:\n\n1. **How many** critters are in the club?\n2. How many acorns did they collect **altogether**?\n3. How many critters are there **of each kind**? Show the `kind` and its count.",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Critter Club on acorn-counting day\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  age INTEGER,\n  acorns INTEGER NOT NULL\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3, 12),\n  (2, 'Pip', 'owl', 1, 3),\n  (3, 'Moss', 'frog', 2, 5),\n  (4, 'Bramble', 'hedgehog', 4, 9),\n  (5, 'Nova', 'rabbit', 2, 7),\n  (6, 'Pebble', 'turtle', 7, 2),\n  (7, 'Hoot', 'owl', 5, 6),\n  (8, 'Lily', 'frog', 1, 4),\n  (9, 'Rusty', 'fox', 6, 10),\n  (10, 'Tad', 'frog', 4, 8);\n",
+          "query.sql": "-- 1. How many critters are in the club?\nSELECT name FROM critters;\n\n-- 2. How many acorns altogether?\nSELECT acorns FROM critters;\n\n-- 3. How many critters of each kind?\nSELECT kind FROM critters;\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. How many critters are in the club?\nSELECT COUNT(*) FROM critters;\n\n-- 2. How many acorns altogether?\nSELECT SUM(acorns) FROM critters;\n\n-- 3. How many critters of each kind?\nSELECT kind, COUNT(*)\nFROM critters\nGROUP BY kind;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "Query 1 counts the critters",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "rows": [
+                [
+                  10
+                ]
+              ]
+            },
+            "failMessage": "Your first query should give one number: how many critters there are. COUNT(*) counts rows."
+          },
+          {
+            "label": "Query 2 adds up the acorns",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "rows": [
+                [
+                  66
+                ]
+              ]
+            },
+            "failMessage": "Your second query should give one number: all the acorns added up. SUM adds numbers up."
+          },
+          {
+            "label": "Query 3 counts each kind",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 2,
+              "rows": [
+                [
+                  "fox",
+                  2
+                ],
+                [
+                  "owl",
+                  2
+                ],
+                [
+                  "frog",
+                  3
+                ],
+                [
+                  "hedgehog",
+                  1
+                ],
+                [
+                  "rabbit",
+                  1
+                ],
+                [
+                  "turtle",
+                  1
+                ]
+              ]
+            },
+            "failMessage": "Your third query should give one row per kind: the kind, then how many critters are that kind. Use COUNT(*) and GROUP BY kind."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which function counts rows, and which one adds numbers up?",
+            "speechText": "Which function counts rows, and which one adds numbers up?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "`COUNT(*)` counts rows and `SUM(acorns)` adds up the acorns: put them right after `SELECT`. For each kind, select `kind` and `COUNT(*)`, then add `GROUP BY kind` at the end.",
+            "speechText": "Count star counts rows, and sum of acorns adds them up: put them right after select. For each kind, select kind and count star, then add group by kind at the end.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Query 1 is `SELECT COUNT(*) FROM critters;`. Query 3 is `SELECT kind, COUNT(*) FROM critters GROUP BY kind;`.",
+            "speechText": "Query one is select count star from critters. Query three is select kind and count star from critters, group by kind.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does COUNT(*) give you?",
+            "explanation": "COUNT(*) counts the rows and gives back one number.",
+            "options": [
+              {
+                "text": "How many rows there are",
+                "correct": true
+              },
+              {
+                "text": "The biggest number in the table",
+                "correct": false
+              },
+              {
+                "text": "Every row in the table",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which one adds up all the acorns?",
+            "explanation": "SUM adds numbers up. COUNT would only tell you how many rows there are.",
+            "options": [
+              {
+                "text": "SUM(acorns)",
+                "correct": true
+              },
+              {
+                "text": "COUNT(acorns)",
+                "correct": false
+              },
+              {
+                "text": "MAX(acorns)",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does GROUP BY kind do in SELECT kind, COUNT(*) FROM critters GROUP BY kind?",
+            "explanation": "GROUP BY makes one group per kind, so COUNT(*) gives one answer for each kind.",
+            "options": [
+              {
+                "text": "Makes one group per kind, so COUNT(*) counts each kind",
+                "correct": true
+              },
+              {
+                "text": "Sorts the critters by kind",
+                "correct": false
+              },
+              {
+                "text": "Shows only one kind of critter",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "aggregates-and-grouping",
@@ -1445,7 +1607,241 @@
       "sortOrder": 4,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Aggregates and GROUP BY\n\nDashboards, reports and leaderboards are built from totals, counts and averages. **Aggregate functions** turn many rows into one value: `COUNT`, `SUM`, `AVG`, `MIN` and `MAX`.\n\n```sql\nSELECT COUNT(*) AS games,\n       ROUND(AVG(price), 2) AS avg_price,\n       MAX(price) AS top_price\nFROM games;\n```\n\n### NULL and aggregates\n\n- `COUNT(*)` counts **rows**. `COUNT(sale_price)` counts only rows where `sale_price` is **not NULL**.\n- `SUM`, `AVG`, `MIN` and `MAX` skip `NULL`s too. So `AVG(sale_price)` is the average of the games that have a sale price, not of every game.\n- Over no rows at all, `COUNT` gives 0 but `SUM` and `AVG` give `NULL`.\n- `COUNT(DISTINCT platform)` counts the different values.\n\n### GROUP BY\n\n`GROUP BY` splits the rows into groups that share a value, then each aggregate gives one answer **per group**:\n\n```sql\nSELECT platform, COUNT(*) AS games\nFROM games\nGROUP BY platform;\n```\n\nEvery column in the `SELECT` must be either in the `GROUP BY` or inside an aggregate. A plain `title` here makes no sense: which of the platform's titles would it show? SQL Server refuses to run that query. SQLite runs it and picks a title from somewhere in the group, which is worse: no error, and an answer that looks real.\n\n### WHERE or HAVING?\n\nHere's the logical order once grouping joins in: `FROM`, `WHERE`, `GROUP BY`, `HAVING`, `SELECT`, `ORDER BY`, `LIMIT`.\n\n- `WHERE` filters **rows**, before they're grouped. It can't use `SUM()` or `COUNT()`, because the groups don't exist yet.\n- `HAVING` filters **groups**, after the aggregates are worked out.\n\n```sql\nSELECT platform, COUNT(*) AS games\nFROM games\nWHERE price < 40          -- rows: cheaper games only\nGROUP BY platform\nHAVING COUNT(*) >= 2;     -- groups: platforms with 2 or more\n```\n\n### In SQL Server\n\nSelecting a column that isn't grouped or aggregated is an error there (Msg 8120), and so is an aggregate in `WHERE` (Msg 147). `HAVING` can't use an alias from the `SELECT` either, because it runs first: write `HAVING SUM(price * stock) > 500`, not `HAVING stock_value > 500`. SQLite allows the alias, so it's an easy habit to pick up by accident. One more surprise: `AVG` of an **integer** column gives an integer, rounding down, so the average of 1 and 2 is 1. Write `AVG(stock * 1.0)` or `AVG(CAST(stock AS decimal(10, 2)))` to keep the decimals. SQLite always gives a decimal.\n\n### New words\n\n- **Aggregate function**: a function that turns many rows into one value, like `COUNT`, `SUM`, `AVG`, `MIN` or `MAX`.\n- **Group**: a set of rows that share the same value in the `GROUP BY` columns.\n- **HAVING**: filters groups after aggregates are worked out, like `WHERE` does for rows.\n- **COUNT(*) vs COUNT(column)**: the first counts rows; the second counts values that aren't `NULL`.\n",
+      "exampleMarkdown": "A quick summary of the whole shop in one row. Every column is an aggregate, so there's no `GROUP BY`: the whole table is one group. `ROUND(…, 2)` keeps the average to cents, and `COUNT(sale_price)` counts only the games that have a sale price.",
+      "exampleCode": "-- The whole shop in one row\nSELECT COUNT(*) AS games,\n       ROUND(AVG(price), 2) AS avg_price,\n       SUM(stock) AS in_stock,\n       COUNT(sale_price) AS on_sale\nFROM games;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Pixel Pier wants a report from the `games` table.\n\n1. **On sale:** the starter counts the games that are on sale, but gets 12. Fix it.\n2. **Big platforms:** platforms whose total stock value (`price * stock`, added up) is over 500, as `platform` and `stock_value`, biggest first. The starter doesn't run. Fix it.\n3. **Platform summary:** write a query with one row per `platform`, A to Z, and the columns `platform`, `games` (how many), `avg_price` (rounded to 2 decimals) and `stock` (the total in stock).",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  genre TEXT NOT NULL,\n  price REAL NOT NULL,\n  stock INTEGER NOT NULL,\n  sale_price REAL -- NULL when it isn't on sale\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 'Adventure', 39.99, 12, NULL),\n  (2, 'Byte Racers', 'PC', 'Racing', 19.99, 30, 14.99),\n  (3, 'Moonlight Mages', 'PlayStation', 'RPG', 59.99, 4, NULL),\n  (4, 'Puzzle Pond', 'Switch', 'Puzzle', 14.99, 0, 9.99),\n  (5, 'Robo Rumble', 'Xbox', 'Action', 49.99, 7, NULL),\n  (6, 'Ocean Odyssey', 'PC', 'Adventure', 29.99, 15, NULL),\n  (7, 'Castle Quest', 'PlayStation', 'RPG', 39.99, 9, 29.99),\n  (8, 'Tiny Tactics', 'Switch', 'Strategy', 24.99, 21, NULL),\n  (9, 'Questlings', 'Switch', 'RPG', 34.99, 3, NULL),\n  (10, 'Pixel Pets', 'PC', 'Simulation', 9.99, 8, NULL),\n  (11, 'Moon Quest', 'Xbox', 'Adventure', 44.99, 2, 34.99),\n  (12, 'Turbo Tennis', 'Switch', 'Sports', 29.99, 6, 19.99);\n",
+          "query.sql": "-- 1. How many games are on sale?\nSELECT COUNT(*) AS on_sale\nFROM games;\n\n-- 2. Platforms with over 500 of stock\n--    value, biggest first.\nSELECT platform, SUM(price * stock) AS stock_value\nFROM games\nWHERE SUM(price * stock) > 500\nGROUP BY platform\nORDER BY stock_value DESC;\n\n-- 3. Platform summary: platform, games,\n--    avg_price (2 decimals), stock. A to Z.\n\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. How many games are on sale?\nSELECT COUNT(sale_price) AS on_sale\nFROM games;\n\n-- 2. Platforms with over 500 of stock\n--    value, biggest first.\nSELECT platform, SUM(price * stock) AS stock_value\nFROM games\nGROUP BY platform\nHAVING SUM(price * stock) > 500\nORDER BY stock_value DESC;\n\n-- 3. Platform summary: platform, games,\n--    avg_price (2 decimals), stock. A to Z.\nSELECT platform,\n       COUNT(*) AS games,\n       ROUND(AVG(price), 2) AS avg_price,\n       SUM(stock) AS stock\nFROM games\nGROUP BY platform\nORDER BY platform;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "The on-sale count skips games with no sale price",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "on_sale"
+              ],
+              "rows": [
+                [
+                  5
+                ]
+              ]
+            },
+            "failMessage": "The on-sale count should only count games that have a sale_price. COUNT(*) counts every row."
+          },
+          {
+            "label": "The big platforms are filtered with HAVING",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "platform",
+                "stock_value"
+              ],
+              "rows": [
+                [
+                  "Switch",
+                  1289.58
+                ],
+                [
+                  "PC",
+                  1129.4699999999998
+                ],
+                [
+                  "PlayStation",
+                  599.87
+                ]
+              ],
+              "sortedBy": [
+                "stock_value desc"
+              ]
+            },
+            "failMessage": "The second query should list the platforms whose stock value is over 500, biggest first. A condition on SUM() goes in HAVING, after GROUP BY."
+          },
+          {
+            "label": "Query 2 uses HAVING",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bhaving\\b"
+            },
+            "failMessage": "Filter the groups with HAVING."
+          },
+          {
+            "label": "The platform summary has the right numbers",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 2,
+              "columns": [
+                "platform",
+                "games",
+                "avg_price",
+                "stock"
+              ],
+              "rows": [
+                [
+                  "PC",
+                  3,
+                  19.99,
+                  53
+                ],
+                [
+                  "PlayStation",
+                  2,
+                  49.99,
+                  13
+                ],
+                [
+                  "Switch",
+                  5,
+                  28.99,
+                  42
+                ],
+                [
+                  "Xbox",
+                  2,
+                  47.49,
+                  9
+                ]
+              ],
+              "sortedBy": [
+                "platform"
+              ]
+            },
+            "failMessage": "The platform summary should have one row per platform, A to Z, with games (COUNT), avg_price (ROUND of AVG, 2 decimals) and stock (SUM)."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Query 1 counts 12, but how many games have a `sale_price` in the Tables tab? And why can't SQL check `SUM(...)` in a `WHERE`?",
+            "speechText": "Query one counts 12, but how many games have a sale price in the Tables tab? And why can't sequel check a sum in a where clause?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "`COUNT(*)` counts rows, but `COUNT(sale_price)` counts only the rows where it isn't `NULL`. `WHERE` runs before rows are grouped, so a condition on `SUM` belongs in `HAVING`, after `GROUP BY`.",
+            "speechText": "Count star counts rows, but count of sale price only counts the rows where it isn't null. Where runs before rows are grouped, so a condition on a sum belongs in having, after group by.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "In query 2, replace the `WHERE` line with `HAVING SUM(price * stock) > 500` after `GROUP BY`. The summary selects `platform`, `COUNT(*) AS games`, `ROUND(AVG(price), 2) AS avg_price` and `SUM(stock) AS stock`, grouped and sorted by `platform`.",
+            "speechText": "In query two, replace the where line with having, and move it after group by. The summary selects platform, count star as games, the rounded average price, and the sum of stock, grouped and sorted by platform.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "In the games table, how is COUNT(sale_price) different from COUNT(*)?",
+            "explanation": "COUNT(column) counts only the values that aren't NULL. COUNT(*) counts every row.",
+            "options": [
+              {
+                "text": "COUNT(sale_price) skips rows where sale_price is NULL",
+                "correct": true
+              },
+              {
+                "text": "COUNT(sale_price) adds the sale prices up",
+                "correct": false
+              },
+              {
+                "text": "They always give the same number",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which clause keeps only the groups whose SUM is over 500?",
+            "explanation": "HAVING filters groups after the aggregates are worked out. WHERE filters rows before grouping.",
+            "options": [
+              {
+                "text": "HAVING",
+                "correct": true
+              },
+              {
+                "text": "WHERE",
+                "correct": false
+              },
+              {
+                "text": "ORDER BY",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In which logical order does the database work through these clauses?",
+            "explanation": "Rows are found and filtered, then grouped, then groups are filtered, then columns are worked out and sorted.",
+            "options": [
+              {
+                "text": "FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY",
+                "correct": true
+              },
+              {
+                "text": "SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY",
+                "correct": false
+              },
+              {
+                "text": "FROM, GROUP BY, WHERE, SELECT, HAVING, ORDER BY",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In SQL Server, what happens with SELECT platform, title, COUNT(*) FROM games GROUP BY platform?",
+            "explanation": "title isn't grouped or aggregated, so SQL Server refuses (Msg 8120). SQLite would quietly pick a title from each group.",
+            "options": [
+              {
+                "text": "An error, because title isn't grouped or inside an aggregate",
+                "correct": true
+              },
+              {
+                "text": "It shows every title in each platform",
+                "correct": false
+              },
+              {
+                "text": "It shows the first title alphabetically",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In SQL Server, an INT column holds 1 and 2. What does AVG of it give?",
+            "explanation": "AVG of integers is an integer in SQL Server, rounded down. Use AVG(column * 1.0) to keep the decimals.",
+            "options": [
+              {
+                "text": "1",
+                "correct": true
+              },
+              {
+                "text": "1.5",
+                "correct": false
+              },
+              {
+                "text": "2",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "changing-data-explorer",

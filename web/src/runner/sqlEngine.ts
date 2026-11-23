@@ -166,13 +166,36 @@ function runFile(db: Database, file: string, sql: string, resultSets: SqlResultS
   }
 }
 
-/** For `near "X": syntax error`, the line where X first appears from the statement on (often a later line). */
+/**
+ * The line to blame for an error, found from the statement's first line on. SQLite only tells us which
+ * statement failed, so for a multi-line query we look for what the message names:
+ * - `near "X": syntax error`: the line where X appears;
+ * - `no such column: X` / `no such table: X`: the line where X appears as a word;
+ * - `misuse of aggregate …: sum()`: the first SUM( on or after the WHERE.
+ * Falls back to the statement's first line.
+ */
 function nearLine(sql: string, statementLine: number, message: string): number {
-  const near = /^near "([^"]+)"/.exec(message)?.[1];
-  if (!near) return statementLine;
-  const lines = sql.split('\n');
-  for (let i = statementLine - 1; i < lines.length; i++) {
-    if (stripComments(lines[i] ?? '').toLowerCase().includes(near.toLowerCase())) return i + 1;
+  const lines = sql.split('\n').map((l) => stripComments(l).toLowerCase());
+  const find = (test: (line: string) => boolean, from = statementLine): number | null => {
+    for (let i = from - 1; i < lines.length; i++) if (test(lines[i] ?? '')) return i + 1;
+    return null;
+  };
+  const escape = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  const near = /^near "([^"]+)"/.exec(message)?.[1]?.toLowerCase();
+  if (near) return find((l) => l.includes(near)) ?? statementLine;
+
+  const missing = /^no such (?:column|table): (\S+)/.exec(message)?.[1]?.toLowerCase();
+  if (missing) {
+    const word = new RegExp(`(^|[^\\w.])${escape(missing)}(?!\\w)`);
+    return find((l) => word.test(l)) ?? statementLine;
+  }
+
+  const aggregate = /^misuse of aggregate(?: function)?:? ?(\w+)/.exec(message)?.[1]?.toLowerCase();
+  if (aggregate) {
+    const where = find((l) => /\bwhere\b/.test(l)) ?? statementLine;
+    const call = new RegExp(`\\b${escape(aggregate)}\\s*\\(`);
+    return find((l) => call.test(l), where) ?? where;
   }
   return statementLine;
 }
@@ -246,7 +269,8 @@ const FRIENDLY: [RegExp, (m: RegExpExecArray) => string][] = [
   [/^datatype mismatch/, () => "A value is the wrong type for its column, like text in a whole-number id column."],
   [/^table (\S+) already exists/, (m) => `There's already a table called ${m[1]}. Choose another name, or use CREATE TABLE IF NOT EXISTS.`],
   [/^duplicate column name: (\S+)/, (m) => `The column ${m[1]} is in the list twice.`],
-  [/^misuse of aggregate( function)?:? ?(\S*)/, (m) => `${m[2] ? m[2] + '() ' : 'A function like COUNT() or SUM() '}works on groups of rows, so it can't go in WHERE. Use HAVING to filter groups instead.`],
+  // SQLite says both "misuse of aggregate function sum()" and "misuse of aggregate: count()".
+  [/^misuse of aggregate(?: function)?:? ?(\w+)?/, (m) => `${m[1] ? m[1].toUpperCase() + '()' : 'A function like COUNT() or SUM()'} works on groups of rows, so it can't go in WHERE, which checks one row at a time. To filter groups, use HAVING after GROUP BY.`],
   [/^a GROUP BY clause is required before HAVING/, () => 'HAVING filters groups, so it needs a GROUP BY before it.'],
   [/^aggregate functions are not allowed in the GROUP BY clause/, () => "GROUP BY needs column names, not COUNT() or SUM()."],
   [/^1st ORDER BY term out of range/, () => 'ORDER BY 1 means "the first column", but there are fewer columns than that.'],
