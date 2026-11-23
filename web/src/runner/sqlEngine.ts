@@ -185,7 +185,8 @@ function nearLine(sql: string, statementLine: number, message: string): number {
   const near = /^near "([^"]+)"/.exec(message)?.[1]?.toLowerCase();
   if (near) return find((l) => l.includes(near)) ?? statementLine;
 
-  const missing = /^no such (?:column|table): (\S+)/.exec(message)?.[1]?.toLowerCase();
+  // A missing name, or an ambiguous one: the first place it's written without a table in front.
+  const missing = /^(?:no such (?:column|table)|ambiguous column name): (\S+)/.exec(message)?.[1]?.toLowerCase();
   if (missing) {
     const word = new RegExp(`(^|[^\\w.])${escape(missing)}(?!\\w)`);
     return find((l) => word.test(l)) ?? statementLine;
@@ -256,7 +257,7 @@ const FRIENDLY: [RegExp, (m: RegExpExecArray) => string][] = [
   [/^unrecognized token: "([^"]+)"/, (m) => `SQL doesn't know what "${m[1]}" is. Text values go in single quotes, like 'Juni'.`],
   [/^no such table: (\S+)/, (m) => `There's no table called ${m[1]}. Look at the Tables tab for the exact table names.`],
   [/^no such column: (\S+)/, (m) => `There's no column called ${m[1]}. Check the spelling against the Tables tab. If you meant a piece of text, put it in single quotes, like '${(m[1] ?? '').replace(/^.*\./, '')}'.`],
-  [/^ambiguous column name: (\S+)/, (m) => `More than one table has a column called ${m[1]}, so SQL doesn't know which one you mean. Put the table name in front, like pets.${m[1]}.`],
+  [/^ambiguous column name: (\S+)/, (m) => `More than one table has a column called ${m[1]}, so SQL doesn't know which one you mean. Write the table's name (or its alias), a dot, then ${m[1]}.`],
   [/^no such function: (\S+)/, (m) => `SQL doesn't have a function called ${m[1]}. Check the spelling.`],
   [/^wrong number of arguments to function (\S+?)\(\)/, (m) => `${m[1]}() got the wrong number of values inside its brackets.`],
   [/^table (\S+) has (\d+) columns but (\d+) values were supplied/, (m) => `The table ${m[1]} has ${m[2]} columns, but you gave ${m[3]} values. Give one value per column, or list the columns you're filling in.`],

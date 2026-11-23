@@ -460,7 +460,186 @@
       "sortOrder": 2,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Joining tables\n\nLast time, to find who lives at Lily Pond, you had to look up its id first. A **join** does the looking-up for you: it puts each critter next to its home, in one result.\n\n```sql\nSELECT critters.name, homes.name\nFROM critters\nJOIN homes\n  ON critters.home_id = homes.id;\n```\n\nRead it like this:\n\n- `FROM critters JOIN homes`: use both tables.\n- `ON critters.home_id = homes.id`: match each critter with the home whose `id` is the critter's `home_id`.\n\n| critters.name | homes.name |\n|---------------|------------|\n| Juni | Bramble Burrow |\n| Pip | Oak Hollow |\n| Moss | Lily Pond |\n\n### Table name, dot, column\n\nBoth tables have a column called `name`. So you say which one you mean: `critters.name` or `homes.name`. The dot means \"the column in this table\".\n\nTo give a column a clearer name in the result, use `AS`, like you did with totals:\n\n```sql\nSELECT critters.name, homes.name AS home\n```\n\n### Don't forget ON!\n\nWithout the `ON` line, the database doesn't know how critters and homes go together. So it pairs **every** critter with **every** home: 8 critters × 4 homes = 32 rows, and most of them are nonsense. If a join gives you far too many rows, check the `ON`.\n\n### Joins work with everything you know\n\nAfter the join, you can still use `WHERE`, `ORDER BY` and `COUNT`. This finds everyone who lives in a tree:\n\n```sql\nSELECT critters.name\nFROM critters\nJOIN homes\n  ON critters.home_id = homes.id\nWHERE homes.place = 'tree';\n```\n\n### New words\n\n- **Join**: putting rows from two tables together, by matching them up.\n- **ON**: the part of a join that says how the rows match, like `critters.home_id = homes.id`.\n",
+      "exampleMarkdown": "This join starts from `homes` and lists every home with the critters who live there, sorted by home. Lily Pond shows up three times because three critters live there. Try changing `ORDER BY home` to `ORDER BY critter`.",
+      "exampleCode": "-- Every home and who lives there\nSELECT homes.name AS home, critters.name AS critter\nFROM homes\nJOIN critters\n  ON critters.home_id = homes.id\nORDER BY home;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The Critter Club is making name badges and planning a pond party.\n\n1. The first query joins `critters` and `homes`, but press **Run** and count the rows: far too many! Add the missing `ON` line so each critter is matched with its own home.\n2. Change the second query so it shows only the names of critters whose home's `place` is `'pond'`. Join `homes` like in the first query, then add a `WHERE`.",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Critter Club: homes and critters\nCREATE TABLE homes (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  place TEXT NOT NULL\n);\nINSERT INTO homes VALUES\n  (1, 'Oak Hollow', 'tree'),\n  (2, 'Lily Pond', 'pond'),\n  (3, 'Bramble Burrow', 'burrow'),\n  (4, 'Mossy Log', 'woods');\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  home_id INTEGER NOT NULL REFERENCES homes(id)\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3),\n  (2, 'Pip', 'owl', 1),\n  (3, 'Moss', 'frog', 2),\n  (4, 'Bramble', 'hedgehog', 3),\n  (5, 'Nova', 'rabbit', 3),\n  (6, 'Pebble', 'turtle', 2),\n  (7, 'Fern', 'deer', 4),\n  (8, 'Wren', 'duck', 2);\n",
+          "query.sql": "-- 1. Name badges: each critter and its home.\n--    Run it: why are there so many rows?\nSELECT critters.name, homes.name AS home\nFROM critters\nJOIN homes\nORDER BY critters.name;\n\n-- 2. Pond party! Show the names of the\n--    critters whose home's place is 'pond'.\nSELECT critters.name\nFROM critters;\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Name badges: each critter and its home.\n--    Run it: why are there so many rows?\nSELECT critters.name, homes.name AS home\nFROM critters\nJOIN homes\n  ON critters.home_id = homes.id\nORDER BY critters.name;\n\n-- 2. Pond party! Show the names of the\n--    critters whose home's place is 'pond'.\nSELECT critters.name\nFROM critters\nJOIN homes\n  ON critters.home_id = homes.id\nWHERE homes.place = 'pond';\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "Each critter has one badge with its own home",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "name",
+                "home"
+              ],
+              "rows": [
+                [
+                  "Juni",
+                  "Bramble Burrow"
+                ],
+                [
+                  "Pip",
+                  "Oak Hollow"
+                ],
+                [
+                  "Moss",
+                  "Lily Pond"
+                ],
+                [
+                  "Bramble",
+                  "Bramble Burrow"
+                ],
+                [
+                  "Nova",
+                  "Bramble Burrow"
+                ],
+                [
+                  "Pebble",
+                  "Lily Pond"
+                ],
+                [
+                  "Fern",
+                  "Mossy Log"
+                ],
+                [
+                  "Wren",
+                  "Lily Pond"
+                ]
+              ]
+            },
+            "failMessage": "The first query should give one row per critter, next to the home it lives in. Add ON critters.home_id = homes.id under JOIN homes."
+          },
+          {
+            "label": "The pond party list is right",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "name"
+              ],
+              "rows": [
+                [
+                  "Moss"
+                ],
+                [
+                  "Pebble"
+                ],
+                [
+                  "Wren"
+                ]
+              ]
+            },
+            "failMessage": "The second query should show just the names of the critters who live in a pond. Join homes with the same ON line as the first query, then add WHERE homes.place = 'pond'."
+          },
+          {
+            "label": "The pond list uses a join",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bjoin\\b",
+              "min": 2
+            },
+            "failMessage": "Use a JOIN in the second query too, so it works even if a new pond home is added later."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "How does the database know which home goes with which critter, if there's no `ON` line?",
+            "speechText": "How does the database know which home goes with which critter, if there's no on line?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Under `JOIN homes`, add `ON critters.home_id = homes.id`. For the pond list, copy the `FROM`, `JOIN` and `ON` lines, then add `WHERE homes.place = 'pond'`.",
+            "speechText": "Under join homes, add on, critters dot home id equals homes dot id. For the pond list, copy those lines, then add where homes dot place equals pond.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The pond list is:\n\n```sql\nSELECT critters.name\nFROM critters\nJOIN homes\n  ON critters.home_id = homes.id\nWHERE homes.place = 'pond';\n```",
+            "speechText": "The pond list selects critters dot name from critters, joins homes on critters dot home id equals homes dot id, where homes dot place equals pond.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does a JOIN do?",
+            "explanation": "A join puts rows from two tables together, matching them up the way the ON line says.",
+            "options": [
+              {
+                "text": "Puts rows from two tables together by matching them",
+                "correct": true
+              },
+              {
+                "text": "Copies one table into another",
+                "correct": false
+              },
+              {
+                "text": "Deletes rows that are the same",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Both tables have a name column. How do you ask for the home's name?",
+            "explanation": "Table name, dot, column name: homes.name.",
+            "options": [
+              {
+                "text": "homes.name",
+                "correct": true
+              },
+              {
+                "text": "name.homes",
+                "correct": false
+              },
+              {
+                "text": "home name",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Your join gives 32 rows, but there are only 8 critters. What's the likely problem?",
+            "explanation": "Without ON, every critter is paired with every home, so you get far too many rows.",
+            "options": [
+              {
+                "text": "The ON line is missing",
+                "correct": true
+              },
+              {
+                "text": "There are too many critters",
+                "correct": false
+              },
+              {
+                "text": "The query needs ORDER BY",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "inner-join",
@@ -468,7 +647,300 @@
       "sortOrder": 2,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## INNER JOIN\n\nForeign keys split data into tables. Joins put it back together for a question: \"which publisher made each game?\", \"what's each publisher's average review?\". Almost every real report is a join.\n\n### The shape of a join\n\n```sql\nSELECT games.title, publishers.name\nFROM games\nINNER JOIN publishers\n  ON games.publisher_id = publishers.id;\n```\n\nFor each game, the database finds the publisher rows where the `ON` condition is true and outputs one combined row per match. `INNER` is the default, so `JOIN` on its own means the same thing.\n\nThe `ON` condition almost always matches a **foreign key to the primary key it references**: `games.publisher_id = publishers.id`. Say it to yourself as \"the game's publisher_id is the publisher's id\".\n\n### Rows without a match disappear\n\nAn inner join only outputs rows that found a match. Nimbus Interactive has no games yet, so it doesn't appear in the result above at all. Usually that's what you want; when it isn't, you need a LEFT JOIN, which is the next lesson.\n\n### Qualified names and table aliases\n\nWhen both tables have a column with the same name (`id`, `name`), you have to say which you mean, or you get an **ambiguous column name** error. A **table alias** keeps that short:\n\n```sql\nSELECT g.title, r.stars\nFROM reviews AS r\nJOIN games AS g ON r.game_id = g.id;\n```\n\nOnce a table has an alias, use the alias everywhere in that query. Many teams qualify every column in a join, even unique ones, so the query still works when someone adds a column with a clashing name later.\n\n### Two classic join bugs\n\n- **Joining on the wrong columns.** `ON games.id = publishers.id` runs without an error and returns rows that look reasonable: game 1 gets publisher 1, game 2 gets publisher 2. It's still nonsense. Check that the `ON` pairs a foreign key with its primary key.\n- **Forgetting the condition.** SQLite lets you write a JOIN with no `ON`. You then get a **cross join**: every row of one table paired with every row of the other (8 games × 5 publishers = 40 rows). A suspiciously large row count is the clue.\n\n### More than two tables\n\nJoins chain. Each `JOIN` adds one table and its own `ON`:\n\n```sql\nSELECT p.name, r.stars\nFROM reviews AS r\nJOIN games AS g ON r.game_id = g.id\nJOIN publishers AS p ON g.publisher_id = p.id;\n```\n\nThe joined rows then flow through `WHERE`, `GROUP BY`, `HAVING`, `SELECT` and `ORDER BY` exactly as one table would. In the logical order, `FROM` and its joins come first.\n\n### In SQL Server\n\n- The syntax is the same. `INNER JOIN` needs an `ON`; if you really want every pairing, write `CROSS JOIN`.\n- You may meet the old style `FROM games, publishers WHERE games.publisher_id = publishers.id`. It works, but it hides the join condition among the filters; write `JOIN … ON`.\n- SQL Server chooses how to run a join (nested loops, hash or merge join), and you can see its choice in the **execution plan** in SSMS. An index on the foreign key column, from lesson 1, is what makes these joins fast.\n\n### New words\n\n- **Join**: combining rows from two tables into one result, matched by a condition.\n- **INNER JOIN**: a join that only keeps rows that found a match. Plain `JOIN` means the same.\n- **Join condition**: the `ON` part, usually a foreign key equal to a primary key.\n- **Table alias**: a short name for a table in one query, like `games AS g`.\n- **Ambiguous column**: a column name that exists in more than one joined table, so the database can't tell which you mean.\n- **Cross join**: every row of one table paired with every row of the other.\n",
+      "exampleMarkdown": "This report counts each publisher's games. Nimbus Interactive is missing: it has no games, so the inner join finds nothing to match it with. Try changing `COUNT(*)` to `ROUND(AVG(g.price), 2)` to see each publisher's average price.",
+      "exampleCode": "-- How many games does each publisher have?\nSELECT p.name AS publisher, COUNT(*) AS games\nFROM publishers AS p\nJOIN games AS g ON g.publisher_id = p.id\nGROUP BY p.name\nORDER BY games DESC, publisher;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Pixel Pier wants three reports. Open the **Tables** tab first: `reviews.game_id` points at `games`, and `games.publisher_id` points at `publishers`.\n\n1. **Catalog:** the starter's query runs, but check what it returns. There are 8 games, and the publishers look wrong. Fix the join condition.\n2. **Homepage reviews:** this one stops with an error. Fix it with table aliases (`reviews AS r`, `games AS g`) and qualify the columns.\n3. **Publisher ratings:** write a new query with the columns `publisher`, `avg_stars` (round it to 2 places) and `reviews` (how many reviews), one row per publisher, best average first. You'll need to join three tables.",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop: publishers, games, reviews\nCREATE TABLE publishers (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  country TEXT NOT NULL\n);\nINSERT INTO publishers VALUES\n  (1, 'Starling Games', 'USA'),\n  (2, 'Lumen Works', 'Japan'),\n  (3, 'Bitforge', 'Canada'),\n  (4, 'Driftwood Studio', 'UK'),\n  (5, 'Nimbus Interactive', 'Brazil');\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  price REAL NOT NULL,\n  publisher_id INTEGER NOT NULL\n    REFERENCES publishers(id)\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 39.99, 2),\n  (2, 'Byte Racers', 'PC', 19.99, 3),\n  (3, 'Moonlight Mages', 'PlayStation', 59.99, 1),\n  (4, 'Puzzle Pond', 'Switch', 14.99, 4),\n  (5, 'Robo Rumble', 'Xbox', 49.99, 3),\n  (6, 'Ocean Odyssey', 'PC', 29.99, 4),\n  (7, 'Castle Quest', 'PlayStation', 39.99, 1),\n  (8, 'Tiny Tactics', 'Switch', 24.99, 2);\nCREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  game_id INTEGER NOT NULL REFERENCES games(id),\n  stars INTEGER NOT NULL\n    CHECK (stars BETWEEN 1 AND 5),\n  body TEXT\n);\nINSERT INTO reviews VALUES\n  (1, 1, 5, 'Calm and lovely.'),\n  (2, 1, 4, 'Great with friends.'),\n  (3, 2, 4, 'Fast and fun.'),\n  (4, 5, 2, 'Too short.'),\n  (5, 7, 5, 'Best castle ever.'),\n  (6, 3, 4, 'Spooky in a good way.'),\n  (7, 4, 5, 'So relaxing.'),\n  (8, 6, 2, 'Kept crashing.'),\n  (9, 8, 3, 'Fine, a bit slow.'),\n  (10, 3, 5, 'The music is magic.'),\n  (11, 7, 4, 'Hard but fair.');\n",
+          "query.sql": "-- 1. Catalog: every game and its publisher,\n--    A to Z. It runs, but check the result.\nSELECT title, name AS publisher\nFROM games\nJOIN publishers\n  ON games.id = publishers.id\nORDER BY title;\n\n-- 2. Homepage: reviews with 4 or 5 stars,\n--    with the game's title.\nSELECT title, stars, body\nFROM reviews\nJOIN games ON game_id = id\nWHERE stars >= 4\nORDER BY stars DESC, title;\n\n-- 3. Write it: publisher, avg_stars and\n--    reviews (a count), best average first.\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Catalog: every game and its publisher,\n--    A to Z. It runs, but check the result.\nSELECT title, name AS publisher\nFROM games\nJOIN publishers\n  ON games.publisher_id = publishers.id\nORDER BY title;\n\n-- 2. Homepage: reviews with 4 or 5 stars,\n--    with the game's title.\nSELECT g.title, r.stars, r.body\nFROM reviews AS r\nJOIN games AS g ON r.game_id = g.id\nWHERE r.stars >= 4\nORDER BY r.stars DESC, g.title;\n\n-- 3. Write it: publisher, avg_stars and\n--    reviews (a count), best average first.\nSELECT p.name AS publisher,\n       ROUND(AVG(r.stars), 2) AS avg_stars,\n       COUNT(*) AS reviews\nFROM reviews AS r\nJOIN games AS g ON r.game_id = g.id\nJOIN publishers AS p ON g.publisher_id = p.id\nGROUP BY p.name\nORDER BY avg_stars DESC;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "The catalog pairs each game with its publisher",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "title",
+                "publisher"
+              ],
+              "rows": [
+                [
+                  "Byte Racers",
+                  "Bitforge"
+                ],
+                [
+                  "Castle Quest",
+                  "Starling Games"
+                ],
+                [
+                  "Moonlight Mages",
+                  "Starling Games"
+                ],
+                [
+                  "Ocean Odyssey",
+                  "Driftwood Studio"
+                ],
+                [
+                  "Puzzle Pond",
+                  "Driftwood Studio"
+                ],
+                [
+                  "Robo Rumble",
+                  "Bitforge"
+                ],
+                [
+                  "Star Garden",
+                  "Lumen Works"
+                ],
+                [
+                  "Tiny Tactics",
+                  "Lumen Works"
+                ]
+              ],
+              "sortedBy": [
+                "title"
+              ]
+            },
+            "failMessage": "The catalog should list all 8 games with their real publishers, A to Z. Join on the foreign key: games.publisher_id = publishers.id."
+          },
+          {
+            "label": "The homepage shows the 4 and 5 star reviews",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "title",
+                "stars",
+                "body"
+              ],
+              "rows": [
+                [
+                  "Star Garden",
+                  5,
+                  "Calm and lovely."
+                ],
+                [
+                  "Star Garden",
+                  4,
+                  "Great with friends."
+                ],
+                [
+                  "Byte Racers",
+                  4,
+                  "Fast and fun."
+                ],
+                [
+                  "Castle Quest",
+                  5,
+                  "Best castle ever."
+                ],
+                [
+                  "Moonlight Mages",
+                  4,
+                  "Spooky in a good way."
+                ],
+                [
+                  "Puzzle Pond",
+                  5,
+                  "So relaxing."
+                ],
+                [
+                  "Moonlight Mages",
+                  5,
+                  "The music is magic."
+                ],
+                [
+                  "Castle Quest",
+                  4,
+                  "Hard but fair."
+                ]
+              ],
+              "sortedBy": [
+                "stars desc",
+                "title"
+              ]
+            },
+            "failMessage": "The second query should show title, stars and body for reviews with 4 or more stars, most stars first, then by title."
+          },
+          {
+            "label": "Publisher ratings are right",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 2,
+              "columns": [
+                "publisher",
+                "avg_stars",
+                "reviews"
+              ],
+              "rows": [
+                [
+                  "Starling Games",
+                  4.5,
+                  4
+                ],
+                [
+                  "Lumen Works",
+                  4.0,
+                  3
+                ],
+                [
+                  "Driftwood Studio",
+                  3.5,
+                  2
+                ],
+                [
+                  "Bitforge",
+                  3.0,
+                  2
+                ]
+              ],
+              "sortedBy": [
+                "avg_stars desc"
+              ]
+            },
+            "failMessage": "The third query should give one row per publisher that has reviews: publisher, avg_stars and reviews, best average first. Join reviews to games, then games to publishers, and GROUP BY the publisher."
+          },
+          {
+            "label": "The ratings join three tables",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "\\bjoin\\b",
+              "min": 4
+            },
+            "failMessage": "The publisher ratings need two JOINs: reviews to games, then games to publishers."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "In step 1, `games.id = publishers.id` matches game 2 with publisher 2. Which column in `games` actually says who published it?",
+            "speechText": "In step 1, the join matches game 2 with publisher 2. Which column in games actually says who published it?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Step 1 should join `ON games.publisher_id = publishers.id`. In step 2, both tables have an `id`, so write `FROM reviews AS r JOIN games AS g ON r.game_id = g.id` and put `r.` or `g.` before every column.",
+            "speechText": "Step 1 should join on games dot publisher id equals publishers dot id. In step 2, both tables have an id column, so give them the aliases r and g, and put r dot or g dot before every column.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Step 3:\n\n```sql\nSELECT p.name AS publisher,\n       ROUND(AVG(r.stars), 2) AS avg_stars,\n       COUNT(*) AS reviews\nFROM reviews AS r\nJOIN games AS g ON r.game_id = g.id\nJOIN publishers AS p ON g.publisher_id = p.id\nGROUP BY p.name\nORDER BY avg_stars DESC;\n```",
+            "speechText": "For step 3, select the publisher's name, the rounded average of the stars, and a count. Join reviews to games, then games to publishers, group by the publisher's name, and order by the average, highest first.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Nimbus Interactive has no games. Does it appear in publishers INNER JOIN games?",
+            "explanation": "An inner join only keeps rows that found a match. Nimbus has no games to match, so it's left out.",
+            "options": [
+              {
+                "text": "No: an inner join only keeps rows that found a match",
+                "correct": true
+              },
+              {
+                "text": "Yes, with NULL for the game columns",
+                "correct": false
+              },
+              {
+                "text": "Yes, once for every game",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A join with ON games.id = publishers.id runs without errors. What's wrong with it?",
+            "explanation": "It compares two unrelated ids. The join condition should pair the foreign key games.publisher_id with the primary key publishers.id.",
+            "options": [
+              {
+                "text": "It matches games to publishers by unrelated ids, so the pairs are nonsense",
+                "correct": true
+              },
+              {
+                "text": "Nothing: any two id columns can be joined",
+                "correct": false
+              },
+              {
+                "text": "INNER JOIN can't compare id columns",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why do you get \"ambiguous column name: id\"?",
+            "explanation": "Both joined tables have an id column, so the database can't tell which one you mean. Qualify it: r.id or g.id.",
+            "options": [
+              {
+                "text": "More than one joined table has a column called id",
+                "correct": true
+              },
+              {
+                "text": "The id column doesn't exist",
+                "correct": false
+              },
+              {
+                "text": "id is a reserved word in SQL",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A join returns 40 rows from 8 games and 5 publishers. What happened?",
+            "explanation": "8 × 5 = 40: with no join condition every game was paired with every publisher, a cross join.",
+            "options": [
+              {
+                "text": "The join condition is missing, so it became a cross join",
+                "correct": true
+              },
+              {
+                "text": "Each publisher made 8 games",
+                "correct": false
+              },
+              {
+                "text": "The query is fine; joins always multiply rows",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "FROM reviews AS r JOIN games AS g ON r.game_id = g.id: what is g?",
+            "explanation": "g is a table alias, a short name for games in this query.",
+            "options": [
+              {
+                "text": "A table alias for games",
+                "correct": true
+              },
+              {
+                "text": "A new table that the join creates",
+                "correct": false
+              },
+              {
+                "text": "A column in reviews",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "missing-matches-explorer",

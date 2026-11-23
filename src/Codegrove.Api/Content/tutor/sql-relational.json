@@ -32,6 +32,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "joins-explorer": {
+      "intro": [
+        {
+          "displayText": "The Critter Club is making name badges, and every badge needs the critter's home on it. Your mission: put two tables together with a join!",
+          "speechText": "The Critter Club is making name badges, and every badge needs the critter's home on it. Your mission is to put two tables together with a join!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Every badge has the right home now. Your new word is join: putting rows from two tables together, matched up by ON.",
+          "speechText": "Every badge has the right home now. Your new word is join, putting rows from two tables together, matched up by the on line.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "inner-join": {
+      "intro": [
+        {
+          "displayText": "Foreign keys split data into tables, and joins put it back together. Nearly every report you'll write at work, from a shop catalog to a dashboard, is a join. You'll fix two broken joins in Pixel Pier's reports and write a three-table one.",
+          "speechText": "Foreign keys split data into tables, and joins put it back together. Nearly every report you'll write at work, from a shop catalog to a dashboard, is a join. You'll fix two broken joins in Pixel Pier's reports, and write a three table one.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Three reports, all from joined tables. The gotcha to remember: a join on the wrong columns doesn't error, it just returns believable nonsense. Always check that ON pairs a foreign key with the primary key it points at.",
+          "speechText": "Three reports, all from joined tables. The gotcha to remember is that a join on the wrong columns doesn't give an error, it just returns believable nonsense. Always check that the on condition pairs a foreign key with the primary key it points at.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }

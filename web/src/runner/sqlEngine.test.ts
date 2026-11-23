@@ -53,6 +53,12 @@ describe('running SQL', () => {
     expect(r.error?.friendly).toContain("no column called nme");
   });
 
+  it('points an ambiguous column error at the unqualified name, not the start of the query', () => {
+    const r = run('SELECT name, toy\nFROM pets\nJOIN toys ON pet_id = id;');
+    expect(r.error).toMatchObject({ line: 3, message: 'ambiguous column name: id' });
+    expect(r.error?.friendly).toBe("More than one table has a column called id, so SQL doesn't know which one you mean. Write the table's name (or its alias), a dot, then id.");
+  });
+
   it('gives a runtime error the line of its statement', () => {
     const r = run("SELECT 1;\nINSERT INTO pets (id, name)\n  VALUES (1, 'Again');");
     expect(r.error).toMatchObject({ line: 2, message: 'UNIQUE constraint failed: pets.id' });
