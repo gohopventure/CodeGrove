@@ -160,6 +160,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "making-tables-explorer": {
+      "intro": [
+        {
+          "displayText": "The Critter Club is starting a garden, and it needs a brand new table for the plants. Your mission: finish the plants table and plant the first two flowers!",
+          "speechText": "The Critter Club is starting a garden, and it needs a brand new table for the plants. Your mission is to finish the plants table and plant the first two flowers!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The garden is growing! Your new word is data type: what kind of value a column holds, like TEXT for words or INTEGER for whole numbers.",
+          "speechText": "The garden is growing! Your new word is data type, which means what kind of value a column holds, like text for words or integer for whole numbers.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "create-table": {
+      "intro": [
+        {
+          "displayText": "A good table refuses bad data before it gets in: no missing emails, no negative points, no made-up tiers. You'll design tables with CREATE TABLE, choose data types, and add constraints. Then you'll finish the table for Pixel Pier's new loyalty club.",
+          "speechText": "A good table refuses bad data before it gets in. No missing emails, no negative points, no made-up tiers. You'll design tables with create table, choose data types, and add constraints. Then you'll finish the table for Pixel Pier's new loyalty club.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You can design a table that protects its own data. The gotcha to remember: a CHECK only refuses a row when its condition is false, and NULL makes it unknown, so a CHECK alone lets NULL in. Pair it with NOT NULL.",
+          "speechText": "You can design a table that protects its own data. The gotcha to remember is that a check only refuses a row when its condition is false, and null makes it unknown, so a check on its own lets null in. Pair it with not null.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }

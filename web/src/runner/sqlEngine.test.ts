@@ -144,10 +144,20 @@ describe('SQL tests', () => {
     expect(run("UPDATE pets SET age = 4 WHERE name = 'Juni';", [rows]).results[0]!.passed).toBe(true);
     const fern = test(4, 'sqlCheckQuery', { query: "SELECT name FROM pets WHERE name = 'Fern'", equals: [['Fern']] });
     expect(run('SELECT 1;', [fern]).results[0]!.message).toBe("Nope. (The check didn't find it in the table.)");
+    expect(run('SELECT 1;', [test(7, 'sqlCheckQuery', { query: 'SELECT color FROM pets', equals: 1 })]).results[0]!.message)
+      .toBe("Nope. (While checking: there's no column called color yet.)");
+    expect(run('SELECT 1;', [test(8, 'sqlCheckQuery', { query: "SELECT age, kind FROM pets WHERE name = 'Pip'", equals: [[2, 'cat']] })]).results[0]!.message)
+      .toBe("Nope. (It should be 2 | 'cat', but it was 1 | 'owl'.)");
+    expect(run('SELECT 1;', [test(9, 'sqlCheckQuery', { query: "SELECT group_concat(name) FROM pragma_table_info('plants')", equals: 'x', missing: 'No plants table yet.' })]).results[0]!.message)
+      .toBe('Nope. (No plants table yet.)');
+    expect(run('SELECT 1;', [test(10, 'sqlCheckQuery', { query: 'SELECT COUNT(*) FROM pets', equals: 0, report: '{value} of the bad rows got in.' })]).results[0]!.message)
+      .toBe('Nope. (3 of the bad rows got in.)');
+    const named = test(6, 'sqlCheckQuery', { query: "SELECT name FROM pragma_table_info('plants')", equals: [['id']], missing: "There's no plants table yet." });
+    expect(run('SELECT 1;', [named]).results[0]!.message).toBe("Nope. (There's no plants table yet.)");
     const all = test(5, 'sqlCheckQuery', { query: 'SELECT name FROM pets', equals: [['Juni'], ['Pip']] });
     expect(run('SELECT 1;', [all]).results[0]!.message).toBe('Nope. (The check found 3 rows in the table; it should find 2.)');
     const missing = test(3, 'sqlCheckQuery', { query: 'SELECT COUNT(*) FROM snacks', equals: 0 });
-    expect(run('SELECT 1;', [missing]).results[0]!.message).toMatch(/While checking: There's no table called snacks/);
+    expect(run('SELECT 1;', [missing]).results[0]!.message).toBe("Nope. (While checking: there's no table called snacks yet.)");
   });
 
   it('noErrors, sqlError and sourceMatches', () => {

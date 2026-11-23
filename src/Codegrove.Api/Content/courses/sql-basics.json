@@ -2037,7 +2037,7 @@
       "ageBand": "Builder",
       "estimatedMinutes": 15,
       "isPublished": true,
-      "learnMarkdown": "## INSERT, UPDATE and DELETE\n\nApps don't just read data. A sign-up **inserts** a row, editing a profile **updates** one, and removing an item **deletes** one. Together with `SELECT`, these four are often called **CRUD**: create, read, update, delete.\n\n### INSERT\n\n```sql\nINSERT INTO games (title, platform, genre, price, stock)\nVALUES ('Lava Leap', 'PC', 'Action', 24.99, 12),\n       ('Rune Rally', 'Xbox', 'Racing', 39.99, 6);\n```\n\n- Always **list the columns**. The query keeps working if someone adds a column or changes their order, and anyone reading it can see which value goes where.\n- Columns you leave out get their **default**: `NULL` unless the table says otherwise. Here, `sale_price` is `NULL`.\n- An `INTEGER PRIMARY KEY` fills itself in with the next number, so leave `id` out.\n- One `INSERT` can add many rows, and `INSERT INTO … SELECT …` copies rows from a query.\n\n### UPDATE\n\n```sql\nUPDATE games\nSET price = ROUND(price * 1.1, 2),\n    stock = stock + 5\nWHERE genre = 'RPG';\n```\n\n`SET` can change several columns, and a new value can be worked out from the old one: `stock = stock + 5`. Every expression in `SET` sees the row's values from **before** the update.\n\n### DELETE\n\n```sql\nDELETE FROM games\nWHERE stock = 0 AND sale_price IS NULL;\n```\n\n`DELETE` removes rows; the table stays. `DROP TABLE games` would remove the table itself.\n\n### The WHERE clause is the whole point\n\n`UPDATE` and `DELETE` without `WHERE` change **every row**. It's one of the most common, and most expensive, mistakes in real systems, because there's no undo. A safe habit:\n\n1. Write the `WHERE` first, as a `SELECT`: `SELECT * FROM games WHERE …;`\n2. Check that it returns exactly the rows you mean.\n3. Then turn the `SELECT *` into `UPDATE … SET …` or `DELETE`.\n\nAfter running, check the count: here, the Results tab says \"UPDATE changed 2 rows.\" If you expected 1, something's wrong.\n\n### In SQL Server\n\n- The id column is usually an `IDENTITY` column. You leave it out of `INSERT`, and inserting your own value is refused unless you switch `IDENTITY_INSERT` on.\n- SSMS prints \"(2 rows affected)\", and `@@ROWCOUNT` holds the same number in code.\n- `OUTPUT inserted.id` returns the new ids from an `INSERT`. SQLite's version is `RETURNING id`.\n- For risky changes, start with `BEGIN TRANSACTION`, check the result, then `COMMIT` or `ROLLBACK`. Transactions come up properly in the next course.\n\n### New words\n\n- **CRUD**: create, read, update, delete: the four things apps do with data (`INSERT`, `SELECT`, `UPDATE`, `DELETE`).\n- **Default**: the value a column gets when an `INSERT` leaves it out.\n- **Rows affected**: how many rows an `INSERT`, `UPDATE` or `DELETE` changed. Always worth checking.\n- **IDENTITY**: SQL Server's auto-numbering for id columns, like SQLite's `INTEGER PRIMARY KEY`.\n",
+      "learnMarkdown": "## INSERT, UPDATE and DELETE\n\nApps don't just read data. A sign-up **inserts** a row, editing a profile **updates** one, and removing an item **deletes** one. Together with `SELECT`, these four are often called **CRUD**: create, read, update, delete.\n\n### INSERT\n\n```sql\nINSERT INTO games (title, platform, genre, price, stock)\nVALUES ('Lava Leap', 'PC', 'Action', 24.99, 12),\n       ('Rune Rally', 'Xbox', 'Racing', 39.99, 6);\n```\n\n- Always **list the columns**. The query keeps working if someone adds a column or changes their order, and anyone reading it can see which value goes where.\n- Columns you leave out get their **default**: `NULL` unless the table says otherwise. Here, `sale_price` is `NULL`.\n- An `INTEGER PRIMARY KEY` fills itself in with the next number, so leave `id` out.\n- One `INSERT` can add many rows, and `INSERT INTO … SELECT …` copies rows from a query.\n\n### UPDATE\n\n```sql\nUPDATE games\nSET price = ROUND(price * 1.1, 2),\n    stock = stock + 5\nWHERE genre = 'RPG';\n```\n\n`SET` can change several columns, and a new value can be worked out from the old one: `stock = stock + 5`. Every expression in `SET` sees the row's values from **before** the update.\n\n### DELETE\n\n```sql\nDELETE FROM games\nWHERE stock = 0 AND sale_price IS NULL;\n```\n\n`DELETE` removes rows; the table stays. `DROP TABLE games` would remove the table itself.\n\n### The WHERE clause is the whole point\n\n`UPDATE` and `DELETE` without `WHERE` change **every row**. It's one of the most common, and most expensive, mistakes in real systems, because there's no undo. A safe habit:\n\n1. Write the `WHERE` first, as a `SELECT`: `SELECT * FROM games WHERE …;`\n2. Check that it returns exactly the rows you mean.\n3. Then turn the `SELECT *` into `UPDATE … SET …` or `DELETE`.\n\nAfter running, check the count. In Codegrove, the Results tab says how many rows each statement changed, like \"UPDATE changed 2 rows.\" If you expected 1, something's wrong.\n\n### In SQL Server\n\n- The id column is usually an `IDENTITY` column. You leave it out of `INSERT`, and inserting your own value is refused unless you switch `IDENTITY_INSERT` on.\n- SSMS prints \"(2 rows affected)\", and `@@ROWCOUNT` holds the same number in code.\n- `OUTPUT inserted.id` returns the new ids from an `INSERT`. SQLite's version is `RETURNING id`.\n- For risky changes, start with `BEGIN TRANSACTION`, check the result, then `COMMIT` or `ROLLBACK`. Transactions come up properly in the next course.\n\n### New words\n\n- **CRUD**: create, read, update, delete: the four things apps do with data (`INSERT`, `SELECT`, `UPDATE`, `DELETE`).\n- **Default**: the value a column gets when an `INSERT` leaves it out.\n- **Rows affected**: how many rows an `INSERT`, `UPDATE` or `DELETE` changed. Always worth checking.\n- **IDENTITY**: SQL Server's auto-numbering for id columns, like SQLite's `INTEGER PRIMARY KEY`.\n",
       "exampleMarkdown": "A safe update in two steps. The `SELECT` previews the rows the `WHERE` picks: the two RPGs under $40. Then the `UPDATE` uses the very same `WHERE`. Check the green line: it changed 2 rows, matching the preview. The **Tables** tab shows the new prices.",
       "exampleCode": "-- 1. Preview: which rows does the WHERE pick?\nSELECT title, price FROM games\nWHERE genre = 'RPG' AND price < 40;\n\n-- 2. Same WHERE: 10% off those games.\nUPDATE games\nSET price = ROUND(price * 0.9, 2)\nWHERE genre = 'RPG' AND price < 40;\n",
       "challenge": {
@@ -2325,7 +2325,141 @@
       "sortOrder": 6,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Making your own tables\n\nEvery table you've used so far was made for you. Now you'll make one! `CREATE TABLE` gives the table a name and lists its columns:\n\n```sql\nCREATE TABLE snacks (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  crunchy INTEGER\n);\n```\n\nEach column has a **name** and a **data type**, with a comma between columns (but not after the last one). The data type says what kind of value the column holds:\n\n| Type | Holds | Example |\n|------|-------|---------|\n| `INTEGER` | whole numbers | `3`, `150` |\n| `REAL` | numbers with decimals | `2.5` |\n| `TEXT` | words and letters | `'acorns'` |\n\nTwo extra words make the table safer:\n\n- `PRIMARY KEY` marks the column that gives every row its own number. You leave it out when you `INSERT`, and the database fills it in.\n- `NOT NULL` means the column must **always** have a value. Try to add a snack with no name, and the database says no.\n\nA new table starts empty. Fill it with `INSERT`, just like last lesson.\n\n### New words\n\n- **CREATE TABLE**: makes a new, empty table with the columns you list.\n- **Data type**: what kind of value a column holds, like `TEXT` for words or `INTEGER` for whole numbers.\n- **PRIMARY KEY**: the column that gives every row its own number.\n- **NOT NULL**: the column must always have a value.\n",
+      "exampleMarkdown": "This makes a `snacks` table, adds two snacks, and shows them. `crunchy` holds 1 for yes and 0 for no. Open the **Tables** tab: the new `snacks` table is there, next to `critters`.",
+      "exampleCode": "-- A brand new table for snacks\nCREATE TABLE snacks (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  crunchy INTEGER\n);\n\nINSERT INTO snacks (name, crunchy)\nVALUES ('acorns', 1), ('berries', 0);\n\nSELECT * FROM snacks;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The Critter Club is starting a garden and needs a `plants` table.\n\n1. The table is started for you. Add two more columns: `color` for words, and `height` for whole numbers.\n2. Plant the first two flowers: a **Sunflower** that's **yellow** and **150** tall, and a **Bluebell** that's **blue** and **20** tall.\n3. Press **Run** and check the **Tables** tab.",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Critter Club\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  age INTEGER,\n  snack TEXT\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3, 'berries'),\n  (2, 'Pip', 'owl', 1, 'seeds'),\n  (3, 'Moss', 'frog', 2, 'flies'),\n  (4, 'Bramble', 'hedgehog', 4, 'apples'),\n  (5, 'Nova', 'rabbit', 2, 'carrots'),\n  (6, 'Pebble', 'turtle', 7, 'lettuce'),\n  (7, 'Hoot', 'owl', 5, 'berries'),\n  (8, 'Lily', 'frog', 1, 'flies'),\n  (9, 'Rusty', 'fox', 6, 'apples'),\n  (10, 'Tad', 'frog', 4, 'flies');\n",
+          "query.sql": "-- 1. Add two columns: color (words) and\n--    height (whole numbers).\nCREATE TABLE plants (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL\n);\n\n-- 2. Plant a Sunflower and a Bluebell.\n\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Add two columns: color (words) and\n--    height (whole numbers).\nCREATE TABLE plants (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  color TEXT,\n  height INTEGER\n);\n\n-- 2. Plant a Sunflower and a Bluebell.\nINSERT INTO plants (name, color, height)\nVALUES ('Sunflower', 'yellow', 150),\n       ('Bluebell', 'blue', 20);\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "The plants table has the right columns",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT group_concat(name || ' ' || lower(type), ', ') FROM (SELECT name, type FROM pragma_table_info('plants') ORDER BY cid)",
+              "equals": "id integer, name text, color text, height integer",
+              "caseSensitive": false,
+              "missing": "There's no plants table yet."
+            },
+            "failMessage": "The plants table should have four columns: id, name, color (TEXT) and height (INTEGER). Put a comma between columns."
+          },
+          {
+            "label": "The Sunflower and the Bluebell are planted",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT name, color, height FROM plants ORDER BY name",
+              "equals": [
+                [
+                  "Bluebell",
+                  "blue",
+                  20
+                ],
+                [
+                  "Sunflower",
+                  "yellow",
+                  150
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "The plants table should have a yellow Sunflower that's 150 tall and a blue Bluebell that's 20 tall. Use INSERT INTO plants (name, color, height) VALUES …"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "What two things does each column need inside the brackets of `CREATE TABLE`?",
+            "speechText": "What two things does each column need inside the brackets of create table?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Each column is a name and a type, like `color TEXT`, with a comma between columns. Then add the plants with `INSERT INTO plants (name, color, height) VALUES (...), (...);`.",
+            "speechText": "Each column is a name and a type, like color text, with a comma between columns. Then add the plants with insert into plants, listing name, color and height, then the values.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Put a comma after `name TEXT NOT NULL`, then add `color TEXT,` and `height INTEGER` on their own lines. The values go in brackets, like `('Sunflower', 'yellow', 150)`.",
+            "speechText": "Put a comma after name text not null, then add color text and height integer on their own lines. Each plant's values go in their own brackets, like Sunflower, yellow, 150.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which one makes a brand new table?",
+            "explanation": "CREATE TABLE makes a new, empty table. INSERT adds rows to a table that already exists.",
+            "options": [
+              {
+                "text": "CREATE TABLE",
+                "correct": true
+              },
+              {
+                "text": "INSERT INTO",
+                "correct": false
+              },
+              {
+                "text": "SELECT",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does NOT NULL mean for a column?",
+            "explanation": "NOT NULL means every row must have a value in that column.",
+            "options": [
+              {
+                "text": "It must always have a value",
+                "correct": true
+              },
+              {
+                "text": "It can't be zero",
+                "correct": false
+              },
+              {
+                "text": "It's hidden from SELECT",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which data type fits a plant's height in centimeters, like 150?",
+            "explanation": "Heights like 150 are whole numbers, so INTEGER fits.",
+            "options": [
+              {
+                "text": "INTEGER",
+                "correct": true
+              },
+              {
+                "text": "TEXT",
+                "correct": false
+              },
+              {
+                "text": "NOT NULL",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "create-table",
@@ -2333,7 +2467,224 @@
       "sortOrder": 6,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## CREATE TABLE and constraints\n\nApps check what users type, but bugs, scripts and other apps can still send bad data. A well-designed table is the **last line of defense**: its **constraints** refuse bad rows, whatever sent them.\n\n```sql\nCREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  game_title TEXT NOT NULL,\n  stars INTEGER NOT NULL CHECK (stars BETWEEN 1 AND 5),\n  comment TEXT NOT NULL DEFAULT ''\n);\n```\n\n### Data types\n\nSQLite has four main types: `INTEGER`, `REAL` (decimals), `TEXT` and `BLOB` (raw bytes, like an image). SQLite's types are loose: it will store `'hello'` in an `INTEGER` column if you let it. Adding `STRICT` after the closing bracket makes it refuse. SQL Server always checks types.\n\n### Constraints\n\n| Constraint | Means |\n|------------|-------|\n| `PRIMARY KEY` | identifies each row; unique and never missing |\n| `NOT NULL` | every row must have a value here |\n| `UNIQUE` | no two rows can have the same value |\n| `DEFAULT x` | the value used when an `INSERT` leaves the column out |\n| `CHECK (…)` | a rule each row must pass, like `stars BETWEEN 1 AND 5` |\n\nConstraints go after a column's type, in any order: `points INTEGER NOT NULL DEFAULT 0 CHECK (points >= 0)`. A row that breaks one is refused with an error, and nothing in that statement is saved.\n\n### The CHECK and NULL trap\n\nA `CHECK` only refuses a row when its condition is **false**. Remember three-valued logic: `NULL BETWEEN 1 AND 5` is **unknown**, not false, so a `NULL` sails straight through `CHECK (stars BETWEEN 1 AND 5)`. If a value is required, add `NOT NULL` as well.\n\n### Changing a table later\n\n- `ALTER TABLE reviews ADD COLUMN helpful INTEGER NOT NULL DEFAULT 0;` adds a column to an existing table.\n- `DROP TABLE reviews;` removes the table and every row in it.\n- `CREATE TABLE IF NOT EXISTS …` doesn't fail when the table is already there.\n\nForeign keys, which link one table to another, are the first lesson of the next course.\n\n### In SQL Server\n\n- Common types: `INT`, `DECIMAL(10, 2)` for money (never `FLOAT`, which can't store 0.10 exactly), `NVARCHAR(50)` for text up to 50 characters, `BIT` for yes/no, `DATE` and `DATETIME2`.\n- The id is `id INT IDENTITY(1, 1) PRIMARY KEY`.\n- Teams name their constraints, so error messages say which rule broke: `CONSTRAINT CK_members_points CHECK (points >= 0)`.\n- A `UNIQUE` column allows only **one** `NULL` there. SQLite allows many.\n\n### New words\n\n- **Constraint**: a rule a table enforces on every row, like `NOT NULL` or `CHECK`.\n- **UNIQUE**: no two rows may share a value in this column.\n- **DEFAULT**: the value a column gets when an `INSERT` leaves it out.\n- **CHECK**: a condition every row must not fail. `NULL` makes it unknown, which passes.\n- **Schema**: the design of a database: its tables, columns, types and constraints.\n",
+      "exampleMarkdown": "A `reviews` table with three constraints at work. Both reviews leave `comment` out, so they get the `DEFAULT` of empty text. Try changing a `5` to a `6` and pressing **Run**: the `CHECK` refuses the whole `INSERT`.",
+      "exampleCode": "CREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  game_title TEXT NOT NULL,\n  stars INTEGER NOT NULL CHECK (stars BETWEEN 1 AND 5),\n  comment TEXT NOT NULL DEFAULT ''\n);\n\nINSERT INTO reviews (game_title, stars)\nVALUES ('Star Garden', 5), ('Byte Racers', 4);\n\nSELECT * FROM reviews;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Pixel Pier is starting a loyalty club. The `members` table is started, but it accepts anything. Add constraints so it follows these rules:\n\n- `username`: required, and no two members can share one.\n- `email`: required, and no two members can share one.\n- `points`: required, `0` when an `INSERT` leaves it out, and never negative.\n- `tier`: required, `'bronze'` when an `INSERT` leaves it out, and only `'bronze'`, `'silver'` or `'gold'`.\n\nKeep the column names, types and starting members as they are. Press **Run** first and look at **newbie**: the table already has a `CHECK` on `tier`, so why is newbie's tier empty?",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  genre TEXT NOT NULL,\n  price REAL NOT NULL,\n  stock INTEGER NOT NULL,\n  sale_price REAL -- NULL when it isn't on sale\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 'Adventure', 39.99, 12, NULL),\n  (2, 'Byte Racers', 'PC', 'Racing', 19.99, 30, 14.99),\n  (3, 'Moonlight Mages', 'PlayStation', 'RPG', 59.99, 4, NULL),\n  (4, 'Puzzle Pond', 'Switch', 'Puzzle', 14.99, 0, 9.99),\n  (5, 'Robo Rumble', 'Xbox', 'Action', 49.99, 7, NULL),\n  (6, 'Ocean Odyssey', 'PC', 'Adventure', 29.99, 15, NULL),\n  (7, 'Castle Quest', 'PlayStation', 'RPG', 39.99, 9, 29.99),\n  (8, 'Tiny Tactics', 'Switch', 'Strategy', 24.99, 21, NULL),\n  (9, 'Questlings', 'Switch', 'RPG', 34.99, 3, NULL),\n  (10, 'Pixel Pets', 'PC', 'Simulation', 9.99, 8, NULL),\n  (11, 'Moon Quest', 'Xbox', 'Adventure', 44.99, 2, 34.99),\n  (12, 'Turbo Tennis', 'Switch', 'Sports', 29.99, 6, 19.99);\n",
+          "query.sql": "-- Pixel Pier loyalty club: add constraints\n-- so the table follows the rules.\nCREATE TABLE members (\n  id INTEGER PRIMARY KEY,\n  username TEXT,\n  email TEXT,\n  points INTEGER,\n  tier TEXT\n    CHECK (tier IN ('bronze', 'silver', 'gold'))\n);\n\n-- Starting members (keep these as they are).\nINSERT INTO members (username, email, points, tier)\nVALUES ('pixelfan', 'pixelfan@example.com', 120, 'silver'),\n       ('robo_rex', 'rex@example.com', 40, 'bronze');\n\nINSERT INTO members (username, email)\nVALUES ('newbie', 'newbie@example.com');\n\nSELECT * FROM members;\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- Pixel Pier loyalty club: add constraints\n-- so the table follows the rules.\nCREATE TABLE members (\n  id INTEGER PRIMARY KEY,\n  username TEXT NOT NULL UNIQUE,\n  email TEXT NOT NULL UNIQUE,\n  points INTEGER NOT NULL DEFAULT 0 CHECK (points >= 0),\n  tier TEXT NOT NULL DEFAULT 'bronze'\n    CHECK (tier IN ('bronze', 'silver', 'gold'))\n);\n\n-- Starting members (keep these as they are).\nINSERT INTO members (username, email, points, tier)\nVALUES ('pixelfan', 'pixelfan@example.com', 120, 'silver'),\n       ('robo_rex', 'rex@example.com', 40, 'bronze');\n\nINSERT INTO members (username, email)\nVALUES ('newbie', 'newbie@example.com');\n\nSELECT * FROM members;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "The members table keeps its columns and members",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT username, email FROM members ORDER BY id",
+              "equals": [
+                [
+                  "pixelfan",
+                  "pixelfan@example.com"
+                ],
+                [
+                  "robo_rex",
+                  "rex@example.com"
+                ],
+                [
+                  "newbie",
+                  "newbie@example.com"
+                ]
+              ],
+              "ordered": true,
+              "missing": "There's no members table, or it's empty."
+            },
+            "failMessage": "Keep the members table's columns and its three starting members."
+          },
+          {
+            "label": "Defaults fill in points and tier",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT points, tier FROM members WHERE username = 'newbie'",
+              "equals": [
+                [
+                  0,
+                  "bronze"
+                ]
+              ],
+              "missing": "There's no member called newbie."
+            },
+            "failMessage": "newbie leaves out points and tier, so they should get the defaults: 0 and 'bronze'. Use DEFAULT."
+          },
+          {
+            "label": "Usernames are required and unique",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "INSERT OR IGNORE INTO members (username, email) VALUES ('pixelfan', 'copy@example.com'), (NULL, 'nobody@example.com'); SELECT COUNT(*) FROM members WHERE email IN ('copy@example.com', 'nobody@example.com')",
+              "equals": 0,
+              "report": "{value} of the 2 bad rows got in."
+            },
+            "failMessage": "A second member called pixelfan, or a member with no username, should be refused. Use NOT NULL and UNIQUE."
+          },
+          {
+            "label": "Emails are required and unique",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "INSERT OR IGNORE INTO members (username, email) VALUES ('copycat', 'rex@example.com'), ('noemail', NULL); SELECT COUNT(*) FROM members WHERE username IN ('copycat', 'noemail')",
+              "equals": 0,
+              "report": "{value} of the 2 bad rows got in."
+            },
+            "failMessage": "A member with someone else's email, or with no email, should be refused. Use NOT NULL and UNIQUE."
+          },
+          {
+            "label": "Points can't be negative",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "INSERT OR IGNORE INTO members (username, email, points) VALUES ('debt', 'debt@example.com', -5), ('nopoints', 'np@example.com', NULL); SELECT COUNT(*) FROM members WHERE username IN ('debt', 'nopoints')",
+              "equals": 0,
+              "report": "{value} of the 2 bad rows got in."
+            },
+            "failMessage": "A member with negative points, or with points set to NULL, should be refused. Use CHECK (points >= 0) and NOT NULL."
+          },
+          {
+            "label": "Tiers are required and only bronze, silver or gold",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "INSERT OR IGNORE INTO members (username, email, tier) VALUES ('shiny', 'shiny@example.com', 'platinum'), ('notier', 'nt@example.com', NULL); SELECT COUNT(*) FROM members WHERE username IN ('shiny', 'notier')",
+              "equals": 0,
+              "report": "{value} of the 2 bad rows got in."
+            },
+            "failMessage": "A member with tier 'platinum', or with tier set to NULL, should be refused. The CHECK lets NULL through, so tier needs NOT NULL too."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at newbie in the result: which values did the table fill in? And if `tier` has a `CHECK`, why is newbie's tier empty?",
+            "speechText": "Look at newbie in the result: which values did the table fill in? And if tier has a check, why is newbie's tier empty?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Add `NOT NULL` to every required column, `UNIQUE` to `username` and `email`, and a `DEFAULT` for `points` and `tier`. A `CHECK` only refuses a row when it's false, and a comparison with `NULL` is unknown, so `tier` needs `NOT NULL` as well.",
+            "speechText": "Add not null to every required column, unique to username and email, and a default for points and tier. A check only refuses a row when it's false, and a comparison with null is unknown, so tier needs not null as well.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "For example: `points INTEGER NOT NULL DEFAULT 0 CHECK (points >= 0)`. `tier` follows the same pattern, with `DEFAULT 'bronze'` and the `CHECK` it already has.",
+            "speechText": "For example, points becomes integer, not null, default 0, with a check that points is greater than or equal to 0. Tier follows the same pattern, with a default of bronze and the check it already has.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A table has stars INTEGER CHECK (stars BETWEEN 1 AND 5). What happens when a row has stars = NULL?",
+            "explanation": "NULL BETWEEN 1 AND 5 is unknown, not false, and a CHECK only refuses false. Add NOT NULL to refuse it.",
+            "options": [
+              {
+                "text": "The row is accepted",
+                "correct": true
+              },
+              {
+                "text": "The row is refused",
+                "correct": false
+              },
+              {
+                "text": "stars is set to 1",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "When does points INTEGER NOT NULL DEFAULT 0 use the 0?",
+            "explanation": "A DEFAULT is used when an INSERT leaves the column out. Inserting NULL on purpose is refused by NOT NULL.",
+            "options": [
+              {
+                "text": "When an INSERT leaves points out",
+                "correct": true
+              },
+              {
+                "text": "When an INSERT sets points to NULL",
+                "correct": false
+              },
+              {
+                "text": "When points would go below 0",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does UNIQUE on the email column do?",
+            "explanation": "UNIQUE refuses any row whose email is already used by another row.",
+            "options": [
+              {
+                "text": "No two rows can have the same email",
+                "correct": true
+              },
+              {
+                "text": "Every row must have an email",
+                "correct": false
+              },
+              {
+                "text": "Emails are checked to look like real addresses",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In SQL Server, which type should a price column use?",
+            "explanation": "DECIMAL stores money exactly. FLOAT can't store values like 0.10 exactly, so totals drift.",
+            "options": [
+              {
+                "text": "DECIMAL(10, 2)",
+                "correct": true
+              },
+              {
+                "text": "FLOAT",
+                "correct": false
+              },
+              {
+                "text": "NVARCHAR(10)",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why add constraints if the app already checks what users type?",
+            "explanation": "Bugs, scripts, other apps and people running SQL directly all reach the same table. Constraints protect the data whatever sent it.",
+            "options": [
+              {
+                "text": "Other code, scripts and bugs can still send bad data, and the table refuses it",
+                "correct": true
+              },
+              {
+                "text": "Constraints make SELECT queries faster",
+                "correct": false
+              },
+              {
+                "text": "Without constraints, a table can't be queried",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "sql-project-explorer",

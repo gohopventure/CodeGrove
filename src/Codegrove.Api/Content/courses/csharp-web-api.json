@@ -2823,30 +2823,787 @@
       "title": "Project: Grove Lost & Found",
       "sortOrder": 7,
       "ageBand": "Explorer",
-      "estimatedMinutes": 5,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "estimatedMinutes": 10,
+      "isPublished": true,
+      "learnMarkdown": "## Project: Grove Lost & Found\n\nThings get lost in the Grove all the time: a scarf by the pond, a lantern on the hill. In this project you'll build the server for the Grove's **Lost & Found**, with everything from this course:\n\n- **Endpoints** with `MapGet` and `MapPost`, and **blanks** in paths like `/items/{id:int}`\n- **JSON** sent by the client, read into a C# object\n- **Status codes**: 201 Created, 400 Bad Request, 404 Not Found\n- A **database** with EF Core, so nothing is forgotten\n\n### One new trick: changing a row\n\nYou can already add rows and find them. To **change** a row, find it, change a property, and save:\n\n```csharp\nvar item = db.Items.Find(id);\nitem.Claimed = true;\ndb.SaveChanges();\n```\n\nEF Core notices what you changed, so `SaveChanges` sends an `UPDATE` for just that row, like the SQL you've seen. Forget `SaveChanges` and the change is lost when the request ends.\n\n### Planning the work\n\nThe TODOs in `Program.cs` are numbered. Do them in order, and after each one press **Run** and try it in **Try it**: POST a few things first, so the other endpoints have something to find.\n\n### New words\n\n- **Update**: changing a row that's already in the database.\n- **Claimed**: here, a lost thing its owner has picked up.\n",
+      "exampleMarkdown": "A garden server that waters plants. Press **Run**, then in **Try it**: POST `/plants` with `{ \"name\": \"Fern\" }`, then `{ \"name\": \"Moss\" }`. `GET /plants/thirsty` lists both. Now POST `/plants/1/water` and look at `GET /plants/thirsty` again: only Moss is still thirsty.",
+      "exampleCode": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<GardenDb>(\n    o => o.UseInMemoryDatabase(\"garden\"));\nvar app = builder.Build();\n\napp.MapPost(\"/plants\", (Plant plant, GardenDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(plant.Name))\n    {\n        return Results.BadRequest(\"A plant needs a name.\");\n    }\n    db.Plants.Add(plant);\n    db.SaveChanges();\n    return Results.Created($\"/plants/{plant.Id}\", plant);\n});\n\n// Only the plants that still need water.\napp.MapGet(\"/plants/thirsty\", (GardenDb db) =>\n    db.Plants.Where(p => !p.Watered).ToList());\n\n// Change a row: find it, change it, save.\napp.MapPost(\"/plants/{id:int}/water\", (int id, GardenDb db) =>\n{\n    var plant = db.Plants.Find(id);\n    if (plant is null)\n    {\n        return Results.NotFound();\n    }\n    plant.Watered = true;\n    db.SaveChanges();\n    return Results.Ok(plant);\n});\n\napp.Run();\n\npublic class Plant\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public bool Watered { get; set; }\n}\n\npublic class GardenDb(DbContextOptions<GardenDb> options)\n    : DbContext(options)\n{\n    public DbSet<Plant> Plants => Set<Plant>();\n}\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Build the Grove Lost & Found!** The database is ready in `LostItem.cs`. Write the four endpoints in `Program.cs`, in order:\n\n1. **`POST /items`** saves a found thing, like `{ \"name\": \"Red scarf\", \"foundAt\": \"the pond\" }`, and answers **201 Created**. A thing with no name gets **BadRequest** (*\"A lost thing needs a name.\"*) and isn't saved.\n2. **`GET /items`** lists only the things that **haven't been claimed**.\n3. **`GET /items/{id:int}`** answers one thing, or **NotFound**.\n4. **`POST /items/{id:int}/claim`** marks the thing as claimed (`Claimed = true`) and saves it. **NotFound** if there's no such thing.\n\nTry each one in **Try it** as you go. Remember: the database starts empty every time you press **Run**.",
+        "starterFiles": {
+          "Program.cs": "using Microsoft.EntityFrameworkCore;\n\n// Project: the Grove Lost & Found!\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<GroveDb>(\n    o => o.UseInMemoryDatabase(\"lost-found\"));\nvar app = builder.Build();\n\n// 1. POST /items: save a found thing, and\n//    answer 201 Created. If it has no name,\n//    answer BadRequest and don't save it.\n\n// 2. GET /items: only the things nobody has\n//    claimed yet.\n\n// 3. GET /items/{id:int}: one thing, or\n//    NotFound if there's no such thing.\n\n// 4. POST /items/{id:int}/claim: mark the\n//    thing as claimed and save. NotFound if\n//    there's no such thing.\n\napp.Run();\n",
+          "LostItem.cs": "using Microsoft.EntityFrameworkCore;\n\n// Finished: you don't need to change this file.\npublic class LostItem\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string FoundAt { get; set; } = \"\";\n    public bool Claimed { get; set; }\n}\n\n// The database. Items is its one table.\npublic class GroveDb(DbContextOptions<GroveDb> options)\n    : DbContext(options)\n{\n    public DbSet<LostItem> Items => Set<LostItem>();\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "using Microsoft.EntityFrameworkCore;\n\n// Project: the Grove Lost & Found!\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<GroveDb>(\n    o => o.UseInMemoryDatabase(\"lost-found\"));\nvar app = builder.Build();\n\n// 1. POST /items: save a found thing, and\n//    answer 201 Created. If it has no name,\n//    answer BadRequest and don't save it.\napp.MapPost(\"/items\", (LostItem item, GroveDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(item.Name))\n    {\n        return Results.BadRequest(\"A lost thing needs a name.\");\n    }\n    db.Items.Add(item);\n    db.SaveChanges();\n    return Results.Created($\"/items/{item.Id}\", item);\n});\n\n// 2. GET /items: only the things nobody has\n//    claimed yet.\napp.MapGet(\"/items\", (GroveDb db) =>\n    db.Items.Where(i => !i.Claimed).ToList());\n\n// 3. GET /items/{id:int}: one thing, or\n//    NotFound if there's no such thing.\napp.MapGet(\"/items/{id:int}\", (int id, GroveDb db) =>\n{\n    var item = db.Items.Find(id);\n    if (item is null)\n    {\n        return Results.NotFound();\n    }\n    return Results.Ok(item);\n});\n\n// 4. POST /items/{id:int}/claim: mark the\n//    thing as claimed and save. NotFound if\n//    there's no such thing.\napp.MapPost(\"/items/{id:int}/claim\", (int id, GroveDb db) =>\n{\n    var item = db.Items.Find(id);\n    if (item is null)\n    {\n        return Results.NotFound();\n    }\n    item.Claimed = true;\n    db.SaveChanges();\n    return Results.Ok(item);\n});\n\napp.Run();\n",
+          "LostItem.cs": "using Microsoft.EntityFrameworkCore;\n\n// Finished: you don't need to change this file.\npublic class LostItem\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string FoundAt { get; set; } = \"\";\n    public bool Claimed { get; set; }\n}\n\n// The database. Items is its one table.\npublic class GroveDb(DbContextOptions<GroveDb> options)\n    : DbContext(options)\n{\n    public DbSet<LostItem> Items => Set<LostItem>();\n}\n"
+        },
+        "tests": [
+          {
+            "label": "1. A found thing is saved",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/items",
+              "body": {
+                "name": "Red scarf",
+                "foundAt": "the pond"
+              },
+              "expectStatus": 201,
+              "expectJson": {
+                "id": 1,
+                "name": "Red scarf",
+                "foundAt": "the pond"
+              },
+              "expectHeader": {
+                "Location": "/items/1"
+              }
+            },
+            "failMessage": "POST /items should answer 201 Created with the thing and its new id, 1. Add it to db.Items and call db.SaveChanges()."
+          },
+          {
+            "label": "1. A thing with no name is refused",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/items",
+              "body": {
+                "name": " ",
+                "foundAt": "the pond"
+              },
+              "expectStatus": 400,
+              "expectBodyIncludes": "A lost thing needs a name."
+            },
+            "failMessage": "POST /items with an empty name should answer 400 Bad Request with \"A lost thing needs a name.\" Check string.IsNullOrWhiteSpace(item.Name) first."
+          },
+          {
+            "label": "2. GET /items lists the saved things",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/items",
+                  "body": {
+                    "name": "Red scarf",
+                    "foundAt": "the pond"
+                  }
+                },
+                {
+                  "method": "POST",
+                  "path": "/items",
+                  "body": {
+                    "name": "Brass lantern",
+                    "foundAt": "the hill"
+                  }
+                }
+              ],
+              "path": "/items",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "name": "Red scarf"
+                },
+                {
+                  "name": "Brass lantern"
+                }
+              ]
+            },
+            "failMessage": "After two things are saved, GET /items should list both. Use db.Items with ToList()."
+          },
+          {
+            "label": "1. A refused thing isn't saved",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/items",
+                  "body": {
+                    "name": "",
+                    "foundAt": "the pond"
+                  }
+                },
+                {
+                  "method": "POST",
+                  "path": "/items",
+                  "body": {
+                    "name": "Red scarf",
+                    "foundAt": "the pond"
+                  }
+                }
+              ],
+              "path": "/items",
+              "expectJson": [
+                {
+                  "id": 1,
+                  "name": "Red scarf"
+                }
+              ]
+            },
+            "failMessage": "A thing with no name shouldn't be saved: return BadRequest before Add."
+          },
+          {
+            "label": "3. GET /items/2 finds a thing",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/items",
+                  "body": {
+                    "name": "Red scarf",
+                    "foundAt": "the pond"
+                  }
+                },
+                {
+                  "method": "POST",
+                  "path": "/items",
+                  "body": {
+                    "name": "Brass lantern",
+                    "foundAt": "the hill"
+                  }
+                }
+              ],
+              "path": "/items/2",
+              "expectStatus": 200,
+              "expectJson": {
+                "id": 2,
+                "name": "Brass lantern"
+              }
+            },
+            "failMessage": "GET /items/2 should answer the second thing saved. Use db.Items.Find(id)."
+          },
+          {
+            "label": "3. An unknown thing is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/items/9",
+              "expectStatus": 404
+            },
+            "failMessage": "GET /items/9 should answer 404 Not Found: Find gives null when there's no such thing."
+          },
+          {
+            "label": "4. Claiming a thing saves it",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/items",
+                  "body": {
+                    "name": "Red scarf",
+                    "foundAt": "the pond"
+                  }
+                }
+              ],
+              "method": "POST",
+              "path": "/items/1/claim",
+              "expectStatus": 200,
+              "expectJson": {
+                "id": 1,
+                "claimed": true
+              }
+            },
+            "failMessage": "POST /items/1/claim should answer 200 with the thing, now with claimed set to true. Find it, set item.Claimed = true, and call db.SaveChanges()."
+          },
+          {
+            "label": "4. A claimed thing leaves the list",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/items",
+                  "body": {
+                    "name": "Red scarf",
+                    "foundAt": "the pond"
+                  }
+                },
+                {
+                  "method": "POST",
+                  "path": "/items",
+                  "body": {
+                    "name": "Brass lantern",
+                    "foundAt": "the hill"
+                  }
+                },
+                {
+                  "method": "POST",
+                  "path": "/items/1/claim"
+                }
+              ],
+              "path": "/items",
+              "expectJson": [
+                {
+                  "name": "Brass lantern"
+                }
+              ]
+            },
+            "failMessage": "After POST /items/1/claim, GET /items should list only the lantern. Did you call db.SaveChanges() after changing Claimed? And does GET /items skip claimed things?"
+          },
+          {
+            "label": "4. Claiming an unknown thing is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/items/9/claim",
+              "expectStatus": 404
+            },
+            "failMessage": "POST /items/9/claim should answer 404 Not Found."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Each TODO is an endpoint. Which `Map…` method goes with each one, and which endpoints need `db.SaveChanges()`?",
+            "speechText": "Each to do is an endpoint. Which Map method goes with each one, and which endpoints need Save Changes?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Look at the garden example: it has the same shapes. `POST /items` is like `POST /plants`, `GET /items` is like `GET /plants/thirsty` (use `!i.Claimed`), and the claim endpoint is like `/plants/{id:int}/water`.",
+            "speechText": "Look at the garden example, because it has the same shapes. Post items is like post plants, get items is like the thirsty plants, and claim is like water.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The claim endpoint:\n\n```csharp\napp.MapPost(\"/items/{id:int}/claim\", (int id, GroveDb db) =>\n{\n    var item = db.Items.Find(id);\n    if (item is null)\n    {\n        return Results.NotFound();\n    }\n    item.Claimed = true;\n    db.SaveChanges();\n    return Results.Ok(item);\n});\n```",
+            "speechText": "For claim, find the thing, and return Not Found if it's null. Otherwise set Claimed to true, save the changes, and return Ok with the thing.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "You find a row, set item.Claimed = true, and don't call SaveChanges. What happens?",
+            "explanation": "EF Core noticed the change, but only SaveChanges sends it to the database. Without it, the change is lost when the request ends.",
+            "options": [
+              {
+                "text": "The change is lost",
+                "correct": true
+              },
+              {
+                "text": "It's saved anyway",
+                "correct": false
+              },
+              {
+                "text": "The program won't compile",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which status code means \"I saved the new thing you sent\"?",
+            "explanation": "201 Created means the server made something new from the request.",
+            "options": [
+              {
+                "text": "201 Created",
+                "correct": true
+              },
+              {
+                "text": "404 Not Found",
+                "correct": false
+              },
+              {
+                "text": "400 Bad Request",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How does GET /items skip things that were claimed?",
+            "explanation": "Where keeps only the rows that match, so Where(i => !i.Claimed) keeps the unclaimed ones.",
+            "options": [
+              {
+                "text": "db.Items.Where(i => !i.Claimed).ToList()",
+                "correct": true
+              },
+              {
+                "text": "db.Items.ToList()",
+                "correct": false
+              },
+              {
+                "text": "db.Items.Find(id)",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "web-api-project",
       "title": "Project: Event tickets API",
       "sortOrder": 7,
       "ageBand": "Builder",
-      "estimatedMinutes": 15,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "estimatedMinutes": 25,
+      "isPublished": true,
+      "learnMarkdown": "## Project: Event tickets API\n\nYou'll build the ticket API for a run of teen tech events: list the events with seats left, sell tickets, look them up and refund them. It uses the whole course: a controller with attribute routes, DTOs with validation, `ActionResult<T>`, problem details and EF Core. Two ideas are new: **projections** and **concurrency**.\n\n### Projections: Select in the query\n\n```csharp\nvar events = await db.Events\n    .OrderBy(e => e.Date)\n    .Select(e => new EventSummary(\n        e.Id, e.Name, e.Date, e.Capacity - e.TicketsSold))\n    .ToListAsync();\n```\n\n`Select` before `ToListAsync` is part of the SQL, so the database sends back only those columns and works out `SeatsLeft` itself. It also keeps your entities private: clients see the DTO, not the table.\n\n### One SaveChanges, one transaction\n\nBuying tickets changes two tables: the event's `TicketsSold` goes up, and a `Ticket` row is added. Make both changes, then call `SaveChangesAsync` **once**. EF Core sends them in one transaction, so either both happen or neither does. Two separate saves could leave seats taken with no ticket to show for them.\n\n### The race for the last seats\n\nTwo buyers want the last 2 seats of a 50-seat event, at the same moment:\n\n| Buyer A | Buyer B |\n|---|---|\n| reads TicketsSold = 48: 2 left, OK | |\n| | reads TicketsSold = 48: 2 left, OK |\n| sets 50, saves | |\n| | sets 50, saves |\n\nBoth checks passed, both saves worked, and 52 seats are sold while the counter says 50. B's write silently replaced A's: a **lost update**. Checking more carefully doesn't help, because both checks happen before either save.\n\n### Optimistic concurrency\n\nMark the property as a **concurrency token**:\n\n```csharp\n[ConcurrencyCheck]\npublic int TicketsSold { get; set; }\n```\n\nNow EF Core's `UPDATE` also checks that the value hasn't changed since it was read: `... WHERE Id = 2 AND TicketsSold = 48`. B's update matches no row, so `SaveChangesAsync` throws `DbUpdateConcurrencyException`. Catch it and answer **409 Conflict**, so the client can try again with fresh numbers. It's called *optimistic* because nothing is locked: conflicts are rare, so you detect them instead of preventing them. On SQL Server, a `[Timestamp] public byte[] Version { get; set; }` (rowversion) column does the same job for every column at once.\n\n### Routes outside the controller's prefix\n\nA template that starts with `/` ignores the class's `[Route]`, so tickets can live at `/api/tickets/3` inside `EventsController`:\n\n```csharp\n[HttpGet(\"/api/tickets/{id:int}\")]\n```\n\n### New words\n\n- **Projection**: choosing the shape of query results with `Select`, ideally inside the query.\n- **Transaction**: a group of changes that happen all together or not at all.\n- **Race condition**: a bug that depends on the timing of two things running at once.\n- **Lost update**: one save silently replacing another save's change.\n- **Optimistic concurrency**: detecting conflicting saves (with a concurrency token) instead of locking.\n",
+      "exampleMarkdown": "A camp's cabin API with a concurrency token. Press **Run**, then in **Try it**: `GET /cabins` (Willow has 1 bed left), POST `/race` (two campers book it at once: one wins, one gets a conflict), then `GET /cabins` again. Now delete the `[ConcurrencyCheck]` line, press **Run**, and POST `/race` again: both saves succeed, and Willow is double-booked while the count still says it's full.",
+      "exampleCode": "using System.ComponentModel.DataAnnotations;\nusing Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<CampDb>(\n    o => o.UseInMemoryDatabase(\"camp\"));\nvar app = builder.Build();\n\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<CampDb>()\n        .Database.EnsureCreated();\n}\n\n// A projection: the query works out BedsLeft.\napp.MapGet(\"/cabins\", async (CampDb db) =>\n    await db.Cabins\n        .Select(c => new CabinSummary(\n            c.Id, c.Name, c.Beds - c.Booked))\n        .ToListAsync());\n\n// Two campers book Willow's last bed at the same moment,\n// each with their own DbContext (as two requests would).\napp.MapPost(\"/race\", async (IServiceScopeFactory scopes) =>\n{\n    using var a = scopes.CreateScope();\n    using var b = scopes.CreateScope();\n    var dbA = a.ServiceProvider.GetRequiredService<CampDb>();\n    var dbB = b.ServiceProvider.GetRequiredService<CampDb>();\n    var cabinA = await dbA.Cabins.FindAsync(2);\n    var cabinB = await dbB.Cabins.FindAsync(2);\n    if (cabinA.Booked >= cabinA.Beds)\n    {\n        return \"Willow is full. Press Run to start over.\";\n    }\n    cabinA.Booked++;   // both saw one bed left\n    cabinB.Booked++;\n    await dbA.SaveChangesAsync();\n    try\n    {\n        await dbB.SaveChangesAsync();\n        return \"Both saved: two campers, one bed!\";\n    }\n    catch (DbUpdateConcurrencyException)\n    {\n        return \"Camper A got the bed. Camper B: 409, try again.\";\n    }\n});\n\napp.Run();\n\npublic class Cabin\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public int Beds { get; set; }\n\n    [ConcurrencyCheck]   // try removing this\n    public int Booked { get; set; }\n}\n\npublic record CabinSummary(int Id, string Name, int BedsLeft);\n\npublic class CampDb(DbContextOptions<CampDb> options)\n    : DbContext(options)\n{\n    public DbSet<Cabin> Cabins => Set<Cabin>();\n\n    protected override void OnModelCreating(ModelBuilder model) =>\n        model.Entity<Cabin>().HasData(\n            new Cabin { Id = 1, Name = \"Oak\", Beds = 6, Booked = 2 },\n            new Cabin { Id = 2, Name = \"Willow\", Beds = 4, Booked = 3 });\n}\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Build the event tickets API.** `Program.cs` is finished, and `Models.cs` has the entities, the `NewTicket` and `EventSummary` records and the seed events. `EventsController.cs` has `GetEvent` done; write the rest:\n\n1. **`GET /api/events`**: every event as an `EventSummary`, soonest first. Project with `Select` **in the query**.\n2. **`POST /api/events/{id:int}/tickets`** with `{ \"buyer\": \"PixelFox\", \"quantity\": 2 }`:\n   - **404** if there's no such event;\n   - **409** with *\"Only 2 seats left.\"* (the real number) if there aren't enough seats;\n   - otherwise add to the event's `TicketsSold`, add a `Ticket`, save **once**, and answer **201** with the ticket and a `Location` that points at `GetTicket`.\n   - Bad input (no buyer, quantity outside 1 to 4) already gets an automatic **400**.\n3. **`GET /api/tickets/{id:int}`**: the ticket, or **404**.\n4. **`DELETE /api/tickets/{id:int}`**: a refund. Give the seats back and remove the ticket in **one** save: **204**, or **404**.\n5. **The race.** In `Models.cs`, make `TicketsSold` a concurrency token. In the POST, catch `DbUpdateConcurrencyException` and answer **409** with *\"Those seats were just sold. Try again.\"*",
+        "starterFiles": {
+          "Program.cs": "using Microsoft.EntityFrameworkCore;\n\n// Finished: you don't need to change this file.\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nbuilder.Services.AddDbContext<TicketsDb>(\n    o => o.UseInMemoryDatabase(\"tickets\"));\nvar app = builder.Build();\n\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider\n        .GetRequiredService<TicketsDb>()\n        .Database.EnsureCreated();\n}\n\napp.MapControllers();\napp.Run();\n",
+          "EventsController.cs": "using Microsoft.AspNetCore.Mvc;\nusing Microsoft.EntityFrameworkCore;\n\n[ApiController]\n[Route(\"api/[controller]\")]\npublic class EventsController(TicketsDb db)\n    : ControllerBase\n{\n    // Finished: one event, as an EventSummary.\n    [HttpGet(\"{id:int}\")]\n    public async Task<ActionResult<EventSummary>>\n        GetEvent(int id)\n    {\n        var summary = await db.Events\n            .Where(e => e.Id == id)\n            .Select(e => new EventSummary(\n                e.Id, e.Name, e.Date,\n                e.Capacity - e.TicketsSold))\n            .FirstOrDefaultAsync();\n        if (summary is null)\n        {\n            return NotFound();\n        }\n        return summary;\n    }\n\n    // 1. GET /api/events: every event as an\n    //    EventSummary, soonest first.\n\n    // 2. POST /api/events/{id:int}/tickets\n    //    with a NewTicket: 404 if there's no\n    //    such event; 409 \"Only 2 seats left.\"\n    //    if there aren't enough. Otherwise add\n    //    to TicketsSold, add a Ticket, save\n    //    once, and answer 201 at GetTicket.\n\n    // 3. GET /api/tickets/{id:int}: one\n    //    ticket, or 404.\n\n    // 4. DELETE /api/tickets/{id:int}: a\n    //    refund. Give the seats back and\n    //    remove the ticket, in one save.\n    //    204, or 404.\n\n    // 5. (and Models.cs) If the save in 2\n    //    throws DbUpdateConcurrencyException,\n    //    answer 409 \"Those seats were just\n    //    sold. Try again.\"\n}\n",
+          "Models.cs": "using System.ComponentModel.DataAnnotations;\nusing Microsoft.EntityFrameworkCore;\n\npublic class Event\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public DateOnly Date { get; set; }\n    public int Capacity { get; set; }\n\n    // 5. Two buyers can both see the last seats\n    //    and both save. Make this a concurrency\n    //    token.\n    public int TicketsSold { get; set; }\n}\n\npublic class Ticket\n{\n    public int Id { get; set; }\n    public int EventId { get; set; }\n    public string Buyer { get; set; } = \"\";\n    public int Quantity { get; set; }\n}\n\n// What a client sends to buy tickets.\npublic record NewTicket(\n    [Required, StringLength(20)] string Buyer,\n    [Range(1, 4)] int Quantity);\n\n// What the events endpoints answer.\npublic record EventSummary(\n    int Id, string Name, DateOnly Date,\n    int SeatsLeft);\n\npublic class TicketsDb(DbContextOptions<TicketsDb> o)\n    : DbContext(o)\n{\n    public DbSet<Event> Events => Set<Event>();\n    public DbSet<Ticket> Tickets => Set<Ticket>();\n\n    // Seed events, added by EnsureCreated.\n    protected override void OnModelCreating(\n        ModelBuilder model) =>\n        model.Entity<Event>().HasData(\n            Seed(1, \"Robotics Expo\", 5, 200, 120),\n            Seed(2, \"Indie Game Jam\", 12, 50, 48),\n            Seed(3, \"Hack the Grove\", 1, 30, 0));\n\n    // An event in December 2026.\n    private static Event Seed(int id, string name,\n        int day, int capacity, int sold) =>\n        new() { Id = id, Name = name,\n                Date = new DateOnly(2026, 12, day),\n                Capacity = capacity,\n                TicketsSold = sold };\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "using Microsoft.EntityFrameworkCore;\n\n// Finished: you don't need to change this file.\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nbuilder.Services.AddDbContext<TicketsDb>(\n    o => o.UseInMemoryDatabase(\"tickets\"));\nvar app = builder.Build();\n\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider\n        .GetRequiredService<TicketsDb>()\n        .Database.EnsureCreated();\n}\n\napp.MapControllers();\napp.Run();\n",
+          "EventsController.cs": "using Microsoft.AspNetCore.Mvc;\nusing Microsoft.EntityFrameworkCore;\n\n[ApiController]\n[Route(\"api/[controller]\")]\npublic class EventsController(TicketsDb db)\n    : ControllerBase\n{\n    // Finished: one event, as an EventSummary.\n    [HttpGet(\"{id:int}\")]\n    public async Task<ActionResult<EventSummary>>\n        GetEvent(int id)\n    {\n        var summary = await db.Events\n            .Where(e => e.Id == id)\n            .Select(e => new EventSummary(\n                e.Id, e.Name, e.Date,\n                e.Capacity - e.TicketsSold))\n            .FirstOrDefaultAsync();\n        if (summary is null)\n        {\n            return NotFound();\n        }\n        return summary;\n    }\n\n    // 1. GET /api/events: every event as an\n    //    EventSummary, soonest first.\n    [HttpGet]\n    public async Task<List<EventSummary>> GetAll() =>\n        await db.Events\n            .OrderBy(e => e.Date)\n            .Select(e => new EventSummary(\n                e.Id, e.Name, e.Date,\n                e.Capacity - e.TicketsSold))\n            .ToListAsync();\n\n    // 2. POST /api/events/{id:int}/tickets\n    //    with a NewTicket: 404 if there's no\n    //    such event; 409 \"Only 2 seats left.\"\n    //    if there aren't enough. Otherwise add\n    //    to TicketsSold, add a Ticket, save\n    //    once, and answer 201 at GetTicket.\n    [HttpPost(\"{id:int}/tickets\")]\n    public async Task<ActionResult<Ticket>> Buy(\n        int id, NewTicket input)\n    {\n        var ev = await db.Events.FindAsync(id);\n        if (ev is null)\n        {\n            return NotFound();\n        }\n        int left = ev.Capacity - ev.TicketsSold;\n        if (input.Quantity > left)\n        {\n            return Problem(\n                detail: $\"Only {left} seats left.\",\n                statusCode: 409);\n        }\n        ev.TicketsSold += input.Quantity;\n        var ticket = new Ticket\n        {\n            EventId = id,\n            Buyer = input.Buyer,\n            Quantity = input.Quantity,\n        };\n        db.Tickets.Add(ticket);\n        try\n        {\n            await db.SaveChangesAsync();\n        }\n        catch (DbUpdateConcurrencyException)\n        {\n            return Problem(\n                detail: \"Those seats were just sold. Try again.\",\n                statusCode: 409);\n        }\n        return CreatedAtAction(nameof(GetTicket),\n            new { id = ticket.Id }, ticket);\n    }\n\n    // 3. GET /api/tickets/{id:int}: one\n    //    ticket, or 404.\n    [HttpGet(\"/api/tickets/{id:int}\")]\n    public async Task<ActionResult<Ticket>> GetTicket(\n        int id)\n    {\n        var ticket = await db.Tickets.FindAsync(id);\n        if (ticket is null)\n        {\n            return NotFound();\n        }\n        return ticket;\n    }\n\n    // 4. DELETE /api/tickets/{id:int}: a\n    //    refund. Give the seats back and\n    //    remove the ticket, in one save.\n    //    204, or 404.\n    [HttpDelete(\"/api/tickets/{id:int}\")]\n    public async Task<IActionResult> Refund(int id)\n    {\n        var ticket = await db.Tickets.FindAsync(id);\n        if (ticket is null)\n        {\n            return NotFound();\n        }\n        var ev = await db.Events.SingleAsync(\n            e => e.Id == ticket.EventId);\n        ev.TicketsSold -= ticket.Quantity;\n        db.Tickets.Remove(ticket);\n        await db.SaveChangesAsync();\n        return NoContent();\n    }\n\n    // 5. (and Models.cs) If the save in 2\n    //    throws DbUpdateConcurrencyException,\n    //    answer 409 \"Those seats were just\n    //    sold. Try again.\"\n}\n",
+          "Models.cs": "using System.ComponentModel.DataAnnotations;\nusing Microsoft.EntityFrameworkCore;\n\npublic class Event\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public DateOnly Date { get; set; }\n    public int Capacity { get; set; }\n\n    // 5. Two buyers can both see the last seats\n    //    and both save. Make this a concurrency\n    //    token.\n    [ConcurrencyCheck]\n    public int TicketsSold { get; set; }\n}\n\npublic class Ticket\n{\n    public int Id { get; set; }\n    public int EventId { get; set; }\n    public string Buyer { get; set; } = \"\";\n    public int Quantity { get; set; }\n}\n\n// What a client sends to buy tickets.\npublic record NewTicket(\n    [Required, StringLength(20)] string Buyer,\n    [Range(1, 4)] int Quantity);\n\n// What the events endpoints answer.\npublic record EventSummary(\n    int Id, string Name, DateOnly Date,\n    int SeatsLeft);\n\npublic class TicketsDb(DbContextOptions<TicketsDb> o)\n    : DbContext(o)\n{\n    public DbSet<Event> Events => Set<Event>();\n    public DbSet<Ticket> Tickets => Set<Ticket>();\n\n    // Seed events, added by EnsureCreated.\n    protected override void OnModelCreating(\n        ModelBuilder model) =>\n        model.Entity<Event>().HasData(\n            Seed(1, \"Robotics Expo\", 5, 200, 120),\n            Seed(2, \"Indie Game Jam\", 12, 50, 48),\n            Seed(3, \"Hack the Grove\", 1, 30, 0));\n\n    // An event in December 2026.\n    private static Event Seed(int id, string name,\n        int day, int capacity, int sold) =>\n        new() { Id = id, Name = name,\n                Date = new DateOnly(2026, 12, day),\n                Capacity = capacity,\n                TicketsSold = sold };\n}\n"
+        },
+        "tests": [
+          {
+            "label": "1. Events, soonest first",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/events",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "id": 3,
+                  "seatsLeft": 30,
+                  "date": "2026-12-01"
+                },
+                {
+                  "id": 1,
+                  "seatsLeft": 80
+                },
+                {
+                  "id": 2,
+                  "name": "Indie Game Jam",
+                  "seatsLeft": 2
+                }
+              ]
+            },
+            "failMessage": "GET /api/events should answer the three events as EventSummary, soonest first: Hack the Grove (30 seats left), Robotics Expo (80), Indie Game Jam (2). Use OrderBy(e => e.Date) and Select(...) before ToListAsync()."
+          },
+          {
+            "label": "1. The database does the projection",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "ToList(Async)?\\s*\\(\\s*\\)\\s*\\)?\\s*\\.\\s*(Where|OrderBy|OrderByDescending|Select)\\b|AsEnumerable\\s*\\(",
+              "max": 0,
+              "file": "EventsController.cs"
+            },
+            "failMessage": "Don't load whole rows and reshape them in C#: put OrderBy and Select before ToListAsync(), so they're part of the query."
+          },
+          {
+            "label": "2. Buying answers 201 with the ticket",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/events/1/tickets",
+              "body": {
+                "buyer": "PixelFox",
+                "quantity": 2
+              },
+              "expectStatus": 201,
+              "expectJson": {
+                "id": 1,
+                "eventId": 1,
+                "buyer": "PixelFox",
+                "quantity": 2
+              },
+              "expectHeader": {
+                "Location": "/api/tickets/1"
+              }
+            },
+            "failMessage": "POST /api/events/1/tickets should answer 201 Created with the new ticket (id 1, eventId 1, quantity 2) and a Location of /api/tickets/1. Return CreatedAtAction(nameof(GetTicket), new { id = ticket.Id }, ticket)."
+          },
+          {
+            "label": "2. Sold seats are taken",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/events/1/tickets",
+                  "body": {
+                    "buyer": "PixelFox",
+                    "quantity": 2
+                  }
+                }
+              ],
+              "path": "/api/events/1",
+              "expectJson": {
+                "seatsLeft": 78
+              }
+            },
+            "failMessage": "After buying 2 tickets for event 1, GET /api/events/1 should show 78 seats left. Add the quantity to TicketsSold and save."
+          },
+          {
+            "label": "2. No such event is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/events/9/tickets",
+              "body": {
+                "buyer": "PixelFox",
+                "quantity": 2
+              },
+              "expectStatus": 404
+            },
+            "failMessage": "POST /api/events/9/tickets should answer 404: FindAsync gives null when there's no such event."
+          },
+          {
+            "label": "2. Too many tickets is 409",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/events/2/tickets",
+              "body": {
+                "buyer": "PixelFox",
+                "quantity": 3
+              },
+              "expectStatus": 409,
+              "expectBodyIncludes": "Only 2 seats left."
+            },
+            "failMessage": "Event 2 has 2 seats left, so asking for 3 should answer 409 Conflict with \"Only 2 seats left.\". Return Problem(detail: ..., statusCode: 409)."
+          },
+          {
+            "label": "2. A refused sale changes nothing",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/events/2/tickets",
+                  "body": {
+                    "buyer": "PixelFox",
+                    "quantity": 3
+                  }
+                }
+              ],
+              "path": "/api/events/2",
+              "expectJson": {
+                "seatsLeft": 2
+              }
+            },
+            "failMessage": "A refused sale shouldn't change TicketsSold: return the 409 before changing anything."
+          },
+          {
+            "label": "2. The last seats can be sold, then no more",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/events/2/tickets",
+                  "body": {
+                    "buyer": "PixelFox",
+                    "quantity": 2
+                  }
+                }
+              ],
+              "method": "POST",
+              "path": "/api/events/2/tickets",
+              "body": {
+                "buyer": "ByteRunner",
+                "quantity": 1
+              },
+              "expectStatus": 409,
+              "expectBodyIncludes": "Only 0 seats left."
+            },
+            "failMessage": "After the last 2 seats of event 2 are sold, one more should answer 409 with \"Only 0 seats left.\"."
+          },
+          {
+            "label": "2. Bad input is refused",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/events/1/tickets",
+              "body": {
+                "buyer": "PixelFox",
+                "quantity": 5
+              },
+              "expectStatus": 400,
+              "expectJson": {
+                "errors": {
+                  "Quantity": [
+                    "The field Quantity must be between 1 and 4."
+                  ]
+                }
+              }
+            },
+            "failMessage": "A quantity of 5 should get the automatic 400 from [Range(1, 4)]. Make sure the action takes a NewTicket."
+          },
+          {
+            "label": "3. A ticket can be looked up",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/events/1/tickets",
+                  "body": {
+                    "buyer": "PixelFox",
+                    "quantity": 2
+                  }
+                }
+              ],
+              "path": "/api/tickets/1",
+              "expectStatus": 200,
+              "expectJson": {
+                "id": 1,
+                "buyer": "PixelFox"
+              }
+            },
+            "failMessage": "After a sale, GET /api/tickets/1 should answer the ticket. Use [HttpGet(\"/api/tickets/{id:int}\")]: the leading / ignores the controller's route."
+          },
+          {
+            "label": "3. An unknown ticket is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/tickets/9",
+              "expectStatus": 404
+            },
+            "failMessage": "GET /api/tickets/9 should answer 404."
+          },
+          {
+            "label": "4. A refund answers 204",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/events/1/tickets",
+                  "body": {
+                    "buyer": "PixelFox",
+                    "quantity": 2
+                  }
+                }
+              ],
+              "method": "DELETE",
+              "path": "/api/tickets/1",
+              "expectStatus": 204
+            },
+            "failMessage": "DELETE /api/tickets/1 should answer 204 No Content."
+          },
+          {
+            "label": "4. A refund gives the seats back",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/events/1/tickets",
+                  "body": {
+                    "buyer": "PixelFox",
+                    "quantity": 2
+                  }
+                },
+                {
+                  "method": "POST",
+                  "path": "/api/events/1/tickets",
+                  "body": {
+                    "buyer": "PixelFox",
+                    "quantity": 2
+                  }
+                },
+                {
+                  "method": "DELETE",
+                  "path": "/api/tickets/1"
+                }
+              ],
+              "path": "/api/events/1",
+              "expectJson": {
+                "seatsLeft": 78
+              }
+            },
+            "failMessage": "Two sales of 2 seats, then a refund of the first: event 1 should have 78 seats left. Subtract the ticket's Quantity from TicketsSold, remove the ticket, then save."
+          },
+          {
+            "label": "4. A refunded ticket is gone, the other stays",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/events/1/tickets",
+                  "body": {
+                    "buyer": "PixelFox",
+                    "quantity": 2
+                  }
+                },
+                {
+                  "method": "POST",
+                  "path": "/api/events/1/tickets",
+                  "body": {
+                    "buyer": "PixelFox",
+                    "quantity": 2
+                  }
+                },
+                {
+                  "method": "DELETE",
+                  "path": "/api/tickets/1"
+                }
+              ],
+              "path": "/api/tickets/2",
+              "expectStatus": 200,
+              "expectJson": {
+                "id": 2
+              }
+            },
+            "failMessage": "After refunding ticket 1, GET /api/tickets/1 should answer 404, and ticket 2 should still be there."
+          },
+          {
+            "label": "4. Refunding an unknown ticket is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "DELETE",
+              "path": "/api/tickets/9",
+              "expectStatus": 404
+            },
+            "failMessage": "DELETE /api/tickets/9 should answer 404."
+          },
+          {
+            "label": "5. TicketsSold is a concurrency token",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "await ((Func<Task<string>>)(async () => { var options = Microsoft.EntityFrameworkCore.InMemoryDbContextOptionsExtensions.UseInMemoryDatabase(new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TicketsDb>(), \"cg-race-check\").Options; using (var setup = new TicketsDb(options)) { setup.Events.Add(new Event { Name = \"Race\", Capacity = 50, TicketsSold = 48 }); await setup.SaveChangesAsync(); } using var a = new TicketsDb(options); using var b = new TicketsDb(options); var ea = a.Events.Single(e => e.Name == \"Race\"); var eb = b.Events.Single(e => e.Name == \"Race\"); ea.TicketsSold += 2; eb.TicketsSold += 2; await a.SaveChangesAsync(); try { await b.SaveChangesAsync(); return \"both saved\"; } catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException) { return \"conflict\"; } }))()",
+              "equals": "conflict"
+            },
+            "failMessage": "Two DbContexts both sold the last 2 seats, and both saves worked: a lost update. Put [ConcurrencyCheck] on TicketsSold in Models.cs, so the second save throws DbUpdateConcurrencyException."
+          },
+          {
+            "label": "5. The POST answers a conflict with 409",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "catch\\s*\\(\\s*DbUpdateConcurrencyException\\b",
+              "file": "EventsController.cs"
+            },
+            "failMessage": "In the POST, wrap SaveChangesAsync in try/catch (DbUpdateConcurrencyException) and return Problem(detail: \"Those seats were just sold. Try again.\", statusCode: 409)."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`GetEvent` already shows the projection. What would `GET /api/events` change about its query, and which two tables does a sale touch?",
+            "speechText": "Get Event already shows the projection. What would the list of events change about its query, and which two tables does a sale touch?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "For the list, swap `Where`/`FirstOrDefaultAsync` for `OrderBy(e => e.Date)` and `ToListAsync()`. For a sale: `FindAsync` the event, compare `Quantity` with `Capacity - TicketsSold`, then change `TicketsSold`, `Add` a `Ticket`, and `SaveChangesAsync()` once. The ticket routes start with `/` so they ignore `api/[controller]`.",
+            "speechText": "For the list, order by date and use To List Async. For a sale, find the event, compare the quantity with the seats left, then change Tickets Sold, add a ticket, and save once. The ticket routes start with a slash so they ignore the controller's route.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The race fix is two parts. In `Models.cs`:\n\n```csharp\n[ConcurrencyCheck]\npublic int TicketsSold { get; set; }\n```\n\nAnd in the POST:\n\n```csharp\ntry\n{\n    await db.SaveChangesAsync();\n}\ncatch (DbUpdateConcurrencyException)\n{\n    return Problem(\n        detail: \"Those seats were just sold. Try again.\",\n        statusCode: 409);\n}\n```",
+            "speechText": "For the race, put the Concurrency Check attribute on Tickets Sold. Then wrap the save in a try, catch the D-B Update Concurrency Exception, and return a four oh nine problem.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why put Select before ToListAsync when building EventSummary?",
+            "explanation": "Inside the query, Select becomes part of the SQL: the database sends only those columns and works out SeatsLeft itself.",
+            "options": [
+              {
+                "text": "The database sends back only the columns the DTO needs",
+                "correct": true
+              },
+              {
+                "text": "Select doesn't work after ToListAsync",
+                "correct": false
+              },
+              {
+                "text": "It makes the DTO a tracked entity",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A sale updates the event and adds a ticket. Why call SaveChangesAsync once, after both?",
+            "explanation": "One SaveChanges is one transaction: both changes happen, or neither does.",
+            "options": [
+              {
+                "text": "So both changes happen together or not at all",
+                "correct": true
+              },
+              {
+                "text": "Because SaveChangesAsync can only be called once per request",
+                "correct": false
+              },
+              {
+                "text": "To make the 201 faster",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Two buyers read TicketsSold = 48 at the same moment, and both set it to 50 and save. With no concurrency token, what happens?",
+            "explanation": "Both saves succeed: the second silently replaces the first. Four seats are sold, but the counter only went up by two. That's a lost update.",
+            "options": [
+              {
+                "text": "Both saves work, and the event is oversold",
+                "correct": true
+              },
+              {
+                "text": "The second save throws",
+                "correct": false
+              },
+              {
+                "text": "EF Core adds both to make 52",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does [ConcurrencyCheck] on TicketsSold make EF Core do?",
+            "explanation": "Its UPDATE also checks the old value (WHERE TicketsSold = 48). If another save changed it first, no row matches and SaveChanges throws DbUpdateConcurrencyException.",
+            "options": [
+              {
+                "text": "Check the old value in the UPDATE, and throw if it changed",
+                "correct": true
+              },
+              {
+                "text": "Lock the row until the request ends",
+                "correct": false
+              },
+              {
+                "text": "Retry the save automatically",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "[HttpGet(\"/api/tickets/{id:int}\")] is inside a controller with [Route(\"api/[controller]\")]. What path does it answer?",
+            "explanation": "A template that starts with / ignores the controller's route, so it answers /api/tickets/3.",
+            "options": [
+              {
+                "text": "/api/tickets/3",
+                "correct": true
+              },
+              {
+                "text": "/api/events/api/tickets/3",
+                "correct": false
+              },
+              {
+                "text": "/api/events/3",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

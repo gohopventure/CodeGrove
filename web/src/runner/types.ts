@@ -32,7 +32,7 @@ export type TestKind =
   // SQL only (evaluated by src/runner/sqlEngine.ts). noErrors and sourceMatches work for SQL too.
   | 'sqlResultEquals' // { rows, columns?, ordered?, sortedBy?, caseSensitive?, result? }: a result set has exactly these rows (ordered = this exact order; sortedBy = sorted by these columns, ties in any order)
   | 'sqlRowCount' // { equals?, min?, max?, result? }: how many rows a result set has
-  | 'sqlCheckQuery' // { query, equals, ordered?, caseSensitive? }: a hidden query run after the learner's code (equals: a value or rows)
+  | 'sqlCheckQuery' // { query, equals, ordered?, caseSensitive?, missing?, report? }: a hidden query run after the learner's code (equals: a value or rows)
   | 'sqlError'; // { contains? }: the learner's code DOES stop with a matching error
 
 export interface TestResult {

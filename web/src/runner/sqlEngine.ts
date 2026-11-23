@@ -358,18 +358,27 @@ function evaluate(test: TestSpec, run: Run): TestResult {
           rows = last ? last.values.map((r) => r.map(cell)) : [];
           columns = last ? last.columns : [];
         } catch (e) {
-          return fail(`While checking: ${friendlyError(messageOf(e)) || messageOf(e)}`);
+          // The learner didn't write this query: name what's missing, without beginner tips about quotes.
+          const msg = messageOf(e);
+          const missing = /^no such (column|table): (\S+)/.exec(msg);
+          if (missing) return fail(`While checking: there's no ${missing[1]} called ${missing[2]!.replace(/^.*\./, '')} yet.`);
+          return fail(`While checking: ${friendlyError(msg) || msg}`);
         }
         if (Array.isArray(spec.equals)) {
           // The learner didn't write this query, so talk about what's in the table, not "your query".
-          if (rows.length === 0 && spec.equals.length > 0) return fail("The check didn't find it in the table.");
+          // `missing` lets a check say what's absent in its own words ("There's no plants table yet.").
+          if (rows.length === 0 && spec.equals.length > 0) return fail((spec.missing as string | undefined) ?? "The check didn't find it in the table.");
           const why = compareResult({ file: '', line: 0, columns, rows, truncated: false }, { rows: spec.equals, ordered: spec.ordered, caseSensitive: spec.caseSensitive });
           if (why === null) return pass();
           const counts = /^Your query returned (\d+ rows?); it should return (\d+)\.$/.exec(why);
           return fail(counts ? `The check found ${counts[1]} in the table; it should find ${counts[2]}.` : why);
         }
         const actual = rows[0]?.[0] ?? null;
-        return sameCell(actual, spec.equals as SqlCell, spec.caseSensitive !== false) ? pass() : fail(`It was ${show(actual)}.`);
+        if (sameCell(actual, spec.equals as SqlCell, spec.caseSensitive !== false)) return pass();
+        if (actual === null && spec.missing) return fail(spec.missing as string);
+        // `report` words the value for this check: "{value} of the 2 bad rows got in." (default "It was {value}.")
+        const report = (spec.report as string | undefined) ?? 'It was {value}.';
+        return fail(report.replace('{value}', typeof actual === 'string' ? `'${actual}'` : show(actual)));
       }
 
       default:
@@ -423,6 +432,7 @@ function compareResult(set: SqlResultSet, spec: Record<string, unknown>): string
     return `Row ${bad + 1} should be ${showRow(expected[bad] ?? [])}, but it was ${showRow(set.rows[bad] ?? [])}.`;
   }
   if (sameMultiset(set.rows, expected, same)) return sortProblem(set, spec.sortedBy);
+  if (expected.length === 1 && set.rows.length === 1) return `It should be ${showRow(expected[0]!)}, but it was ${showRow(set.rows[0]!)}.`;
   const extra = set.rows.find((row) => !expected.some((e) => same(row, e)));
   return extra ? `This row shouldn't be there: ${showRow(extra)}.` : 'Some of the rows have the wrong values.';
 }

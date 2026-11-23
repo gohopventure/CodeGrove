@@ -161,6 +161,38 @@
         }
       ]
     },
+    "web-api-project-explorer": {
+      "intro": [
+        {
+          "displayText": "Things get lost in the Grove all the time, so it needs a Lost and Found. Your mission: build its whole server, from saving a found scarf to marking it as claimed!",
+          "speechText": "Things get lost in the Grove all the time, so it needs a Lost and Found. Your mission: build its whole server, from saving a found scarf to marking it as claimed!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You built a real web server with a database, and every lost thing in the Grove can find its way home. That's a project for your portfolio!",
+          "speechText": "You built a real web server with a database, and every lost thing in the Grove can find its way home. That's a project for your portfolio!",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "web-api-project": {
+      "intro": [
+        {
+          "displayText": "This project puts the whole course together in a ticket API for teen tech events. You'll list events with the seats left, sell and refund tickets, and keep every number consistent in the database. Then you'll fix a real race: two buyers grabbing the last seats at the same moment.",
+          "speechText": "This project puts the whole course together in a ticket API for teen tech events. You'll list events with the seats left, sell and refund tickets, and keep every number consistent in the database. Then you'll fix a real race, two buyers grabbing the last seats at the same moment.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your ticket API sells, refunds and never oversells, even when two buyers race for the last seats. The big idea is optimistic concurrency: a concurrency token turns a silent lost update into a conflict you can answer. That's a solid project for your portfolio.",
+          "speechText": "Your ticket API sells, refunds and never oversells, even when two buyers race for the last seats. The big idea is optimistic concurrency, where a concurrency token turns a silent lost update into a conflict you can answer. That's a solid project for your portfolio.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
     "web-api-explorer": {
       "intro": [
         {
