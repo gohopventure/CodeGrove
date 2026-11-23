@@ -408,6 +408,13 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
     public static readonly IReadOnlySet<string> CSharpTestKinds =
         new HashSet<string> { "noErrors", "consoleIncludes", "consoleEquals", "compileError", "compileWarning", "noWarnings", "csharpExpression", "sourceMatches" };
 
+    /// <summary>Test kinds the SQL runner understands (web/src/runner/sqlEngine.ts, SQL_TEST_KINDS).</summary>
+    public static readonly IReadOnlySet<string> SqlTestKinds =
+        new HashSet<string> { "noErrors", "sourceMatches", "sqlResultEquals", "sqlRowCount", "sqlCheckQuery", "sqlError" };
+
+    /// <summary>The hidden starter file that builds a SQL challenge's database (sqlEngine.ts, SETUP_FILE).</summary>
+    public const string SqlSetupFile = ".setup.sql";
+
     /// <summary>Catches authoring mistakes at seed time instead of in front of a child.</summary>
     private static void Validate(CourseFile f, string path)
     {
@@ -445,8 +452,23 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
                     if (c.Tests.FirstOrDefault(t => !CSharpTestKinds.Contains(t.Kind)) is { } bad)
                         Fail($"test '{bad.Label}' has kind '{bad.Kind}', which C# challenges can't use. Known: {string.Join(", ", CSharpTestKinds)}.");
                 }
-                else if (c.Tests.FirstOrDefault(t => t.Kind is "consoleEquals" or "compileError" or "compileWarning" or "noWarnings" or "csharpExpression" or "sourceMatches") is { } csOnly)
+                else if (c.Tests.FirstOrDefault(t => t.Kind is "consoleEquals" or "compileError" or "compileWarning" or "noWarnings" or "csharpExpression") is { } csOnly)
                     Fail($"test '{csOnly.Label}' has kind '{csOnly.Kind}', which only works in C# challenges.");
+                // SQL runs in the in-browser SQL runner (web/src/runner/sqlEngine.ts): SQLite, starting every run
+                // from the hidden .setup.sql in the starter files, which the learner can't see or edit.
+                if (c.Kind == ChallengeKind.Sql)
+                {
+                    static bool HasSql(Dictionary<string, string> files) => files.Keys.Any(k => !k.StartsWith('.') && k.EndsWith(".sql"));
+                    if (!HasSql(c.StarterFiles) || !HasSql(c.SolutionFiles)) Fail("SQL challenges need at least one .sql file.");
+                    if (!c.StarterFiles.TryGetValue(SqlSetupFile, out var setup) || string.IsNullOrWhiteSpace(setup))
+                        Fail($"SQL challenges need a {SqlSetupFile} starter file that builds the database.");
+                    if (c.Tests.FirstOrDefault(t => !SqlTestKinds.Contains(t.Kind)) is { } bad)
+                        Fail($"test '{bad.Label}' has kind '{bad.Kind}', which SQL challenges can't use. Known: {string.Join(", ", SqlTestKinds)}.");
+                }
+                else if (c.Tests.FirstOrDefault(t => t.Kind.StartsWith("sql")) is { } sqlOnly)
+                    Fail($"test '{sqlOnly.Label}' has kind '{sqlOnly.Kind}', which only works in SQL challenges.");
+                if (c.Kind is not (ChallengeKind.CSharp or ChallengeKind.Sql) && c.Tests.FirstOrDefault(t => t.Kind == "sourceMatches") is { } src)
+                    Fail($"test '{src.Label}' has kind 'sourceMatches', which only works in C# and SQL challenges.");
                 if (c.Hints.Select(h => h.Level).Order().SequenceEqual([1, 2, 3]) is false) Fail("a challenge needs hints at levels 1, 2 and 3.");
                 foreach (var h in c.Hints)
                 {

@@ -8,8 +8,11 @@ import { Markdown } from '../components/Markdown';
 import { ErrorNote, Spinner } from '../components/ui';
 import { CodeEditor } from './CodeEditor';
 import { CSharpOutput } from './CSharpOutput';
+import { SqlOutput } from './SqlOutput';
 import { LivePreview, type LivePreviewHandle } from './LivePreview';
 import { preloadCSharp } from '../runner/csharp';
+import { preloadSql } from '../runner/sql';
+import { SETUP_FILE } from '../runner/sqlEngine';
 import { monacoTypeChecker } from './typeCheckMonaco';
 import { CelebrationToast, HintLadder, QuizCard, TestResultList, useHeartbeat } from './parts';
 import { TutorPanel } from '../tutor/TutorPanel';
@@ -80,10 +83,13 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
   }, [lesson.id, lesson.progress.learnViewed]);
 
   // C# runs on .NET in the browser, a few MB the first time: start fetching it while the learner reads.
+  // SQL is much smaller (~0.7 MB) but the same idea.
   const isCSharp = lesson.challenge?.kind === 'CSharp';
+  const isSql = lesson.challenge?.kind === 'Sql';
   useEffect(() => {
     if (isCSharp) preloadCSharp();
-  }, [isCSharp]);
+    if (isSql) preloadSql();
+  }, [isCSharp, isSql]);
 
   // Move focus to the step heading on step change, so keyboard and screen-reader users land in the new content.
   useEffect(() => headingRef.current?.focus(), [step]);
@@ -217,12 +223,17 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
 
 function ExampleStep({ lesson, headingRef, onNext }: { lesson: Lesson; headingRef: React.RefObject<HTMLHeadingElement | null>; onNext: () => void }) {
   const preview = useRef<LivePreviewHandle>(null);
-  // C# examples are a whole Program.cs; the Output panel runs them itself (autoRun).
+  // C# examples are a whole Program.cs; the Output panel runs them itself (autoRun). SQL examples run
+  // against the challenge's starting database, so the example and the challenge share their tables.
   const isCSharp = lesson.challenge?.kind === 'CSharp';
-  const exampleFiles = useMemo(() => ({ 'Program.cs': lesson.exampleCode ?? '' }), [lesson.exampleCode]);
+  const isSql = lesson.challenge?.kind === 'Sql';
+  const exampleFiles = useMemo<Files>(
+    () => ({ [isSql ? 'example.sql' : 'Program.cs']: lesson.exampleCode ?? '' }),
+    [lesson.exampleCode, isSql],
+  );
   useEffect(() => {
-    if (lesson.exampleCode && !isCSharp) void preview.current?.run({ 'index.html': lesson.exampleCode }, []);
-  }, [lesson.exampleCode, isCSharp]);
+    if (lesson.exampleCode && !isCSharp && !isSql) void preview.current?.run({ 'index.html': lesson.exampleCode }, []);
+  }, [lesson.exampleCode, isCSharp, isSql]);
 
   return (
     <section className="card space-y-4">
@@ -236,10 +247,12 @@ function ExampleStep({ lesson, headingRef, onNext }: { lesson: Lesson; headingRe
             {/* Long lines wrap instead of scrolling sideways: kids miss code hidden past the edge. */}
             <pre tabIndex={0} className="whitespace-pre-wrap rounded-card bg-[#1b2128] p-4 font-mono text-sm text-[#e8edf2] [overflow-wrap:anywhere]"><code>{lesson.exampleCode}</code></pre>
           </div>
-          <div className="h-72">
+          <div className={isSql ? 'h-96' : 'h-72'}>
             {isCSharp
               ? <CSharpOutput files={exampleFiles} autoRun title="What it prints" />
-              : <LivePreview ref={preview} title="Example preview" />}
+              : isSql
+                ? <SqlOutput setup={lesson.challenge?.starterFiles[SETUP_FILE] ?? ''} files={exampleFiles} autoRun title="What it returns" />
+                : <LivePreview ref={preview} title="Example preview" />}
           </div>
         </div>
       )}
@@ -261,6 +274,9 @@ function ChallengeStep({
 }) {
   const challenge = lesson.challenge!;
   const isCSharp = challenge.kind === 'CSharp';
+  const isSql = challenge.kind === 'Sql';
+  /** C# and SQL run when the learner presses Run, not on every keystroke. */
+  const runsOnDemand = isCSharp || isSql;
   const draftKey = `cg:draft:${challenge.id}`;
   const preview = useRef<LivePreviewHandle>(null);
   const [files, setFiles] = useState<Files>(() => readDraft(draftKey) ?? challenge.starterFiles);
@@ -338,15 +354,15 @@ function ChallengeStep({
       .catch(() => undefined);
   }, [challenge.id, draftKey, blocks, setMode]);
 
-  // Live preview: re-render 400 ms after typing stops (not C#: a console program runs when the learner
-  // presses Run). Drafts are kept for this tab session only.
+  // Live preview: re-render 400 ms after typing stops (not C# or SQL: those run when the learner presses
+  // Run). Drafts are kept for this tab session only.
   useEffect(() => {
     const t = window.setTimeout(() => {
-      if (!checkingRef.current && !isCSharp) void preview.current?.run(files, []);
+      if (!checkingRef.current && !runsOnDemand) void preview.current?.run(files, []);
       sessionStorage.setItem(draftKey, JSON.stringify(files));
     }, 400);
     return () => window.clearTimeout(t);
-  }, [files, draftKey, isCSharp]);
+  }, [files, draftKey, runsOnDemand]);
 
   const testsById = useMemo(() => challenge.tests, [challenge.tests]);
 
@@ -358,7 +374,7 @@ function ChallengeStep({
       const res = await preview.current?.run(files, testsById);
       if (!res) {
         setError(new ApiError(0, {
-          title: isCSharp
+          title: runsOnDemand
             ? "Your code couldn't be checked this time. The Output panel says why."
             : "Your page didn't finish loading. Look for an error in the console under the preview.",
         }));
@@ -462,7 +478,10 @@ function ChallengeStep({
         <div className={blocks ? 'h-[38rem]' : 'h-[28rem]'}>
           {isCSharp
             ? <CSharpOutput ref={preview} files={files} />
-            : <LivePreview ref={preview} title="Your page preview" typeChecker={monacoTypeChecker} />}
+            : isSql
+              // The starting database always comes from the challenge, never from the draft.
+              ? <SqlOutput ref={preview} setup={challenge.starterFiles[SETUP_FILE] ?? ''} files={files} />
+              : <LivePreview ref={preview} title="Your page preview" typeChecker={monacoTypeChecker} />}
         </div>
       </div>
 

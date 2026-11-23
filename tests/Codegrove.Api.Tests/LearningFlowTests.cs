@@ -254,11 +254,11 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Tracks_follow_the_curriculum_order_with_angular_after_typescript_and_csharp_last()
+    public async Task Tracks_follow_the_curriculum_order_with_angular_after_typescript_and_databases_after_csharp()
     {
         var client = _factory.NewClient();
         var tracks = (await client.GetJson("/api/tracks")).EnumerateArray().Select(t => t.GetProperty("slug").GetString()).ToList();
-        Assert.Equal(["web-foundations", "javascript", "typescript", "angular", "frontend-frameworks", "csharp"], tracks);
+        Assert.Equal(["web-foundations", "javascript", "typescript", "angular", "frontend-frameworks", "csharp", "databases"], tracks);
 
         // Angular challenges are TypeScript projects: the API sends kind "Angular" with .ts starter files.
         var (_, child, _) = await FamilyWithConsentedExplorer("NgFox");
@@ -278,6 +278,15 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         Assert.Equal("CSharp", csLesson.GetProperty("challenge").GetProperty("kind").GetString());
         Assert.True(csLesson.GetProperty("challenge").GetProperty("starterFiles").TryGetProperty("Program.cs", out _));
         Assert.All(csLessons, l => Assert.True(l.GetProperty("isPublished").GetBoolean()));
+
+        // SQL challenges run in the browser's SQL runner: kind "Sql", the learner's query.sql, and the hidden
+        // .setup.sql that builds the database (the editor never shows dotfiles).
+        var sql = await child.GetJson("/api/courses/sql-basics");
+        var sqlFirst = sql.GetProperty("lessons").EnumerateArray().First(l => l.GetProperty("slug").GetString() == "databases-explorer");
+        var sqlChallenge = (await child.GetJson($"/api/lessons/{sqlFirst.GetProperty("id").GetInt32()}")).GetProperty("challenge");
+        Assert.Equal("Sql", sqlChallenge.GetProperty("kind").GetString());
+        Assert.True(sqlChallenge.GetProperty("starterFiles").TryGetProperty("query.sql", out _));
+        Assert.Contains("CREATE TABLE critters", sqlChallenge.GetProperty("starterFiles").GetProperty(".setup.sql").GetString());
     }
 
     [Fact]
@@ -375,6 +384,7 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         Assert.Contains("js-juggler", codes);
         Assert.Contains("sharp-starter", codes);
         Assert.Contains("class-act", codes);
+        Assert.Contains("data-detective", codes);
     }
 
     /// <summary>Maps each quiz question to its correct option by matching prompts against the seed file.</summary>

@@ -1,0 +1,587 @@
+{
+  "slug": "sql-basics",
+  "title": "SQL Basics: Asking a Database Questions",
+  "summary": "Ask a real database questions with SQL, right in your browser: tables, rows and columns, SELECT, filtering with WHERE, sorting, counting and totals, adding and changing data, and designing your own tables.",
+  "ageBand": "Both",
+  "estimatedMinutes": 140,
+  "isPublished": true,
+  "objectives": [
+    "Explain how a relational database stores data in tables, rows and columns, and what a primary key is",
+    "Choose columns and calculate new ones with SELECT and AS",
+    "Find the rows you need with WHERE, AND, OR, LIKE, IN and IS NULL",
+    "Sort and trim results with ORDER BY, DISTINCT and LIMIT",
+    "Summarize data with COUNT, SUM, AVG, MIN, MAX, GROUP BY and HAVING",
+    "Add, change and remove rows safely with INSERT, UPDATE and DELETE",
+    "Design tables with CREATE TABLE, data types and constraints"
+  ],
+  "lessons": [
+    {
+      "slug": "databases-explorer",
+      "title": "Tables full of data",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": true,
+      "learnMarkdown": "## Tables full of data\n\nApps remember lots of things: every player, every high score, every pet in a game. They keep it all in a **database**, an organized store of data that you can ask questions.\n\nMost databases keep their data in **tables**. A table looks a lot like a spreadsheet:\n\n| id | name | kind | age |\n|----|------|------|-----|\n| 1 | Juni | fox | 3 |\n| 2 | Pip | owl | 1 |\n| 3 | Moss | frog | 2 |\n\n- Each **row** is one thing: here, one critter.\n- Each **column** is one fact about it: its name, its kind, its age.\n- The `id` column gives every row its own number, so two critters called Pip never get mixed up.\n\n### Asking with SQL\n\nYou ask a database questions in **SQL**. You can say it \"sequel\" or \"S-Q-L\". The question \"show me every critter\" looks like this:\n\n```sql\nSELECT * FROM critters;\n```\n\n- `SELECT` means \"show me\".\n- `*` (a star) means \"every column\".\n- `FROM critters` says which table to look in.\n- The `;` at the end finishes the question.\n\nTo see only some of the columns, list them after `SELECT`, with commas between them:\n\n```sql\nSELECT name, age FROM critters;\n```\n\nThe answer comes back as a brand new table, called the **result**. It has just the columns you asked for, and one row for every critter.\n\n### New words\n\n- **Database**: an organized store of data that you can ask questions.\n- **Table**: data kept in rows and columns, like a spreadsheet.\n- **Row**: one thing in a table, like one critter.\n- **Column**: one fact about every row, like its name.\n- **SQL** (*Structured Query Language*): the language for asking a database questions.\n- **Query**: a question you ask a database, like `SELECT name FROM critters;`.\n",
+      "exampleMarkdown": "This query asks the Critter Club's table for two columns, `name` and `snack`. The result has just those two columns, with one row for every critter. Try reading it out loud: *select name and snack from critters*. Then open the **Tables** tab to see the whole table it came from.",
+      "exampleCode": "-- What does each critter like to eat?\nSELECT name, snack\nFROM critters;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** It's roll call at the Grove Critter Club. Open the **Tables** tab to see the `critters` table first.\n\n1. Write a query that shows **every column** for every critter.\n2. Underneath it, write a second query that shows just the `name` and `kind` columns.\n3. Press **Run**. You should see two results: the whole table, then a smaller one with two columns.",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Critter Club\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  age INTEGER,\n  snack TEXT\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3, 'berries'),\n  (2, 'Pip', 'owl', 1, 'seeds'),\n  (3, 'Moss', 'frog', 2, 'flies'),\n  (4, 'Bramble', 'hedgehog', 4, 'apples'),\n  (5, 'Nova', 'rabbit', 2, 'carrots'),\n  (6, 'Pebble', 'turtle', 7, 'lettuce');\n",
+          "query.sql": "-- Mission: roll call at the Critter Club!\n\n-- 1. Show every column of every critter.\n\n\n-- 2. Show only the name and kind columns.\n\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- Mission: roll call at the Critter Club!\n\n-- 1. Show every column of every critter.\nSELECT * FROM critters;\n\n-- 2. Show only the name and kind columns.\nSELECT name, kind FROM critters;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "The first query shows every column",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "id",
+                "name",
+                "kind",
+                "age",
+                "snack"
+              ],
+              "rows": [
+                [
+                  1,
+                  "Juni",
+                  "fox",
+                  3,
+                  "berries"
+                ],
+                [
+                  2,
+                  "Pip",
+                  "owl",
+                  1,
+                  "seeds"
+                ],
+                [
+                  3,
+                  "Moss",
+                  "frog",
+                  2,
+                  "flies"
+                ],
+                [
+                  4,
+                  "Bramble",
+                  "hedgehog",
+                  4,
+                  "apples"
+                ],
+                [
+                  5,
+                  "Nova",
+                  "rabbit",
+                  2,
+                  "carrots"
+                ],
+                [
+                  6,
+                  "Pebble",
+                  "turtle",
+                  7,
+                  "lettuce"
+                ]
+              ]
+            },
+            "failMessage": "Your first query should show every column of every critter. A star after SELECT means every column."
+          },
+          {
+            "label": "The second query shows names and kinds",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "name",
+                "kind"
+              ],
+              "rows": [
+                [
+                  "Juni",
+                  "fox"
+                ],
+                [
+                  "Pip",
+                  "owl"
+                ],
+                [
+                  "Moss",
+                  "frog"
+                ],
+                [
+                  "Bramble",
+                  "hedgehog"
+                ],
+                [
+                  "Nova",
+                  "rabbit"
+                ],
+                [
+                  "Pebble",
+                  "turtle"
+                ]
+              ]
+            },
+            "failMessage": "Your second query should show just two columns, name and kind, with a comma between them."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which symbol means \"every column\" when it comes straight after `SELECT`?",
+            "speechText": "Which symbol means every column when it comes straight after select?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Each query has the shape `SELECT` *columns* `FROM` *table*`;`. For the first one, the columns part is a star. For the second, list `name` and `kind` with a comma between them.",
+            "speechText": "Each query is select, then the columns, then from and the table name. Use a star for every column, and for the second query, list name and kind with a comma between them.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Here's the first query:\n\n```sql\nSELECT * FROM critters;\n```\n\nWrite the second one the same way, with `name, kind` where the star is.",
+            "speechText": "The first query is select star from critters. Write the second one the same way, with name and kind where the star is.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "In a table, what is a row?",
+            "explanation": "A row is one thing in the table, like one critter. The columns are the facts about it.",
+            "options": [
+              {
+                "text": "One thing, like one critter",
+                "correct": true
+              },
+              {
+                "text": "One fact about every critter",
+                "correct": false
+              },
+              {
+                "text": "The name of the table",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the * mean in SELECT * FROM critters;?",
+            "explanation": "A star straight after SELECT means \"every column\".",
+            "options": [
+              {
+                "text": "Every column",
+                "correct": true
+              },
+              {
+                "text": "Every table",
+                "correct": false
+              },
+              {
+                "text": "Only the first row",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which query shows only the names of the critters?",
+            "explanation": "SELECT lists the columns you want (name), and FROM names the table (critters).",
+            "options": [
+              {
+                "text": "SELECT name FROM critters;",
+                "correct": true
+              },
+              {
+                "text": "SELECT critters FROM name;",
+                "correct": false
+              },
+              {
+                "text": "SELECT * FROM name;",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "databases-and-select",
+      "title": "Databases, tables and SELECT",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Databases, tables and SELECT\n\nAlmost every app stores its data in a **database**: accounts, messages, scores, orders. The software that stores the data and answers questions about it is a **DBMS**. You'll hear about these:\n\n- **SQL Server**: Microsoft's, used a lot with C# and .NET (it's what Codegrove itself runs on).\n- **PostgreSQL** and **MySQL**: popular free ones that run on servers.\n- **SQLite**: a tiny one that lives inside apps and phones. It runs these lessons, right in your browser.\n\nAll four are **relational** databases: data lives in tables, and tables can point at each other. That's the next course.\n\n### Tables, rows and columns\n\nA table has a fixed set of **columns**, each with a name and a **data type**, and any number of **rows**. This is the `games` table from a game shop:\n\n| id | title | platform | price | stock |\n|----|-------|----------|-------|-------|\n| 1 | Star Garden | Switch | 39.99 | 12 |\n| 2 | Byte Racers | PC | 19.99 | 30 |\n\n- Each row is one game, and each column is one fact about it.\n- `id` is the **primary key**: its value is different for every row, so you can always point at exactly one game, even if two games have the same title.\n- The types say what a column holds: `INTEGER` for whole numbers, `REAL` or `DECIMAL` for numbers with decimals, `TEXT` for strings.\n\n### SQL is declarative\n\nYou talk to the database in **SQL**. SQL is **declarative**: you describe *what* result you want, and the database works out *how* to get it. Compare that with C#, where you'd write the loop yourself.\n\n```sql\nSELECT title, price\nFROM games;\n```\n\n- `SELECT` lists the columns you want, separated by commas, and `FROM` names the table.\n- Keywords aren't case-sensitive (`select` works too), but capitals are the usual style, so they stand out.\n- Line breaks don't matter, and `;` ends a statement.\n- Text values go in **single quotes**, like `'Switch'`.\n\n### Calculated columns and aliases\n\nA column in a `SELECT` can be an **expression**, worked out for every row. `AS` gives it a name, called an **alias**:\n\n```sql\nSELECT title, price * 0.9 AS sale_price\nFROM games;\n```\n\nWithout `AS sale_price`, the column would be called `price * 0.9`.\n\n### Why teams avoid `SELECT *`\n\n`SELECT *` returns every column. It's handy for a quick look, but in application code, teams name the columns: it's clearer to read, it sends less data, and adding a column to the table later can't break code that reads the result.\n\n### In SQL Server\n\nEverything above works the same in SQL Server. Two things you'll meet there: names in square brackets, like `[order]`, when a name clashes with a keyword (SQLite uses double quotes, `\"order\"`), and **SSMS** (*SQL Server Management Studio*), the app developers use to run queries.\n\n### New words\n\n- **DBMS** (*Database Management System*): the software that stores data and answers queries, like SQL Server or SQLite.\n- **Relational database**: a database that keeps data in tables that can refer to each other.\n- **Primary key**: a column whose value is unique for every row and never missing, like `id`.\n- **Data type**: what kind of value a column holds, like `INTEGER` or `TEXT`.\n- **SQL** (*Structured Query Language*): the language for querying and changing relational databases.\n- **Declarative**: describing the result you want rather than the steps to get it.\n- **Expression**: a calculation, like `price * stock`, worked out for each row.\n- **Alias**: a name you give a column with `AS`.\n",
+      "exampleMarkdown": "A sale price list for Pixel Pier. `price * 0.8` is worked out for every row, `ROUND(…, 2)` rounds it to cents, and `AS sale_price` names the new column. The original `price` column is still there, because the query asks for it too.",
+      "exampleCode": "-- 20% off everything!\nSELECT title,\n       price,\n       ROUND(price * 0.8, 2) AS sale_price\nFROM games;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** You're helping out at **Pixel Pier**, a game shop. Look at the `games` table in the **Tables** tab first.\n\n1. The first query should list each game's `title`, `platform` and `price`. It runs without an error, but its result is wrong. Compare the result's columns with the table, then fix the query.\n2. Below it, write the **stock report**: `title`, `stock`, and a calculated column called `stock_value` that is the price times the stock.\n3. Name your columns: no `SELECT *` in this challenge.",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  price REAL NOT NULL,\n  stock INTEGER NOT NULL\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 39.99, 12),\n  (2, 'Byte Racers', 'PC', 19.99, 30),\n  (3, 'Moonlight Mages', 'PlayStation', 59.99, 4),\n  (4, 'Puzzle Pond', 'Switch', 14.99, 0),\n  (5, 'Robo Rumble', 'Xbox', 49.99, 7),\n  (6, 'Ocean Odyssey', 'PC', 29.99, 15),\n  (7, 'Castle Quest', 'PlayStation', 39.99, 9),\n  (8, 'Tiny Tactics', 'Switch', 24.99, 21);\n",
+          "query.sql": "-- Pixel Pier: price list and stock report\n\n-- 1. The price list. It runs, but compare\n--    its columns with the games table.\nSELECT title, platform price\nFROM games;\n\n-- 2. Stock report: title, stock, and\n--    stock_value (price times stock).\n\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- Pixel Pier: price list and stock report\n\n-- 1. The price list. It runs, but compare\n--    its columns with the games table.\nSELECT title, platform, price\nFROM games;\n\n-- 2. Stock report: title, stock, and\n--    stock_value (price times stock).\nSELECT title, stock, price * stock AS stock_value\nFROM games;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "The price list has title, platform and price",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "title",
+                "platform",
+                "price"
+              ],
+              "rows": [
+                [
+                  "Star Garden",
+                  "Switch",
+                  39.99
+                ],
+                [
+                  "Byte Racers",
+                  "PC",
+                  19.99
+                ],
+                [
+                  "Moonlight Mages",
+                  "PlayStation",
+                  59.99
+                ],
+                [
+                  "Puzzle Pond",
+                  "Switch",
+                  14.99
+                ],
+                [
+                  "Robo Rumble",
+                  "Xbox",
+                  49.99
+                ],
+                [
+                  "Ocean Odyssey",
+                  "PC",
+                  29.99
+                ],
+                [
+                  "Castle Quest",
+                  "PlayStation",
+                  39.99
+                ],
+                [
+                  "Tiny Tactics",
+                  "Switch",
+                  24.99
+                ]
+              ]
+            },
+            "failMessage": "The first result needs three columns: title, platform and price. Without a comma between two names, SQL reads the second one as a new name (an alias) for the first."
+          },
+          {
+            "label": "The stock report has title, stock and stock_value",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "title",
+                "stock",
+                "stock_value"
+              ],
+              "rows": [
+                [
+                  "Star Garden",
+                  12,
+                  479.88
+                ],
+                [
+                  "Byte Racers",
+                  30,
+                  599.6999999999999
+                ],
+                [
+                  "Moonlight Mages",
+                  4,
+                  239.96
+                ],
+                [
+                  "Puzzle Pond",
+                  0,
+                  0.0
+                ],
+                [
+                  "Robo Rumble",
+                  7,
+                  349.93
+                ],
+                [
+                  "Ocean Odyssey",
+                  15,
+                  449.84999999999997
+                ],
+                [
+                  "Castle Quest",
+                  9,
+                  359.91
+                ],
+                [
+                  "Tiny Tactics",
+                  21,
+                  524.79
+                ]
+              ]
+            },
+            "failMessage": "The second result needs the columns title, stock and stock_value, where stock_value is price * stock. Use AS to name the calculated column."
+          },
+          {
+            "label": "You named your columns",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "select\\s+\\*",
+              "max": 0
+            },
+            "failMessage": "List the columns you want instead of using SELECT *."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The first result has a column called `price`, but what's actually in it? Which column of the `games` table do those values come from?",
+            "speechText": "The first result has a column called price, but what's actually in it? Which column of the games table do those values come from?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "A comma is missing between `platform` and `price`, so SQL read `platform price` as \"the platform column, renamed to price\". For the report, a column can be a calculation like `price * stock`, and `AS stock_value` names it.",
+            "speechText": "A comma is missing between platform and price, so sequel read it as the platform column, renamed to price. For the report, a column can be a calculation, price times stock, and the AS keyword gives it the name stock value.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Put a comma after `platform` in the first query. The report selects three columns from `games`: `title`, `stock`, and `price * stock AS stock_value`.",
+            "speechText": "Put a comma after platform in the first query. The report selects title, stock, and price times stock as stock value, from games.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What makes a column a good primary key?",
+            "explanation": "A primary key identifies exactly one row, so its value must be different for every row and never missing.",
+            "options": [
+              {
+                "text": "Its value is different for every row and never missing",
+                "correct": true
+              },
+              {
+                "text": "It's the first column in the table",
+                "correct": false
+              },
+              {
+                "text": "It holds the most important text, like a title",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does SELECT title price FROM games; return?",
+            "explanation": "With no comma, price is an alias: you get one column, named price, that holds each game's title. No error, just the wrong data.",
+            "options": [
+              {
+                "text": "One column called price, holding each game's title",
+                "correct": true
+              },
+              {
+                "text": "Two columns, title and price",
+                "correct": false
+              },
+              {
+                "text": "An error, because a comma is missing",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why do teams usually avoid SELECT * in application code?",
+            "explanation": "Named columns are clearer, send less data, and code reading the result won't break when someone adds a column.",
+            "options": [
+              {
+                "text": "Naming columns is clearer, sends less data, and won't break when a column is added",
+                "correct": true
+              },
+              {
+                "text": "SELECT * is slower to type",
+                "correct": false
+              },
+              {
+                "text": "SELECT * only returns the first row",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "SQL is declarative. What does that mean?",
+            "explanation": "You describe the result you want; the database decides how to find it.",
+            "options": [
+              {
+                "text": "You describe the result you want, and the database works out how to get it",
+                "correct": true
+              },
+              {
+                "text": "You write each step yourself, like a loop in C#",
+                "correct": false
+              },
+              {
+                "text": "Every statement has to be declared before it runs",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How do you name a calculated column stock_value?",
+            "explanation": "AS gives a column an alias: price * stock AS stock_value.",
+            "options": [
+              {
+                "text": "price * stock AS stock_value",
+                "correct": true
+              },
+              {
+                "text": "stock_value = price * stock",
+                "correct": false
+              },
+              {
+                "text": "price * stock NAME stock_value",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "filtering-explorer",
+      "title": "Finding the rows you want",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "filtering-with-where",
+      "title": "Filtering with WHERE",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    },
+    {
+      "slug": "sorting-explorer",
+      "title": "Putting rows in order",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "sorting-and-limiting",
+      "title": "Sorting, DISTINCT and limits",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    },
+    {
+      "slug": "counting-explorer",
+      "title": "Counting and totals",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "aggregates-and-grouping",
+      "title": "Aggregates and GROUP BY",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    },
+    {
+      "slug": "changing-data-explorer",
+      "title": "Adding and changing rows",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "insert-update-delete",
+      "title": "INSERT, UPDATE and DELETE",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    },
+    {
+      "slug": "making-tables-explorer",
+      "title": "Making your own tables",
+      "sortOrder": 6,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "create-table",
+      "title": "CREATE TABLE and constraints",
+      "sortOrder": 6,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    },
+    {
+      "slug": "sql-project-explorer",
+      "title": "Project: Grove library",
+      "sortOrder": 7,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 5,
+      "isPublished": false
+    },
+    {
+      "slug": "sql-project",
+      "title": "Project: Game shop reports",
+      "sortOrder": 7,
+      "ageBand": "Builder",
+      "estimatedMinutes": 15,
+      "isPublished": false
+    }
+  ]
+}

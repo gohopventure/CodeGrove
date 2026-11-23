@@ -70,6 +70,20 @@
       "isPublished": true,
       "courses": ["csharp-basics", "csharp-objects"],
       "prerequisites": ["typescript"]
+    },
+    {
+      // After C#, in the curriculum's order. SQL runs in the browser on SQLite (sql.js, see
+      // web/src/runner/sqlEngine.ts); lessons use SQL that works the same in SQL Server, and Builder lessons
+      // note the differences. Planned courses: sql-basics, then sql-relational (keys, JOINs, design).
+      // ASP.NET Core Web API comes after this track, so it can use a real SQL Server database with EF Core.
+      "slug": "databases",
+      "title": "Databases and SQL",
+      "description": "Store data and ask it questions with SQL: tables and SELECT, filtering, sorting, totals, changing data and designing your own tables.",
+      "ageBand": "Both",
+      "sortOrder": 7,
+      "isPublished": true,
+      "courses": ["sql-basics"],
+      "prerequisites": ["csharp"]
     }
   ],
   "badges": [
@@ -162,6 +176,15 @@
       "iconUrl": "/badges/class-act.svg",
       "ruleType": "CourseCompleted",
       "ruleCourseSlug": "csharp-objects"
+    },
+    {
+      // A database cylinder under a magnifying glass, drawn from scratch.
+      "code": "data-detective",
+      "name": "Data Detective",
+      "description": "You finished SQL Basics and asked a database all kinds of questions.",
+      "iconUrl": "/badges/data-detective.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "sql-basics"
     },
     {
       "code": "app-architect",

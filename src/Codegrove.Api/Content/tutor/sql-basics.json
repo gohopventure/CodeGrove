@@ -1,0 +1,37 @@
+{
+  "course": "sql-basics",
+  "lessons": {
+    "databases-explorer": {
+      "intro": [
+        {
+          "displayText": "Every app remembers things, and it keeps them in a database. Your mission: do a roll call at the Grove Critter Club by asking its database your very first questions!",
+          "speechText": "Every app remembers things, and it keeps them in a database. Your mission is to do a roll call at the Grove Critter Club, by asking its database your very first questions!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Roll call done, and every critter answered! Your new word is query: a question you ask a database, like SELECT name FROM critters.",
+          "speechText": "Roll call done, and every critter answered! Your new word is query, which means a question you ask a database.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "databases-and-select": {
+      "intro": [
+        {
+          "displayText": "Nearly every app keeps its data in a database, and SQL is how developers ask it questions. You'll learn how tables, rows, columns and primary keys fit together, and write SELECT queries with calculated columns. Then you'll fix a price list and build a stock report for Pixel Pier, a game shop.",
+          "speechText": "Nearly every app keeps its data in a database, and sequel is how developers ask it questions. You'll learn how tables, rows, columns and primary keys fit together, and write select queries with calculated columns. Then you'll fix a price list and build a stock report for Pixel Pier, a game shop.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You can read a table's design and pull exactly the columns you need, calculated ones included. The gotcha to remember: a missing comma in a SELECT list isn't an error. SQL reads the second name as an alias, so check your result's column names.",
+          "speechText": "You can read a table's design and pull exactly the columns you need, calculated ones included. The gotcha to remember is a missing comma in a select list. It isn't an error, because sequel reads the second name as an alias, so always check your result's column names.",
+          "mood": "Celebrating"
+        }
+      ]
+    }
+  }
+}

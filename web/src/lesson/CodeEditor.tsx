@@ -5,7 +5,7 @@ import './monacoSetup';
 import { syncTypeScriptModels } from './typeCheckMonaco';
 
 const LANGUAGE: Record<string, string> = {
-  html: 'html', css: 'css', js: 'javascript', jsx: 'javascript', ts: 'typescript', tsx: 'typescript', json: 'json', cs: 'csharp',
+  html: 'html', css: 'css', js: 'javascript', jsx: 'javascript', ts: 'typescript', tsx: 'typescript', json: 'json', cs: 'csharp', sql: 'sql',
 };
 const languageFor = (file: string) => LANGUAGE[file.split('.').pop() ?? ''] ?? 'plaintext';
 

@@ -1,9 +1,16 @@
 {
-  "$comment": "Azure Static Web Apps config for the preview origin. Deploy ONLY runner.html and the csharp-runner/ folder (with _framework/ from `npm run build:csharp`) here, never the app. The header CSP intersects with the meta CSP inside each page, so it can only tighten it: set img-src to your media CDN. csharp-runner/ gets its own CSP: its Web Worker loads .NET from this origin (connect-src 'self', 'wasm-unsafe-eval'), and the header is the worker's only CSP. The .NET file names aren't fingerprinted, so they're revalidated (no-cache) rather than cached forever.",
+  "$comment": "Azure Static Web Apps config for the preview origin. Deploy ONLY runner.html, the csharp-runner/ folder (with _framework/ from `npm run build:csharp`) and the sql-runner/ folder (worker.js and sql.js, emitted by `npm run build`) here, never the app. The header CSP intersects with the meta CSP inside each page, so it can only tighten it: set img-src to your media CDN. csharp-runner/ gets its own CSP: its Web Worker loads .NET from this origin (connect-src 'self', 'wasm-unsafe-eval'), and the header is the worker's only CSP. sql-runner/ gets the same CSP for the same reason (its worker loads SQLite's .wasm). The .NET and SQLite file names aren't fingerprinted, so they're revalidated (no-cache) rather than cached forever.",
   "routes": [
     { "route": "/runner.html", "headers": { "Cache-Control": "no-cache" } },
     {
       "route": "/csharp-runner/*",
+      "headers": {
+        "Cache-Control": "no-cache",
+        "Content-Security-Policy": "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; form-action 'none'; base-uri 'none'; frame-ancestors https://app.codegrove.example"
+      }
+    },
+    {
+      "route": "/sql-runner/*",
       "headers": {
         "Cache-Control": "no-cache",
         "Content-Security-Policy": "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; form-action 'none'; base-uri 'none'; frame-ancestors https://app.codegrove.example"
