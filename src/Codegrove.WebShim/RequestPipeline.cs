@@ -51,6 +51,11 @@ internal static class RequestPipeline
         {
             args = Bind(endpoint, routeValues!, context);
         }
+        catch (InvalidOperationException setupProblem)
+        {
+            // ASP.NET Core can't build this endpoint at all (see CheckBodyParameters): the request fails with 500.
+            return Crashed(context, setupProblem);
+        }
         catch (BadRequestException bad)
         {
             // In Development, ASP.NET Core answers 400 and explains which parameter couldn't be read.
@@ -84,7 +89,9 @@ internal static class RequestPipeline
     private static ShimResponse Crashed(HttpContext context, Exception error)
     {
         var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["Content-Type"] = "text/plain; charset=utf-8" };
-        return new ShimResponse(500, headers["Content-Type"], $"{error.GetType().FullName}: {error.Message}", headers, error);
+        // EndpointSetupException is the shim's own subtype; ASP.NET Core throws a plain InvalidOperationException.
+        var type = error is EndpointSetupException ? typeof(InvalidOperationException) : error.GetType();
+        return new ShimResponse(500, headers["Content-Type"], $"{type.FullName}: {error.Message}", headers, error);
     }
 
     private static (string Path, string QueryString, Dictionary<string, string> Query) SplitPath(string raw)
@@ -107,6 +114,14 @@ internal static class RequestPipeline
 
     // ---- Binding -------------------------------------------------------------------------------------
 
+    /// <summary>An endpoint ASP.NET Core can't build. <see cref="BodyTypes"/> names the parameters it took for body parameters.</summary>
+    internal sealed class EndpointSetupException(List<string> bodyTypes, bool noBody, string message) : InvalidOperationException(message)
+    {
+        public List<string> BodyTypes { get; } = bodyTypes;
+        /// <summary>True: a GET/DELETE-style endpoint inferred a body. False: two body parameters.</summary>
+        public bool NoBodyMethod { get; } = noBody;
+    }
+
     private sealed class BadRequestException(string message, int statusCode = 400) : Exception(message)
     {
         public int StatusCode { get; } = statusCode;
@@ -119,6 +134,7 @@ internal static class RequestPipeline
         var parameters = endpoint.Handler.Method.GetParameters();
         var routeNames = new HashSet<string>(endpoint.Pattern.ParameterNames, StringComparer.OrdinalIgnoreCase);
         var services = (ShimServiceProvider)context.RequestServices;
+        CheckBodyParameters(endpoint, parameters, routeNames, services);
         var args = new object?[parameters.Length];
 
         for (var i = 0; i < parameters.Length; i++)
@@ -145,6 +161,47 @@ internal static class RequestPipeline
             else args[i] = FromBody(p, context, implicitBody: true);
         }
         return args;
+    }
+
+    /// <summary>
+    /// The endpoint-building rules RequestDelegateFactory enforces: a GET, DELETE, HEAD or OPTIONS endpoint
+    /// can't infer a parameter from the body, and no endpoint can have two body parameters. In ASP.NET Core
+    /// the endpoint fails to build, so its requests fail with 500 and this message. The usual cause is a
+    /// class the learner meant as a service but didn't register.
+    /// </summary>
+    private static void CheckBodyParameters(Endpoint endpoint, ParameterInfo[] parameters, HashSet<string> routeNames, ShimServiceProvider services)
+    {
+        var inferred = parameters.Where(p => IsInferredBody(p, routeNames, services)).ToList();
+        var explicitBody = parameters.Where(p => p.GetCustomAttribute<FromBodyAttribute>() is not null).ToList();
+        if (inferred.Count == 0 && explicitBody.Count <= 1) return;
+
+        var table = string.Join(Environment.NewLine, inferred.Select(p => $"{p.Name,-20}| Body (Inferred)")
+            .Concat(explicitBody.Select(p => $"{p.Name,-20}| Body (Attribute)")));
+        var noBodyMethods = new[] { "GET", "DELETE", "HEAD", "OPTIONS" };
+        var types = inferred.Concat(explicitBody).Select(p => TypeName(p.ParameterType)).ToList();
+        if (inferred.Count > 0 && endpoint.Methods.All(m => noBodyMethods.Contains(m)))
+            throw new EndpointSetupException(types, noBody: true,
+                "Body was inferred but the method does not allow inferred body parameters." + Environment.NewLine +
+                "Below is the list of parameters that we found: " + Environment.NewLine + Environment.NewLine + table + Environment.NewLine + Environment.NewLine +
+                "Did you mean to register the \"Body (Inferred)\" parameter(s) as a Service or apply the [FromServices] or [FromBody] attribute?");
+        if (inferred.Count + explicitBody.Count > 1)
+            throw new EndpointSetupException(types, noBody: false,
+                "Failure to infer one or more parameters." + Environment.NewLine +
+                "Below is the list of parameters that we found: " + Environment.NewLine + Environment.NewLine + table + Environment.NewLine + Environment.NewLine +
+                "Did you mean to register the \"Body (Inferred)\" parameter(s) as a Service or apply the [FromServices] or [FromBody] attribute?");
+    }
+
+    /// <summary>Same order of rules as Bind: a complex parameter with no attribute that isn't special, a route value or a service.</summary>
+    private static bool IsInferredBody(ParameterInfo p, HashSet<string> routeNames, ShimServiceProvider services)
+    {
+        var type = p.ParameterType;
+        if (p.GetCustomAttributes().Any(a => a is FromRouteAttribute or FromQueryAttribute or FromHeaderAttribute or FromBodyAttribute or FromServicesAttribute or AsParametersAttribute))
+            return false;
+        if (type == typeof(HttpContext) || type == typeof(HttpRequest) || type == typeof(HttpResponse)
+            || type == typeof(CancellationToken) || type == typeof(IServiceProvider)) return false;
+        if (routeNames.Contains(p.Name ?? "")) return false;
+        if (services.IsService(type)) return false;
+        return !IsSimple(type);
     }
 
     /// <summary>Strings and anything with a TryParse (numbers, bool, Guid, dates, enums) come from the route or query string.</summary>

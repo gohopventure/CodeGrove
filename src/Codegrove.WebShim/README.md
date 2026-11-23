@@ -12,6 +12,7 @@ When a program mentions `WebApplication`, the runner adds the Web SDK's global u
 - Binding: route, query string, JSON body, services, `HttpContext/HttpRequest/HttpResponse`, `CancellationToken`, `[FromRoute] [FromQuery] [FromHeader] [FromBody] [FromServices]`; optional vs required follows nullability like `RequestDelegateFactory` (nullable off ⇒ reference types are optional)
 - Results: `string` → text/plain, object → camelCase JSON, `IResult` (`Results.*`, `TypedResults.*`, `Results<T1..T4>`), problem details with ASP.NET Core's default `type`/`title`
 - Status codes for routing: 404 no match, 405 + `Allow` for a wrong method, 500 for an ambiguous match or a crash, 400/415 for binding failures
+- Endpoint-building rules: a GET/DELETE/HEAD/OPTIONS endpoint can't infer a body parameter, and no endpoint can have two body parameters. Real ASP.NET Core fails to build such an endpoint, so its requests get 500 (`Body was inferred but the method does not allow inferred body parameters…` / `Failure to infer one or more parameters…`). The usual cause is a service that was never registered; the runner's Output line says so (lesson 4 Explorer relies on it). Messages are shortened versions of the real ones: check them in the parity tests.
 - DI: singleton/scoped/transient, a scope per request, constructor injection, validation at `Build()` with Microsoft's messages (unresolvable services, scoped inside singleton)
 
 ## Deliberate differences

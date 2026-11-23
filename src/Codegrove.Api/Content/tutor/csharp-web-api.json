@@ -1,6 +1,102 @@
 {
   "course": "csharp-web-api",
   "lessons": {
+    "routes-explorer": {
+      "intro": [
+        {
+          "displayText": "A creature guide can't have an endpoint for every creature in the Grove. Your mission: leave a blank in the path, so one endpoint can look up any creature by name!",
+          "speechText": "A creature guide can't have an endpoint for every creature in the Grove. Your mission: leave a blank in the path, so one endpoint can look up any creature by name!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your guide can find any creature, and it says 404 when there's none. Your new word is constraint: a rule a blank must follow, like int for whole numbers.",
+          "speechText": "Your guide can find any creature, and it says four oh four when there's none. Your new word is constraint, which is a rule a blank must follow, like int for whole numbers.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "routes-and-parameters": {
+      "intro": [
+        {
+          "displayText": "Good routes make an API predictable: clients can guess where things live and how to filter them. This lesson covers route values, route constraints, query strings and paging. You'll fix a book API that answers the right questions with the wrong status codes.",
+          "speechText": "Good routes make an API predictable: clients can guess where things live and how to filter them. This lesson covers route values, route constraints, query strings and paging. You'll fix a book API that answers the right questions with the wrong status codes.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The book API now answers 404 for anything that isn't there, and searches and pages properly. The gotcha to remember: a handler that returns null sends 200 with null, not 404. Return Results.NotFound() yourself.",
+          "speechText": "The book API now answers four oh four for anything that isn't there, and searches and pages properly. The gotcha to remember is that a handler that returns null sends 200 with null, not four oh four. Return Results dot Not Found yourself.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "sending-data-explorer": {
+      "intro": [
+        {
+          "displayText": "Until now your servers only answered questions. Your mission: let visitors send a brand new pet to the Grove, and politely say no when something's missing!",
+          "speechText": "Until now your servers only answered questions. Your mission: let visitors send a brand new pet to the Grove, and politely say no when something's missing!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Visitors can add pets now, and nameless pets get a clear no. Your new word is request body: the data a request carries, like your new pet's JSON.",
+          "speechText": "Visitors can add pets now, and nameless pets get a clear no. Your new words are request body, which is the data a request carries, like your new pet's JSON.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "request-bodies": {
+      "intro": [
+        {
+          "displayText": "Most bugs and security holes in APIs come from trusting what clients send. This lesson covers creating, replacing and deleting data, and turning bad input into errors a client can show next to each field. You'll lock down a task board API that currently believes everything it hears.",
+          "speechText": "Most bugs and security holes in APIs come from trusting what clients send. This lesson covers creating, replacing and deleting data, and turning bad input into errors a client can show next to each field. You'll lock down a task board API that currently believes everything it hears.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The task board now creates, replaces and deletes safely, and explains every refusal. The gotcha to remember: binding your storage type lets clients overpost fields like the id. Bind a DTO, and validate, because a missing JSON property arrives as null whatever the C# type says.",
+          "speechText": "The task board now creates, replaces and deletes safely, and explains every refusal. The gotcha to remember is that binding your storage type lets clients overpost fields like the id. Bind a D-T-O, and validate, because a missing JSON property arrives as null whatever the C sharp type says.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "services-explorer": {
+      "intro": [
+        {
+          "displayText": "Big servers keep each job in its own helper class, called a service. Your mission: move the Grove's pets into a Pet Book service, and let every endpoint ask for it!",
+          "speechText": "Big servers keep each job in its own helper class, called a service. Your mission: move the Grove's pets into a Pet Book service, and let every endpoint ask for it!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Every endpoint now shares one PetBook, so new pets stick around. Your new word is singleton: one shared copy of a service for the whole app.",
+          "speechText": "Every endpoint now shares one Pet Book, so new pets stick around. Your new word is singleton, which means one shared copy of a service for the whole app.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "dependency-injection": {
+      "intro": [
+        {
+          "displayText": "Dependency injection is how every real ASP.NET Core app is wired together, and lifetime mistakes are among the most common bugs in them. You'll learn singleton, scoped and transient, and why tests love injected dependencies. Then you'll fix a leaderboard API that won't start, then quietly loses data.",
+          "speechText": "Dependency injection is how every real A-S-P dot net Core app is wired together, and lifetime mistakes are among the most common bugs in them. You'll learn singleton, scoped and transient, and why tests love injected dependencies. Then you'll fix a leaderboard API that won't start, then quietly loses data.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The leaderboard starts, keeps its scores, and its time can be controlled in tests. The gotcha to remember: a service can't outlive what it depends on. A singleton holding a scoped service is a captive dependency, and a scoped store forgets everything after each request.",
+          "speechText": "The leaderboard starts, keeps its scores, and its time can be controlled in tests. The gotcha to remember is that a service can't outlive what it depends on. A singleton holding a scoped service is a captive dependency, and a scoped store forgets everything after each request.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
     "web-api-explorer": {
       "intro": [
         {

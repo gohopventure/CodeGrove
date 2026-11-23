@@ -53,6 +53,9 @@ internal static class WebChecks
         var (got, problem) = await WebServer.SendAsync(app, program, RequestFrom(s));
         var mismatch = Mismatch(s, got);
         if (mismatch is null) return new(test.Id, true, null);
+        // An endpoint ASP.NET Core can't build (usually an unregistered service): say why, not the long error text.
+        if (problem is not null && got.Status == 500 && problem.Contains(WebServer.CantRun, StringComparison.Ordinal))
+            return Fail(test, $"(It answered 500 Internal Server Error. {WebServer.SetupReason(problem)})");
         var crash = problem is not null && got.Status == 500 ? $" {ShortCrash(problem)}" : "";
         return Fail(test, $"(It answered {Describe(got)}{crash})");
     }

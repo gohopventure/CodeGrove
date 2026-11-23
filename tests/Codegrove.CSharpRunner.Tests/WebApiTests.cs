@@ -293,6 +293,46 @@ public class WebApiTests
     }
 
     [Fact]
+    public async Task An_unregistered_service_on_a_GET_is_a_500_that_says_to_register_it()
+    {
+        var r = await Run("""
+            var app = WebApplication.CreateBuilder(args).Build();
+            app.MapGet("/pets", (PetBook book) => book.Count);
+            app.MapPost("/pets", (Pet pet, PetBook book) => "added");
+            app.Run();
+            class PetBook { public int Count => 3; }
+            record Pet(string Name);
+            """, [Get("/pets"), new("POST", "/pets", """{"name":"Moss"}""")]);
+        Assert.Equal([500, 500], r.Responses!.Select(x => x.Status));
+        Assert.StartsWith("System.InvalidOperationException: Body was inferred but the method does not allow inferred body parameters.", r.Responses![0].Body);
+        Assert.StartsWith("System.InvalidOperationException: Failure to infer one or more parameters.", r.Responses[1].Body);
+        var errors = r.Console.Where(l => l.Level == "error").Select(l => l.Text).ToList();
+        Assert.StartsWith("GET /pets can't run, so the server answered 500 Internal Server Error. ASP.NET Core thinks PetBook should come from the request body, and a GET request has no body. If PetBook is a service, register it before builder.Build(), like builder.Services.AddSingleton<PetBook>();", errors[0]);
+        Assert.Contains("thinks Pet and PetBook should all come from the request body", errors[1]);
+
+        var fixedUp = await Run("""
+            var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddSingleton<PetBook>();
+            var app = builder.Build();
+            app.MapGet("/pets", (PetBook book) => book.Count);
+            app.MapPost("/pets", (Pet pet, PetBook book) => pet.Name);
+            app.Run();
+            class PetBook { public int Count => 3; }
+            record Pet(string Name);
+            """, [Get("/pets"), new("POST", "/pets", """{"name":"Moss"}""")]);
+        Assert.Equal(["3", "Moss"], fixedUp.Responses!.Select(x => x.Body));
+
+        var check = await Run("""
+            var app = WebApplication.CreateBuilder(args).Build();
+            app.MapGet("/pets", (PetBook book) => book.Count);
+            app.Run();
+            class PetBook { public int Count => 3; }
+            """, null, Http(1, new { path = "/pets", expectStatus = 200 }));
+        Assert.Equal("fail 1. (It answered 500 Internal Server Error. ASP.NET Core thinks PetBook should come from the request body, and a GET request has no body. If PetBook is a service, register it before builder.Build(), like builder.Services.AddSingleton<PetBook>();)",
+            check.Results[0].Message);
+    }
+
+    [Fact]
     public async Task Programs_without_a_web_app_are_unchanged()
     {
         var r = await Run("Console.WriteLine(\"plain\");");

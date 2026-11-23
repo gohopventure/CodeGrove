@@ -362,14 +362,163 @@
       "sortOrder": 2,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "isPublished": true,
+      "learnMarkdown": "## Paths with blanks\n\nYour notice board server answered fixed paths like `/hello`. But a creature guide can't have an endpoint for every creature! Instead, you leave a **blank** in the path, and whatever the visitor types there is handed to your code.\n\n### A blank in the path\n\n```csharp\napp.MapGet(\"/creatures/{name}\", (string name) =>\n    $\"You asked for {name}\");\n```\n\nThe curly braces `{name}` are the blank. It's called a **route value**.\n\n- `GET /creatures/frog` runs the endpoint with `name` set to `\"frog\"`.\n- `GET /creatures/owl` runs it with `name` set to `\"owl\"`.\n\nThe method's parameter must have **the same name** as the blank: `{name}` fills `string name`.\n\n### Found it, or not?\n\nWhen someone asks for a creature that isn't there, the polite answer is **404 Not Found**. `Results` lets you choose:\n\n```csharp\napp.MapGet(\"/creatures/{name}\", (string name) =>\n{\n    var found = creatures.FirstOrDefault(c => c.Name == name);\n    return found is null ? Results.NotFound() : Results.Ok(found);\n});\n```\n\n- `Results.Ok(found)` sends **200 OK** with the creature as JSON.\n- `Results.NotFound()` sends **404 Not Found** with nothing else.\n\n### Only numbers, please\n\nAdd `:int` inside the blank and it only matches whole numbers:\n\n```csharp\napp.MapGet(\"/creatures/legs/{count:int}\", (int count) =>\n    creatures.Where(c => c.Legs == count));\n```\n\n`GET /creatures/legs/8` works. `GET /creatures/legs/lots` doesn't match at all, so the server answers **404**. The `:int` part is a **constraint**: a rule the blank has to follow.\n\n### New words\n\n- **Route**: the path pattern an endpoint answers, like `/creatures/{name}`.\n- **Route value**: a blank in a route, in curly braces. What the visitor types there goes into your method.\n- **Constraint**: a rule for a route value, like `:int` for whole numbers only.\n- **404 Not Found**: the status code that means \"there's nothing here\".\n",
+      "exampleMarkdown": "A planet guide with two blanks in its paths. Press **Run**, then in **Try it** send `GET /planets/mars`, then `GET /planets/pluto` (it isn't in the list: **404**). Try `GET /planets/moons/1` and `GET /planets/moons/lots` too.",
+      "exampleCode": "var builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<Planet> planets =\n[\n    new(\"mercury\", 0),\n    new(\"earth\", 1),\n    new(\"mars\", 2),\n];\n\napp.MapGet(\"/planets/{name}\", (string name) =>\n{\n    var planet = planets.FirstOrDefault(p => p.Name == name);\n    return planet is null ? Results.NotFound() : Results.Ok(planet);\n});\n\napp.MapGet(\"/planets/moons/{count:int}\", (int count) =>\n    planets.Where(p => p.Moons == count));\n\napp.Run();\n\nrecord Planet(string Name, int Moons);\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The Grove creature guide lists every creature at `GET /creatures`. Now visitors want to look one up.\n\n1. Add `GET /creatures/{name}`. It answers with that creature, like `GET /creatures/owl`. If there's no creature with that name (try `dragon`), it answers **404 Not Found**.\n2. Add `GET /creatures/legs/{count:int}`. It answers with every creature that has that many legs: `GET /creatures/legs/6` finds the beetle. Because of `:int`, `GET /creatures/legs/lots` should be a **404**.\n\nPress **Run**, then use the endpoint buttons in **Try it** to test each one.",
+        "starterFiles": {
+          "Program.cs": "// Mission: the Grove creature guide!\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<Creature> creatures =\n[\n    new(\"frog\", \"pond\", 4),\n    new(\"owl\", \"oak tree\", 2),\n    new(\"spider\", \"fern\", 8),\n    new(\"snail\", \"log\", 0),\n    new(\"beetle\", \"log\", 6),\n];\n\napp.MapGet(\"/creatures\", () => creatures);\n\n// 1. GET /creatures/{name}: answer with that\n//    creature, or NotFound if there's none.\n\n// 2. GET /creatures/legs/{count:int}: answer\n//    with every creature with that many legs.\n\napp.Run();\n\nrecord Creature(\n    string Name, string Home, int Legs);\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: the Grove creature guide!\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<Creature> creatures =\n[\n    new(\"frog\", \"pond\", 4),\n    new(\"owl\", \"oak tree\", 2),\n    new(\"spider\", \"fern\", 8),\n    new(\"snail\", \"log\", 0),\n    new(\"beetle\", \"log\", 6),\n];\n\napp.MapGet(\"/creatures\", () => creatures);\n\n// 1. GET /creatures/{name}: answer with that\n//    creature, or NotFound if there's none.\napp.MapGet(\"/creatures/{name}\", (string name) =>\n{\n    var found = creatures.FirstOrDefault(c => c.Name == name);\n    return found is null ? Results.NotFound() : Results.Ok(found);\n});\n\n// 2. GET /creatures/legs/{count:int}: answer\n//    with every creature with that many legs.\napp.MapGet(\"/creatures/legs/{count:int}\", (int count) =>\n    creatures.Where(c => c.Legs == count));\n\napp.Run();\n\nrecord Creature(\n    string Name, string Home, int Legs);\n"
+        },
+        "tests": [
+          {
+            "label": "GET /creatures/owl finds the owl",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/creatures/owl",
+              "expectStatus": 200,
+              "expectJson": {
+                "name": "owl",
+                "home": "oak tree"
+              }
+            },
+            "failMessage": "GET /creatures/owl should answer 200 with the owl. Add app.MapGet(\"/creatures/{name}\", (string name) => …) and look the name up."
+          },
+          {
+            "label": "An unknown creature is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/creatures/dragon",
+              "expectStatus": 404
+            },
+            "failMessage": "GET /creatures/dragon should answer 404 Not Found. Return Results.NotFound() when FirstOrDefault finds nothing."
+          },
+          {
+            "label": "GET /creatures/legs/6 finds the beetle",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/creatures/legs/6",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "name": "beetle"
+                }
+              ]
+            },
+            "failMessage": "GET /creatures/legs/6 should answer with a list holding just the beetle. Use creatures.Where(c => c.Legs == count)."
+          },
+          {
+            "label": "GET /creatures/legs/0 finds the snail",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/creatures/legs/0",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "name": "snail"
+                }
+              ]
+            },
+            "failMessage": "GET /creatures/legs/0 should answer with the snail (it has 0 legs)."
+          },
+          {
+            "label": "Legs must be a number",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/creatures/legs/lots",
+              "expectStatus": 404
+            },
+            "failMessage": "GET /creatures/legs/lots should answer 404. Add the :int constraint: \"/creatures/legs/{count:int}\"."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "What goes inside the curly braces in the path, and what must the method's parameter be called?",
+            "speechText": "What goes inside the curly braces in the path, and what must the method's parameter be called?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Write `app.MapGet(\"/creatures/{name}\", (string name) => …)`. Inside, use `FirstOrDefault` to find the creature, then return `Results.Ok(found)` or `Results.NotFound()`.",
+            "speechText": "Write a map get with name in curly braces, and a string parameter called name. Find the creature with First Or Default, then return Results dot Ok or Results dot Not Found.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The legs endpoint is one line:\n\n```csharp\napp.MapGet(\"/creatures/legs/{count:int}\", (int count) =>\n    creatures.Where(c => c.Legs == count));\n```",
+            "speechText": "For legs, use count with the int constraint in the path, and return the creatures where Legs equals count.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "The endpoint is app.MapGet(\"/pets/{name}\", (string name) => …). What is name for GET /pets/moss?",
+            "explanation": "The route value {name} takes whatever is in that part of the path, so name is \"moss\".",
+            "options": [
+              {
+                "text": "\"moss\"",
+                "correct": true
+              },
+              {
+                "text": "\"pets\"",
+                "correct": false
+              },
+              {
+                "text": "\"/pets/moss\"",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which answer means \"there's nothing at this path\"?",
+            "explanation": "404 Not Found means the server has nothing there. Results.NotFound() sends it.",
+            "options": [
+              {
+                "text": "404 Not Found",
+                "correct": true
+              },
+              {
+                "text": "200 OK",
+                "correct": false
+              },
+              {
+                "text": "201 Created",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "The route is \"/pets/age/{years:int}\". What does GET /pets/age/old get?",
+            "explanation": "The :int constraint only matches whole numbers, so \"old\" doesn't match and the server answers 404.",
+            "options": [
+              {
+                "text": "404 Not Found, because old isn't a whole number",
+                "correct": true
+              },
+              {
+                "text": "The pet called old",
+                "correct": false
+              },
+              {
+                "text": "200 OK with years set to 0",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "routes-and-parameters",
@@ -377,14 +526,246 @@
       "sortOrder": 2,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "isPublished": true,
+      "learnMarkdown": "## Routes, route values and query strings\n\nReal APIs are organized around **resources**: books, players, orders. Each has a predictable set of routes, and clients send extra details in the **query string**. Getting these right is what makes an API easy (or painful) to use.\n\n### Route templates and route values\n\n```csharp\napp.MapGet(\"/books/{id:int}\", (int id) => …);\napp.MapGet(\"/authors/{name}/books\", (string name) => …);\n```\n\n`{id:int}` is a **route parameter**. ASP.NET Core matches the request path against each template, pulls out the **route values** and binds them to handler parameters **by name** (case doesn't matter).\n\n### Route constraints\n\n| Constraint | Matches |\n|---|---|\n| `{id:int}` | whole numbers (`long`, `guid`, `bool`, `decimal` too) |\n| `{code:alpha}` | letters only |\n| `{n:min(1)}`, `{n:range(1,12)}` | numbers in a range |\n| `{slug:minlength(3)}` | text at least that long |\n| `{page?}` | optional |\n\nConstraints are about **matching**, not validation. Without `:int`, `GET /books/abc` still matches `/books/{id}`, then binding fails and the client gets **400 Bad Request** with `Failed to bind parameter \"int id\" from \"abc\".` With `:int`, the route doesn't match and the answer is **404**. Use constraints to say what a URL *is*, and validation (next lesson) for rules about the data.\n\nWhen two templates match, the more specific one wins: a literal segment (`/books/new`) beats a constrained parameter (`/books/{id:int}`), which beats a plain one (`/books/{slug}`). Order in the file doesn't matter.\n\n### Query strings\n\nEverything after `?` is the query string: `/books?search=dragon&page=2`. Simple parameters that aren't route values are read from it:\n\n```csharp\napp.MapGet(\"/books\", (string? search, int page = 1) => …);\n```\n\n- **Required or optional?** A parameter is optional if it's nullable (`string?`, `int?`) or has a default (`int page = 1`). Otherwise a missing value gets **400**: `Required parameter \"string search\" was not provided from query string.`\n- Real projects have **nullable reference types** turned on (`<Nullable>enable</Nullable>` in the project file; `#nullable enable` at the top of a file here), so a plain `string` means *required*.\n- Use `[FromQuery(Name = \"q\")] string? search` when the query name differs from the parameter.\n\nUse route values to **identify** a resource and the query string to **filter, sort or page** a collection.\n\n### Grouping routes\n\n```csharp\nvar books = app.MapGroup(\"/books\");\nbooks.MapGet(\"/\", …);           // GET /books\nbooks.MapGet(\"/{id:int}\", …);   // GET /books/3\n```\n\n### Paging\n\nReturning a whole table is slow and risky, so collections are usually paged. With LINQ:\n\n```csharp\nitems.Skip((page - 1) * pageSize).Take(pageSize)\n```\n\nThat's the same idea as `LIMIT` and `OFFSET` in SQL (`OFFSET … FETCH` in SQL Server).\n\n### The null gotcha\n\n```csharp\nbooks.MapGet(\"/{id:int}\", (int id) =>\n    list.FirstOrDefault(b => b.Id == id));\n```\n\nWhen the book doesn't exist, `FirstOrDefault` returns `null`, and ASP.NET Core happily answers **200 OK** with the body `null`. Clients then crash trying to read a book that isn't there. Return a real 404:\n\n```csharp\nbooks.MapGet(\"/{id:int}\", (int id) =>\n    list.FirstOrDefault(b => b.Id == id) is { } book\n        ? Results.Ok(book)\n        : Results.NotFound());\n```\n\n`is { } book` means \"is not null, and call it `book`\".\n\n### New words\n\n- **Resource**: a thing your API exposes, like a book or a player, usually at its own route.\n- **Route parameter**: a `{name}` placeholder in a route template; its value is a route value.\n- **Route constraint**: a rule a route value must meet for the route to match, like `:int`.\n- **Query string**: the part of a URL after `?`, made of `name=value` pairs joined by `&`.\n- **Paging**: returning a collection one page at a time, with `Skip` and `Take`.\n",
+      "exampleMarkdown": "A leaderboard API. `GET /players` takes optional `region` and `top` query values; `GET /players/{id:int}` is a 404 for unknown ids. Press **Run**, then try `GET /players?region=EU`, `GET /players?top=2`, `GET /players/9` and `GET /players/abc` in **Try it**.",
+      "exampleCode": "#nullable enable\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<Player> players =\n[\n    new(1, \"ByteRunner\", \"EU\", 2310),\n    new(2, \"PixelFox\", \"NA\", 2155),\n    new(3, \"NullPointer\", \"EU\", 1980),\n    new(4, \"Glitch\", \"NA\", 1875),\n];\n\nvar group = app.MapGroup(\"/players\");\n\ngroup.MapGet(\"/\", (string? region, int top = 10) =>\n    players\n        .Where(p => region is null || p.Region == region)\n        .OrderByDescending(p => p.Rating)\n        .Take(top));\n\ngroup.MapGet(\"/{id:int}\", (int id) =>\n    players.FirstOrDefault(p => p.Id == id) is { } player\n        ? Results.Ok(player)\n        : Results.NotFound());\n\napp.Run();\n\nrecord Player(int Id, string Name, string Region, int Rating);\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn.** The library app's book API has three problems the app team keeps reporting.\n\n1. **`GET /books/{id}`**: `GET /books/abc` answers 400 and `GET /books/9` answers **200 with `null`**. Both should be **404 Not Found** (and `GET /books/3` still finds *Dragon Rider*).\n2. **Search**: `GET /books` with no query string answers 400, because `search` is required. Make it optional, and make it ignore case: `?search=DRAGON` finds both dragon books.\n3. **Paging**: answer **2 books per page**. `?page=2` is the second page (books 3 and 4), and no `page` means page 1. Paging works with search too: `?search=dragon&page=2` is an empty list.\n\nThe file starts with `#nullable enable`, as real projects do.",
+        "starterFiles": {
+          "Program.cs": "#nullable enable\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<Book> books =\n[\n    new(1, \"Hatchet\", \"Gary Paulsen\"),\n    new(2, \"The Hobbit\", \"J. R. R. Tolkien\"),\n    new(3, \"Dragon Rider\", \"Cornelia Funke\"),\n    new(4, \"How to Train Your Dragon\", \"Cressida Cowell\"),\n    new(5, \"Holes\", \"Louis Sachar\"),\n];\n\nvar group = app.MapGroup(\"/books\");\n\n// TODO 1: /books/abc and a missing book\n// should both be 404 Not Found.\ngroup.MapGet(\"/{id}\", (int id) =>\n    books.FirstOrDefault(b => b.Id == id));\n\n// TODO 2: search is optional and ignores case.\n// TODO 3: 2 books a page; ?page=2 is page 2,\n// and no page means page 1.\ngroup.MapGet(\"/\", (string search) =>\n    books.Where(b => b.Title.Contains(search)));\n\napp.Run();\n\nrecord Book(int Id, string Title, string Author);\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "#nullable enable\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<Book> books =\n[\n    new(1, \"Hatchet\", \"Gary Paulsen\"),\n    new(2, \"The Hobbit\", \"J. R. R. Tolkien\"),\n    new(3, \"Dragon Rider\", \"Cornelia Funke\"),\n    new(4, \"How to Train Your Dragon\", \"Cressida Cowell\"),\n    new(5, \"Holes\", \"Louis Sachar\"),\n];\n\nvar group = app.MapGroup(\"/books\");\n\n// TODO 1: /books/abc and a missing book\n// should both be 404 Not Found.\ngroup.MapGet(\"/{id:int}\", (int id) =>\n    books.FirstOrDefault(b => b.Id == id) is { } book\n        ? Results.Ok(book)\n        : Results.NotFound());\n\n// TODO 2: search is optional and ignores case.\n// TODO 3: 2 books a page; ?page=2 is page 2,\n// and no page means page 1.\ngroup.MapGet(\"/\", (string? search, int page = 1) =>\n    books\n        .Where(b => search is null\n            || b.Title.Contains(search, StringComparison.OrdinalIgnoreCase))\n        .Skip((page - 1) * 2)\n        .Take(2));\n\napp.Run();\n\nrecord Book(int Id, string Title, string Author);\n"
+        },
+        "tests": [
+          {
+            "label": "A non-number id is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/books/abc",
+              "expectStatus": 404
+            },
+            "failMessage": "GET /books/abc should answer 404 Not Found. Constrain the route value: \"/{id:int}\"."
+          },
+          {
+            "label": "A missing book is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/books/9",
+              "expectStatus": 404
+            },
+            "failMessage": "GET /books/9 should answer 404 Not Found, not 200 with null. Return Results.NotFound() when FirstOrDefault finds nothing."
+          },
+          {
+            "label": "A real book is still found",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/books/3",
+              "expectStatus": 200,
+              "expectJson": {
+                "id": 3,
+                "title": "Dragon Rider"
+              }
+            },
+            "failMessage": "GET /books/3 should answer 200 with Dragon Rider."
+          },
+          {
+            "label": "No query string gives page 1",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/books",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "title": "Hatchet"
+                },
+                {
+                  "title": "The Hobbit"
+                }
+              ]
+            },
+            "failMessage": "GET /books should answer 200 with the first page: Hatchet and The Hobbit. Make search optional (string?) and give page a default of 1."
+          },
+          {
+            "label": "Search ignores case",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/books?search=DRAGON",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "title": "Dragon Rider"
+                },
+                {
+                  "title": "How to Train Your Dragon"
+                }
+              ]
+            },
+            "failMessage": "GET /books?search=DRAGON should find Dragon Rider and How to Train Your Dragon. Pass StringComparison.OrdinalIgnoreCase to Contains."
+          },
+          {
+            "label": "Page 2 has books 3 and 4",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/books?page=2",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "id": 3
+                },
+                {
+                  "id": 4
+                }
+              ]
+            },
+            "failMessage": "GET /books?page=2 should answer books 3 and 4. Skip (page - 1) * 2 books, then Take 2."
+          },
+          {
+            "label": "Page 3 has the last book",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/books?page=3",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "title": "Holes"
+                }
+              ]
+            },
+            "failMessage": "GET /books?page=3 should answer just Holes."
+          },
+          {
+            "label": "Paging works with search",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/books?search=dragon&page=2",
+              "expectStatus": 200,
+              "expectJson": []
+            },
+            "failMessage": "GET /books?search=dragon&page=2 should be an empty list: both dragon books are on page 1. Filter first, then Skip and Take."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "For each problem, is it about whether the route **matches**, whether a parameter is **required**, or what the handler **returns**?",
+            "speechText": "For each problem, is it about whether the route matches, whether a parameter is required, or what the handler returns?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Add `:int` to the route value and return `Results.NotFound()` for a missing book. Make search a `string?`, give page a default (`int page = 1`), and use `Skip((page - 1) * 2).Take(2)` after the `Where`.",
+            "speechText": "Add the int constraint to the route value, and return Results dot Not Found for a missing book. Make search a nullable string and give page a default of 1. Then skip page minus one times two books, and take two.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The search filter has to let everything through when there's no search:\n\n```csharp\n.Where(b => search is null\n    || b.Title.Contains(search, StringComparison.OrdinalIgnoreCase))\n```",
+            "speechText": "When search is null, let every book through. Otherwise use Contains with String Comparison dot Ordinal Ignore Case.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A handler returns list.FirstOrDefault(b => b.Id == id) and there's no match. What does the client get?",
+            "explanation": "FirstOrDefault returns null, and ASP.NET Core serializes it: 200 OK with the body null. Return Results.NotFound() instead.",
+            "options": [
+              {
+                "text": "200 OK with the body null",
+                "correct": true
+              },
+              {
+                "text": "404 Not Found",
+                "correct": false
+              },
+              {
+                "text": "500 Internal Server Error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "The route is /books/{id} (no constraint) and the handler takes int id. What does GET /books/abc get?",
+            "explanation": "The route matches, then \"abc\" can't bind to an int, so the answer is 400 Bad Request. With {id:int} it would be 404.",
+            "options": [
+              {
+                "text": "400 Bad Request",
+                "correct": true
+              },
+              {
+                "text": "404 Not Found",
+                "correct": false
+              },
+              {
+                "text": "200 OK with id 0",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "With nullable enabled, which parameter makes ?search= optional?",
+            "explanation": "string? is nullable, so a missing value binds as null. A plain string is required and a missing value gets 400.",
+            "options": [
+              {
+                "text": "string? search",
+                "correct": true
+              },
+              {
+                "text": "string search",
+                "correct": false
+              },
+              {
+                "text": "[FromRoute] string search",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Both /books/new and /books/{id:int} are mapped. Which runs for GET /books/new?",
+            "explanation": "A literal segment is more specific than a parameter, so /books/new wins, whichever was mapped first.",
+            "options": [
+              {
+                "text": "/books/new, because literal segments win",
+                "correct": true
+              },
+              {
+                "text": "Whichever was mapped first",
+                "correct": false
+              },
+              {
+                "text": "Neither: it's an ambiguous match",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's the usual split between route values and the query string?",
+            "explanation": "Route values identify a resource (/books/3); the query string filters, sorts or pages a collection (?search=dragon&page=2).",
+            "options": [
+              {
+                "text": "Route values identify a resource; the query string filters, sorts or pages",
+                "correct": true
+              },
+              {
+                "text": "Route values are for numbers; the query string is for text",
+                "correct": false
+              },
+              {
+                "text": "Query strings are for POST requests only",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "sending-data-explorer",
@@ -392,14 +773,207 @@
       "sortOrder": 3,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "isPublished": true,
+      "learnMarkdown": "## Sending data to the server\n\nSo far, your servers only **answered** questions. Now visitors will **send** something: a new pet for the Grove pet list!\n\n### POST means \"please save this\"\n\nTo send data, a request uses the method **POST** instead of GET, and carries the data in its **body**, as JSON:\n\n```\nPOST /pets\n\n{ \"name\": \"Moss\", \"kind\": \"frog\" }\n```\n\n### Reading the body\n\nUse `app.MapPost`, and give your method a parameter whose type matches the JSON:\n\n```csharp\napp.MapPost(\"/pets\", (Pet pet) =>\n{\n    var saved = pet with { Id = pets.Count + 1 };\n    pets.Add(saved);\n    return Results.Created($\"/pets/{saved.Id}\", saved);\n});\n```\n\n- ASP.NET Core turns the JSON body into a `Pet` for you.\n- The visitor doesn't choose the id: the server does, with `with { Id = … }`.\n- `Results.Created` answers **201 Created**: \"it worked, and I saved something new\". The first part, `/pets/4`, says where the new pet now lives.\n\n### Saying no\n\nSometimes the data isn't good enough, like a pet with no name. Then answer **400 Bad Request** and say why:\n\n```csharp\nif (string.IsNullOrWhiteSpace(pet.Name))\n{\n    return Results.BadRequest(\"A pet needs a name.\");\n}\n```\n\n`string.IsNullOrWhiteSpace` is true for a missing name, an empty one (`\"\"`), or one that's only spaces.\n\n### Try it with a body\n\nIn **Try it**, pick **POST**, type the path, and write the JSON in the **Body** box. Then send a GET to see your new pet in the list.\n\n### New words\n\n- **POST**: the request method for sending something new to the server.\n- **Request body**: the data a request carries, usually JSON.\n- **201 Created**: the status code that means \"saved, and here's where it lives\".\n- **400 Bad Request**: the status code that means \"I can't use what you sent\".\n",
+      "exampleMarkdown": "A wish list server that accepts new wishes. Press **Run**. In **Try it**, pick **POST**, set the path to `/wishes`, and send the body `{ \"text\": \"a pet dragon\" }`. Then `GET /wishes` shows it. Send `{ \"text\": \"\" }` too, and see the **400**.",
+      "exampleCode": "var builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<Wish> wishes = [new(1, \"a treehouse\")];\n\napp.MapGet(\"/wishes\", () => wishes);\n\napp.MapPost(\"/wishes\", (Wish wish) =>\n{\n    if (string.IsNullOrWhiteSpace(wish.Text))\n    {\n        return Results.BadRequest(\"A wish needs some words.\");\n    }\n    var saved = wish with { Id = wishes.Count + 1 };\n    wishes.Add(saved);\n    return Results.Created($\"/wishes/{saved.Id}\", saved);\n});\n\napp.Run();\n\nrecord Wish(int Id, string Text);\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Visitors want to add their own pets to the Grove pet list.\n\n1. Add `POST /pets`. It saves the pet with the **next id** (the list has 3 pets, so the first new one is 4) and answers with `Results.Created`, so the answer is **201 Created** with the new pet.\n2. If the pet has no name, don't save it: answer `Results.BadRequest(\"A pet needs a name.\")`.\n\nTest it in **Try it**: POST to `/pets` with the body\n\n```json\n{ \"name\": \"Moss\", \"kind\": \"frog\" }\n```\n\nthen send `GET /pets/4` to find Moss.",
+        "starterFiles": {
+          "Program.cs": "// Mission: let visitors add pets to the Grove!\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<Pet> pets =\n[\n    new(1, \"Pip\", \"owl\"),\n    new(2, \"Fern\", \"snail\"),\n    new(3, \"Bolt\", \"beetle\"),\n];\n\napp.MapGet(\"/pets\", () => pets);\n\napp.MapGet(\"/pets/{id:int}\", (int id) =>\n{\n    var pet = pets.FirstOrDefault(p => p.Id == id);\n    return pet is null ? Results.NotFound() : Results.Ok(pet);\n});\n\n// 1. POST /pets: save the pet with the next id\n//    and answer Results.Created.\n// 2. A pet with no name gets BadRequest:\n//    \"A pet needs a name.\"\n\napp.Run();\n\nrecord Pet(int Id, string Name, string Kind);\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: let visitors add pets to the Grove!\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<Pet> pets =\n[\n    new(1, \"Pip\", \"owl\"),\n    new(2, \"Fern\", \"snail\"),\n    new(3, \"Bolt\", \"beetle\"),\n];\n\napp.MapGet(\"/pets\", () => pets);\n\napp.MapGet(\"/pets/{id:int}\", (int id) =>\n{\n    var pet = pets.FirstOrDefault(p => p.Id == id);\n    return pet is null ? Results.NotFound() : Results.Ok(pet);\n});\n\n// 1. POST /pets: save the pet with the next id\n//    and answer Results.Created.\n// 2. A pet with no name gets BadRequest:\n//    \"A pet needs a name.\"\napp.MapPost(\"/pets\", (Pet pet) =>\n{\n    if (string.IsNullOrWhiteSpace(pet.Name))\n    {\n        return Results.BadRequest(\"A pet needs a name.\");\n    }\n    var saved = pet with { Id = pets.Count + 1 };\n    pets.Add(saved);\n    return Results.Created($\"/pets/{saved.Id}\", saved);\n});\n\napp.Run();\n\nrecord Pet(int Id, string Name, string Kind);\n"
+        },
+        "tests": [
+          {
+            "label": "POST /pets answers 201 Created",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/pets",
+              "body": {
+                "name": "Moss",
+                "kind": "frog"
+              },
+              "expectStatus": 201,
+              "expectJson": {
+                "name": "Moss",
+                "kind": "frog"
+              }
+            },
+            "failMessage": "POST /pets should answer 201 Created with the new pet. Add app.MapPost(\"/pets\", (Pet pet) => …) and return Results.Created."
+          },
+          {
+            "label": "The new pet gets the next id",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/pets",
+              "body": {
+                "name": "Moss",
+                "kind": "frog"
+              },
+              "expectJson": {
+                "id": 4
+              },
+              "expectHeader": {
+                "Location": "/pets/4"
+              }
+            },
+            "failMessage": "The first new pet should get id 4, and Created should point to /pets/4. Use pet with { Id = pets.Count + 1 }."
+          },
+          {
+            "label": "The new pet is saved",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/pets",
+                  "body": {
+                    "name": "Moss",
+                    "kind": "frog"
+                  }
+                }
+              ],
+              "path": "/pets/4",
+              "expectStatus": 200,
+              "expectJson": {
+                "name": "Moss"
+              }
+            },
+            "failMessage": "After POST /pets, GET /pets/4 should find Moss. Add the new pet to the list."
+          },
+          {
+            "label": "A pet with no name is refused",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/pets",
+              "body": {
+                "name": "",
+                "kind": "frog"
+              },
+              "expectStatus": 400,
+              "expectBodyIncludes": "A pet needs a name."
+            },
+            "failMessage": "A pet with an empty name should get 400 Bad Request. Check string.IsNullOrWhiteSpace(pet.Name) first."
+          },
+          {
+            "label": "A refused pet isn't saved",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/pets",
+                  "body": {
+                    "name": " ",
+                    "kind": "frog"
+                  }
+                }
+              ],
+              "path": "/pets",
+              "expectJson": [
+                {
+                  "id": 1
+                },
+                {
+                  "id": 2
+                },
+                {
+                  "id": 3
+                }
+              ]
+            },
+            "failMessage": "A pet with no name shouldn't be added: return BadRequest before adding it."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which `app.Map…` method is for POST requests, and what parameter does it need to read the pet from the body?",
+            "speechText": "Which map method is for post requests, and what parameter does it need to read the pet from the body?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Use `app.MapPost(\"/pets\", (Pet pet) => { … })`. Check the name first, then make the saved pet with `pet with { Id = pets.Count + 1 }`, add it, and return `Results.Created`.",
+            "speechText": "Use map post with a Pet parameter. Check the name first, then copy the pet with the next id, add it to the list, and return Results dot Created.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Created needs the new pet's path and the pet:\n\n```csharp\nreturn Results.Created($\"/pets/{saved.Id}\", saved);\n```",
+            "speechText": "Results dot Created takes the new pet's path, slash pets slash its id, and then the pet itself.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which request method sends something new for the server to save?",
+            "explanation": "POST sends new data in the request body. GET only asks for something.",
+            "options": [
+              {
+                "text": "POST",
+                "correct": true
+              },
+              {
+                "text": "GET",
+                "correct": false
+              },
+              {
+                "text": "FIND",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does 201 Created mean?",
+            "explanation": "201 Created means it worked and something new was saved. Results.Created sends it, with where the new thing lives.",
+            "options": [
+              {
+                "text": "It worked, and something new was saved",
+                "correct": true
+              },
+              {
+                "text": "The server is busy",
+                "correct": false
+              },
+              {
+                "text": "Nothing was found",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Someone sends a pet with no name. What's the best answer?",
+            "explanation": "400 Bad Request with a reason tells the sender what to fix, and the pet isn't saved.",
+            "options": [
+              {
+                "text": "400 Bad Request: \"A pet needs a name.\"",
+                "correct": true
+              },
+              {
+                "text": "201 Created, and save it anyway",
+                "correct": false
+              },
+              {
+                "text": "404 Not Found",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "request-bodies",
@@ -407,14 +981,431 @@
       "sortOrder": 3,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "isPublished": true,
+      "learnMarkdown": "## POST, PUT, DELETE and validation\n\nReading data is half an API. The other half is changing it safely: creating, replacing and deleting, while refusing bad input with errors a client can actually use.\n\n### The CRUD endpoints\n\n**CRUD** (create, read, update, delete) maps onto HTTP like this:\n\n| Action | Request | Success answer |\n|---|---|---|\n| Create | `POST /tasks` + body | **201 Created** + `Location` + the new item |\n| Read | `GET /tasks`, `GET /tasks/3` | **200 OK** |\n| Replace | `PUT /tasks/3` + body | **204 No Content** (or 200 + the item) |\n| Change part | `PATCH /tasks/3` + body | 204 or 200 |\n| Delete | `DELETE /tasks/3` | **204 No Content** |\n\n`PUT` and `DELETE` on an id that doesn't exist answer **404**. `PUT` and `DELETE` are **idempotent**: sending the same one twice leaves the same result, so clients can safely retry them. `POST` isn't: twice means two new items.\n\n### Binding the body\n\nA complex parameter (a record or class) is read from the JSON body:\n\n```csharp\napp.MapPost(\"/tasks\", (CreateTask input) => …);\n```\n\nNames match case-insensitively. Watch out: JSON that leaves a property out gives it its default (`null`, `0`, `false`), **even if the C# type says it can't be null**. Nullable annotations aren't checked at run time, so validate.\n\n### DTOs, and the overposting gotcha\n\nIf `POST /tasks` binds your storage type directly:\n\n```csharp\n// TaskItem(Id, Title, Points, Done)\napp.MapPost(\"/tasks\", (TaskItem task) => …);\n```\n\nthen any client can send `\"id\": 99, \"done\": true` and choose things only the server should decide. That's **overposting**. Instead, bind a **DTO** (*data transfer object*) with only the fields a client may set:\n\n```csharp\nrecord CreateTask(string Title, int Points);\n```\n\nand build the stored item yourself: `new TaskItem(nextId++, input.Title, input.Points, false)`.\n\n### Validation and problem details\n\nClients need to know **which field** is wrong. `Results.ValidationProblem` sends a 400 in the standard problem details format with an `errors` object:\n\n```csharp\nvar errors = new Dictionary<string, string[]>();\nif (input.Points is < 1 or > 13)\n    errors[\"points\"] = [\"Points must be from 1 to 13.\"];\nif (errors.Count > 0)\n    return Results.ValidationProblem(errors);\n```\n\n```json\n{\n  \"title\": \"One or more validation errors occurred.\",\n  \"status\": 400,\n  \"errors\": { \"points\": [\"Points must be from 1 to 13.\"] }\n}\n```\n\nUse the JSON names (camelCase) as keys, so the client can show each message next to its field.\n\nIn .NET 10, `builder.Services.AddValidation()` can do this for you from attributes like `[Required]` and `[Range(1, 13)]`. It's worth knowing exactly what it does first, so this lesson writes the checks by hand. (Codegrove's practice server doesn't support `AddValidation()` yet.)\n\n### Replace and delete\n\n```csharp\napp.MapDelete(\"/tasks/{id:int}\", (int id) =>\n    tasks.RemoveAll(t => t.Id == id) > 0\n        ? Results.NoContent()\n        : Results.NotFound());\n```\n\nRecords are immutable, so `PUT` replaces the item: find its index with `FindIndex`, then `tasks[index] = new TaskItem(…)`.\n\n### New words\n\n- **CRUD**: create, read, update, delete: the four things most APIs do to data.\n- **DTO** (*data transfer object*): a type shaped for what goes over the wire, not for how it's stored.\n- **Overposting**: a client setting fields it shouldn't, because the endpoint bound too much.\n- **Idempotent**: doing it twice has the same effect as doing it once (`PUT`, `DELETE`, `GET`).\n- **Validation**: checking incoming data against your rules before using it.\n- **204 No Content**: success with no body.\n",
+      "exampleMarkdown": "A notes API with create and delete. `POST /notes` binds a `CreateNote` DTO and answers a validation problem for blank text. Press **Run**, then in **Try it**: POST `/notes` with `{ \"text\": \"Practice scales\" }`, POST `{ \"text\": \" \" }` (look at the `errors` object), then `DELETE /notes/1` twice: 204, then 404.",
+      "exampleCode": "#nullable enable\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<Note> notes = [new(1, \"Buy new strings\", false)];\nvar nextId = 2;\n\napp.MapGet(\"/notes\", () => notes);\n\napp.MapPost(\"/notes\", (CreateNote input) =>\n{\n    if (string.IsNullOrWhiteSpace(input.Text))\n    {\n        return Results.ValidationProblem(new Dictionary<string, string[]>\n        {\n            [\"text\"] = [\"Text is required.\"],\n        });\n    }\n    var note = new Note(nextId++, input.Text, false);\n    notes.Add(note);\n    return Results.Created($\"/notes/{note.Id}\", note);\n});\n\napp.MapDelete(\"/notes/{id:int}\", (int id) =>\n    notes.RemoveAll(n => n.Id == id) > 0\n        ? Results.NoContent()\n        : Results.NotFound());\n\napp.Run();\n\nrecord Note(int Id, string Text, bool Pinned);\nrecord CreateNote(string Text);\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn.** The team task board's API can list tasks, but creating them is unsafe and there's no way to edit or delete one.\n\n1. **Stop overposting.** `POST /tasks` binds `TaskItem`, so a client can send its own `id` or `\"done\": true`. Bind `CreateTask` instead. The server picks the id (`nextId++`, starting at 3) and new tasks aren't done.\n2. **Validate.** Finish `Validate` with the messages in its comments, keyed `title` and `points`. When there are errors, `POST` answers `Results.ValidationProblem(errors)`. A body with no title at all counts as missing, even though `Title` is a non-nullable `string`.\n3. **`PUT /tasks/{id}`** with an `UpdateTask` body: **404** for an unknown id, **400** validation problem for bad input, otherwise replace the task and answer **204 No Content**.\n4. **`DELETE /tasks/{id}`**: **204** if it was there, **404** if it wasn't.",
+        "starterFiles": {
+          "Program.cs": "#nullable enable\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<TaskItem> tasks =\n[\n    new(1, \"Design the logo\", 3, false),\n    new(2, \"Write the README\", 2, true),\n];\nvar nextId = 3;\n\napp.MapGet(\"/tasks\", () => tasks);\n\napp.MapGet(\"/tasks/{id:int}\", (int id) =>\n    tasks.FirstOrDefault(t => t.Id == id) is { } task\n        ? Results.Ok(task)\n        : Results.NotFound());\n\n// TODO 1: bind CreateTask, not TaskItem, so\n// clients can't pick the id or set done.\n// TODO 2: answer ValidationProblem when\n// Validate finds problems.\napp.MapPost(\"/tasks\", (TaskItem task) =>\n{\n    tasks.Add(task);\n    return Results.Created($\"/tasks/{task.Id}\", task);\n});\n\n// TODO 3: PUT /tasks/{id}: 404 if missing,\n// validate, replace it, answer 204.\n\n// TODO 4: DELETE /tasks/{id}: 204, or 404.\n\napp.Run();\n\nstatic Dictionary<string, string[]> Validate(\n    string? title, int points)\n{\n    var errors = new Dictionary<string, string[]>();\n    // TODO 2: errors[\"title\"] =\n    //   \"Title is required.\" (missing or blank)\n    //   \"Title can be at most 40 characters.\"\n    // errors[\"points\"] =\n    //   \"Points must be from 1 to 13.\"\n    return errors;\n}\n\nrecord TaskItem(\n    int Id, string Title, int Points, bool Done);\nrecord CreateTask(string Title, int Points);\nrecord UpdateTask(\n    string Title, int Points, bool Done);\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "#nullable enable\nvar builder = WebApplication.CreateBuilder(args);\nvar app = builder.Build();\n\nList<TaskItem> tasks =\n[\n    new(1, \"Design the logo\", 3, false),\n    new(2, \"Write the README\", 2, true),\n];\nvar nextId = 3;\n\napp.MapGet(\"/tasks\", () => tasks);\n\napp.MapGet(\"/tasks/{id:int}\", (int id) =>\n    tasks.FirstOrDefault(t => t.Id == id) is { } task\n        ? Results.Ok(task)\n        : Results.NotFound());\n\n// TODO 1: bind CreateTask, not TaskItem, so\n// clients can't pick the id or set done.\n// TODO 2: answer ValidationProblem when\n// Validate finds problems.\napp.MapPost(\"/tasks\", (CreateTask input) =>\n{\n    var errors = Validate(input.Title, input.Points);\n    if (errors.Count > 0)\n    {\n        return Results.ValidationProblem(errors);\n    }\n    var task = new TaskItem(nextId++, input.Title, input.Points, false);\n    tasks.Add(task);\n    return Results.Created($\"/tasks/{task.Id}\", task);\n});\n\n// TODO 3: PUT /tasks/{id}: 404 if missing,\n// validate, replace it, answer 204.\napp.MapPut(\"/tasks/{id:int}\", (int id, UpdateTask input) =>\n{\n    var index = tasks.FindIndex(t => t.Id == id);\n    if (index < 0)\n    {\n        return Results.NotFound();\n    }\n    var errors = Validate(input.Title, input.Points);\n    if (errors.Count > 0)\n    {\n        return Results.ValidationProblem(errors);\n    }\n    tasks[index] = new TaskItem(id, input.Title, input.Points, input.Done);\n    return Results.NoContent();\n});\n\n// TODO 4: DELETE /tasks/{id}: 204, or 404.\napp.MapDelete(\"/tasks/{id:int}\", (int id) =>\n    tasks.RemoveAll(t => t.Id == id) > 0\n        ? Results.NoContent()\n        : Results.NotFound());\n\napp.Run();\n\nstatic Dictionary<string, string[]> Validate(\n    string? title, int points)\n{\n    var errors = new Dictionary<string, string[]>();\n    if (string.IsNullOrWhiteSpace(title))\n    {\n        errors[\"title\"] = [\"Title is required.\"];\n    }\n    else if (title.Length > 40)\n    {\n        errors[\"title\"] = [\"Title can be at most 40 characters.\"];\n    }\n    if (points is < 1 or > 13)\n    {\n        errors[\"points\"] = [\"Points must be from 1 to 13.\"];\n    }\n    // TODO 2: errors[\"title\"] =\n    //   \"Title is required.\" (missing or blank)\n    //   \"Title can be at most 40 characters.\"\n    // errors[\"points\"] =\n    //   \"Points must be from 1 to 13.\"\n    return errors;\n}\n\nrecord TaskItem(\n    int Id, string Title, int Points, bool Done);\nrecord CreateTask(string Title, int Points);\nrecord UpdateTask(\n    string Title, int Points, bool Done);\n"
+        },
+        "tests": [
+          {
+            "label": "POST creates a task",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/tasks",
+              "body": {
+                "title": "Plan the launch party",
+                "points": 5
+              },
+              "expectStatus": 201,
+              "expectJson": {
+                "id": 3,
+                "title": "Plan the launch party",
+                "points": 5,
+                "done": false
+              },
+              "expectHeader": {
+                "Location": "/tasks/3"
+              }
+            },
+            "failMessage": "POST /tasks with a title and points should answer 201 Created with the new task: id 3, not done."
+          },
+          {
+            "label": "Clients can't choose the id or done",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/tasks",
+              "body": {
+                "id": 99,
+                "title": "Ship it",
+                "points": 2,
+                "done": true
+              },
+              "expectStatus": 201,
+              "expectJson": {
+                "id": 3,
+                "done": false
+              }
+            },
+            "failMessage": "A client sent \"id\": 99 and \"done\": true, and the server used them. Bind CreateTask and build the TaskItem yourself, with nextId++ and done false."
+          },
+          {
+            "label": "Ids keep counting up",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/tasks",
+                  "body": {
+                    "title": "Plan the launch party",
+                    "points": 5
+                  }
+                }
+              ],
+              "method": "POST",
+              "path": "/tasks",
+              "body": {
+                "title": "Order pizza",
+                "points": 1
+              },
+              "expectJson": {
+                "id": 4
+              }
+            },
+            "failMessage": "A second new task should get id 4."
+          },
+          {
+            "label": "A blank title is a validation problem",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/tasks",
+              "body": {
+                "title": "  ",
+                "points": 3
+              },
+              "expectStatus": 400,
+              "expectContentType": "application/problem+json",
+              "expectJson": {
+                "errors": {
+                  "title": [
+                    "Title is required."
+                  ]
+                }
+              }
+            },
+            "failMessage": "POST /tasks with a blank title should answer 400 with errors.title = [\"Title is required.\"] (Results.ValidationProblem)."
+          },
+          {
+            "label": "A missing title is a validation problem",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/tasks",
+              "body": {
+                "points": 3
+              },
+              "expectStatus": 400,
+              "expectJson": {
+                "errors": {
+                  "title": [
+                    "Title is required."
+                  ]
+                }
+              }
+            },
+            "failMessage": "A body with no title at all should also get \"Title is required.\": the missing title arrives as null, so check string.IsNullOrWhiteSpace."
+          },
+          {
+            "label": "Long titles are refused",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/tasks",
+              "body": {
+                "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "points": 3
+              },
+              "expectStatus": 400,
+              "expectJson": {
+                "errors": {
+                  "title": [
+                    "Title can be at most 40 characters."
+                  ]
+                }
+              }
+            },
+            "failMessage": "A 41-character title should get errors.title = [\"Title can be at most 40 characters.\"]."
+          },
+          {
+            "label": "Points must be 1 to 13",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/tasks",
+              "body": {
+                "title": "Refactor everything",
+                "points": 20
+              },
+              "expectStatus": 400,
+              "expectJson": {
+                "errors": {
+                  "points": [
+                    "Points must be from 1 to 13."
+                  ]
+                }
+              }
+            },
+            "failMessage": "Points of 20 should get errors.points = [\"Points must be from 1 to 13.\"]."
+          },
+          {
+            "label": "A refused task isn't saved",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/tasks",
+                  "body": {
+                    "title": "",
+                    "points": 0
+                  }
+                }
+              ],
+              "path": "/tasks",
+              "expectJson": [
+                {
+                  "id": 1
+                },
+                {
+                  "id": 2
+                }
+              ]
+            },
+            "failMessage": "An invalid task shouldn't be added to the list."
+          },
+          {
+            "label": "PUT replaces a task and answers 204",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "PUT",
+              "path": "/tasks/1",
+              "body": {
+                "title": "Design the new logo",
+                "points": 5,
+                "done": true
+              },
+              "expectStatus": 204
+            },
+            "failMessage": "PUT /tasks/1 with a valid UpdateTask should answer 204 No Content. Add app.MapPut(\"/tasks/{id:int}\", (int id, UpdateTask input) => …)."
+          },
+          {
+            "label": "The PUT change is saved",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "PUT",
+                  "path": "/tasks/1",
+                  "body": {
+                    "title": "Design the new logo",
+                    "points": 5,
+                    "done": true
+                  }
+                }
+              ],
+              "path": "/tasks/1",
+              "expectJson": {
+                "id": 1,
+                "title": "Design the new logo",
+                "points": 5,
+                "done": true
+              }
+            },
+            "failMessage": "After PUT /tasks/1, GET /tasks/1 should show the new title, points and done."
+          },
+          {
+            "label": "PUT on an unknown id is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "PUT",
+              "path": "/tasks/9",
+              "body": {
+                "title": "Ghost task",
+                "points": 1,
+                "done": false
+              },
+              "expectStatus": 404
+            },
+            "failMessage": "PUT /tasks/9 should answer 404 Not Found."
+          },
+          {
+            "label": "PUT validates too",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "PUT",
+              "path": "/tasks/1",
+              "body": {
+                "title": "Design the logo",
+                "points": 0,
+                "done": false
+              },
+              "expectStatus": 400,
+              "expectJson": {
+                "errors": {
+                  "points": [
+                    "Points must be from 1 to 13."
+                  ]
+                }
+              }
+            },
+            "failMessage": "PUT /tasks/1 with points 0 should answer a 400 validation problem for points."
+          },
+          {
+            "label": "DELETE answers 204",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "DELETE",
+              "path": "/tasks/2",
+              "expectStatus": 204
+            },
+            "failMessage": "DELETE /tasks/2 should answer 204 No Content. Add app.MapDelete(\"/tasks/{id:int}\", …)."
+          },
+          {
+            "label": "A deleted task is gone",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "DELETE",
+                  "path": "/tasks/2"
+                }
+              ],
+              "path": "/tasks/2",
+              "expectStatus": 404
+            },
+            "failMessage": "After DELETE /tasks/2, GET /tasks/2 should answer 404."
+          },
+          {
+            "label": "DELETE on an unknown id is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "DELETE",
+              "path": "/tasks/9",
+              "expectStatus": 404
+            },
+            "failMessage": "DELETE /tasks/9 should answer 404 Not Found."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which values should come from the client, and which should only the server decide?",
+            "speechText": "Which values should come from the client, and which should only the server decide?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Change the POST parameter to `CreateTask input` and make the task with `new TaskItem(nextId++, input.Title, input.Points, false)`. In `Validate`, `string.IsNullOrWhiteSpace(title)` catches missing and blank titles, and `points is < 1 or > 13` catches bad points.",
+            "speechText": "Change the post parameter to a Create Task called input, and build the Task Item yourself with next id plus plus and done false. In Validate, use string dot Is Null Or White Space for the title, and check points is below 1 or above 13.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "For PUT, find the task's position first:\n\n```csharp\nvar index = tasks.FindIndex(t => t.Id == id);\nif (index < 0) return Results.NotFound();\n```\n\nthen validate, then `tasks[index] = new TaskItem(id, …);` and `return Results.NoContent();`. DELETE can use `tasks.RemoveAll(t => t.Id == id) > 0`.",
+            "speechText": "For put, find the task's index with Find Index and answer not found when it's below zero. Then validate, replace the item at that index, and return no content. For delete, Remove All tells you how many it removed.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why bind a CreateTask DTO instead of the stored TaskItem in POST?",
+            "explanation": "A DTO only has the fields a client may set, so a client can't overpost the id or done flag.",
+            "options": [
+              {
+                "text": "So clients can't set fields only the server should decide",
+                "correct": true
+              },
+              {
+                "text": "Because records can't be read from JSON",
+                "correct": false
+              },
+              {
+                "text": "It makes the response smaller",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "The JSON body has no title, and the record is CreateTask(string Title, int Points) with nullable on. What is Title?",
+            "explanation": "Missing JSON properties get their default, so Title is null at run time. Nullable annotations aren't enforced when reading JSON: validate.",
+            "options": [
+              {
+                "text": "null",
+                "correct": true
+              },
+              {
+                "text": "An empty string",
+                "correct": false
+              },
+              {
+                "text": "The request is refused with 400 automatically",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does a successful DELETE usually answer?",
+            "explanation": "204 No Content: it worked and there's nothing to send back.",
+            "options": [
+              {
+                "text": "204 No Content",
+                "correct": true
+              },
+              {
+                "text": "201 Created",
+                "correct": false
+              },
+              {
+                "text": "202 Accepted with the deleted item",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which of these is NOT idempotent?",
+            "explanation": "POST creates a new item each time, so sending it twice makes two. GET, PUT and DELETE leave the same state when repeated.",
+            "options": [
+              {
+                "text": "POST /tasks",
+                "correct": true
+              },
+              {
+                "text": "PUT /tasks/3",
+                "correct": false
+              },
+              {
+                "text": "DELETE /tasks/3",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does Results.ValidationProblem(errors) send?",
+            "explanation": "A 400 with application/problem+json and an errors object mapping each field to its messages.",
+            "options": [
+              {
+                "text": "400 with problem details and an errors object per field",
+                "correct": true
+              },
+              {
+                "text": "422 with a plain text list",
+                "correct": false
+              },
+              {
+                "text": "500 with the exception",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "services-explorer",
@@ -422,14 +1413,165 @@
       "sortOrder": 4,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "isPublished": true,
+      "learnMarkdown": "## Helpers the server can ask for\n\nYour servers kept their lists right in `Program.cs`. As a server grows, that gets messy. Real servers put each job in its own class, called a **service**, and let ASP.NET Core hand it to any endpoint that needs it.\n\n### A service is just a class\n\n`PetBook` keeps the Grove's pets and knows how to find them:\n\n```csharp\nclass PetBook\n{\n    private readonly List<Pet> _pets = [new(\"Pip\", \"owl\")];\n\n    public List<Pet> All() => _pets;\n    public Pet? Find(string name) =>\n        _pets.FirstOrDefault(p => p.Name == name);\n}\n```\n\n### Step 1: tell the app about it\n\nBefore `builder.Build()`, **register** the service:\n\n```csharp\nbuilder.Services.AddSingleton<PetBook>();\n```\n\n**Singleton** means the app makes **one** `PetBook` and shares it with every request, so pets added by one visitor are there for the next.\n\n### Step 2: ask for it\n\nAny endpoint can now ask for a `PetBook` just by having a parameter of that type:\n\n```csharp\napp.MapGet(\"/pets\", (PetBook book) => book.All());\n```\n\nYou never write `new PetBook()`. ASP.NET Core sees the parameter and passes in the shared one. This is called **dependency injection**: the things your code depends on are handed (injected) to it.\n\n### Forgot to register it?\n\nASP.NET Core doesn't know `PetBook` is a service, so it thinks the visitor is meant to *send* a PetBook in the request body. A GET request has no body, so the endpoint can't run at all: the answer is **500**, and the Output panel says to register `PetBook`. That's your clue to add `AddSingleton`.\n\n### New words\n\n- **Service**: a class that does one job for the server, like keeping the pet list.\n- **Register**: telling the app about a service with `builder.Services.Add…`.\n- **Singleton**: one shared copy of a service for the whole app.\n- **Dependency injection**: the app hands each endpoint the services it asks for.\n",
+      "exampleMarkdown": "A joke server with a `Jokebook` service. Because it's a singleton, every request shares one jokebook, so `GET /joke` tells the next joke each time and `GET /jokes/count` keeps counting. Press **Run** and send them a few times in **Try it**.",
+      "exampleCode": "var builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddSingleton<Jokebook>();\nvar app = builder.Build();\n\napp.MapGet(\"/joke\", (Jokebook jokes) => jokes.Next());\napp.MapGet(\"/jokes/count\", (Jokebook jokes) => jokes.Told);\n\napp.Run();\n\nclass Jokebook\n{\n    private readonly string[] _jokes =\n    [\n        \"Why did the owl sit on the cake? To make it a hoot.\",\n        \"What do frogs order at cafes? French flies.\",\n    ];\n\n    public int Told { get; private set; }\n\n    public string Next() => _jokes[Told++ % _jokes.Length];\n}\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The Grove's pets now live in a `PetBook` service (it's ready in `PetBook.cs`). The endpoints already ask for it, but the app doesn't know about it yet: press **Run**, send `GET /pets`, and read the **500** message in the Output panel.\n\n1. Register `PetBook` as a **singleton** in `Program.cs`, before `builder.Build()`. Then `GET /pets` lists the three pets.\n2. Add `GET /pets/count`, which answers how many pets the book has.\n\nBecause there's one shared `PetBook`, a pet you POST (try `{ \"name\": \"Moss\", \"kind\": \"frog\" }`) is still there for the next request: `GET /pets/count` says **4**.",
+        "starterFiles": {
+          "Program.cs": "// Mission: put the pets in a PetBook service!\nvar builder = WebApplication.CreateBuilder(args);\n\n// 1. Register PetBook as a singleton here.\n\nvar app = builder.Build();\n\napp.MapGet(\"/pets\", (PetBook book) => book.All());\n\napp.MapPost(\"/pets\", (Pet pet, PetBook book) =>\n{\n    book.Add(pet);\n    return Results.Created($\"/pets/{pet.Name}\", pet);\n});\n\n// 2. GET /pets/count: how many pets the book\n//    has, using book.All().Count\n\napp.Run();\n",
+          "PetBook.cs": "#nullable enable\n// PetBook keeps the Grove's pets. It's ready:\n// you don't need to change this file.\nclass PetBook\n{\n    private readonly List<Pet> _pets =\n    [\n        new(\"Pip\", \"owl\"),\n        new(\"Fern\", \"snail\"),\n        new(\"Bolt\", \"beetle\"),\n    ];\n\n    public List<Pet> All() => _pets;\n\n    public Pet? Find(string name) =>\n        _pets.FirstOrDefault(p => p.Name == name);\n\n    public void Add(Pet pet) => _pets.Add(pet);\n}\n\nrecord Pet(string Name, string Kind);\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "// Mission: put the pets in a PetBook service!\nvar builder = WebApplication.CreateBuilder(args);\n\n// 1. Register PetBook as a singleton here.\nbuilder.Services.AddSingleton<PetBook>();\n\nvar app = builder.Build();\n\napp.MapGet(\"/pets\", (PetBook book) => book.All());\n\napp.MapPost(\"/pets\", (Pet pet, PetBook book) =>\n{\n    book.Add(pet);\n    return Results.Created($\"/pets/{pet.Name}\", pet);\n});\n\n// 2. GET /pets/count: how many pets the book\n//    has, using book.All().Count\napp.MapGet(\"/pets/count\", (PetBook book) => book.All().Count);\n\napp.Run();\n",
+          "PetBook.cs": "#nullable enable\n// PetBook keeps the Grove's pets. It's ready:\n// you don't need to change this file.\nclass PetBook\n{\n    private readonly List<Pet> _pets =\n    [\n        new(\"Pip\", \"owl\"),\n        new(\"Fern\", \"snail\"),\n        new(\"Bolt\", \"beetle\"),\n    ];\n\n    public List<Pet> All() => _pets;\n\n    public Pet? Find(string name) =>\n        _pets.FirstOrDefault(p => p.Name == name);\n\n    public void Add(Pet pet) => _pets.Add(pet);\n}\n\nrecord Pet(string Name, string Kind);\n"
+        },
+        "tests": [
+          {
+            "label": "PetBook is registered as a singleton",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "AddSingleton\\s*<\\s*PetBook\\s*>",
+              "file": "Program.cs"
+            },
+            "failMessage": "Register the service before builder.Build(): builder.Services.AddSingleton<PetBook>();"
+          },
+          {
+            "label": "GET /pets lists the pets",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/pets",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "name": "Pip"
+                },
+                {
+                  "name": "Fern"
+                },
+                {
+                  "name": "Bolt"
+                }
+              ]
+            },
+            "failMessage": "GET /pets should answer the three pets from the PetBook. If it answers 500, the app doesn't know PetBook is a service yet."
+          },
+          {
+            "label": "GET /pets/count counts them",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/pets/count",
+              "expectStatus": 200,
+              "expectBody": "3"
+            },
+            "failMessage": "GET /pets/count should answer 3. Add app.MapGet(\"/pets/count\", (PetBook book) => book.All().Count);"
+          },
+          {
+            "label": "The pet book is shared",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/pets",
+                  "body": {
+                    "name": "Moss",
+                    "kind": "frog"
+                  }
+                }
+              ],
+              "path": "/pets/count",
+              "expectStatus": 200,
+              "expectBody": "4"
+            },
+            "failMessage": "After POST /pets, GET /pets/count should answer 4: one shared PetBook keeps the new pet."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Before the app is built, how does it find out that PetBook is a service?",
+            "speechText": "Before the app is built, how does it find out that Pet Book is a service?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Add `builder.Services.AddSingleton<PetBook>();` above `var app = builder.Build();`. The count endpoint asks for a `PetBook` too.",
+            "speechText": "Add builder dot Services dot Add Singleton of Pet Book, above the line that builds the app. The count endpoint asks for a Pet Book too.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The count endpoint is one line:\n\n```csharp\napp.MapGet(\"/pets/count\", (PetBook book) => book.All().Count);\n```",
+            "speechText": "The count endpoint takes a Pet Book and returns the count of everything in it.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What does builder.Services.AddSingleton<PetBook>() do?",
+            "explanation": "It registers PetBook as a service, and singleton means the app shares one PetBook with every request.",
+            "options": [
+              {
+                "text": "Tells the app about PetBook, and to share one copy",
+                "correct": true
+              },
+              {
+                "text": "Makes a new PetBook for every request",
+                "correct": false
+              },
+              {
+                "text": "Deletes the PetBook",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How does an endpoint get the PetBook?",
+            "explanation": "It just has a PetBook parameter. ASP.NET Core passes in the registered one: that's dependency injection.",
+            "options": [
+              {
+                "text": "By having a PetBook parameter",
+                "correct": true
+              },
+              {
+                "text": "By writing new PetBook() inside it",
+                "correct": false
+              },
+              {
+                "text": "By sending it in the request",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "You forgot to register PetBook. What does GET /pets get?",
+            "explanation": "ASP.NET Core thinks a PetBook should come in the request body, but a GET has no body, so the endpoint can't run: 500, with a message saying to register it as a service.",
+            "options": [
+              {
+                "text": "500, with a message to register PetBook as a service",
+                "correct": true
+              },
+              {
+                "text": "200 with an empty list",
+                "correct": false
+              },
+              {
+                "text": "The pets, as normal",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "dependency-injection",
@@ -437,14 +1579,242 @@
       "sortOrder": 4,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "isPublished": true,
+      "learnMarkdown": "## Services and dependency injection\n\nEndpoints that do everything themselves (store data, apply rules, read the time) are hard to change and almost impossible to test. ASP.NET Core is built around **dependency injection** (DI): classes declare what they need in their constructor, and a **container** creates them and passes those needs in.\n\n### Register, then inject\n\n```csharp\nbuilder.Services.AddSingleton<IScoreStore, InMemoryScoreStore>();\nbuilder.Services.AddScoped<ScoreService>();\nvar app = builder.Build();\n\napp.MapGet(\"/top\", (ScoreService scores) => scores.Top(3));\n```\n\n- `AddSingleton<IScoreStore, InMemoryScoreStore>()`: \"when someone asks for an `IScoreStore`, give them an `InMemoryScoreStore`.\" Code depends on the **interface**, so you can swap in a database-backed store later without touching it.\n- `ScoreService` asks for an `IScoreStore` in its constructor; the container supplies it. Handlers ask for services as parameters.\n- Every registration must happen **before** `builder.Build()`.\n\n### Lifetimes\n\n| Lifetime | One instance per… | Typical use |\n|---|---|---|\n| **Singleton** | the whole app | in-memory caches and stores, clocks, configuration |\n| **Scoped** | HTTP request | a database context (`DbContext`), per-request state |\n| **Transient** | every time it's asked for | small, stateless helpers |\n\nInside one request, every class that asks for a scoped service gets **the same** instance. The next request gets a new one.\n\n### The captive dependency gotcha\n\nA singleton lives for the whole app. If it holds a scoped service, that service gets **captured** and reused across requests, which breaks things like a `DbContext`. In Development, ASP.NET Core checks every registration at `Build()` and refuses to start:\n\n```\nCannot consume scoped service 'RequestLog'\nfrom singleton 'ScoreService'.\n```\n\nThe fix is to give the consumer a lifetime **no longer** than its dependencies: make `ScoreService` scoped, or make what it holds a singleton if it's really app-wide.\n\nThe opposite mistake is quieter: register an in-memory store as **scoped**, and each request gets a fresh, empty store. Data \"disappears\" between requests, with no error.\n\n### Inject what changes, too\n\n```csharp\npublic class ScoreService(IScoreStore store, IClock clock) { … }\n```\n\nEven `DateTime.UtcNow` is a dependency. Hide it behind an `IClock`, register `SystemClock` for the real app, and tests can pass a `FixedClock` to check time-dependent rules exactly. (.NET has a built-in `TimeProvider` for this; here we write the interface ourselves.)\n\nThe `(IScoreStore store, IClock clock)` after the class name is a **primary constructor**: its parameters are available throughout the class.\n\n### New words\n\n- **Dependency injection** (DI): classes receive what they depend on instead of creating it.\n- **DI container**: the part of ASP.NET Core that creates services and passes in their dependencies (`builder.Services`).\n- **Service lifetime**: how long one instance lives: singleton, scoped or transient.\n- **Captive dependency**: a longer-lived service holding a shorter-lived one, like a singleton holding a scoped service.\n- **Primary constructor**: constructor parameters written after the class name.\n",
+      "exampleMarkdown": "Three lifetimes side by side. `IGreeting` is resolved to `FriendlyGreeting`; the two `RequestCounter` parameters are the same scoped instance within a request; `VisitCounter` is a singleton, so `visit` keeps counting. Press **Run** and send `GET /hello/Ada` a few times in **Try it**.",
+      "exampleCode": "var builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddSingleton<IGreeting, FriendlyGreeting>();\nbuilder.Services.AddScoped<RequestCounter>();\nbuilder.Services.AddSingleton<VisitCounter>();\nvar app = builder.Build();\n\napp.MapGet(\"/hello/{name}\", (string name, IGreeting greeting,\n    RequestCounter a, RequestCounter b, VisitCounter visits) =>\n    new\n    {\n        message = greeting.For(name),\n        sameInRequest = ReferenceEquals(a, b),\n        visit = visits.Next(),\n    });\n\napp.Run();\n\ninterface IGreeting { string For(string name); }\n\nclass FriendlyGreeting : IGreeting\n{\n    public string For(string name) => $\"Hey {name}, welcome back!\";\n}\n\nclass RequestCounter { }\n\nclass VisitCounter\n{\n    private int _count;\n    public int Next() => ++_count;\n}\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn.** The arcade leaderboard API won't even start. Press **Run** and read the error in the Output panel.\n\n1. **It won't start.** `ScoreService` is a singleton, but it depends on scoped services, so `Build()` refuses to start (the error names the first one it finds). `RequestLog` must stay scoped: it counts what *one request* did, so `POST /scores` answers `\"writes\": 1` every time. Give `ScoreService` a lifetime that fits.\n2. **Scores must stick.** Every saved score has to stay in the store as long as the app runs, so `GET /scores/top` lists scores from earlier requests. Choose the store's lifetime with that in mind.\n3. **Inject the clock.** `ScoreService` makes its own `SystemClock`, so tests can't control the time. Take an `IClock` in its constructor (in `Scores.cs`), and register `IClock` as `SystemClock` in `Program.cs`. A check builds a `ScoreService` with a `FixedClock` and expects the score's time to be the fixed time.",
+        "starterFiles": {
+          "Program.cs": "var builder = WebApplication.CreateBuilder(args);\n\n// TODO 1 and 2: fix two of these lifetimes.\nbuilder.Services.AddScoped<IScoreStore, InMemoryScoreStore>();\nbuilder.Services.AddScoped<RequestLog>();\nbuilder.Services.AddSingleton<ScoreService>();\n// TODO 3: register IClock as SystemClock.\n\nvar app = builder.Build();\n\napp.MapPost(\"/scores\", (NewScore input, ScoreService scores, RequestLog log) =>\n{\n    var saved = scores.Submit(input.Player, input.Points);\n    return Results.Created(\"/scores/top\",\n        new { saved.Player, saved.Points, writes = log.Writes });\n});\n\napp.MapGet(\"/scores/top\", (ScoreService scores) =>\n    scores.Top(3).Select(s => new { s.Player, s.Points }));\n\napp.Run();\n\nrecord NewScore(string Player, int Points);\n",
+          "Scores.cs": "// Finished: only ScoreService needs a change.\npublic record Score(\n    string Player, int Points, DateTime At);\n\npublic interface IScoreStore\n{\n    void Add(Score score);\n    IReadOnlyList<Score> All();\n}\n\npublic class InMemoryScoreStore : IScoreStore\n{\n    private readonly List<Score> _scores = [];\n    public void Add(Score score) => _scores.Add(score);\n    public IReadOnlyList<Score> All() => _scores;\n}\n\npublic interface IClock\n{\n    DateTime Now { get; }\n}\n\npublic class SystemClock : IClock\n{\n    public DateTime Now => DateTime.UtcNow;\n}\n\n// For tests: a clock that always says one time.\npublic class FixedClock(DateTime now) : IClock\n{\n    public DateTime Now => now;\n}\n\n// One per request: what this request has done.\npublic class RequestLog\n{\n    public int Writes { get; set; }\n}\n\npublic class ScoreService(IScoreStore store, RequestLog log)\n{\n    // TODO 3: take an IClock in the constructor\n    // instead of making a SystemClock here.\n    private readonly IClock _clock = new SystemClock();\n\n    public Score Submit(string player, int points)\n    {\n        var score = new Score(player, points, _clock.Now);\n        store.Add(score);\n        log.Writes++;\n        return score;\n    }\n\n    public IEnumerable<Score> Top(int count) =>\n        store.All()\n            .OrderByDescending(s => s.Points)\n            .ThenBy(s => s.At)\n            .Take(count);\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "var builder = WebApplication.CreateBuilder(args);\n\n// TODO 1 and 2: fix two of these lifetimes.\nbuilder.Services.AddSingleton<IScoreStore, InMemoryScoreStore>();\nbuilder.Services.AddScoped<RequestLog>();\nbuilder.Services.AddScoped<ScoreService>();\n// TODO 3: register IClock as SystemClock.\nbuilder.Services.AddSingleton<IClock, SystemClock>();\n\nvar app = builder.Build();\n\napp.MapPost(\"/scores\", (NewScore input, ScoreService scores, RequestLog log) =>\n{\n    var saved = scores.Submit(input.Player, input.Points);\n    return Results.Created(\"/scores/top\",\n        new { saved.Player, saved.Points, writes = log.Writes });\n});\n\napp.MapGet(\"/scores/top\", (ScoreService scores) =>\n    scores.Top(3).Select(s => new { s.Player, s.Points }));\n\napp.Run();\n\nrecord NewScore(string Player, int Points);\n",
+          "Scores.cs": "// Finished: only ScoreService needs a change.\npublic record Score(\n    string Player, int Points, DateTime At);\n\npublic interface IScoreStore\n{\n    void Add(Score score);\n    IReadOnlyList<Score> All();\n}\n\npublic class InMemoryScoreStore : IScoreStore\n{\n    private readonly List<Score> _scores = [];\n    public void Add(Score score) => _scores.Add(score);\n    public IReadOnlyList<Score> All() => _scores;\n}\n\npublic interface IClock\n{\n    DateTime Now { get; }\n}\n\npublic class SystemClock : IClock\n{\n    public DateTime Now => DateTime.UtcNow;\n}\n\n// For tests: a clock that always says one time.\npublic class FixedClock(DateTime now) : IClock\n{\n    public DateTime Now => now;\n}\n\n// One per request: what this request has done.\npublic class RequestLog\n{\n    public int Writes { get; set; }\n}\n\npublic class ScoreService(IScoreStore store, RequestLog log, IClock clock)\n{\n    // TODO 3: take an IClock in the constructor\n    // instead of making a SystemClock here.\n    private readonly IClock _clock = clock;\n\n    public Score Submit(string player, int points)\n    {\n        var score = new Score(player, points, _clock.Now);\n        store.Add(score);\n        log.Writes++;\n        return score;\n    }\n\n    public IEnumerable<Score> Top(int count) =>\n        store.All()\n            .OrderByDescending(s => s.Points)\n            .ThenBy(s => s.At)\n            .Take(count);\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The app starts and POST works",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/scores",
+              "body": {
+                "player": "PixelFox",
+                "points": 900
+              },
+              "expectStatus": 201,
+              "expectJson": {
+                "player": "PixelFox",
+                "points": 900,
+                "writes": 1
+              }
+            },
+            "failMessage": "POST /scores should answer 201 with writes 1. If the server never starts, the error in the Output panel names the service with the problem."
+          },
+          {
+            "label": "Each request gets its own RequestLog",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/scores",
+                  "body": {
+                    "player": "PixelFox",
+                    "points": 900
+                  }
+                }
+              ],
+              "method": "POST",
+              "path": "/scores",
+              "body": {
+                "player": "ByteRunner",
+                "points": 1200
+              },
+              "expectJson": {
+                "writes": 1
+              }
+            },
+            "failMessage": "The second POST should still say writes 1: RequestLog and ScoreService should both be scoped, so each request gets fresh ones."
+          },
+          {
+            "label": "Scores survive between requests",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/scores",
+                  "body": {
+                    "player": "PixelFox",
+                    "points": 900
+                  }
+                },
+                {
+                  "method": "POST",
+                  "path": "/scores",
+                  "body": {
+                    "player": "ByteRunner",
+                    "points": 1200
+                  }
+                }
+              ],
+              "path": "/scores/top",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "player": "ByteRunner",
+                  "points": 1200
+                },
+                {
+                  "player": "PixelFox",
+                  "points": 900
+                }
+              ]
+            },
+            "failMessage": "After two POSTs, GET /scores/top should list both, highest first. A scoped store is empty on every request: make IScoreStore a singleton."
+          },
+          {
+            "label": "ScoreService uses the injected clock",
+            "kind": "csharpExpression",
+            "spec": {
+              "expression": "((Func<string>)(() => { var at = new DateTime(2026, 5, 4, 3, 2, 1); var deps = new Dictionary<Type, object> { [typeof(IScoreStore)] = new InMemoryScoreStore(), [typeof(RequestLog)] = new RequestLog(), [typeof(IClock)] = new FixedClock(at) }; var ctor = typeof(ScoreService).GetConstructors()[0]; var args = ctor.GetParameters().Select(p => deps.GetValueOrDefault(p.ParameterType)).ToArray(); var service = (ScoreService)ctor.Invoke(args); return service.Submit(\"Ada\", 5).At == at ? \"uses the injected clock\" : \"ignores the injected clock\"; }))()",
+              "equals": "uses the injected clock"
+            },
+            "failMessage": "ScoreService should take an IClock in its constructor and use it for the score's time, instead of new SystemClock()."
+          },
+          {
+            "label": "IClock is registered",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "Add(Singleton|Scoped|Transient)\\s*<\\s*IClock\\s*,\\s*SystemClock\\s*>",
+              "file": "Program.cs"
+            },
+            "failMessage": "Register the real clock in Program.cs: builder.Services.AddSingleton<IClock, SystemClock>();"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "For each service, how long should one instance live: the whole app, one request, or one use?",
+            "speechText": "For each service, how long should one instance live: the whole app, one request, or one use?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "The store holds data for the whole app, so it's a singleton. `ScoreService` uses the per-request `RequestLog`, so it can't outlive a request: make it scoped. Then add `IClock clock` to the primary constructor and use it for `_clock`.",
+            "speechText": "The store holds data for the whole app, so it's a singleton. Score Service uses the per request log, so make it scoped. Then add an I Clock parameter to its primary constructor and use it for the clock field.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The registrations end up as:\n\n```csharp\nbuilder.Services.AddSingleton<IScoreStore, InMemoryScoreStore>();\nbuilder.Services.AddScoped<RequestLog>();\nbuilder.Services.AddScoped<ScoreService>();\nbuilder.Services.AddSingleton<IClock, SystemClock>();\n```",
+            "speechText": "Register the score store and the clock as singletons, and the request log and score service as scoped.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which lifetime gives one instance per HTTP request?",
+            "explanation": "Scoped: one instance per request, shared by everything that asks for it during that request.",
+            "options": [
+              {
+                "text": "Scoped",
+                "correct": true
+              },
+              {
+                "text": "Singleton",
+                "correct": false
+              },
+              {
+                "text": "Transient",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A singleton's constructor takes a scoped service. What happens in Development?",
+            "explanation": "Build() validates the registrations and throws \"Cannot consume scoped service … from singleton …\", so the app doesn't start.",
+            "options": [
+              {
+                "text": "The app refuses to start, with \"Cannot consume scoped service…\"",
+                "correct": true
+              },
+              {
+                "text": "It works, sharing the scoped service",
+                "correct": false
+              },
+              {
+                "text": "Every request gets a new singleton",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "An in-memory store of saved scores is registered as scoped. What do clients see?",
+            "explanation": "Each request gets a new, empty store, so saved scores seem to vanish. Nothing throws, which makes it a quiet bug.",
+            "options": [
+              {
+                "text": "Scores vanish between requests, with no error",
+                "correct": true
+              },
+              {
+                "text": "A 500 error on every request",
+                "correct": false
+              },
+              {
+                "text": "Scores are saved twice",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why inject an IClock instead of calling DateTime.UtcNow?",
+            "explanation": "Tests can pass a fixed clock and check time-dependent rules exactly. The app registers the real clock.",
+            "options": [
+              {
+                "text": "So tests can control the time",
+                "correct": true
+              },
+              {
+                "text": "DateTime.UtcNow is slower",
+                "correct": false
+              },
+              {
+                "text": "Services can't read the time",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why register AddSingleton<IScoreStore, InMemoryScoreStore>() rather than AddSingleton<InMemoryScoreStore>()?",
+            "explanation": "Code asks for the IScoreStore interface, so the implementation can be swapped (for a database store, say) in one line.",
+            "options": [
+              {
+                "text": "So the store can be swapped without changing the code that uses it",
+                "correct": true
+              },
+              {
+                "text": "Interfaces run faster",
+                "correct": false
+              },
+              {
+                "text": "Only interfaces can be singletons",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "controllers-explorer",

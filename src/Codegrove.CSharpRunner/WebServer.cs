@@ -60,9 +60,32 @@ internal static class WebServer
         string? problem = null;
         if (GuardStopped(program) != StopReason.None)
             problem = $"{exchange.Method} {path} was stopped: your endpoint ran too many loop steps or method calls. Is there a loop that never ends?";
+        else if (response.Error is RequestPipeline.EndpointSetupException setup)
+            problem = DescribeSetup(exchange.Method, path, setup);
         else if (response.Error is { } error)
             problem = $"{exchange.Method} {path} crashed, so the server answered 500 Internal Server Error. {DescribeException(error, program)}";
         return (exchange, problem);
+    }
+
+    /// <summary>The usual cause: a class meant as a service that was never registered, so ASP.NET Core reads it as the body.</summary>
+    private static string DescribeSetup(string method, string path, RequestPipeline.EndpointSetupException setup)
+    {
+        var names = string.Join(" and ", setup.BodyTypes.Distinct());
+        var why = setup.NoBodyMethod
+            ? $"ASP.NET Core thinks {names} should come from the request body, and a {method} request has no body."
+            : $"ASP.NET Core thinks {names} should all come from the request body, and a request has only one body.";
+        return $"{method} {path}{CantRun} {why} " +
+            $"If {names} is a service, register it before builder.Build(), like builder.Services.AddSingleton<{setup.BodyTypes[^1]}>(); ({setup.Message.Split(Environment.NewLine)[0]})";
+    }
+
+    internal const string CantRun = " can't run, so the server answered 500 Internal Server Error.";
+
+    /// <summary>The plain-words middle of a <see cref="DescribeSetup"/> message, for a check's failure text.</summary>
+    internal static string SetupReason(string problem)
+    {
+        var start = problem.IndexOf(CantRun, StringComparison.Ordinal) + CantRun.Length;
+        var end = problem.LastIndexOf(" (", StringComparison.Ordinal);
+        return problem[start..(end > start ? end : problem.Length)].Trim();
     }
 
     /// <summary>
