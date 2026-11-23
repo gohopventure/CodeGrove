@@ -142,6 +142,10 @@ describe('SQL tests', () => {
     expect(run('SELECT 1;', [count]).results[0]!.message).toBe('Nope. (It was 3.)');
     const rows = test(2, 'sqlCheckQuery', { query: "SELECT age FROM pets WHERE name = 'Juni'", equals: [[4]] });
     expect(run("UPDATE pets SET age = 4 WHERE name = 'Juni';", [rows]).results[0]!.passed).toBe(true);
+    const fern = test(4, 'sqlCheckQuery', { query: "SELECT name FROM pets WHERE name = 'Fern'", equals: [['Fern']] });
+    expect(run('SELECT 1;', [fern]).results[0]!.message).toBe("Nope. (The check didn't find it in the table.)");
+    const all = test(5, 'sqlCheckQuery', { query: 'SELECT name FROM pets', equals: [['Juni'], ['Pip']] });
+    expect(run('SELECT 1;', [all]).results[0]!.message).toBe('Nope. (The check found 3 rows in the table; it should find 2.)');
     const missing = test(3, 'sqlCheckQuery', { query: 'SELECT COUNT(*) FROM snacks', equals: 0 });
     expect(run('SELECT 1;', [missing]).results[0]!.message).toMatch(/While checking: There's no table called snacks/);
   });

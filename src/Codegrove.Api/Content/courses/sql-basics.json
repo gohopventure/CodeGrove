@@ -1849,7 +1849,186 @@
       "sortOrder": 5,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Adding and changing rows\n\nSo far you've asked a database questions. SQL can change the data too, with three new words.\n\n### INSERT adds a row\n\n```sql\nINSERT INTO critters (name, kind, age, snack)\nVALUES ('Sunny', 'squirrel', 3, 'acorns');\n```\n\nList the columns in the first brackets, then the values in the same order in the second. You don't need to give an `id`: the database picks the next number.\n\n### UPDATE changes a row\n\n```sql\nUPDATE critters\nSET age = 4\nWHERE name = 'Juni';\n```\n\n`SET` says which column gets which new value. `WHERE` says **which rows** to change.\n\n**Careful:** without `WHERE`, `UPDATE` changes **every** row in the table!\n\n### DELETE removes a row\n\n```sql\nDELETE FROM critters\nWHERE name = 'Sunny';\n```\n\nWithout `WHERE`, `DELETE` removes every row too. In a real database there's no undo button. In Codegrove, every **Run** starts again from the original table, so you can't break anything here.\n\n### New words\n\n- **INSERT**: adds new rows to a table.\n- **UPDATE**: changes values in rows that are already there.\n- **DELETE**: removes rows from a table.\n- **SET**: the part of an `UPDATE` that says which column gets which new value.\n",
+      "exampleMarkdown": "This adds Sunny the squirrel to the club, then shows the whole table. Look for Sunny at the bottom: the database gave Sunny the next `id` all by itself. The green line in the Results tab says how many rows the `INSERT` added.",
+      "exampleCode": "-- Welcome, Sunny!\nINSERT INTO critters (name, kind, age, snack)\nVALUES ('Sunny', 'squirrel', 3, 'acorns');\n\nSELECT * FROM critters;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** Big news at the Critter Club. Update the `critters` table:\n\n1. **Fern** the **deer** is joining! She's **2** and her favorite snack is **clover**.\n2. It's **Pip**'s birthday: Pip is now **2**. The starter has a bug. Press **Run** and look at the ages in the **Tables** tab, then fix it.\n3. **Pebble** is moving away. Remove Pebble from the club.",
+        "starterFiles": {
+          ".setup.sql": "-- The Grove Critter Club\nCREATE TABLE critters (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  age INTEGER,\n  snack TEXT\n);\nINSERT INTO critters VALUES\n  (1, 'Juni', 'fox', 3, 'berries'),\n  (2, 'Pip', 'owl', 1, 'seeds'),\n  (3, 'Moss', 'frog', 2, 'flies'),\n  (4, 'Bramble', 'hedgehog', 4, 'apples'),\n  (5, 'Nova', 'rabbit', 2, 'carrots'),\n  (6, 'Pebble', 'turtle', 7, 'lettuce'),\n  (7, 'Hoot', 'owl', 5, 'berries'),\n  (8, 'Lily', 'frog', 1, 'flies'),\n  (9, 'Rusty', 'fox', 6, 'apples'),\n  (10, 'Tad', 'frog', 4, 'flies');\n",
+          "query.sql": "-- 1. Welcome Fern the deer (age 2, clover).\n\n\n-- 2. Pip's birthday: Pip is now 2.\nUPDATE critters\nSET age = 2;\n\n-- 3. Pebble is moving away.\n\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Welcome Fern the deer (age 2, clover).\nINSERT INTO critters (name, kind, age, snack)\nVALUES ('Fern', 'deer', 2, 'clover');\n\n-- 2. Pip's birthday: Pip is now 2.\nUPDATE critters\nSET age = 2\nWHERE name = 'Pip';\n\n-- 3. Pebble is moving away.\nDELETE FROM critters\nWHERE name = 'Pebble';\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "Fern has joined",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT name, kind, age, snack FROM critters WHERE name = 'Fern'",
+              "equals": [
+                [
+                  "Fern",
+                  "deer",
+                  2,
+                  "clover"
+                ]
+              ]
+            },
+            "failMessage": "Fern should be in the table: a deer, age 2, who likes clover. Use INSERT INTO critters with the columns, then VALUES."
+          },
+          {
+            "label": "Pip is 2",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT age FROM critters WHERE name = 'Pip'",
+              "equals": 2
+            },
+            "failMessage": "Pip's age should be 2."
+          },
+          {
+            "label": "Nobody else had a birthday",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT name, age FROM critters WHERE name NOT IN ('Pip', 'Pebble', 'Fern') ORDER BY id",
+              "equals": [
+                [
+                  "Juni",
+                  3
+                ],
+                [
+                  "Moss",
+                  2
+                ],
+                [
+                  "Bramble",
+                  4
+                ],
+                [
+                  "Nova",
+                  2
+                ],
+                [
+                  "Hoot",
+                  5
+                ],
+                [
+                  "Lily",
+                  1
+                ],
+                [
+                  "Rusty",
+                  6
+                ],
+                [
+                  "Tad",
+                  4
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "Only Pip's age should change. Without WHERE, UPDATE changes every row: add WHERE name = 'Pip'."
+          },
+          {
+            "label": "Pebble has moved away",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT COUNT(*) FROM critters WHERE name = 'Pebble'",
+              "equals": 0
+            },
+            "failMessage": "Pebble shouldn't be in the table any more. Use DELETE FROM critters with a WHERE."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which three words add a row, change a row and remove a row?",
+            "speechText": "Which three words add a row, change a row, and remove a row?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "`INSERT INTO critters (name, kind, age, snack) VALUES (...)` adds Fern. The birthday `UPDATE` needs `WHERE name = 'Pip'`, or every critter turns 2!",
+            "speechText": "Insert into critters, with the columns and then the values, adds Fern. The birthday update needs where name equals Pip, or every critter turns 2!",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "Add `WHERE name = 'Pip'` before the `;` of the `UPDATE`. Pebble leaves with `DELETE FROM critters WHERE name = 'Pebble';`.",
+            "speechText": "Add where name equals Pip to the end of the update. Pebble leaves with delete from critters, where name equals Pebble.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which one adds a new critter to the table?",
+            "explanation": "INSERT adds new rows. UPDATE changes rows that are already there.",
+            "options": [
+              {
+                "text": "INSERT",
+                "correct": true
+              },
+              {
+                "text": "UPDATE",
+                "correct": false
+              },
+              {
+                "text": "SELECT",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does UPDATE critters SET age = 2; do, with no WHERE?",
+            "explanation": "Without WHERE, UPDATE changes every row in the table.",
+            "options": [
+              {
+                "text": "Makes every critter's age 2",
+                "correct": true
+              },
+              {
+                "text": "Changes only the first critter",
+                "correct": false
+              },
+              {
+                "text": "Nothing, because WHERE is missing",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which one removes Pebble from the club?",
+            "explanation": "DELETE FROM removes rows, and WHERE picks which ones.",
+            "options": [
+              {
+                "text": "DELETE FROM critters WHERE name = 'Pebble';",
+                "correct": true
+              },
+              {
+                "text": "DELETE Pebble;",
+                "correct": false
+              },
+              {
+                "text": "SELECT * FROM critters WHERE name <> 'Pebble';",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "insert-update-delete",
@@ -1857,7 +2036,288 @@
       "sortOrder": 5,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## INSERT, UPDATE and DELETE\n\nApps don't just read data. A sign-up **inserts** a row, editing a profile **updates** one, and removing an item **deletes** one. Together with `SELECT`, these four are often called **CRUD**: create, read, update, delete.\n\n### INSERT\n\n```sql\nINSERT INTO games (title, platform, genre, price, stock)\nVALUES ('Lava Leap', 'PC', 'Action', 24.99, 12),\n       ('Rune Rally', 'Xbox', 'Racing', 39.99, 6);\n```\n\n- Always **list the columns**. The query keeps working if someone adds a column or changes their order, and anyone reading it can see which value goes where.\n- Columns you leave out get their **default**: `NULL` unless the table says otherwise. Here, `sale_price` is `NULL`.\n- An `INTEGER PRIMARY KEY` fills itself in with the next number, so leave `id` out.\n- One `INSERT` can add many rows, and `INSERT INTO … SELECT …` copies rows from a query.\n\n### UPDATE\n\n```sql\nUPDATE games\nSET price = ROUND(price * 1.1, 2),\n    stock = stock + 5\nWHERE genre = 'RPG';\n```\n\n`SET` can change several columns, and a new value can be worked out from the old one: `stock = stock + 5`. Every expression in `SET` sees the row's values from **before** the update.\n\n### DELETE\n\n```sql\nDELETE FROM games\nWHERE stock = 0 AND sale_price IS NULL;\n```\n\n`DELETE` removes rows; the table stays. `DROP TABLE games` would remove the table itself.\n\n### The WHERE clause is the whole point\n\n`UPDATE` and `DELETE` without `WHERE` change **every row**. It's one of the most common, and most expensive, mistakes in real systems, because there's no undo. A safe habit:\n\n1. Write the `WHERE` first, as a `SELECT`: `SELECT * FROM games WHERE …;`\n2. Check that it returns exactly the rows you mean.\n3. Then turn the `SELECT *` into `UPDATE … SET …` or `DELETE`.\n\nAfter running, check the count: here, the Results tab says \"UPDATE changed 2 rows.\" If you expected 1, something's wrong.\n\n### In SQL Server\n\n- The id column is usually an `IDENTITY` column. You leave it out of `INSERT`, and inserting your own value is refused unless you switch `IDENTITY_INSERT` on.\n- SSMS prints \"(2 rows affected)\", and `@@ROWCOUNT` holds the same number in code.\n- `OUTPUT inserted.id` returns the new ids from an `INSERT`. SQLite's version is `RETURNING id`.\n- For risky changes, start with `BEGIN TRANSACTION`, check the result, then `COMMIT` or `ROLLBACK`. Transactions come up properly in the next course.\n\n### New words\n\n- **CRUD**: create, read, update, delete: the four things apps do with data (`INSERT`, `SELECT`, `UPDATE`, `DELETE`).\n- **Default**: the value a column gets when an `INSERT` leaves it out.\n- **Rows affected**: how many rows an `INSERT`, `UPDATE` or `DELETE` changed. Always worth checking.\n- **IDENTITY**: SQL Server's auto-numbering for id columns, like SQLite's `INTEGER PRIMARY KEY`.\n",
+      "exampleMarkdown": "A safe update in two steps. The `SELECT` previews the rows the `WHERE` picks: the two RPGs under $40. Then the `UPDATE` uses the very same `WHERE`. Check the green line: it changed 2 rows, matching the preview. The **Tables** tab shows the new prices.",
+      "exampleCode": "-- 1. Preview: which rows does the WHERE pick?\nSELECT title, price FROM games\nWHERE genre = 'RPG' AND price < 40;\n\n-- 2. Same WHERE: 10% off those games.\nUPDATE games\nSET price = ROUND(price * 0.9, 2)\nWHERE genre = 'RPG' AND price < 40;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** A delivery just arrived at Pixel Pier. Bring the `games` table up to date, in this order:\n\n1. **New arrivals:** add two Switch games with one `INSERT`: **Comet Kart** (Racing, 49.99, 10 in stock) and **Glade Garden** (Simulation, 19.99, 25 in stock). Neither is on sale.\n2. **Xbox sale:** every Xbox game that isn't already on sale gets a `sale_price` of 20% off, rounded to cents. The starter's `UPDATE` has a bug: run it and read the green line in the Results tab, then fix it.\n3. **Restock:** 10 more of every PC game arrived. Add 10 to their `stock`.\n4. **Clearance:** games with fewer than 5 in stock that aren't on sale are discontinued. Delete them.",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  genre TEXT NOT NULL,\n  price REAL NOT NULL,\n  stock INTEGER NOT NULL,\n  sale_price REAL -- NULL when it isn't on sale\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 'Adventure', 39.99, 12, NULL),\n  (2, 'Byte Racers', 'PC', 'Racing', 19.99, 30, 14.99),\n  (3, 'Moonlight Mages', 'PlayStation', 'RPG', 59.99, 4, NULL),\n  (4, 'Puzzle Pond', 'Switch', 'Puzzle', 14.99, 0, 9.99),\n  (5, 'Robo Rumble', 'Xbox', 'Action', 49.99, 7, NULL),\n  (6, 'Ocean Odyssey', 'PC', 'Adventure', 29.99, 15, NULL),\n  (7, 'Castle Quest', 'PlayStation', 'RPG', 39.99, 9, 29.99),\n  (8, 'Tiny Tactics', 'Switch', 'Strategy', 24.99, 21, NULL),\n  (9, 'Questlings', 'Switch', 'RPG', 34.99, 3, NULL),\n  (10, 'Pixel Pets', 'PC', 'Simulation', 9.99, 8, NULL),\n  (11, 'Moon Quest', 'Xbox', 'Adventure', 44.99, 2, 34.99),\n  (12, 'Turbo Tennis', 'Switch', 'Sports', 29.99, 6, 19.99);\n",
+          "query.sql": "-- 1. New arrivals (one INSERT).\n\n\n-- 2. Xbox sale: 20% off, rounded to cents,\n--    for Xbox games not already on sale.\nUPDATE games\nSET sale_price = ROUND(price * 0.8, 2);\n\n-- 3. Restock: 10 more of every PC game.\n\n\n-- 4. Clearance: fewer than 5 in stock and\n--    not on sale.\n\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. New arrivals (one INSERT).\nINSERT INTO games (title, platform, genre, price, stock)\nVALUES ('Comet Kart', 'Switch', 'Racing', 49.99, 10),\n       ('Glade Garden', 'Switch', 'Simulation', 19.99, 25);\n\n-- 2. Xbox sale: 20% off, rounded to cents,\n--    for Xbox games not already on sale.\nUPDATE games\nSET sale_price = ROUND(price * 0.8, 2)\nWHERE platform = 'Xbox' AND sale_price IS NULL;\n\n-- 3. Restock: 10 more of every PC game.\nUPDATE games\nSET stock = stock + 10\nWHERE platform = 'PC';\n\n-- 4. Clearance: fewer than 5 in stock and\n--    not on sale.\nDELETE FROM games\nWHERE stock < 5 AND sale_price IS NULL;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "The two new games are in the table",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT title, platform, genre, price, stock, sale_price FROM games WHERE title IN ('Comet Kart', 'Glade Garden') ORDER BY title",
+              "equals": [
+                [
+                  "Comet Kart",
+                  "Switch",
+                  "Racing",
+                  49.99,
+                  10,
+                  null
+                ],
+                [
+                  "Glade Garden",
+                  "Switch",
+                  "Simulation",
+                  19.99,
+                  25,
+                  null
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "Comet Kart and Glade Garden should be in the table, on Switch, with the genre, price and stock from the instructions, and no sale price."
+          },
+          {
+            "label": "The Xbox games are on sale",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT title, sale_price FROM games WHERE platform = 'Xbox' ORDER BY title",
+              "equals": [
+                [
+                  "Moon Quest",
+                  34.99
+                ],
+                [
+                  "Robo Rumble",
+                  39.99
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "Robo Rumble should get a sale_price of 20% off, rounded to cents (39.99). Moon Quest was already on sale, so its sale_price stays 34.99."
+          },
+          {
+            "label": "No other sale prices changed",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT title, sale_price FROM games WHERE platform <> 'Xbox' AND sale_price IS NOT NULL ORDER BY title",
+              "equals": [
+                [
+                  "Byte Racers",
+                  14.99
+                ],
+                [
+                  "Castle Quest",
+                  29.99
+                ],
+                [
+                  "Puzzle Pond",
+                  9.99
+                ],
+                [
+                  "Turbo Tennis",
+                  19.99
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "Only Xbox games should get a new sale price. Without WHERE, UPDATE changes every row."
+          },
+          {
+            "label": "The PC games are restocked",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT title, stock FROM games WHERE platform = 'PC' ORDER BY title",
+              "equals": [
+                [
+                  "Byte Racers",
+                  40
+                ],
+                [
+                  "Ocean Odyssey",
+                  25
+                ],
+                [
+                  "Pixel Pets",
+                  18
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "Every PC game should have 10 more in stock. SET stock = stock + 10 works out the new value from the old one."
+          },
+          {
+            "label": "Only the discontinued games were deleted",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT title FROM games ORDER BY title",
+              "equals": [
+                [
+                  "Byte Racers"
+                ],
+                [
+                  "Castle Quest"
+                ],
+                [
+                  "Comet Kart"
+                ],
+                [
+                  "Glade Garden"
+                ],
+                [
+                  "Moon Quest"
+                ],
+                [
+                  "Ocean Odyssey"
+                ],
+                [
+                  "Pixel Pets"
+                ],
+                [
+                  "Puzzle Pond"
+                ],
+                [
+                  "Robo Rumble"
+                ],
+                [
+                  "Star Garden"
+                ],
+                [
+                  "Tiny Tactics"
+                ],
+                [
+                  "Turbo Tennis"
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "Moonlight Mages and Questlings should be gone (fewer than 5 in stock, not on sale), and every other game should still be there."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The starter's `UPDATE` reports how many rows it changed in the Results tab. How many Xbox games are there, and how many of them aren't on sale yet?",
+            "speechText": "The starter's update reports how many rows it changed in the Results tab. How many Xbox games are there, and how many of them aren't on sale yet?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Without `WHERE`, `UPDATE` and `DELETE` change every row. The sale needs `WHERE platform = 'Xbox' AND sale_price IS NULL`, and the restock can work out the new value from the old one: `SET stock = stock + 10`.",
+            "speechText": "Without a where clause, update and delete change every row. The sale needs where platform equals Xbox and sale price is null, and the restock can work out the new value from the old one, with set stock equals stock plus 10.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "List the columns once and give two rows after `VALUES`: `INSERT INTO games (title, platform, genre, price, stock) VALUES (...), (...);`. The clearance is `DELETE FROM games WHERE stock < 5 AND sale_price IS NULL;`.",
+            "speechText": "For the new games, list the columns once and give two rows of values, separated by a comma. The clearance deletes from games where stock is less than 5 and sale price is null.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What's the safest first step before running DELETE FROM games WHERE …?",
+            "explanation": "Run a SELECT with exactly the same WHERE, check it returns only the rows you mean, then change it into the DELETE.",
+            "options": [
+              {
+                "text": "Run a SELECT with the same WHERE and check which rows it returns",
+                "correct": true
+              },
+              {
+                "text": "Run the DELETE, then check whether the right rows went",
+                "correct": false
+              },
+              {
+                "text": "Remove the WHERE so it runs faster",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does UPDATE games SET stock = stock + 10; do?",
+            "explanation": "With no WHERE it changes every row, and each row's new stock is worked out from its old stock.",
+            "options": [
+              {
+                "text": "Adds 10 to the stock of every game",
+                "correct": true
+              },
+              {
+                "text": "Sets every game's stock to 10",
+                "correct": false
+              },
+              {
+                "text": "Gives an error, because stock appears twice",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why list the columns in INSERT INTO games (title, price, …) VALUES …?",
+            "explanation": "With a column list, the INSERT still works if columns are added or reordered, and it's clear which value goes where.",
+            "options": [
+              {
+                "text": "It keeps working if columns are added or reordered, and shows which value goes where",
+                "correct": true
+              },
+              {
+                "text": "SQL won't run an INSERT without a column list",
+                "correct": false
+              },
+              {
+                "text": "It makes the INSERT run faster",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "How is DELETE FROM games; different from DROP TABLE games;?",
+            "explanation": "DELETE removes rows but keeps the table (and its design). DROP TABLE removes the table itself.",
+            "options": [
+              {
+                "text": "DELETE removes every row but keeps the table; DROP removes the table itself",
+                "correct": true
+              },
+              {
+                "text": "They do exactly the same thing",
+                "correct": false
+              },
+              {
+                "text": "DELETE removes the table; DROP removes only the rows",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In SQL Server, what happens if you INSERT your own value into an IDENTITY id column?",
+            "explanation": "It's refused unless IDENTITY_INSERT is switched on: normally you leave the id out and SQL Server picks it.",
+            "options": [
+              {
+                "text": "It's refused unless IDENTITY_INSERT is on",
+                "correct": true
+              },
+              {
+                "text": "SQL Server uses your value and skips that number later",
+                "correct": false
+              },
+              {
+                "text": "SQL Server ignores your value without saying so",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "making-tables-explorer",

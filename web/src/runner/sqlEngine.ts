@@ -361,8 +361,12 @@ function evaluate(test: TestSpec, run: Run): TestResult {
           return fail(`While checking: ${friendlyError(messageOf(e)) || messageOf(e)}`);
         }
         if (Array.isArray(spec.equals)) {
+          // The learner didn't write this query, so talk about what's in the table, not "your query".
+          if (rows.length === 0 && spec.equals.length > 0) return fail("The check didn't find it in the table.");
           const why = compareResult({ file: '', line: 0, columns, rows, truncated: false }, { rows: spec.equals, ordered: spec.ordered, caseSensitive: spec.caseSensitive });
-          return why === null ? pass() : fail(why.replace(/^Your (query|result)/, 'The table'));
+          if (why === null) return pass();
+          const counts = /^Your query returned (\d+ rows?); it should return (\d+)\.$/.exec(why);
+          return fail(counts ? `The check found ${counts[1]} in the table; it should find ${counts[2]}.` : why);
         }
         const actual = rows[0]?.[0] ?? null;
         return sameCell(actual, spec.equals as SqlCell, spec.caseSensitive !== false) ? pass() : fail(`It was ${show(actual)}.`);
