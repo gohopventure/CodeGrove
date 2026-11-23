@@ -50,6 +50,16 @@
     <TrimmerRootAssembly Include="Codegrove.WebShim;System.Text.Json" />
     <!-- Learner code uses DataAnnotations attributes ([Required], [Range], [StringLength]…) the shim never names. -->
     <TrimmerRootAssembly Include="System.ComponentModel.Annotations" />
+    <!--
+      Entity Framework Core (Web API lesson 6) and the real DI container the shim now uses. EF builds its
+      model and its internal services by reflection over learner types, so the trimmer can't see what's
+      needed: keep EF, its Microsoft.Extensions dependencies and the LINQ expression assemblies whole.
+      Found by running EF programs in the browser, not by analysis; if an EF upgrade fails in the browser
+      only, a newly needed dependency is the first suspect.
+    -->
+    <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore;Microsoft.EntityFrameworkCore.Abstractions;Microsoft.EntityFrameworkCore.InMemory" />
+    <TrimmerRootAssembly Include="Microsoft.Extensions.DependencyInjection;Microsoft.Extensions.DependencyInjection.Abstractions;Microsoft.Extensions.Caching.Memory;Microsoft.Extensions.Logging;Microsoft.Extensions.Logging.Abstractions;Microsoft.Extensions.Options;Microsoft.Extensions.Primitives" />
+    <TrimmerRootAssembly Include="System.Linq.Expressions;System.Linq.Queryable;System.Collections.Concurrent;System.ComponentModel;System.ComponentModel.TypeConverter;System.Diagnostics.DiagnosticSource" />
   </ItemGroup>
 
 </Project>

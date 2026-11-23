@@ -153,7 +153,7 @@ internal static class Controllers
         var action = endpoint.Action!;
         var run = new ControllerRun(app, action);
         var actionContext = new ActionContext(context, run);
-        var services = (ShimServiceProvider)context.RequestServices;
+        var services = context.RequestServices;
         var modelState = new ModelStateDictionary();
         object?[] args;
         try
@@ -259,7 +259,7 @@ internal static class Controllers
     private static readonly NullabilityInfoContext s_nullability = new();
 
     private static object?[] Bind(ControllerAction action, Dictionary<string, string> routeValues, HttpContext context,
-        ShimServiceProvider services, ModelStateDictionary modelState)
+        IServiceProvider services, ModelStateDictionary modelState)
     {
         var parameters = action.Method.GetParameters();
         var args = new object?[parameters.Length];

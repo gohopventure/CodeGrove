@@ -164,7 +164,7 @@ internal static class RequestPipeline
     {
         var parameters = endpoint.Handler!.Method.GetParameters();
         var routeNames = new HashSet<string>(endpoint.Pattern.ParameterNames, StringComparer.OrdinalIgnoreCase);
-        var services = (ShimServiceProvider)context.RequestServices;
+        var services = context.RequestServices;
         var args = new object?[parameters.Length];
 
         for (var i = 0; i < parameters.Length; i++)
@@ -202,7 +202,7 @@ internal static class RequestPipeline
     ///   not allow inferred body parameters…").
     /// The usual cause is a class the learner meant as a service but didn't register.
     /// </summary>
-    private static void CheckBodyParameters(Endpoint endpoint, ShimServiceProvider services)
+    private static void CheckBodyParameters(Endpoint endpoint, IServiceProvider services)
     {
         var parameters = endpoint.Handler!.Method.GetParameters();
         var routeNames = new HashSet<string>(endpoint.Pattern.ParameterNames, StringComparer.OrdinalIgnoreCase);
@@ -240,7 +240,7 @@ internal static class RequestPipeline
     }
 
     /// <summary>Where a parameter's value comes from, in Bind's order, named as ASP.NET Core's table names them.</summary>
-    private static string SourceOf(ParameterInfo p, HashSet<string> routeNames, ShimServiceProvider services)
+    private static string SourceOf(ParameterInfo p, HashSet<string> routeNames, IServiceProvider services)
     {
         var type = p.ParameterType;
         if (p.GetCustomAttribute<FromRouteAttribute>() is not null) return "Route (Attribute)";

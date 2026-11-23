@@ -129,6 +129,38 @@
         }
       ]
     },
+    "database-explorer": {
+      "intro": [
+        {
+          "displayText": "When a server stops, everything in its lists is forgotten. Your mission: fix the Grove's treasure log so it saves treasures in a real database!",
+          "speechText": "When a server stops, everything in its lists is forgotten. Your mission: fix the Grove's treasure log so it saves treasures in a real database!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The treasure log remembers now, and you can look up any treasure by its id. Your new words are DbContext, the class that stands for your database, and SaveChanges, which really saves.",
+          "speechText": "The treasure log remembers now, and you can look up any treasure by its id. Your new words are D-B Context, the class that stands for your database, and Save Changes, which really saves.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "ef-core": {
+      "intro": [
+        {
+          "displayText": "Almost every API you'll work on stores its data in a database, and in .NET that usually means Entity Framework Core. This lesson covers the DbContext, LINQ queries that become SQL, and change tracking with SaveChanges. Then you'll move an arcade high-score API onto EF Core.",
+          "speechText": "Almost every API you'll work on stores its data in a database, and in dot net that usually means Entity Framework Core. This lesson covers the D-B Context, link queries that become sequel, and change tracking with Save Changes. Then you'll move an arcade high score API onto Entity Framework Core.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The arcade API now reads and writes through EF Core, and the database does the sorting and filtering. Two gotchas to remember. Nothing is saved until SaveChanges, and calling ToList before Where loads the whole table.",
+          "speechText": "The arcade API now reads and writes through Entity Framework Core, and the database does the sorting and filtering. Two gotchas to remember. Nothing is saved until Save Changes, and calling To List before Where loads the whole table.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
     "web-api-explorer": {
       "intro": [
         {

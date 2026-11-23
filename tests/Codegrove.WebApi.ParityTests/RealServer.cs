@@ -41,11 +41,15 @@ internal static class RealServer
         global using Microsoft.Extensions.Logging;
         """;
 
-    /// <summary>The shared framework (Microsoft.NETCore.App + Microsoft.AspNetCore.App) this test process runs on.</summary>
+    /// <summary>
+    /// The shared framework (Microsoft.NETCore.App + Microsoft.AspNetCore.App) this test process runs on, plus
+    /// Entity Framework Core with its in-memory provider (lesson 6), as `dotnet add package` would give.
+    /// </summary>
     private static readonly MetadataReference[] References =
         ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
             .Split(Path.PathSeparator)
-            .Where(p => p.Contains($"{Path.DirectorySeparatorChar}shared{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+            .Where(p => p.Contains($"{Path.DirectorySeparatorChar}shared{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                || Path.GetFileName(p).StartsWith("Microsoft.EntityFrameworkCore", StringComparison.Ordinal))
             .Select(p => (MetadataReference)MetadataReference.CreateFromFile(p))
             .ToArray();
 
@@ -74,6 +78,8 @@ internal static class RealServer
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
         Environment.SetEnvironmentVariable("Logging__LogLevel__Default", "Warning");
 
+        // EF Core is shared by every program in this process; start each with no in-memory databases, as the runner does.
+        EfReset.Reset();
         var built = HostCapture.Expect(program);
         var exited = new TaskCompletionSource<Exception?>(TaskCreationOptions.RunContinuationsAsynchronously);
         var entry = program.EntryPoint!;

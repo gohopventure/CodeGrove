@@ -101,6 +101,7 @@ internal static class WebServer
     public static async Task<(WebApplication? App, string? Why)> StartFreshAsync(Assembly program)
     {
         ResetGuard(program);
+        EfReset.Reset(); // each check starts with an empty in-memory database
         var slot = ShimHost.Begin();
         RunOutcome outcome;
         try

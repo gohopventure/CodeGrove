@@ -24,6 +24,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- The real DI container (see DependencyInjection.cs). Kept in step with the version EF Core uses. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="Codegrove.CSharpRunner" />
     <InternalsVisibleTo Include="Codegrove.CSharpRunner.Tests" />
   </ItemGroup>

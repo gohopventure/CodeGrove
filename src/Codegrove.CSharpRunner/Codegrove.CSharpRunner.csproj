@@ -21,6 +21,9 @@
   <ItemGroup>
     <!-- 5.0.0 is the compiler that shipped with .NET 10 (C# 14), so lessons match what `dotnet new console` gives. -->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
+    <!-- Entity Framework Core for Web API lesson 6, with the in-memory provider: SQLite or SQL Server would need
+         native code or a network, neither of which the browser sandbox has. See CgEmbedPackageReferences. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.15" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,10 +44,10 @@
   -->
   <Target Name="CgEmbedReferenceAssemblies" AfterTargets="ResolveTargetingPackAssets">
     <ItemGroup>
-      <_CgReference Include="@(Reference)" Condition="'%(Reference.FrameworkReferenceName)' == 'Microsoft.NETCore.App' and ('%(Filename)' == 'System.Runtime' or '%(Filename)' == 'System.Console' or '%(Filename)' == 'System.Collections' or '%(Filename)' == 'System.Linq' or '%(Filename)' == 'System.ComponentModel.Annotations')" />
+      <_CgReference Include="@(Reference)" Condition="'%(Reference.FrameworkReferenceName)' == 'Microsoft.NETCore.App' and ('%(Filename)' == 'System.Runtime' or '%(Filename)' == 'System.Console' or '%(Filename)' == 'System.Collections' or '%(Filename)' == 'System.Linq' or '%(Filename)' == 'System.ComponentModel.Annotations' or '%(Filename)' == 'System.Linq.Expressions' or '%(Filename)' == 'System.Linq.Queryable' or '%(Filename)' == 'System.ComponentModel.TypeConverter' or '%(Filename)' == 'System.ComponentModel')" />
       <EmbeddedResource Include="@(_CgReference)" LogicalName="ref/%(Filename)%(Extension)" />
     </ItemGroup>
-    <Error Condition="'@(_CgReference->Count())' != '5'" Text="Expected 5 .NET reference assemblies to embed for learner code, found @(_CgReference->Count()): @(_CgReference->'%(Filename)')." />
+    <Error Condition="'@(_CgReference->Count())' != '9'" Text="Expected 9 .NET reference assemblies to embed for learner code, found @(_CgReference->Count()): @(_CgReference->'%(Filename)')." />
   </Target>
 
   <!--
@@ -52,6 +55,26 @@
     against it in the browser. Its own output is the reference: it has no private API worth hiding beyond
     what `internal` already hides.
   -->
+  <!--
+    NuGet packages learner code compiles against: the real DI abstractions (builder.Services, used by
+    every Web API lesson since the shim moved to Microsoft's container) and Entity Framework Core with
+    its in-memory provider (Web API lesson 6). Only these, by name: the rest of EF's dependency graph
+    (Microsoft.Extensions.Logging, Caching, Options...) is runtime-only, apart from the two
+    abstractions the compiler needs to see DbContext's full signature.
+
+    Tradeoff: these are the packages' implementation assemblies, not reference assemblies (NuGet ships
+    no ref/ folder for them), so EF Core adds about 3 MB to the runner before compression. Lazy-loading
+    them only for lessons that use EF is the follow-up if the download matters.
+  -->
+  <Target Name="CgEmbedPackageReferences" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <_CgPackageRef Include="@(ReferencePath)" Condition="'%(Filename)' == 'Microsoft.Extensions.DependencyInjection.Abstractions' or '%(Filename)' == 'Microsoft.EntityFrameworkCore' or '%(Filename)' == 'Microsoft.EntityFrameworkCore.Abstractions' or '%(Filename)' == 'Microsoft.EntityFrameworkCore.InMemory' or '%(Filename)' == 'Microsoft.Extensions.Logging.Abstractions' or '%(Filename)' == 'Microsoft.Extensions.Caching.Abstractions'" />
+      <EmbeddedResource Include="@(_CgPackageRef)" LogicalName="ref/%(Filename)%(Extension)" />
+    </ItemGroup>
+    <Error Condition="'@(_CgPackageRef->Count())' != '6'" Text="Expected 6 package assemblies to embed for learner code, found @(_CgPackageRef->Count()): @(_CgPackageRef->'%(Filename)')." />
+  </Target>
+
+
   <Target Name="CgEmbedWebShim" AfterTargets="ResolveAssemblyReferences">
     <ItemGroup>
       <_CgShim Include="@(ReferencePath)" Condition="'%(Filename)' == 'Codegrove.WebShim'" />

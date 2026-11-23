@@ -2338,14 +2338,189 @@
       "sortOrder": 6,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "isPublished": true,
+      "learnMarkdown": "## Saving to a database\n\nUntil now, the Grove's servers kept their things in a `List`. A list lives in the server's memory, so when the server stops, everything in it is forgotten! Real apps keep their data in a **database**, like the tables you met in the SQL course.\n\n**Entity Framework Core** (EF Core for short) lets your C# code use a database without writing SQL yourself. You write C#, and EF Core turns it into SQL.\n\n### A class for each kind of row\n\n```csharp\npublic class Treasure\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n}\n```\n\nEach `Treasure` object is one **row**, and each property is a **column**. A property called `Id` is the row's **key**: EF Core fills it in for you, 1, 2, 3...\n\n### A DbContext is the database\n\n```csharp\npublic class GroveDb(DbContextOptions<GroveDb> options)\n    : DbContext(options)\n{\n    public DbSet<Treasure> Treasures => Set<Treasure>();\n}\n```\n\n`GroveDb` stands for the whole database, and `Treasures` is one **table** in it. Then one line in `Program.cs` hands it to every endpoint:\n\n```csharp\nbuilder.Services.AddDbContext<GroveDb>(\n    o => o.UseInMemoryDatabase(\"grove\"));\n```\n\n`UseInMemoryDatabase` is a practice database. A real app would say `UseSqlServer` here, and nothing else would change.\n\n### Reading and saving\n\n```csharp\napp.MapGet(\"/treasures\", (GroveDb db) =>\n    db.Treasures.ToList());\n\napp.MapPost(\"/treasures\", (Treasure t, GroveDb db) =>\n{\n    db.Treasures.Add(t);\n    db.SaveChanges();\n    return Results.Created($\"/treasures/{t.Id}\", t);\n});\n```\n\n- `db.Treasures.ToList()` reads every row, like `SELECT * FROM Treasures`.\n- `Add` gets a new row ready, and **`SaveChanges()`** really saves it, like an `INSERT`. Forget `SaveChanges` and nothing is saved!\n- `db.Treasures.Find(3)` finds the row whose key is 3, or `null` if there isn't one.\n\n### New words\n\n- **Database**: a place that keeps data safe in tables, even when the server stops.\n- **Entity Framework Core (EF Core)**: a tool that lets C# code read and save database rows.\n- **DbContext**: the class that stands for your database.\n- **DbSet**: one table in the DbContext, like `Treasures`.\n- **Key**: the column that tells rows apart, usually `Id`.\n",
+      "exampleMarkdown": "A guestbook that saves to a database. Press **Run**, then in **Try it**: POST `/guests` with `{ \"name\": \"Moss\", \"animal\": \"frog\" }`, then with `{ \"name\": \"Pip\", \"animal\": \"owl\" }`. Now `GET /guests` lists them both, and `GET /guests/owl` finds only Pip. Look at the `id` each guest got: you never sent one!",
+      "exampleCode": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<GuestDb>(\n    o => o.UseInMemoryDatabase(\"guests\"));\nvar app = builder.Build();\n\napp.MapGet(\"/guests\", (GuestDb db) =>\n    db.Guests.OrderBy(g => g.Name).ToList());\n\napp.MapGet(\"/guests/{animal}\", (string animal, GuestDb db) =>\n    db.Guests.Where(g => g.Animal == animal).ToList());\n\napp.MapPost(\"/guests\", (Guest guest, GuestDb db) =>\n{\n    db.Guests.Add(guest);\n    db.SaveChanges();\n    return Results.Created($\"/guests/{guest.Id}\", guest);\n});\n\napp.Run();\n\npublic class Guest\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Animal { get; set; } = \"\";\n}\n\npublic class GuestDb(DbContextOptions<GuestDb> options)\n    : DbContext(options)\n{\n    public DbSet<Guest> Guests => Set<Guest>();\n}\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The Grove's treasure log has a database, but something's wrong. Press **Run**, then POST `/treasures` with `{ \"name\": \"Golden acorn\", \"sparkle\": 9 }` in **Try it**. It answers 201, but `GET /treasures` is still empty!\n\n1. Make the POST really save the treasure, so `GET /treasures` lists it.\n2. Add `GET /treasures/{id:int}`. It answers with that treasure, or `NotFound` when there's no treasure with that id. Use `db.Treasures.Find(id)`.",
+        "starterFiles": {
+          "Program.cs": "using Microsoft.EntityFrameworkCore;\n\n// Mission: make the treasure log remember!\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<GroveDb>(\n    o => o.UseInMemoryDatabase(\"grove\"));\nvar app = builder.Build();\n\napp.MapGet(\"/treasures\", (GroveDb db) =>\n    db.Treasures.ToList());\n\n// 1. Found treasures vanish! Save them.\napp.MapPost(\"/treasures\", (Treasure t, GroveDb db) =>\n{\n    db.Treasures.Add(t);\n    return Results.Created($\"/treasures/{t.Id}\", t);\n});\n\n// 2. Add GET /treasures/{id:int}: one treasure,\n//    or NotFound if there's no such treasure.\n\napp.Run();\n",
+          "Treasure.cs": "using Microsoft.EntityFrameworkCore;\n\n// Finished: you don't need to change this file.\npublic class Treasure\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public int Sparkle { get; set; }\n}\n\n// The database. Treasures is its one table.\npublic class GroveDb(DbContextOptions<GroveDb> options)\n    : DbContext(options)\n{\n    public DbSet<Treasure> Treasures => Set<Treasure>();\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "using Microsoft.EntityFrameworkCore;\n\n// Mission: make the treasure log remember!\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<GroveDb>(\n    o => o.UseInMemoryDatabase(\"grove\"));\nvar app = builder.Build();\n\napp.MapGet(\"/treasures\", (GroveDb db) =>\n    db.Treasures.ToList());\n\n// 1. Found treasures vanish! Save them.\napp.MapPost(\"/treasures\", (Treasure t, GroveDb db) =>\n{\n    db.Treasures.Add(t);\n    db.SaveChanges();\n    return Results.Created($\"/treasures/{t.Id}\", t);\n});\n\n// 2. Add GET /treasures/{id:int}: one treasure,\n//    or NotFound if there's no such treasure.\napp.MapGet(\"/treasures/{id:int}\", (int id, GroveDb db) =>\n{\n    var treasure = db.Treasures.Find(id);\n    if (treasure is null)\n    {\n        return Results.NotFound();\n    }\n    return Results.Ok(treasure);\n});\n\napp.Run();\n",
+          "Treasure.cs": "using Microsoft.EntityFrameworkCore;\n\n// Finished: you don't need to change this file.\npublic class Treasure\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public int Sparkle { get; set; }\n}\n\n// The database. Treasures is its one table.\npublic class GroveDb(DbContextOptions<GroveDb> options)\n    : DbContext(options)\n{\n    public DbSet<Treasure> Treasures => Set<Treasure>();\n}\n"
+        },
+        "tests": [
+          {
+            "label": "A new treasure gets an id",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/treasures",
+              "body": {
+                "name": "Golden acorn",
+                "sparkle": 9
+              },
+              "expectStatus": 201,
+              "expectJson": {
+                "id": 1,
+                "name": "Golden acorn"
+              }
+            },
+            "failMessage": "POST /treasures should answer 201 Created with the treasure and its new id, 1."
+          },
+          {
+            "label": "A saved treasure is listed",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/treasures",
+                  "body": {
+                    "name": "Golden acorn",
+                    "sparkle": 9
+                  }
+                }
+              ],
+              "path": "/treasures",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "name": "Golden acorn",
+                  "sparkle": 9
+                }
+              ]
+            },
+            "failMessage": "After POST /treasures, GET /treasures should list the new treasure. Add only gets a row ready: call db.SaveChanges() after it."
+          },
+          {
+            "label": "GET /treasures/2 finds a treasure",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/treasures",
+                  "body": {
+                    "name": "Golden acorn",
+                    "sparkle": 9
+                  }
+                },
+                {
+                  "method": "POST",
+                  "path": "/treasures",
+                  "body": {
+                    "name": "Spiral shell",
+                    "sparkle": 4
+                  }
+                }
+              ],
+              "path": "/treasures/2",
+              "expectStatus": 200,
+              "expectJson": {
+                "id": 2,
+                "name": "Spiral shell"
+              }
+            },
+            "failMessage": "After two treasures are saved, GET /treasures/2 should answer the second one. Add app.MapGet(\"/treasures/{id:int}\", ...) that uses db.Treasures.Find(id) and returns Results.Ok(treasure)."
+          },
+          {
+            "label": "An unknown treasure is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/treasures/9",
+              "expectStatus": 404
+            },
+            "failMessage": "GET /treasures/9 should answer 404 Not Found. Find gives null when there's no such row: return Results.NotFound() then."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "`Add` gets a new row ready. Which method really saves it to the database?",
+            "speechText": "Add gets a new row ready. Which method really saves it to the database?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Call `db.SaveChanges();` right after `db.Treasures.Add(t);`. For the new endpoint, start with `app.MapGet(\"/treasures/{id:int}\", (int id, GroveDb db) => ...)` and use `db.Treasures.Find(id)` inside.",
+            "speechText": "Call Save Changes right after the Add line. For the new endpoint, map a get with an id in the path, and use Find with the id inside.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The new endpoint looks like this:\n\n```csharp\napp.MapGet(\"/treasures/{id:int}\", (int id, GroveDb db) =>\n{\n    var treasure = db.Treasures.Find(id);\n    if (treasure is null)\n    {\n        return Results.NotFound();\n    }\n    return Results.Ok(treasure);\n});\n```",
+            "speechText": "Find the treasure with Find. If it's null, return Not Found, and otherwise return Ok with the treasure.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why do real apps keep their data in a database, not a List?",
+            "explanation": "A List lives in the server's memory and is forgotten when the server stops. A database keeps the data safe.",
+            "options": [
+              {
+                "text": "A database keeps the data even when the server stops",
+                "correct": true
+              },
+              {
+                "text": "Lists can only hold three things",
+                "correct": false
+              },
+              {
+                "text": "Databases make the server start faster",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "You call db.Treasures.Add(t) but forget db.SaveChanges(). What happens?",
+            "explanation": "Add only gets the row ready. Without SaveChanges, it's never saved, so the next request can't find it.",
+            "options": [
+              {
+                "text": "The treasure is never saved",
+                "correct": true
+              },
+              {
+                "text": "It's saved twice",
+                "correct": false
+              },
+              {
+                "text": "The program won't compile",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In EF Core, what does a DbSet like Treasures stand for?",
+            "explanation": "A DbSet is one table in the database. Each object in it is one row.",
+            "options": [
+              {
+                "text": "One table in the database",
+                "correct": true
+              },
+              {
+                "text": "The whole server",
+                "correct": false
+              },
+              {
+                "text": "One column",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "ef-core",
@@ -2353,14 +2528,295 @@
       "sortOrder": 6,
       "ageBand": "Builder",
       "estimatedMinutes": 15,
-      "isPublished": false,
-      "learnMarkdown": null,
-      "exampleMarkdown": null,
-      "exampleCode": null,
+      "isPublished": true,
+      "learnMarkdown": "## Entity Framework Core\n\nSo far the services kept data in a `List`, which is gone when the process restarts. Real APIs keep data in a database such as SQL Server. **Entity Framework Core** is .NET's **ORM** (object-relational mapper): you query and change C# objects, and EF Core writes the SQL.\n\n### Entities and the DbContext\n\n```csharp\npublic class Score                // an entity: one row\n{\n    public int Id { get; set; }   // key, by convention\n    public string Game { get; set; } = \"\";\n    public int Points { get; set; }\n}\n\npublic class ArcadeDb(DbContextOptions<ArcadeDb> options)\n    : DbContext(options)\n{\n    public DbSet<Score> Scores => Set<Score>();   // a table\n}\n```\n\n- A property named `Id` (or `ScoreId`) is the **primary key**. For an `int` key, the database generates the value: leave it 0 when you add a row.\n- `DbSet<Score>` is the `Scores` table. You query it with LINQ.\n\n### Registering it\n\n```csharp\nbuilder.Services.AddDbContext<ArcadeDb>(\n    o => o.UseInMemoryDatabase(\"arcade\"));\n```\n\n`AddDbContext` registers the context as a **scoped** service: one per request, shared by everything that request uses. That's why you must not keep a DbContext in a singleton. At work this line says `UseSqlServer(connectionString)`; here it's EF's **in-memory provider**, which runs in the browser.\n\n### Queries become SQL\n\n```csharp\nvar top = await db.Scores\n    .Where(s => s.Game == game)\n    .OrderByDescending(s => s.Points)\n    .Take(3)\n    .ToListAsync();\n```\n\nOn SQL Server, that whole chain becomes one query, roughly:\n\n```sql\nSELECT TOP(3) * FROM Scores\nWHERE Game = @game ORDER BY Points DESC\n```\n\n`db.Scores` is an `IQueryable`: nothing runs until you ask for results with `ToListAsync`, `FirstOrDefaultAsync`, `CountAsync` and so on. **Gotcha:** `(await db.Scores.ToListAsync()).Where(...)` gives the same answer, but it loads the **whole table** into memory and filters it in C#. Put `Where`, `OrderBy` and `Take` before `ToListAsync`, so the database does the work.\n\n### Change tracking and SaveChanges\n\nA context **tracks** the entities it loads and adds. `SaveChangesAsync()` turns what changed into SQL, all in one transaction:\n\n| You write | SaveChanges sends |\n|---|---|\n| `db.Scores.Add(score)` | `INSERT` (and fills in `score.Id`) |\n| change a property of a tracked entity | `UPDATE` of that column |\n| `db.Scores.Remove(score)` | `DELETE` |\n\n`FindAsync(id)` looks a row up by key (checking the tracked ones first). Until you call `SaveChangesAsync`, nothing reaches the database: a forgotten call answers 201 and saves nothing. For read-only queries, `AsNoTracking()` skips the tracking.\n\n### Creating the database\n\n`db.Database.EnsureCreated()` creates the tables and inserts the **seed data** from `HasData` in `OnModelCreating`. It's handy for demos and tests. Real projects use **migrations** instead (`dotnet ef migrations add`, then `dotnet ef database update`), which change an existing database step by step.\n\n### The in-memory provider's limits\n\nIt isn't a relational database: no SQL, no transactions, and it doesn't enforce relationships or unique indexes. Microsoft advises against using it to test real database code (use SQLite or a test SQL Server). It's a good way to learn the EF API, and the code you write here runs unchanged on SQL Server.\n\n### New words\n\n- **ORM**: a library that maps classes to tables and objects to rows, and writes the SQL.\n- **Entity**: a class EF Core maps to a table.\n- **DbContext / DbSet**: the database session and one of its tables.\n- **Change tracking**: the context noticing what you added, changed or removed, for `SaveChanges`.\n- **Deferred execution**: an `IQueryable` query runs only when results are asked for.\n- **Migration**: a versioned change to the database schema.\n",
+      "exampleMarkdown": "A to-do API on EF Core, seeded with three rows. Press **Run**, then in **Try it**: `GET /todos` (two open to-dos; *Book the hall* is done), POST `/todos/2/done` (a tracked change, saved as an `UPDATE`), then `GET /todos` again. `POST /todos/9/done` is a 404.",
+      "exampleCode": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<TodoDb>(\n    o => o.UseInMemoryDatabase(\"todos\"));\nvar app = builder.Build();\n\n// Create the database and its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<TodoDb>()\n        .Database.EnsureCreated();\n}\n\n// SELECT ... WHERE Done = 0 ORDER BY Title\napp.MapGet(\"/todos\", async (TodoDb db) =>\n    await db.Todos.AsNoTracking()\n        .Where(t => !t.Done)\n        .OrderBy(t => t.Title)\n        .ToListAsync());\n\n// A tracked change: SaveChanges sends an UPDATE.\napp.MapPost(\"/todos/{id:int}/done\", async (int id, TodoDb db) =>\n{\n    var todo = await db.Todos.FindAsync(id);\n    if (todo is null)\n    {\n        return Results.NotFound();\n    }\n    todo.Done = true;\n    await db.SaveChangesAsync();\n    return Results.Ok(todo);\n});\n\napp.Run();\n\npublic class Todo\n{\n    public int Id { get; set; }\n    public string Title { get; set; } = \"\";\n    public bool Done { get; set; }\n}\n\npublic class TodoDb(DbContextOptions<TodoDb> options)\n    : DbContext(options)\n{\n    public DbSet<Todo> Todos => Set<Todo>();\n\n    protected override void OnModelCreating(ModelBuilder model) =>\n        model.Entity<Todo>().HasData(\n            new Todo { Id = 1, Title = \"Water the ferns\" },\n            new Todo { Id = 2, Title = \"Fix the gate\" },\n            new Todo { Id = 3, Title = \"Book the hall\", Done = true });\n}\n",
       "videoUrl": null,
       "captionsUrl": null,
-      "challenge": null,
-      "quiz": null
+      "challenge": {
+        "kind": "CSharp",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn.** The arcade's high-score API is moving from a list to EF Core. `Arcade.cs` (the entity, the input record and the DbContext with seed scores) is finished. Press **Run**: the server doesn't even start yet.\n\n1. **Register the context.** In `Program.cs`, register `ArcadeDb` with the in-memory database named `\"arcade\"`.\n2. **Top scores.** `GET /api/scores?game=tetra` should answer that game's **top 3**, highest first: 12800, 9200, 7600. Filter, sort and limit **in the query**, before `ToListAsync`, so the database does the work.\n3. **Scores that stick.** `POST /api/scores` answers 201 but the score never appears. Save it.\n4. **Delete.** Add `DELETE /api/scores/{id:int}`: **204** if the score was there, **404** if not.",
+        "starterFiles": {
+          "Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\n// TODO 1: register ArcadeDb, using the\n// in-memory database named \"arcade\".\n\nvar app = builder.Build();\n\n// Create the database and its seed scores.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ArcadeDb>();\n    db.Database.EnsureCreated();\n}\n\napp.MapControllers();\napp.Run();\n",
+          "ScoresController.cs": "using Microsoft.AspNetCore.Mvc;\nusing Microsoft.EntityFrameworkCore;\n\n[ApiController]\n[Route(\"api/[controller]\")]\npublic class ScoresController(ArcadeDb db)\n    : ControllerBase\n{\n    // TODO 2: GET /api/scores?game=tetra: that\n    // game's top 3, highest first. Let the\n    // database filter, sort and limit.\n    [HttpGet]\n    public async Task<List<Score>> Get(string game) =>\n        await db.Scores.ToListAsync();\n\n    [HttpGet(\"{id:int}\")]\n    public async Task<ActionResult<Score>> GetById(\n        int id)\n    {\n        var score = await db.Scores.FindAsync(id);\n        if (score is null)\n        {\n            return NotFound();\n        }\n        return score;\n    }\n\n    // TODO 3: this answers 201, but the score\n    // is never saved.\n    [HttpPost]\n    public ActionResult<Score> Create(NewScore input)\n    {\n        var score = new Score\n        {\n            Game = input.Game,\n            Player = input.Player,\n            Points = input.Points,\n        };\n        db.Scores.Add(score);\n        return CreatedAtAction(nameof(GetById),\n            new { id = score.Id }, score);\n    }\n\n    // TODO 4: DELETE /api/scores/{id:int}: 204\n    // if it was there, 404 if not.\n}\n",
+          "Arcade.cs": "using System.ComponentModel.DataAnnotations;\nusing Microsoft.EntityFrameworkCore;\n\n// Finished: you don't need to change this file.\npublic class Score\n{\n    public int Id { get; set; }\n    public string Game { get; set; } = \"\";\n    public string Player { get; set; } = \"\";\n    public int Points { get; set; }\n}\n\n// What a client sends to add a score.\npublic record NewScore(\n    [Required] string Game,\n    [Required, StringLength(16)] string Player,\n    [Range(0, 1_000_000)] int Points);\n\npublic class ArcadeDb(DbContextOptions<ArcadeDb> o)\n    : DbContext(o)\n{\n    public DbSet<Score> Scores => Set<Score>();\n\n    // Seed rows, added by EnsureCreated.\n    protected override void OnModelCreating(\n        ModelBuilder model) =>\n        model.Entity<Score>().HasData(\n            Seed(1, \"tetra\", \"ByteRunner\", 9200),\n            Seed(2, \"tetra\", \"PixelFox\", 4100),\n            Seed(3, \"tetra\", \"NullPointer\", 12800),\n            Seed(4, \"tetra\", \"Glitch\", 7600),\n            Seed(5, \"snake\", \"PixelFox\", 300));\n\n    private static Score Seed(\n        int id, string game, string who, int pts) =>\n        new() { Id = id, Game = game,\n                Player = who, Points = pts };\n}\n"
+        },
+        "solutionFiles": {
+          "Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\n// TODO 1: register ArcadeDb, using the\n// in-memory database named \"arcade\".\nbuilder.Services.AddDbContext<ArcadeDb>(\n    o => o.UseInMemoryDatabase(\"arcade\"));\n\nvar app = builder.Build();\n\n// Create the database and its seed scores.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ArcadeDb>();\n    db.Database.EnsureCreated();\n}\n\napp.MapControllers();\napp.Run();\n",
+          "ScoresController.cs": "using Microsoft.AspNetCore.Mvc;\nusing Microsoft.EntityFrameworkCore;\n\n[ApiController]\n[Route(\"api/[controller]\")]\npublic class ScoresController(ArcadeDb db)\n    : ControllerBase\n{\n    // TODO 2: GET /api/scores?game=tetra: that\n    // game's top 3, highest first. Let the\n    // database filter, sort and limit.\n    [HttpGet]\n    public async Task<List<Score>> Get(string game) =>\n        await db.Scores\n            .Where(s => s.Game == game)\n            .OrderByDescending(s => s.Points)\n            .Take(3)\n            .ToListAsync();\n\n    [HttpGet(\"{id:int}\")]\n    public async Task<ActionResult<Score>> GetById(\n        int id)\n    {\n        var score = await db.Scores.FindAsync(id);\n        if (score is null)\n        {\n            return NotFound();\n        }\n        return score;\n    }\n\n    // TODO 3: this answers 201, but the score\n    // is never saved.\n    [HttpPost]\n    public async Task<ActionResult<Score>> Create(\n        NewScore input)\n    {\n        var score = new Score\n        {\n            Game = input.Game,\n            Player = input.Player,\n            Points = input.Points,\n        };\n        db.Scores.Add(score);\n        await db.SaveChangesAsync();\n        return CreatedAtAction(nameof(GetById),\n            new { id = score.Id }, score);\n    }\n\n    // TODO 4: DELETE /api/scores/{id:int}: 204\n    // if it was there, 404 if not.\n    [HttpDelete(\"{id:int}\")]\n    public async Task<IActionResult> Delete(int id)\n    {\n        var score = await db.Scores.FindAsync(id);\n        if (score is null)\n        {\n            return NotFound();\n        }\n        db.Scores.Remove(score);\n        await db.SaveChangesAsync();\n        return NoContent();\n    }\n}\n",
+          "Arcade.cs": "using System.ComponentModel.DataAnnotations;\nusing Microsoft.EntityFrameworkCore;\n\n// Finished: you don't need to change this file.\npublic class Score\n{\n    public int Id { get; set; }\n    public string Game { get; set; } = \"\";\n    public string Player { get; set; } = \"\";\n    public int Points { get; set; }\n}\n\n// What a client sends to add a score.\npublic record NewScore(\n    [Required] string Game,\n    [Required, StringLength(16)] string Player,\n    [Range(0, 1_000_000)] int Points);\n\npublic class ArcadeDb(DbContextOptions<ArcadeDb> o)\n    : DbContext(o)\n{\n    public DbSet<Score> Scores => Set<Score>();\n\n    // Seed rows, added by EnsureCreated.\n    protected override void OnModelCreating(\n        ModelBuilder model) =>\n        model.Entity<Score>().HasData(\n            Seed(1, \"tetra\", \"ByteRunner\", 9200),\n            Seed(2, \"tetra\", \"PixelFox\", 4100),\n            Seed(3, \"tetra\", \"NullPointer\", 12800),\n            Seed(4, \"tetra\", \"Glitch\", 7600),\n            Seed(5, \"snake\", \"PixelFox\", 300));\n\n    private static Score Seed(\n        int id, string game, string who, int pts) =>\n        new() { Id = id, Game = game,\n                Player = who, Points = pts };\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The server starts",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/scores/1",
+              "expectStatus": 200,
+              "expectJson": {
+                "player": "ByteRunner",
+                "points": 9200
+              }
+            },
+            "failMessage": "The server didn't start: GetRequiredService<ArcadeDb>() needs ArcadeDb registered. Add builder.Services.AddDbContext<ArcadeDb>(o => o.UseInMemoryDatabase(\"arcade\")); before builder.Build()."
+          },
+          {
+            "label": "Top 3 for tetra, highest first",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/scores?game=tetra",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "points": 12800
+                },
+                {
+                  "points": 9200
+                },
+                {
+                  "points": 7600
+                }
+              ]
+            },
+            "failMessage": "GET /api/scores?game=tetra should answer three scores: 12800, 9200, 7600, in that order. Use Where, OrderByDescending and Take(3) before ToListAsync()."
+          },
+          {
+            "label": "Only the game asked for",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/scores?game=snake",
+              "expectJson": [
+                {
+                  "player": "PixelFox",
+                  "points": 300
+                }
+              ]
+            },
+            "failMessage": "GET /api/scores?game=snake should answer only the one snake score."
+          },
+          {
+            "label": "The database does the filtering",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "ToList(Async)?\\s*\\(\\s*\\)\\s*\\)?\\s*\\.\\s*(Where|OrderBy|OrderByDescending|Take)\\b|AsEnumerable\\s*\\(",
+              "max": 0,
+              "file": "ScoresController.cs"
+            },
+            "failMessage": "Don't load the whole table and filter it in C#: put Where, OrderByDescending and Take before ToListAsync(), so they become part of the database query."
+          },
+          {
+            "label": "POST answers 201 with the new id",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/scores",
+              "body": {
+                "game": "snake",
+                "player": "Glitch",
+                "points": 450
+              },
+              "expectStatus": 201,
+              "expectJson": {
+                "id": 6,
+                "player": "Glitch"
+              },
+              "expectHeader": {
+                "Location": "/api/Scores/6"
+              }
+            },
+            "failMessage": "POST /api/scores should answer 201 Created with the new score and id 6, the next key after the five seed rows."
+          },
+          {
+            "label": "A new score is saved",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/scores",
+                  "body": {
+                    "game": "snake",
+                    "player": "Glitch",
+                    "points": 450
+                  }
+                }
+              ],
+              "path": "/api/scores?game=snake",
+              "expectJson": [
+                {
+                  "points": 450
+                },
+                {
+                  "points": 300
+                }
+              ]
+            },
+            "failMessage": "After POST /api/scores, the new snake score should be in GET /api/scores?game=snake. Add only tracks the new score: call await db.SaveChangesAsync() after it."
+          },
+          {
+            "label": "DELETE answers 204",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "DELETE",
+              "path": "/api/scores/3",
+              "expectStatus": 204
+            },
+            "failMessage": "DELETE /api/scores/3 should answer 204 No Content. Add an action with [HttpDelete(\"{id:int}\")]: find the score, Remove it, save, and return NoContent()."
+          },
+          {
+            "label": "A deleted score is gone",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "DELETE",
+                  "path": "/api/scores/3"
+                }
+              ],
+              "path": "/api/scores?game=tetra",
+              "expectJson": [
+                {
+                  "points": 9200
+                },
+                {
+                  "points": 7600
+                },
+                {
+                  "points": 4100
+                }
+              ]
+            },
+            "failMessage": "After DELETE /api/scores/3, the tetra top 3 should be 9200, 7600, 4100. Did you call SaveChangesAsync after Remove?"
+          },
+          {
+            "label": "DELETE on a missing score is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "DELETE",
+              "path": "/api/scores/99",
+              "expectStatus": 404
+            },
+            "failMessage": "DELETE /api/scores/99 should answer 404: FindAsync gives null when there's no such row."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The controller asks for an `ArcadeDb` in its constructor, and so does the seeding code. Where do services come from, and which `Add…` method registers a DbContext?",
+            "speechText": "The controller asks for an Arcade D-B in its constructor, and so does the seeding code. Where do services come from, and which Add method registers a D-B Context?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Register it with `builder.Services.AddDbContext<ArcadeDb>(o => o.UseInMemoryDatabase(\"arcade\"));`. In `Get`, chain `Where`, `OrderByDescending` and `Take(3)` onto `db.Scores` before `ToListAsync()`. In `Create`, `await db.SaveChangesAsync();` after `Add` (the method becomes `async`).",
+            "speechText": "Register it with Add D-B Context and Use In Memory Database. In Get, chain Where, Order By Descending and Take three before To List Async. In Create, await Save Changes Async after the Add, and make the method async.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The delete action:\n\n```csharp\n[HttpDelete(\"{id:int}\")]\npublic async Task<IActionResult> Delete(int id)\n{\n    var score = await db.Scores.FindAsync(id);\n    if (score is null)\n    {\n        return NotFound();\n    }\n    db.Scores.Remove(score);\n    await db.SaveChangesAsync();\n    return NoContent();\n}\n```",
+            "speechText": "For delete, find the score with Find Async and return Not Found if it's null. Otherwise remove it, await Save Changes Async, and return No Content.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "When does this query run? var q = db.Scores.Where(s => s.Points > 100);",
+            "explanation": "db.Scores is an IQueryable, so building the query runs nothing. It runs when you ask for results, with ToListAsync, CountAsync, FirstOrDefaultAsync and so on.",
+            "options": [
+              {
+                "text": "When you ask for results, like with ToListAsync()",
+                "correct": true
+              },
+              {
+                "text": "On that line, straight away",
+                "correct": false
+              },
+              {
+                "text": "When SaveChanges is called",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What's wrong with (await db.Scores.ToListAsync()).Where(s => s.Game == game)?",
+            "explanation": "It gives the right answer, but it loads every row into memory and filters in C#. Put Where before ToListAsync so it becomes part of the SQL query.",
+            "options": [
+              {
+                "text": "It loads the whole table and filters in C#",
+                "correct": true
+              },
+              {
+                "text": "It doesn't compile",
+                "correct": false
+              },
+              {
+                "text": "It returns the wrong scores",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "You load a score with FindAsync, change its Points and return. What reaches the database?",
+            "explanation": "The context tracks the change, but nothing is sent until SaveChangesAsync, which would send an UPDATE.",
+            "options": [
+              {
+                "text": "Nothing, until you call SaveChangesAsync",
+                "correct": true
+              },
+              {
+                "text": "An UPDATE, straight away",
+                "correct": false
+              },
+              {
+                "text": "A DELETE and an INSERT",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What lifetime does AddDbContext give the DbContext?",
+            "explanation": "Scoped: one context per request. Don't hold one in a singleton.",
+            "options": [
+              {
+                "text": "Scoped: one per request",
+                "correct": true
+              },
+              {
+                "text": "Singleton: one for the whole app",
+                "correct": false
+              },
+              {
+                "text": "Transient: a new one every time it's asked for",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why use migrations at work instead of EnsureCreated?",
+            "explanation": "EnsureCreated only creates a database from nothing. Migrations change an existing database step by step, keeping its data.",
+            "options": [
+              {
+                "text": "They change an existing database step by step, keeping its data",
+                "correct": true
+              },
+              {
+                "text": "EnsureCreated doesn't work on SQL Server",
+                "correct": false
+              },
+              {
+                "text": "Migrations make queries faster",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "web-api-project-explorer",

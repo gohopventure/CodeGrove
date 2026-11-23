@@ -6,7 +6,8 @@ namespace Codegrove.WebApi.ParityTests;
 /// The same program and requests on the practice server (through the runner) and on real ASP.NET Core must
 /// get the same answers. These cover what the lessons and WebApiTests rely on: text vs JSON, routing and
 /// constraints, 405, binding rules and their 400 messages, nullability, returning null, the endpoint-building
-/// errors for unregistered services, DI validation, results and problem details.
+/// errors for unregistered services, DI validation, results and problem details, and Entity Framework Core
+/// (in-memory provider) behind both minimal APIs and controllers.
 /// </summary>
 public class ShimParityTests
 {
@@ -304,6 +305,125 @@ public class ShimParityTests
             """,
             [Get("/slow"), Get("/nothing"), Get("/void")]),
 
+        ["Entity Framework Core with controllers"] = ("""
+            using System.ComponentModel.DataAnnotations;
+            using Microsoft.AspNetCore.Mvc;
+            using Microsoft.EntityFrameworkCore;
+
+            var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddControllers();
+            builder.Services.AddDbContext<ArcadeDb>(o => o.UseInMemoryDatabase("arcade"));
+            var app = builder.Build();
+            using (var scope = app.Services.CreateScope())
+            {
+                scope.ServiceProvider.GetRequiredService<ArcadeDb>().Database.EnsureCreated();
+            }
+            app.MapControllers();
+            app.Run();
+
+            public class Score
+            {
+                public int Id { get; set; }
+                public string Game { get; set; } = "";
+                public string Player { get; set; } = "";
+                public int Points { get; set; }
+            }
+            public record NewScore([Required] string Game, [Required, StringLength(16)] string Player, int Points);
+            public class ArcadeDb(DbContextOptions<ArcadeDb> o) : DbContext(o)
+            {
+                public DbSet<Score> Scores => Set<Score>();
+                protected override void OnModelCreating(ModelBuilder model) => model.Entity<Score>().HasData(
+                    new Score { Id = 1, Game = "tetra", Player = "ByteRunner", Points = 9200 },
+                    new Score { Id = 2, Game = "tetra", Player = "NullPointer", Points = 12800 },
+                    new Score { Id = 3, Game = "snake", Player = "PixelFox", Points = 300 });
+            }
+
+            [ApiController]
+            [Route("api/[controller]")]
+            public class ScoresController(ArcadeDb db) : ControllerBase
+            {
+                [HttpGet]
+                public async Task<List<Score>> Get(string game) =>
+                    await db.Scores.Where(s => s.Game == game).OrderByDescending(s => s.Points).Take(3).ToListAsync();
+
+                [HttpGet("{id:int}")]
+                public async Task<ActionResult<Score>> GetById(int id) =>
+                    await db.Scores.FindAsync(id) is { } score ? score : NotFound();
+
+                [HttpPost]
+                public async Task<ActionResult<Score>> Create(NewScore input)
+                {
+                    var score = new Score { Game = input.Game, Player = input.Player, Points = input.Points };
+                    db.Scores.Add(score);
+                    await db.SaveChangesAsync();
+                    return CreatedAtAction(nameof(GetById), new { id = score.Id }, score);
+                }
+
+                [HttpPut("{id:int}/points")]
+                public async Task<IActionResult> SetPoints(int id, [FromBody] int points)
+                {
+                    var score = await db.Scores.FindAsync(id);
+                    if (score is null) return NotFound();
+                    score.Points = points;
+                    await db.SaveChangesAsync();
+                    return NoContent();
+                }
+
+                [HttpDelete("{id:int}")]
+                public async Task<IActionResult> Delete(int id)
+                {
+                    var score = await db.Scores.FindAsync(id);
+                    if (score is null) return NotFound();
+                    db.Scores.Remove(score);
+                    await db.SaveChangesAsync();
+                    return NoContent();
+                }
+            }
+            """,
+            [Get("/api/scores?game=tetra"), Get("/api/scores/3"), Get("/api/scores/9"),
+             new("POST", "/api/scores", """{"game":"snake","player":"Glitch","points":450}"""), Get("/api/scores?game=snake"),
+             new("POST", "/api/scores", """{"points":1}"""),
+             new("PUT", "/api/scores/1/points", "20000"), Get("/api/scores?game=tetra"),
+             new("DELETE", "/api/scores/2"), new("DELETE", "/api/scores/2"), Get("/api/scores?game=tetra")]),
+
+        ["Entity Framework Core with minimal APIs"] = ("""
+            using Microsoft.EntityFrameworkCore;
+
+            var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddDbContext<GroveDb>(o => o.UseInMemoryDatabase("grove"));
+            var app = builder.Build();
+            app.MapGet("/treasures", (GroveDb db) => db.Treasures.OrderBy(t => t.Name).ToList());
+            app.MapGet("/treasures/{id:int}", (int id, GroveDb db) =>
+                db.Treasures.Find(id) is { } t ? Results.Ok(t) : Results.NotFound());
+            app.MapGet("/treasures/count", async (GroveDb db) => await db.Treasures.CountAsync());
+            app.MapPost("/treasures", (Treasure t, GroveDb db) =>
+            {
+                db.Treasures.Add(t);
+                db.SaveChanges();
+                return Results.Created($"/treasures/{t.Id}", t);
+            });
+            app.MapPost("/forgetful", (Treasure t, GroveDb db) =>
+            {
+                db.Treasures.Add(t);
+                return Results.Created($"/treasures/{t.Id}", t);
+            });
+            app.Run();
+
+            public class Treasure
+            {
+                public int Id { get; set; }
+                public string Name { get; set; } = "";
+                public int Sparkle { get; set; }
+            }
+            public class GroveDb(DbContextOptions<GroveDb> options) : DbContext(options)
+            {
+                public DbSet<Treasure> Treasures => Set<Treasure>();
+            }
+            """,
+            [Get("/treasures"), new("POST", "/treasures", """{"name":"Spiral shell","sparkle":4}"""),
+             new("POST", "/treasures", """{"name":"Golden acorn","sparkle":9}"""), new("POST", "/forgetful", """{"name":"Lost key"}"""),
+             Get("/treasures"), Get("/treasures/2"), Get("/treasures/3"), Get("/treasures/count")]),
+
         ["a crashing endpoint"] = ("""
             var app = WebApplication.CreateBuilder(args).Build();
             string[] names = ["Moss"];
@@ -358,6 +478,27 @@ public class ShimParityTests
         app.Run();
         interface IClock { }
         class Report(IClock clock) { }
+        """)]
+    [InlineData("""
+        using Microsoft.EntityFrameworkCore;
+        var builder = WebApplication.CreateBuilder(args);
+        var app = builder.Build();
+        using (var scope = app.Services.CreateScope())
+        {
+            scope.ServiceProvider.GetRequiredService<ArcadeDb>().Database.EnsureCreated();
+        }
+        app.Run();
+        public class ArcadeDb(DbContextOptions<ArcadeDb> o) : DbContext(o) { }
+        """)]
+    [InlineData("""
+        using Microsoft.EntityFrameworkCore;
+        var builder = WebApplication.CreateBuilder(args);
+        builder.Services.AddDbContext<ArcadeDb>(o => o.UseInMemoryDatabase("arcade"));
+        builder.Services.AddSingleton<Leaderboard>();
+        var app = builder.Build();
+        app.Run();
+        public class ArcadeDb(DbContextOptions<ArcadeDb> o) : DbContext(o) { }
+        public class Leaderboard(ArcadeDb db) { }
         """)]
     public async Task Startup_errors_have_the_same_message(string code)
     {

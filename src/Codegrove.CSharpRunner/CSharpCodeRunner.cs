@@ -165,6 +165,7 @@ public static class CSharpCodeRunner
             var program = context.LoadFromStream(new MemoryStream(pe));
             context.Program = program;
             context.ProgramImage = pe;
+            EfReset.Reset(); // EF Core lives outside the run's load context; see EfReset
             var slot = Codegrove.WebShim.ShimHost.Begin();
             RunOutcome outcome;
             try

@@ -18,10 +18,9 @@ namespace Microsoft.AspNetCore.Builder
         {
             if (_built) throw new InvalidOperationException("Build can only be called once.");
             _built = true;
-            var provider = new ShimServiceProvider(Services);
             // Development checks, as `dotnet run` has them: every service must be constructible, and no
             // singleton may hold a scoped service. The same errors as ASP.NET Core, at the same moment.
-            provider.Validate();
+            var provider = ShimServices.Build(Services);
             var app = new WebApplication(new WebApplicationCore(provider));
             ShimHost.Built(app);
             return app;
@@ -85,9 +84,9 @@ namespace Codegrove.WebShim
     internal sealed class ServerStartedSignal() : Exception("The server started. (Codegrove ends the program here, as app.Run() would keep it waiting for requests.)");
 
     /// <summary>Everything the app holds: its services and endpoints.</summary>
-    internal sealed class WebApplicationCore(ShimServiceProvider services)
+    internal sealed class WebApplicationCore(ServiceProvider services)
     {
-        public ShimServiceProvider Services { get; } = services;
+        public ServiceProvider Services { get; } = services;
         public List<Endpoint> Endpoints { get; } = [];
         public bool Started { get; set; }
         public string Url { get; set; } = "http://localhost:5000";
