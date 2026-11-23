@@ -192,6 +192,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "sql-project-explorer": {
+      "intro": [
+        {
+          "displayText": "The Grove library needs a helper, and that's you! Your mission: add a book, lend one out, and answer three questions for the librarian.",
+          "speechText": "The Grove library needs a helper, and that's you! Your mission is to add a book, lend one out, and answer three questions for the librarian.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Every mission is done, and the librarian is thrilled! Your new word is project: a bigger task that uses lots of things you've learned together.",
+          "speechText": "Every mission is done, and the librarian is thrilled! Your new word is project, which means a bigger task that uses lots of things you've learned together.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "sql-project": {
+      "intro": [
+        {
+          "displayText": "Real database work is a sequence: clean the data, save a summary, then answer questions. You'll do all three on Pixel Pier's November sales, using everything from this course. Take it one step at a time, and press Run after each one.",
+          "speechText": "Real database work is a sequence: clean the data, save a summary, then answer questions. You'll do all three on Pixel Pier's November sales, using everything from this course. Take it one step at a time, and press Run after each one.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "That's a real report, built the way analysts build them. The gotcha to remember: a saved summary like daily_totals is a snapshot, so if the sales change, rebuild it. And clean the data before you count it.",
+          "speechText": "That's a real report, built the way analysts build them. The gotcha to remember is that a saved summary like daily totals is a snapshot, so if the sales change, rebuild it. And clean the data before you count it.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }
