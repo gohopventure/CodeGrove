@@ -1588,7 +1588,7 @@
       "ageBand": "Builder",
       "estimatedMinutes": 20,
       "isPublished": true,
-      "learnMarkdown": "## Many-to-many with junction tables\n\nOne-to-many covers a lot: one publisher, many games. But many relationships go both ways. A game has several tags (co-op, racing) and a tag is on many games. A student takes many classes and a class has many students. That's **many-to-many**, and no single foreign key can hold it.\n\n### Designs that don't work\n\n- **Numbered columns** (`tag1`, `tag2`, `tag3`): there's always a game with one more tag, every query has to check every column, and empty slots are NULL.\n- **A list in one column** (`tags = 'co-op,racing'`): the database can't check that the tags exist, can't index them, and `LIKE '%co-op%'` is slow and fragile.\n\n### The junction table\n\nStore each pairing as its own row in a table between the two:\n\n```sql\nCREATE TABLE game_tags (\n  game_id INTEGER NOT NULL REFERENCES games(id),\n  tag_id INTEGER NOT NULL REFERENCES tags(id),\n  PRIMARY KEY (game_id, tag_id)\n);\n```\n\n- Both columns are foreign keys, so every pairing points at a real game and a real tag.\n- The **composite primary key** (a key made of two columns) means each pair appears once. Tagging a game \"co-op\" twice is refused.\n- Many-to-many is really two one-to-many relationships: one game, many `game_tags` rows; one tag, many `game_tags` rows.\n\nJunction tables go by many names: link table, bridge table, associative table. A pairing can also carry its own data, like `added_on` or a player's `rating`. Then it's a full table in its own right (often named for what it is, like `enrollments`).\n\n`ON DELETE CASCADE` suits junction tables well: if a game is deleted, its tag pairings mean nothing and can go with it.\n\n### Querying through it\n\nTwo joins, one to each side:\n\n```sql\nSELECT g.title\nFROM games AS g\nJOIN game_tags AS gt ON gt.game_id = g.id\nJOIN tags AS t ON t.id = gt.tag_id\nWHERE t.name = 'co-op';\n```\n\n### The fan-out gotcha\n\nJoining a table to **two** different \"many\" sides multiplies rows. Star Garden has 2 tags and 2 reviews; joined to both, it gets 2 × 2 = 4 rows, so `COUNT(gt.tag_id)` and `COUNT(r.id)` both say 4. Sums are inflated the same way. Fixes:\n\n- `COUNT(DISTINCT gt.tag_id)` for counts of distinct things;\n- or aggregate each side separately first (a subquery, lesson 6), then join the totals.\n\nWatch for this whenever a report suddenly looks too big.\n\n### In SQL Server\n\n- The same design. Name the key: `CONSTRAINT PK_game_tags PRIMARY KEY (game_id, tag_id)`.\n- The primary key's index leads with `game_id`, so looking up \"all games with tag 5\" can't use it well. Add an index on `tag_id` too.\n- To turn a game's tags into one string, SQLite has `GROUP_CONCAT(t.name, ', ')` and SQL Server has `STRING_AGG(t.name, ', ')`.\n- Entity Framework Core creates a junction table for you when two entities each have a collection of the other (a skip navigation), as you'll see in the Web API course.\n\n### New words\n\n- **Many-to-many**: rows on both sides can relate to many rows on the other.\n- **Junction table**: a table whose rows each pair one row from each side. Also called a link, bridge or associative table.\n- **Composite key**: a primary (or unique) key made of more than one column.\n- **Fan-out**: rows multiplying when a query joins more than one \"many\" side, which inflates counts and sums.\n",
+      "learnMarkdown": "## Many-to-many with junction tables\n\nOne-to-many covers a lot: one publisher, many games. But many relationships go both ways. A game has several tags (co-op, racing) and a tag is on many games. A student takes many classes and a class has many students. That's **many-to-many**, and no single foreign key can hold it.\n\n### Designs that don't work\n\n- **Numbered columns** (`tag1`, `tag2`, `tag3`): there's always a game with one more tag, every query has to check every column, and empty slots are NULL.\n- **A list in one column** (`tags = 'co-op,racing'`): the database can't check that the tags exist, can't index them, and `LIKE '%co-op%'` is slow and fragile.\n\n### The junction table\n\nStore each pairing as its own row in a table between the two:\n\n```sql\nCREATE TABLE game_tags (\n  game_id INTEGER NOT NULL REFERENCES games(id),\n  tag_id INTEGER NOT NULL REFERENCES tags(id),\n  PRIMARY KEY (game_id, tag_id)\n);\n```\n\n- Both columns are foreign keys, so every pairing points at a real game and a real tag.\n- The **composite primary key** (a key made of two columns) means each pair appears once. Tagging a game \"co-op\" twice is refused.\n- Many-to-many is really two one-to-many relationships: one game, many `game_tags` rows; one tag, many `game_tags` rows.\n\nJunction tables go by many names: link table, bridge table, associative table. A pairing can also carry its own data, like `added_on` or a player's `rating`. Then it's a full table in its own right (often named for what it is, like `enrollments`).\n\n`ON DELETE CASCADE` suits junction tables well: if a game is deleted, its tag pairings mean nothing and can go with it.\n\n### Querying through it\n\nTwo joins, one to each side:\n\n```sql\nSELECT g.title\nFROM games AS g\nJOIN game_tags AS gt ON gt.game_id = g.id\nJOIN tags AS t ON t.id = gt.tag_id\nWHERE t.name = 'co-op';\n```\n\n### The fan-out gotcha\n\nJoining a table to **two** different \"many\" sides multiplies rows. Star Garden has 2 tags and 2 reviews; joined to both, it gets 2 × 2 = 4 rows, so `COUNT(gt.tag_id)` and `COUNT(r.id)` both say 4. Sums are inflated the same way. Fixes:\n\n- `COUNT(DISTINCT gt.tag_id)` for counts of distinct things;\n- or aggregate each side separately first (a subquery, lesson 6), then join the totals.\n\nWatch for this whenever a report suddenly looks too big.\n\n### In SQL Server\n\n- The same design. Name the key, so errors and later changes can refer to it:\n\n```sql\nCONSTRAINT PK_game_tags\n  PRIMARY KEY (game_id, tag_id)\n```\n\n- The primary key's index leads with `game_id`, so looking up \"all games with tag 5\" can't use it well. Add an index on `tag_id` too.\n- To turn a game's tags into one string, SQLite has `GROUP_CONCAT(t.name, ', ')` and SQL Server has `STRING_AGG(t.name, ', ')`.\n- Entity Framework Core creates a junction table for you when two entities each have a collection of the other (a skip navigation), as you'll see in the Web API course.\n\n### New words\n\n- **Many-to-many**: rows on both sides can relate to many rows on the other.\n- **Junction table**: a table whose rows each pair one row from each side. Also called a link, bridge or associative table.\n- **Composite key**: a primary (or unique) key made of more than one column.\n- **Fan-out**: rows multiplying when a query joins more than one \"many\" side, which inflates counts and sums.\n",
       "exampleMarkdown": "This lists every tag with its games, joining through `game_tags` and combining the titles with `GROUP_CONCAT`. Try adding `WHERE t.name = 'cozy'` above `GROUP BY` to see just one tag.",
       "exampleCode": "-- Each tag and the games that have it\nSELECT t.name AS tag,\n       COUNT(*) AS games,\n       GROUP_CONCAT(g.title, ', ') AS titles\nFROM tags AS t\nJOIN game_tags AS gt ON gt.tag_id = t.id\nJOIN games AS g ON g.id = gt.game_id\nGROUP BY t.name\nORDER BY games DESC, tag;\n",
       "challenge": {
@@ -1900,15 +1900,518 @@
       "sortOrder": 5,
       "ageBand": "Explorer",
       "estimatedMinutes": 5,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## One fact in one place\n\nBefore the Grove had a database, the clubs kept a sign-up sheet. Every row says where the club meets:\n\n| critter | club | meets_at |\n|---------|------|----------|\n| Moss | Swim Club | Lily Pond |\n| Pebble | Swim Club | Lily Pond |\n| Wren | Swim Club | Lilly Pond |\n| Juni | Star Gazers | Oak Hollow |\n| Nova | Star Gazers | Oak Hollow |\n\nCan you spot the trouble?\n\n- **The same fact is written lots of times.** \"The Swim Club meets at Lily Pond\" is in three rows.\n- **Copies can disagree.** Someone typed **Lilly Pond** in Wren's row. So where does the Swim Club meet?\n- **Changes are easy to miss.** If the Star Gazers move, you have to fix every Star Gazers row. Miss one, and the sheet says two different things.\n\n### Store each fact once\n\nThe fix is to give clubs their own table. Each club's meeting place is written **once**:\n\n| id | name | meets_at |\n|----|------|----------|\n| 1 | Swim Club | Lily Pond |\n| 2 | Star Gazers | Oak Hollow |\n\nNow a move is a change to **one** row, and the place can't disagree with itself. Who is in which club goes in a junction table, like `club_members` from the last lesson.\n\nTidying tables like this, so each fact lives in one place, is called **normalizing**.\n\n### New words\n\n- **Repeated data**: the same fact written in more than one row. Copies can end up different.\n- **Normalizing**: tidying tables so each fact is stored in just one place.\n",
+      "exampleMarkdown": "`SELECT DISTINCT` shows each different row only once. The Swim Club comes up twice because the sheet spells its place two ways! To compare, replace the whole query with `SELECT name, meets_at FROM clubs;` and each club has just one place.",
+      "exampleCode": "-- Where does each club meet?\nSELECT DISTINCT club, meets_at\nFROM old_signups\nORDER BY club;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 10,
+        "instructionsMarkdown": "**Your turn!** The Star Gazers are moving to **Cloud Nest**. Open the **Tables** tab: there's the old sign-up sheet and the new `clubs` table.\n\n1. The starter's `UPDATE` only changes Juni's row. Change its `WHERE` so **every** Star Gazers row in `old_signups` gets the new place. Press **Run** and read how many rows changed.\n2. Write an `UPDATE` that makes the same move in the `clubs` table. How many rows change this time?",
+        "starterFiles": {
+          ".setup.sql": "-- The old sign-up sheet: the meeting place\n-- is written in every row\nCREATE TABLE old_signups (\n  id INTEGER PRIMARY KEY,\n  critter TEXT NOT NULL,\n  club TEXT NOT NULL,\n  meets_at TEXT NOT NULL\n);\nINSERT INTO old_signups VALUES\n  (1, 'Moss', 'Swim Club', 'Lily Pond'),\n  (2, 'Pebble', 'Swim Club', 'Lily Pond'),\n  (3, 'Wren', 'Swim Club', 'Lilly Pond'),\n  (4, 'Juni', 'Star Gazers', 'Oak Hollow'),\n  (5, 'Nova', 'Star Gazers', 'Oak Hollow'),\n  (6, 'Pip', 'Star Gazers', 'Oak Hollow'),\n  (7, 'Bramble', 'Acorn Collectors', 'Bramble Burrow'),\n  (8, 'Fern', 'Acorn Collectors', 'Bramble Burrow');\n-- The new design: each club's place, once\nCREATE TABLE clubs (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  meets_at TEXT NOT NULL\n);\nINSERT INTO clubs VALUES\n  (1, 'Swim Club', 'Lily Pond'),\n  (2, 'Star Gazers', 'Oak Hollow'),\n  (3, 'Acorn Collectors', 'Bramble Burrow');\n",
+          "query.sql": "-- 1. The Star Gazers are moving to Cloud Nest.\n--    Fix the old sheet: every Star Gazers row\n--    needs the new place, not just Juni's.\nUPDATE old_signups\nSET meets_at = 'Cloud Nest'\nWHERE critter = 'Juni';\n\n-- 2. Now make the same move in the new clubs\n--    table. Watch how many rows change!\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. The Star Gazers are moving to Cloud Nest.\n--    Fix the old sheet: every Star Gazers row\n--    needs the new place, not just Juni's.\nUPDATE old_signups\nSET meets_at = 'Cloud Nest'\nWHERE club = 'Star Gazers';\n\n-- 2. Now make the same move in the new clubs\n--    table. Watch how many rows change!\nUPDATE clubs\nSET meets_at = 'Cloud Nest'\nWHERE name = 'Star Gazers';\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "Every Star Gazers row in the old sheet moved",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT COUNT(*) FROM old_signups WHERE club = 'Star Gazers' AND meets_at <> 'Cloud Nest'",
+              "equals": 0,
+              "report": "Star Gazers rows still at the old place: {value}."
+            },
+            "failMessage": "Every Star Gazers row in old_signups should say Cloud Nest. Use WHERE club = 'Star Gazers'."
+          },
+          {
+            "label": "The other clubs in the old sheet didn't move",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT id, critter, club, meets_at FROM old_signups ORDER BY id",
+              "equals": [
+                [
+                  1,
+                  "Moss",
+                  "Swim Club",
+                  "Lily Pond"
+                ],
+                [
+                  2,
+                  "Pebble",
+                  "Swim Club",
+                  "Lily Pond"
+                ],
+                [
+                  3,
+                  "Wren",
+                  "Swim Club",
+                  "Lilly Pond"
+                ],
+                [
+                  4,
+                  "Juni",
+                  "Star Gazers",
+                  "Cloud Nest"
+                ],
+                [
+                  5,
+                  "Nova",
+                  "Star Gazers",
+                  "Cloud Nest"
+                ],
+                [
+                  6,
+                  "Pip",
+                  "Star Gazers",
+                  "Cloud Nest"
+                ],
+                [
+                  7,
+                  "Bramble",
+                  "Acorn Collectors",
+                  "Bramble Burrow"
+                ],
+                [
+                  8,
+                  "Fern",
+                  "Acorn Collectors",
+                  "Bramble Burrow"
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "Only the Star Gazers rows should change. The other clubs keep their places."
+          },
+          {
+            "label": "The clubs table says Cloud Nest",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT id, name, meets_at FROM clubs ORDER BY id",
+              "equals": [
+                [
+                  1,
+                  "Swim Club",
+                  "Lily Pond"
+                ],
+                [
+                  2,
+                  "Star Gazers",
+                  "Cloud Nest"
+                ],
+                [
+                  3,
+                  "Acorn Collectors",
+                  "Bramble Burrow"
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "Write UPDATE clubs SET meets_at = 'Cloud Nest' WHERE name = 'Star Gazers'; and leave the other clubs as they are."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which column says that a row belongs to the Star Gazers?",
+            "speechText": "Which column says that a row belongs to the Star Gazers?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "In the first `UPDATE`, change the last line to `WHERE club = 'Star Gazers';`. For the `clubs` table, the club's name is in the `name` column.",
+            "speechText": "In the first update, change the last line to where club equals Star Gazers. For the clubs table, the club's name is in the name column.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The second `UPDATE` is:\n\n```sql\nUPDATE clubs\nSET meets_at = 'Cloud Nest'\nWHERE name = 'Star Gazers';\n```",
+            "speechText": "The second update is, update clubs, set meets at to Cloud Nest, where name equals Star Gazers.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "The sheet writes the Swim Club's place in three rows. What can go wrong?",
+            "explanation": "When the same fact is written in many rows, the copies can end up different, like Lily Pond and Lilly Pond.",
+            "options": [
+              {
+                "text": "The copies can end up saying different things",
+                "correct": true
+              },
+              {
+                "text": "Nothing: more copies are safer",
+                "correct": false
+              },
+              {
+                "text": "The sheet can only hold three rows",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In the clubs table, how many rows does a club's move change?",
+            "explanation": "Each club's place is stored once, so a move changes one row.",
+            "options": [
+              {
+                "text": "One",
+                "correct": true
+              },
+              {
+                "text": "One for every member",
+                "correct": false
+              },
+              {
+                "text": "None",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does normalizing a table mean?",
+            "explanation": "Normalizing means tidying tables so each fact is stored in just one place.",
+            "options": [
+              {
+                "text": "Tidying tables so each fact is stored in one place",
+                "correct": true
+              },
+              {
+                "text": "Making every table the same size",
+                "correct": false
+              },
+              {
+                "text": "Sorting the rows A to Z",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "normalization",
       "title": "Normalization",
       "sortOrder": 5,
       "ageBand": "Builder",
-      "estimatedMinutes": 15,
-      "isPublished": false
+      "estimatedMinutes": 20,
+      "isPublished": true,
+      "learnMarkdown": "## Normalization\n\nData often arrives flat: a spreadsheet export, a CSV from an old system, one row per thing that happened. **Normalization** is the design process that splits it into related tables so that **each fact is stored once**. It's what the last four lessons have been building towards.\n\n### What goes wrong in a flat table\n\nPixel Pier's old system exported orders like this, one row per game in an order:\n\n| order_id | username | email | game_id | title | price |\n|----------|----------|-------|---------|-------|-------|\n| 1 | nova_k | nova@mail.test | 9 | Comet Kart | 44.99 |\n| 1 | nova_k | nova@mail.test | 4 | Puzzle Pond | 14.99 |\n| 4 | byteboss | bytebos@mail.test | 2 | Byte Racers | 19.99 |\n\nThe same facts repeat, which causes three classic **anomalies**:\n\n- **Update anomaly**: nova_k changes their email, and every one of their rows has to change. Miss one and the data contradicts itself (byteboss already has two emails).\n- **Insert anomaly**: you can't store a customer who hasn't ordered yet: there's no row to put them in.\n- **Delete anomaly**: delete someone's only order and their account details go with it.\n\n### The normal forms, in plain words\n\nEach **normal form** is a rule. Each one builds on the one before:\n\n- **First normal form (1NF)**: every column holds one value, and there are no repeating groups. No `tags = 'co-op,racing'`, no `tag1`, `tag2` (lesson 4).\n- **Second normal form (2NF)**: every non-key column depends on the **whole** key. In an order line keyed by (order_id, game_id), `title` depends on the game alone, so it belongs in `games`.\n- **Third normal form (3NF)**: no non-key column depends on another non-key column. `email` depends on the customer, not the order, so it belongs in `customers`.\n\nThe old summary: every column depends on \"the key, the whole key, and nothing but the key\".\n\n### Splitting the flat table\n\n| Table | Holds | Key |\n|-------|-------|-----|\n| `customers` | username, email | `id` |\n| `orders` | which customer, when | `id` |\n| `order_items` | which game, how many, at what price | `(order_id, game_id)` |\n| `games` | title, list price | `id` (already exists) |\n\n`INSERT … SELECT` moves the data. `SELECT DISTINCT` collapses the repeats: an order with two games is two flat rows but one `orders` row.\n\n```sql\nINSERT INTO customers (username, email)\nSELECT DISTINCT username, email\nFROM flat_orders;\n```\n\nClean the data **before** you split it. If one username has two emails, `DISTINCT` gives two customer rows, and a `UNIQUE` key on `username` refuses the second one.\n\n### Not every repeat is redundancy\n\n`order_items.unit_price` looks like a copy of `games.price`, but it isn't: it's the price **at the time of the sale**. Comet Kart cost 44.99 on 1 November and 39.99 on 4 November. Prices change, and old orders must not. Ask \"is this the same fact, or a different fact that happens to match today?\"\n\n### When to stop\n\nMost applications aim for 3NF. Reports and analytics databases sometimes **denormalize** on purpose, storing copies to make reads faster. That's a deliberate trade, not an accident.\n\n### In SQL Server\n\n- Everything above is the same. `SELECT … INTO new_table FROM …` copies rows into a brand-new table in one step.\n- A **view** (`CREATE VIEW order_lines AS SELECT … JOIN …`) gives people the old flat shape back without storing it twice.\n\n### New words\n\n- **Normalization**: designing tables so each fact is stored once, by splitting data into related tables.\n- **Anomaly**: a problem caused by repeated data: an update, insert or delete that leaves the data wrong or loses it.\n- **Normal form**: a rule for table design. 1NF, 2NF and 3NF are the common ones.\n- **Denormalize**: store copies on purpose, usually to make reports faster.\n",
+      "exampleMarkdown": "The import repeats each customer's email on every row of every order, so `COUNT(*)` counts the copies. Try adding `email,` after `username,` and to the `GROUP BY`: byteboss shows up twice, with two different emails.",
+      "exampleCode": "-- How often is each customer's email stored?\nSELECT username,\n       COUNT(*) AS copies\nFROM flat_orders\nGROUP BY username\nORDER BY copies DESC;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Your turn!** Pixel Pier is moving its old `flat_orders` import into proper tables. Open the **Tables** tab to see the import.\n\n1. **Find the conflict:** write a query with the columns `username` and `emails` (how many different emails), listing only usernames with more than one.\n2. **Clean it:** byteboss's real email is `byteboss@mail.test`. Fix the import so every byteboss row uses it.\n3. **Split it:** the starter creates `customers`, `orders` and `order_items` and fills `customers`. Fill `orders` (one row per order) and `order_items` (one row per game in an order) from `flat_orders` with `INSERT … SELECT`. Leave `title` out: it already lives in `games`.",
+        "starterFiles": {
+          ".setup.sql": "-- Pixel Pier game shop: publishers and games\nCREATE TABLE publishers (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  country TEXT NOT NULL\n);\nINSERT INTO publishers VALUES\n  (1, 'Starling Games', 'USA'),\n  (2, 'Lumen Works', 'Japan'),\n  (3, 'Bitforge', 'Canada'),\n  (4, 'Driftwood Studio', 'UK'),\n  (5, 'Nimbus Interactive', 'Brazil');\nCREATE TABLE games (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  platform TEXT NOT NULL,\n  price REAL NOT NULL,\n  publisher_id INTEGER NOT NULL\n    REFERENCES publishers(id)\n);\nINSERT INTO games VALUES\n  (1, 'Star Garden', 'Switch', 39.99, 2),\n  (2, 'Byte Racers', 'PC', 19.99, 3),\n  (3, 'Moonlight Mages', 'PlayStation', 59.99, 1),\n  (4, 'Puzzle Pond', 'Switch', 14.99, 4),\n  (5, 'Robo Rumble', 'Xbox', 49.99, 3),\n  (6, 'Ocean Odyssey', 'PC', 29.99, 4),\n  (7, 'Castle Quest', 'PlayStation', 39.99, 1),\n  (8, 'Tiny Tactics', 'Switch', 24.99, 2),\n  (9, 'Comet Kart', 'Switch', 44.99, 2),\n  (10, 'Pixel Pets', 'PC', 9.99, 3);\n-- An order import from the old shop system:\n-- one row per game in an order\nCREATE TABLE flat_orders (\n  order_id INTEGER NOT NULL,\n  ordered_on TEXT NOT NULL,\n  username TEXT NOT NULL,\n  email TEXT NOT NULL,\n  game_id INTEGER NOT NULL,\n  title TEXT NOT NULL,\n  price REAL NOT NULL,\n  quantity INTEGER NOT NULL\n);\nINSERT INTO flat_orders VALUES\n  (1, '2026-11-01', 'nova_k', 'nova@mail.test', 9, 'Comet Kart', 44.99, 1),\n  (1, '2026-11-01', 'nova_k', 'nova@mail.test', 4, 'Puzzle Pond', 14.99, 2),\n  (2, '2026-11-02', 'byteboss', 'byteboss@mail.test', 5, 'Robo Rumble', 49.99, 1),\n  (3, '2026-11-02', 'quietfox', 'fox@mail.test', 1, 'Star Garden', 39.99, 1),\n  (3, '2026-11-02', 'quietfox', 'fox@mail.test', 8, 'Tiny Tactics', 24.99, 1),\n  (4, '2026-11-03', 'byteboss', 'bytebos@mail.test', 2, 'Byte Racers', 19.99, 2),\n  (5, '2026-11-04', 'nova_k', 'nova@mail.test', 9, 'Comet Kart', 39.99, 1),\n  (5, '2026-11-04', 'nova_k', 'nova@mail.test', 7, 'Castle Quest', 39.99, 1),\n  (6, '2026-11-05', 'byteboss', 'byteboss@mail.test', 3, 'Moonlight Mages', 59.99, 1);\n",
+          "query.sql": "-- 1. Write it: usernames with more than one\n--    email in flat_orders (columns username\n--    and emails).\n\n-- 2. byteboss's real email is\n--    byteboss@mail.test. Fix the import.\n\n-- 3. The new tables (finished, don't change):\nCREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  username TEXT NOT NULL UNIQUE,\n  email TEXT NOT NULL\n);\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER NOT NULL\n    REFERENCES customers(id),\n  ordered_on TEXT NOT NULL\n);\nCREATE TABLE order_items (\n  order_id INTEGER NOT NULL\n    REFERENCES orders(id),\n  game_id INTEGER NOT NULL\n    REFERENCES games(id),\n  quantity INTEGER NOT NULL\n    CHECK (quantity > 0),\n  unit_price REAL NOT NULL,\n  PRIMARY KEY (order_id, game_id)\n);\n\n-- Fill them from flat_orders. customers is\n-- done: fill orders, then order_items.\nINSERT INTO customers (username, email)\nSELECT DISTINCT username, email\nFROM flat_orders;\n"
+        },
+        "solutionFiles": {
+          "query.sql": "-- 1. Write it: usernames with more than one\n--    email in flat_orders (columns username\n--    and emails).\nSELECT username,\n       COUNT(DISTINCT email) AS emails\nFROM flat_orders\nGROUP BY username\nHAVING COUNT(DISTINCT email) > 1;\n\n-- 2. byteboss's real email is\n--    byteboss@mail.test. Fix the import.\nUPDATE flat_orders\nSET email = 'byteboss@mail.test'\nWHERE username = 'byteboss';\n\n-- 3. The new tables (finished, don't change):\nCREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  username TEXT NOT NULL UNIQUE,\n  email TEXT NOT NULL\n);\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER NOT NULL\n    REFERENCES customers(id),\n  ordered_on TEXT NOT NULL\n);\nCREATE TABLE order_items (\n  order_id INTEGER NOT NULL\n    REFERENCES orders(id),\n  game_id INTEGER NOT NULL\n    REFERENCES games(id),\n  quantity INTEGER NOT NULL\n    CHECK (quantity > 0),\n  unit_price REAL NOT NULL,\n  PRIMARY KEY (order_id, game_id)\n);\n\n-- Fill them from flat_orders. customers is\n-- done: fill orders, then order_items.\nINSERT INTO customers (username, email)\nSELECT DISTINCT username, email\nFROM flat_orders;\n\nINSERT INTO orders (id, customer_id, ordered_on)\nSELECT DISTINCT f.order_id, c.id, f.ordered_on\nFROM flat_orders AS f\nJOIN customers AS c ON c.username = f.username;\n\nINSERT INTO order_items\n  (order_id, game_id, quantity, unit_price)\nSELECT order_id, game_id, quantity, price\nFROM flat_orders;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. The message in the Results tab names the line."
+          },
+          {
+            "label": "The conflict query finds byteboss",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "username",
+                "emails"
+              ],
+              "rows": [
+                [
+                  "byteboss",
+                  2
+                ]
+              ]
+            },
+            "failMessage": "The first query should list each username with more than one different email, and how many: GROUP BY username, then HAVING COUNT(DISTINCT email) > 1."
+          },
+          {
+            "label": "byteboss has one email in the import",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT group_concat(DISTINCT email) FROM flat_orders WHERE username = 'byteboss'",
+              "equals": "byteboss@mail.test"
+            },
+            "failMessage": "Every byteboss row in flat_orders should have the email byteboss@mail.test."
+          },
+          {
+            "label": "customers has one row per customer",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT username, email FROM customers ORDER BY username",
+              "equals": [
+                [
+                  "byteboss",
+                  "byteboss@mail.test"
+                ],
+                [
+                  "nova_k",
+                  "nova@mail.test"
+                ],
+                [
+                  "quietfox",
+                  "fox@mail.test"
+                ]
+              ],
+              "ordered": true,
+              "missing": "The customers table is empty."
+            },
+            "failMessage": "customers should have nova_k, byteboss and quietfox, once each, with their real emails. Clean the import before filling it."
+          },
+          {
+            "label": "orders has one row per order",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT o.id, c.username, o.ordered_on FROM orders AS o JOIN customers AS c ON c.id = o.customer_id ORDER BY o.id",
+              "equals": [
+                [
+                  1,
+                  "nova_k",
+                  "2026-11-01"
+                ],
+                [
+                  2,
+                  "byteboss",
+                  "2026-11-02"
+                ],
+                [
+                  3,
+                  "quietfox",
+                  "2026-11-02"
+                ],
+                [
+                  4,
+                  "byteboss",
+                  "2026-11-03"
+                ],
+                [
+                  5,
+                  "nova_k",
+                  "2026-11-04"
+                ],
+                [
+                  6,
+                  "byteboss",
+                  "2026-11-05"
+                ]
+              ],
+              "ordered": true,
+              "missing": "The orders table is empty."
+            },
+            "failMessage": "orders should have one row for each of the 6 orders, with its order_id as id, the customer's id from customers, and the date. Use SELECT DISTINCT and join customers by username."
+          },
+          {
+            "label": "order_items has one row per game in an order",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT order_id, game_id, quantity, unit_price FROM order_items ORDER BY order_id, game_id",
+              "equals": [
+                [
+                  1,
+                  4,
+                  2,
+                  14.99
+                ],
+                [
+                  1,
+                  9,
+                  1,
+                  44.99
+                ],
+                [
+                  2,
+                  5,
+                  1,
+                  49.99
+                ],
+                [
+                  3,
+                  1,
+                  1,
+                  39.99
+                ],
+                [
+                  3,
+                  8,
+                  1,
+                  24.99
+                ],
+                [
+                  4,
+                  2,
+                  2,
+                  19.99
+                ],
+                [
+                  5,
+                  7,
+                  1,
+                  39.99
+                ],
+                [
+                  5,
+                  9,
+                  1,
+                  39.99
+                ],
+                [
+                  6,
+                  3,
+                  1,
+                  59.99
+                ]
+              ],
+              "ordered": true,
+              "missing": "The order_items table is empty."
+            },
+            "failMessage": "order_items should have one row for each row of flat_orders: order_id, game_id, quantity, and price as unit_price."
+          },
+          {
+            "label": "The tables were filled with INSERT … SELECT",
+            "kind": "sourceMatches",
+            "spec": {
+              "pattern": "insert\\s+into\\s+\\w+[^;]*?\\bselect\\b",
+              "min": 3
+            },
+            "failMessage": "Fill orders and order_items with INSERT INTO … SELECT … FROM flat_orders, so the data comes from the import rather than being typed in."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "When you run the starter, `INSERT INTO customers` is refused. How many rows does `SELECT DISTINCT username, email` give for byteboss right now?",
+            "speechText": "When you run the starter, the insert into customers is refused. How many rows does select distinct username and email give for byteboss right now?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Step 1 groups by `username` and keeps `HAVING COUNT(DISTINCT email) > 1`. Step 2 is an `UPDATE` with `WHERE username = 'byteboss'`. For `orders`, select `DISTINCT f.order_id, c.id, f.ordered_on`, joining `customers` on the username.",
+            "speechText": "Step 1 groups by username and keeps the groups with more than one distinct email. Step 2 is an update for the byteboss rows. For orders, select distinct order id, customer id and date, joining customers on the username.",
+            "mood": "Thinking"
+          },
+          {
+            "level": 3,
+            "markdown": "The two inserts:\n\n```sql\nINSERT INTO orders (id, customer_id, ordered_on)\nSELECT DISTINCT f.order_id, c.id, f.ordered_on\nFROM flat_orders AS f\nJOIN customers AS c ON c.username = f.username;\n\nINSERT INTO order_items\n  (order_id, game_id, quantity, unit_price)\nSELECT order_id, game_id, quantity, price\nFROM flat_orders;\n```",
+            "speechText": "Insert into orders the distinct order id, customer id and date, joining customers on the username. Then insert into order items the order id, game id, quantity and price from flat orders.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A flat table stores a customer's email on every order row. They change their email and one row is missed. What is that called?",
+            "explanation": "Changing one fact means changing many rows, and missing one leaves the data contradicting itself: an update anomaly.",
+            "options": [
+              {
+                "text": "An update anomaly",
+                "correct": true
+              },
+              {
+                "text": "An insert anomaly",
+                "correct": false
+              },
+              {
+                "text": "A cross join",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "order_items is keyed by (order_id, game_id). Why doesn't title belong in it?",
+            "explanation": "title depends only on game_id, part of the key, so it breaks second normal form. It belongs in games.",
+            "options": [
+              {
+                "text": "It depends on only part of the key (the game), so it belongs in games",
+                "correct": true
+              },
+              {
+                "text": "Text columns aren't allowed in a table with a composite key",
+                "correct": false
+              },
+              {
+                "text": "It does belong there: every order line needs its title",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Is order_items.unit_price redundant with games.price?",
+            "explanation": "No: it's the price at the time of the sale, a different fact. Prices change, and old orders must not.",
+            "options": [
+              {
+                "text": "No: it records the price at the time of the sale",
+                "correct": true
+              },
+              {
+                "text": "Yes: it should be removed",
+                "correct": false
+              },
+              {
+                "text": "Yes, but SQL needs it for SUM",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "An order has two games, so it's two rows in flat_orders. How do you get one orders row per order?",
+            "explanation": "SELECT DISTINCT collapses the repeated order columns to one row per order.",
+            "options": [
+              {
+                "text": "INSERT INTO orders … SELECT DISTINCT order_id, …",
+                "correct": true
+              },
+              {
+                "text": "INSERT INTO orders … SELECT order_id, … (each order twice)",
+                "correct": false
+              },
+              {
+                "text": "Delete one of the two flat rows first",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which is \"third normal form\" in plain words?",
+            "explanation": "3NF: no non-key column depends on another non-key column. Every column depends on the key, the whole key, and nothing but the key.",
+            "options": [
+              {
+                "text": "No column depends on another non-key column, only on the key",
+                "correct": true
+              },
+              {
+                "text": "Every table has exactly three columns",
+                "correct": false
+              },
+              {
+                "text": "Every table has three foreign keys",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "questions-inside-explorer",

@@ -128,6 +128,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "one-fact-explorer": {
+      "intro": [
+        {
+          "displayText": "The Star Gazers are moving to Cloud Nest, and the old sign-up sheet has their meeting place written over and over. Your mission: move them in the old sheet and in the new clubs table, and see which is easier!",
+          "speechText": "The Star Gazers are moving to Cloud Nest, and the old sign up sheet has their meeting place written over and over. Your mission is to move them in the old sheet and in the new clubs table, and see which is easier!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Three rows in the old sheet, one row in the new table. Your new word is normalizing: tidying tables so each fact lives in one place.",
+          "speechText": "Three rows in the old sheet, one row in the new table. Your new word is normalizing, which means tidying tables so each fact lives in one place.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "normalization": {
+      "intro": [
+        {
+          "displayText": "Real data rarely arrives tidy: exports, spreadsheets and old systems hand you one flat table full of repeats. Normalization is how you turn that into tables that can't contradict themselves. You'll find a conflict in Pixel Pier's old order import, clean it, and split it into proper tables.",
+          "speechText": "Real data rarely arrives tidy. Exports, spreadsheets and old systems hand you one flat table full of repeats. Normalization is how you turn that into tables that can't contradict themselves. You'll find a conflict in Pixel Pier's old order import, clean it, and split it into proper tables.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Customers, orders and order items, each fact in one place. The gotcha to remember: clean the data before you split it, because one conflicting copy turns into two rows and a unique key refuses it. And not every repeat is redundant: a price at the time of sale is its own fact.",
+          "speechText": "Customers, orders and order items, each fact in one place. The gotcha to remember is to clean the data before you split it, because one conflicting copy turns into two rows, and a unique key refuses it. And not every repeat is redundant, because a price at the time of sale is its own fact.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }
