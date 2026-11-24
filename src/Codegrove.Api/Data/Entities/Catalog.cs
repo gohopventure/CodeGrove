@@ -171,6 +171,16 @@ public class Challenge
     /// </summary>
     public string? BlocksJson { get; set; }
 
+    /// <summary>
+    /// Capstone milestones: the slug of the lesson (same course, same band) this challenge continues from. The
+    /// learner starts from their own passing code for that lesson's challenge, for the files in
+    /// <see cref="CarryFilesJson"/>; everything else comes from this challenge's starter. Null: starts fresh.
+    /// </summary>
+    public string? ContinuesFromLessonSlug { get; set; }
+
+    /// <summary>JSON array of the file names carried over from <see cref="ContinuesFromLessonSlug"/>.</summary>
+    public string? CarryFilesJson { get; set; }
+
     public List<TestCase> TestCases { get; set; } = [];
     public List<Hint> Hints { get; set; } = [];
 }

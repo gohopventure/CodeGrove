@@ -248,6 +248,12 @@ namespace Codegrove.Api.Data.Migrations
                     b.Property<string>("BlocksJson")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CarryFilesJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContinuesFromLessonSlug")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("InstructionsMarkdown")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

@@ -106,6 +106,12 @@ export interface Challenge {
   xpReward: number;
   /** Present when the challenge can be built with blocks (Explorer JavaScript lessons). */
   blocks: { toolbox: string[]; starter: object | null } | null;
+  /**
+   * Capstone milestones: the starter with the learner's own passing code from the previous milestone swapped in,
+   * and that milestone's title. Null when the challenge starts fresh or they have no passing code there yet.
+   */
+  startingFiles?: Files | null;
+  carriedFrom?: string | null;
 }
 
 export interface QuizQuestion {

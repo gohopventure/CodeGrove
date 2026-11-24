@@ -14,6 +14,7 @@ export function NetworkPanel({ api, showTitle = true }: {
   /** False inside a tab already called "Network" (the title stays for screen readers). */
   showTitle?: boolean;
 }) {
+  const [sendOpen, setSendOpen] = useState(false);
   const entries = useNetworkLog(api);
   const [openId, setOpenId] = useState<number | null>(null);
   const ids = useId();
@@ -25,12 +26,18 @@ export function NetworkPanel({ api, showTitle = true }: {
         <h3 id={`${ids}-title`} className={showTitle ? 'font-bold' : 'sr-only'}>
           Network
         </h3>
-        {entries.length > 0 && (
-          <button type="button" className="text-xs text-muted underline" onClick={() => { api.clearLog(); setOpenId(null); }}>
-            Clear
+        <div className="flex gap-3">
+          <button type="button" className="text-xs text-muted underline" aria-expanded={sendOpen} onClick={() => setSendOpen((o) => !o)}>
+            {sendOpen ? 'Hide send box' : 'Send a request'}
           </button>
-        )}
+          {entries.length > 0 && (
+            <button type="button" className="text-xs text-muted underline" onClick={() => { api.clearLog(); setOpenId(null); }}>
+              Clear
+            </button>
+          )}
+        </div>
       </div>
+      {sendOpen && <SendBox api={api} />}
       <p className="sr-only" aria-live="polite">
         {entries.length === 1 ? '1 request' : `${entries.length} requests`}
       </p>
@@ -71,6 +78,71 @@ export function NetworkPanel({ api, showTitle = true }: {
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * Sends one request to the learner's API from here, like Try it in the Web API course or a REST client:
+ * handy for endpoints the page doesn't call yet. It goes through the same live server, so it shows up in
+ * the list and changes the same database the page sees.
+ */
+function SendBox({ api }: { api: LiveApi }) {
+  const ids = useId();
+  const [method, setMethod] = useState('GET');
+  const [path, setPath] = useState('/api/');
+  const [body, setBody] = useState('');
+  const [sending, setSending] = useState(false);
+  const hasBody = method === 'POST' || method === 'PUT' || method === 'PATCH';
+  const validPath = path.startsWith('/');
+
+  async function send(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validPath) return;
+    setSending(true);
+    await api.handle({
+      type: 'cg:fetch', runId: '', id: '', method, path,
+      headers: hasBody ? { 'content-type': 'application/json' } : {},
+      body: hasBody ? body : null,
+    });
+    setSending(false);
+  }
+
+  return (
+    <form onSubmit={send} className="space-y-2 border-b border-line px-3 py-2">
+      <div className="flex gap-2">
+        <label htmlFor={`${ids}-method`} className="sr-only">Method</label>
+        <select id={`${ids}-method`} value={method} onChange={(e) => setMethod(e.target.value)} className="rounded border border-line bg-surface px-1 font-mono text-xs">
+          {['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].map((m) => <option key={m}>{m}</option>)}
+        </select>
+        <label htmlFor={`${ids}-path`} className="sr-only">Path</label>
+        <input
+          id={`${ids}-path`}
+          value={path}
+          onChange={(e) => setPath(e.target.value)}
+          spellCheck={false}
+          aria-invalid={!validPath}
+          className="min-w-0 flex-1 rounded border border-line bg-surface px-2 font-mono text-xs"
+        />
+        <button type="submit" className="btn-secondary px-3 py-0.5 text-xs" disabled={sending || !validPath}>
+          {sending ? 'Sending…' : 'Send'}
+        </button>
+      </div>
+      {!validPath && <p className="text-xs text-bad">Start the path with a slash, like /api/matches.</p>}
+      {hasBody && (
+        <div>
+          <label htmlFor={`${ids}-body`} className="text-xs text-muted">JSON body</label>
+          <textarea
+            id={`${ids}-body`}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            rows={4}
+            spellCheck={false}
+            placeholder='{ "name": "…" }'
+            className="block w-full rounded border border-line bg-surface p-2 font-mono text-xs"
+          />
+        </div>
+      )}
+    </form>
   );
 }
 

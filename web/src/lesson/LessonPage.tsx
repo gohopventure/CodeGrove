@@ -370,7 +370,9 @@ function ChallengeStep({
   const runsOnDemand = isCSharp || isSql || isFullStack;
   const draftKey = `cg:draft:${challenge.id}`;
   const preview = useRef<LivePreviewHandle>(null);
-  const [files, setFiles] = useState<Files>(() => readDraft(draftKey) ?? challenge.starterFiles);
+  // Capstone milestones start from the learner's own code from the previous milestone, when they passed it.
+  const startFiles = challenge.startingFiles ?? challenge.starterFiles;
+  const [files, setFiles] = useState<Files>(() => readDraft(draftKey) ?? startFiles);
   const [results, setResults] = useState<TestResult[] | null>(null);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -538,6 +540,17 @@ function ChallengeStep({
         </div>
       )}
 
+      {challenge.carriedFrom && challenge.startingFiles && (
+        <CarryOverBanner
+          from={challenge.carriedFrom}
+          onChoose={(which) => {
+            sessionStorage.removeItem(draftKey);
+            setFiles(which === 'reference' ? challenge.starterFiles : challenge.startingFiles!);
+            setResults(null);
+          }}
+        />
+      )}
+
       <div className="grid gap-4 lg:grid-cols-2">
         {mode === 'blocks' && blocks ? (
           <div className="flex h-[38rem] flex-col overflow-hidden rounded-card border border-line bg-surface">
@@ -589,7 +602,7 @@ function ChallengeStep({
             if (window.confirm('Start over with the original code? Your changes will be lost.')) {
               sessionStorage.removeItem(draftKey);
               sessionStorage.removeItem(blocksKey);
-              setFiles(challenge.starterFiles);
+              setFiles(startFiles);
               setResults(null);
               blocksState.current = blocks?.starter ?? null;
               lastGenerated.current = null;
@@ -640,6 +653,38 @@ function ChallengeStep({
         </section>
       )}
     </section>
+  );
+}
+
+/**
+ * Capstone milestones that continue from the last one: says the learner's own code came along, and lets
+ * them switch to the reference code (our version of the last milestone) and back.
+ */
+function CarryOverBanner({ from, onChoose }: { from: string; onChoose: (which: 'yours' | 'reference') => void }) {
+  const [using, setUsing] = useState<'yours' | 'reference'>('yours');
+  function choose(which: 'yours' | 'reference') {
+    const question = which === 'reference'
+      ? `Switch to the reference code for "${from}"? Your changes in this milestone will be replaced. You can switch back to your own code later.`
+      : 'Go back to your own code from the last milestone? Your changes to the reference code will be replaced.';
+    if (!window.confirm(question)) return;
+    setUsing(which);
+    onChoose(which);
+  }
+  return (
+    <div role="status" className="flex flex-wrap items-center gap-3 rounded-card border border-line bg-surface-2 px-4 py-3 text-sm">
+      {using === 'yours' ? (
+        <p className="min-w-0 flex-1">
+          <strong>Your code, carried on.</strong> This milestone starts from the code you wrote in <em>{from}</em>.
+        </p>
+      ) : (
+        <p className="min-w-0 flex-1">
+          <strong>Using the reference code:</strong> our version of <em>{from}</em>.
+        </p>
+      )}
+      <button type="button" className="btn-secondary px-3 py-1 text-sm" onClick={() => choose(using === 'yours' ? 'reference' : 'yours')}>
+        {using === 'yours' ? 'Use the reference code instead' : 'Go back to my code'}
+      </button>
+    </div>
   );
 }
 

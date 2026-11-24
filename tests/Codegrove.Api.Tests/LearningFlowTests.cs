@@ -391,6 +391,45 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
     }
 
     /// <summary>Maps each quiz question to its correct option by matching prompts against the seed file.</summary>
+    [Fact]
+    public async Task A_capstone_milestone_starts_from_the_learners_own_passing_code()
+    {
+        var (_, child, _) = await FamilyWithConsentedExplorer("ClubFox12");
+        var course = await child.GetJson("/api/courses/capstone-clubs");
+        int Id(string slug) => course.GetProperty("lessons").EnumerateArray()
+            .First(l => l.GetProperty("slug").GetString() == slug).GetProperty("id").GetInt32();
+
+        // Before passing milestone 3: milestone 4 starts from the reference (its own starter).
+        var m4 = (await child.GetJson($"/api/lessons/{Id("clubhub-signup-explorer")}")).GetProperty("challenge");
+        Assert.Equal(JsonValueKind.Null, m4.GetProperty("startingFiles").ValueKind);
+        Assert.Equal(JsonValueKind.Null, m4.GetProperty("carriedFrom").ValueKind);
+
+        // A failing submission of milestone 3 doesn't count.
+        var m3 = (await child.GetJson($"/api/lessons/{Id("clubhub-page-explorer")}")).GetProperty("challenge");
+        var m3Id = m3.GetProperty("id").GetInt32();
+        var testIds = m3.GetProperty("tests").EnumerateArray().Select(t => t.GetProperty("id").GetInt32()).ToList();
+        const string mine = "// my own App.jsx\nexport default function App() { return null; }\n";
+        var files = new Dictionary<string, string> { ["web/App.jsx"] = mine, ["web/index.html"] = "<div id=\"root\"></div>" };
+        await child.PostJson($"/api/challenges/{m3Id}/submissions",
+            new { files = new Dictionary<string, string>(files) { ["web/App.jsx"] = "// failing" },
+                  results = testIds.Select(id => new { testId = id, passed = false, message = (string?)null }) });
+        m4 = (await child.GetJson($"/api/lessons/{Id("clubhub-signup-explorer")}")).GetProperty("challenge");
+        Assert.Equal(JsonValueKind.Null, m4.GetProperty("startingFiles").ValueKind);
+
+        // After passing it: milestone 4 starts from their App.jsx; every other file is milestone 4's own.
+        var pass = await child.PostJson($"/api/challenges/{m3Id}/submissions",
+            new { files, results = testIds.Select(id => new { testId = id, passed = true, message = (string?)null }) });
+        Assert.Equal(HttpStatusCode.OK, pass.StatusCode);
+        m4 = (await child.GetJson($"/api/lessons/{Id("clubhub-signup-explorer")}")).GetProperty("challenge");
+        var starting = m4.GetProperty("startingFiles");
+        var starter = m4.GetProperty("starterFiles");
+        Assert.Equal(mine, starting.GetProperty("web/App.jsx").GetString());
+        Assert.NotEqual(mine, starter.GetProperty("web/App.jsx").GetString()); // the reference stays available
+        Assert.Equal(starter.GetProperty("web/NewClubForm.jsx").GetString(), starting.GetProperty("web/NewClubForm.jsx").GetString());
+        Assert.Equal(starter.GetProperty("api/Program.cs").GetString(), starting.GetProperty("api/Program.cs").GetString());
+        Assert.Equal("Show your clubs on the page", m4.GetProperty("carriedFrom").GetString());
+    }
+
     private static Dictionary<string, int> CorrectAnswers(JsonElement quiz)
     {
         var seedPath = Path.Combine(AppContext.BaseDirectory, "Content", "courses", "html-basics.json");

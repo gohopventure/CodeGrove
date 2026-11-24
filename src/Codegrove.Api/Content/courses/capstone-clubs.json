@@ -454,11 +454,196 @@
     },
     {
       "slug": "clubhub-signup-explorer",
-      "title": "Sign-ups with a form",
+      "title": "Start a new club",
       "sortOrder": 4,
       "ageBand": "Explorer",
-      "estimatedMinutes": 10,
-      "isPublished": false
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## Sending things to your server\n\nYour Club Hub can **show** clubs. Now kids in the Grove want to **start** clubs too! The server has a new job ready for that: `POST /api/clubs`. Your page needs a form that sends it a new club.\n\nYou'll build on **your own code** from the last milestone: your `App.jsx` comes along.\n\n### GET asks, POST sends\n\nSo far, every `fetch` was a **GET**: \"please give me something\". A **POST** says \"here's something new, please keep it\". You tell `fetch` three extra things:\n\n```jsx\nawait fetch(\"/api/clubs\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ name: \"Snail Racers\", meets: \"Thursday\" }),\n});\n```\n\n- `method`: what kind of request it is.\n- `headers`: a note that says \"the body is JSON\".\n- `body`: the new club, turned into JSON text with `JSON.stringify`.\n\n### When the server says no\n\nA club with no name? The server answers **400 Bad Request** and a message: `\"A club needs a name.\"`. `fetch` still gives you the answer, so check `response.ok`. It's `true` when everything worked. If it's `false`, show the server's message.\n\n### Load the list again\n\nAfter a new club is added, the page should show it. Put your `fetch` from last time in a function called `loadClubs`. Then `useEffect` can call it when the page opens, and the form can call it after adding a club.\n\n### New words\n\n- **POST**: a request that sends something new for the server to keep.\n- **Request body**: the data you send with a request, like the new club.\n- **Status code**: the number the server answers with, like 200 (OK) or 400 (Bad Request).\n",
+      "exampleMarkdown": "A guestbook with its own server. Type your name and press **Sign**: the page sends `POST /api/guests`, then loads the list again. Press **Sign** with an empty box to see the server say no. Watch it all happen in the **Network** tab.",
+      "exampleCode": "{\"api/Program.cs\": \"var builder = WebApplication.CreateBuilder(args);\\nvar app = builder.Build();\\n\\nvar names = new List<string> { \\\"Pip\\\" };\\n\\napp.MapGet(\\\"/api/guests\\\", () => names);\\napp.MapPost(\\\"/api/guests\\\", (Guest guest) =>\\n{\\n    if (string.IsNullOrWhiteSpace(guest.Name))\\n        return Results.BadRequest(\\\"Please write your name.\\\");\\n    names.Add(guest.Name);\\n    return Results.Ok(names);\\n});\\n\\napp.Run();\\n\\nrecord Guest(string Name);\\n\", \"web/App.jsx\": \"import { useEffect, useState } from \\\"react\\\";\\n\\nexport default function App() {\\n  const [guests, setGuests] = useState([]);\\n  const [name, setName] = useState(\\\"\\\");\\n  const [error, setError] = useState(\\\"\\\");\\n\\n  function load() {\\n    fetch(\\\"/api/guests\\\")\\n      .then((response) => response.json())\\n      .then((data) => setGuests(data));\\n  }\\n\\n  useEffect(() => {\\n    load();\\n  }, []);\\n\\n  async function sign(event) {\\n    event.preventDefault();\\n    const response = await fetch(\\\"/api/guests\\\", {\\n      method: \\\"POST\\\",\\n      headers: { \\\"Content-Type\\\": \\\"application/json\\\" },\\n      body: JSON.stringify({ name }),\\n    });\\n    if (response.ok) {\\n      setName(\\\"\\\");\\n      setError(\\\"\\\");\\n      load();\\n    } else {\\n      setError(await response.json());\\n    }\\n  }\\n\\n  return (\\n    <main>\\n      <h1>Grove guestbook</h1>\\n      <ul>\\n        {guests.map((g, i) => <li key={i}>{g}</li>)}\\n      </ul>\\n      <form onSubmit={sign}>\\n        <label htmlFor=\\\"name\\\">Your name</label>\\n        <input\\n          id=\\\"name\\\"\\n          value={name}\\n          onChange={(e) => setName(e.target.value)}\\n        />\\n        <button type=\\\"submit\\\">Sign</button>\\n      </form>\\n      {error && <p role=\\\"alert\\\">{error}</p>}\\n    </main>\\n  );\\n}\\n\", \"web/main.jsx\": \"import { createRoot } from \\\"react-dom/client\\\";\\nimport App from \\\"./App.jsx\\\";\\n\\ncreateRoot(document.getElementById(\\\"root\\\")).render(<App />);\\n\", \"web/index.html\": \"<!DOCTYPE html>\\n<html lang=\\\"en\\\">\\n  <head>\\n    <title>Grove guestbook</title>\\n  </head>\\n  <body>\\n    <div id=\\\"root\\\"></div>\\n    <script type=\\\"module\\\" src=\\\"main.jsx\\\"></script>\\n  </body>\\n</html>\\n\"}",
+      "challenge": {
+        "kind": "FullStack",
+        "xpReward": 20,
+        "continuesFrom": "clubhub-page-explorer",
+        "carryFiles": [
+          "web/App.jsx"
+        ],
+        "instructionsMarkdown": "**Let kids start new clubs!** The server is ready: `POST /api/clubs` adds a club, or answers **400** with *A club needs a name.* Your `App.jsx` from last time is here, plus a new form in `web/NewClubForm.jsx`.\n\n1. In **`App.jsx`**: put your fetch in a function called `loadClubs`, and call it from `useEffect`. Then show the form under the list: `<NewClubForm onAdded={loadClubs} />`. (Import it at the top: `import NewClubForm from \"./NewClubForm.jsx\";`)\n2. In **`NewClubForm.jsx`**: when the form is sent, **POST** the new club to `\"/api/clubs\"`. If it worked, clear the name and call `onAdded()`. If not, show the server's message.\n\nTry it: start a club, then try one with no name.",
+        "starterFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\n\nexport default function App() {\n  const [clubs, setClubs] = useState([]);\n\n  useEffect(() => {\n    fetch(\"/api/clubs\")\n      .then((response) => response.json())\n      .then((data) => setClubs(data));\n  }, []);\n\n  return (\n    <main>\n      <h1>Grove Club Hub</h1>\n      <ul id=\"clubs\">\n        {clubs.map((club) => (\n          <li key={club.id}>\n            {club.name} meets on {club.meets}\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+          "web/NewClubForm.jsx": "import { useState } from \"react\";\n\nconst DAYS = [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"];\n\nexport default function NewClubForm({ onAdded }) {\n  const [name, setName] = useState(\"\");\n  const [meets, setMeets] = useState(\"Monday\");\n  const [error, setError] = useState(\"\");\n\n  async function handleSubmit(event) {\n    event.preventDefault();\n    // TODO 2: POST { name, meets } to\n    // \"/api/clubs\". Worked (response.ok)? Clear\n    // the name and the error, call onAdded().\n    // Didn't? Put the server's message in error.\n  }\n\n  return (\n    <form id=\"new-club\" onSubmit={handleSubmit}>\n      <h2>Start a new club</h2>\n      <label htmlFor=\"club-name\">Club name</label>\n      <input\n        id=\"club-name\"\n        value={name}\n        onChange={(e) => setName(e.target.value)}\n      />\n      <label htmlFor=\"club-day\">Meets on</label>\n      <select\n        id=\"club-day\"\n        value={meets}\n        onChange={(e) => setMeets(e.target.value)}\n      >\n        {DAYS.map((day) => (\n          <option key={day}>{day}</option>\n        ))}\n      </select>\n      <button type=\"submit\">Start club</button>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n    </form>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\napp.Run();\n",
+          "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
+        },
+        "solutionFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport NewClubForm from \"./NewClubForm.jsx\";\n\nexport default function App() {\n  const [clubs, setClubs] = useState([]);\n\n  function loadClubs() {\n    fetch(\"/api/clubs\")\n      .then((response) => response.json())\n      .then((data) => setClubs(data));\n  }\n\n  useEffect(() => {\n    loadClubs();\n  }, []);\n\n  return (\n    <main>\n      <h1>Grove Club Hub</h1>\n      <ul id=\"clubs\">\n        {clubs.map((club) => (\n          <li key={club.id}>\n            {club.name} meets on {club.meets}\n          </li>\n        ))}\n      </ul>\n      <NewClubForm onAdded={loadClubs} />\n    </main>\n  );\n}\n",
+          "web/NewClubForm.jsx": "import { useState } from \"react\";\n\nconst DAYS = [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"];\n\nexport default function NewClubForm({ onAdded }) {\n  const [name, setName] = useState(\"\");\n  const [meets, setMeets] = useState(\"Monday\");\n  const [error, setError] = useState(\"\");\n\n  async function handleSubmit(event) {\n    event.preventDefault();\n    const response = await fetch(\"/api/clubs\", {\n      method: \"POST\",\n      headers: { \"Content-Type\": \"application/json\" },\n      body: JSON.stringify({ name, meets }),\n    });\n    if (response.ok) {\n      setName(\"\");\n      setError(\"\");\n      onAdded();\n    } else {\n      setError(await response.json());\n    }\n  }\n\n  return (\n    <form id=\"new-club\" onSubmit={handleSubmit}>\n      <h2>Start a new club</h2>\n      <label htmlFor=\"club-name\">Club name</label>\n      <input\n        id=\"club-name\"\n        value={name}\n        onChange={(e) => setName(e.target.value)}\n      />\n      <label htmlFor=\"club-day\">Meets on</label>\n      <select\n        id=\"club-day\"\n        value={meets}\n        onChange={(e) => setMeets(e.target.value)}\n      >\n        {DAYS.map((day) => (\n          <option key={day}>{day}</option>\n        ))}\n      </select>\n      <button type=\"submit\">Start club</button>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n    </form>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\napp.Run();\n",
+          "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The form is on the page",
+            "kind": "interact",
+            "spec": {
+              "selector": "#club-name",
+              "type": "Snail Racers"
+            },
+            "failMessage": "Show <NewClubForm onAdded={loadClubs} /> under the list in App.jsx (and import it at the top)."
+          },
+          {
+            "label": "Pick Thursday",
+            "kind": "interact",
+            "spec": {
+              "selector": "#club-day",
+              "type": "Thursday"
+            },
+            "failMessage": "The form should have its day menu (id club-day)."
+          },
+          {
+            "label": "Send the form",
+            "kind": "interact",
+            "spec": {
+              "selector": "#new-club button[type=submit]",
+              "click": true
+            },
+            "failMessage": "The form should have its Start club button."
+          },
+          {
+            "label": "The form sends POST /api/clubs",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "window.__cgLiveLog.filter((r) => r === 'POST /api/clubs').length",
+              "equals": 1
+            },
+            "failMessage": "When the form is sent, fetch \"/api/clubs\" with method: \"POST\", once."
+          },
+          {
+            "label": "The new club shows up in the list",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('#clubs li')].map((li) => li.textContent.trim())",
+              "equals": [
+                "Acorn Artists meets on Friday",
+                "Frog Choir meets on Wednesday",
+                "Owl Watchers meets on Monday",
+                "Snail Racers meets on Thursday"
+              ]
+            },
+            "failMessage": "After the club is added, call onAdded() so the list loads again. It should show Snail Racers meets on Thursday."
+          },
+          {
+            "label": "Try a club with no name",
+            "kind": "interact",
+            "spec": {
+              "selector": "#new-club button[type=submit]",
+              "click": true
+            },
+            "failMessage": "The form should have its Start club button."
+          },
+          {
+            "label": "The server's message shows up",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#error",
+              "equals": "A club needs a name."
+            },
+            "failMessage": "When response.ok is false, put the server's message in error: setError(await response.json())."
+          },
+          {
+            "label": "The page runs without errors",
+            "kind": "noErrors",
+            "spec": {
+              "side": "web"
+            },
+            "failMessage": "Your page has an error. Look at the Console under the preview."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Your `fetch` in `useEffect` loads the clubs once. How could the form ask the page to load them again, after a new club is added?",
+            "speechText": "Your fetch loads the clubs once, when the page opens. How could the form ask the page to load them again, after a new club is added?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Move the `fetch` into `function loadClubs() { … }`, call `loadClubs()` in `useEffect`, and pass it to the form: `<NewClubForm onAdded={loadClubs} />`. In the form, copy the example's `fetch` with `method: \"POST\"`, then check `response.ok`.",
+            "speechText": "Move the fetch into a function called load clubs, call it in use effect, and give it to the form as on added. In the form, copy the example's post request, then check response dot ok.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "In `NewClubForm.jsx`:\n\n```jsx\nconst response = await fetch(\"/api/clubs\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ name, meets }),\n});\nif (response.ok) {\n  setName(\"\");\n  setError(\"\");\n  onAdded();\n} else {\n  setError(await response.json());\n}\n```",
+            "speechText": "Send the name and day with method post, and if response dot ok is true, clear the name and the error and call on added. If not, set the error to the server's message.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Which kind of request sends something new for the server to keep?",
+            "explanation": "GET asks for something; POST sends something new.",
+            "options": [
+              {
+                "text": "POST",
+                "correct": true
+              },
+              {
+                "text": "GET",
+                "correct": false
+              },
+              {
+                "text": "LOAD",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "The server answers 400 with \"A club needs a name.\". What is response.ok?",
+            "explanation": "response.ok is true only when things worked (codes 200 to 299). 400 means the server said no.",
+            "options": [
+              {
+                "text": "false",
+                "correct": true
+              },
+              {
+                "text": "true",
+                "correct": false
+              },
+              {
+                "text": "\"A club needs a name.\"",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why did the fetch move into a function called loadClubs?",
+            "explanation": "As a function, it can run when the page opens and again after a new club is added.",
+            "options": [
+              {
+                "text": "So the page can load the clubs again after adding one",
+                "correct": true
+              },
+              {
+                "text": "Because fetch only works inside functions",
+                "correct": false
+              },
+              {
+                "text": "To make the page load faster",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "league-api-writes",
@@ -466,7 +651,419 @@
       "sortOrder": 4,
       "ageBand": "Builder",
       "estimatedMinutes": 25,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Writing data safely\n\nReading data is the easy half. As soon as an API accepts writes, it has to decide what a client may change, and what to say when a request is wrong. A good API answers bad input with a clear, structured error, so the frontend can show it next to the right field. In this milestone the Junior League's API learns to record match results, and your standings page from last time comes along to show them.\n\n### Bind a DTO, not an entity\n\nA **DTO** (*Data Transfer Object*) is a small type shaped like the request, not like the table:\n\n```csharp\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n```\n\nBind the entity (`Match`) instead, and the client controls every property, `Id` included. That's **overposting**. Here, a client that sends `\"id\": 1` makes EF Core try to add a second match with key 1, and the request ends in a 500. With a DTO, the server copies only the fields it accepts and picks the id itself.\n\n### Validation problem details\n\nCheck the input before touching the database, collect every problem, and answer them all at once:\n\n```csharp\nvar errors = new Dictionary<string, string[]>();\nif (input.HomeGoals < 0)\n    errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\nif (errors.Count > 0)\n    return Results.ValidationProblem(errors);\n```\n\nThat's a **400** with problem details plus an `errors` object keyed by field. Next milestone, your form shows each message next to its field. (Controllers with `[ApiController]` did this from DataAnnotations automatically. Minimal APIs leave it to you.)\n\n### Status codes for writes\n\n| Request | Worked | Didn't |\n|---|---|---|\n| `POST /api/matches` | **201 Created**, a `Location` header and the new match | **400** with the errors |\n| `GET /api/matches/7` | **200 OK** | **404 Not Found** |\n| `DELETE /api/matches/7` | **204 No Content** | **404 Not Found** |\n\n### Trying an API without a frontend\n\nYour page doesn't have a results form yet. Open the **Network** tab and use **Send a request**: it sends any method, path and JSON body to your running API, and logs the answer like the page's own requests. (In a real project that's a `.http` file, Swagger UI or Postman.) Record a result, then click a division on your page to see the standings move.\n\n### New words\n\n- **DTO** (*Data Transfer Object*): a type shaped like one request or response, kept apart from the database entities.\n- **Overposting**: a client setting properties it shouldn't, because the API bound a whole entity.\n- **Validation problem details**: a 400 with problem details and an `errors` object of messages per field.\n- **Location header**: where a 201 says the new resource can be found, like `/api/matches/7`.\n",
+      "exampleMarkdown": "A notes API: `POST /api/notes` takes a `NewNote` (text only), answers **201** with a `Location`, or a validation problem when the text is empty; `DELETE` answers **204** or **404**. Open the **Network** tab, choose **Send a request**, and POST `{ \"text\": \"Hello\" }` to `/api/notes`. Then press **Refresh** on the page. Try an empty text, and a DELETE of a note that isn't there.",
+      "exampleCode": "{\"api/Program.cs\": \"var builder = WebApplication.CreateBuilder(args);\\nvar app = builder.Build();\\n\\nvar notes = new Dictionary<int, Note>();\\nvar nextId = 1;\\n\\napp.MapGet(\\\"/api/notes\\\", () => notes.Values);\\n\\napp.MapPost(\\\"/api/notes\\\", (NewNote input) =>\\n{\\n    if (string.IsNullOrWhiteSpace(input.Text))\\n    {\\n        var errors = new Dictionary<string, string[]>\\n        {\\n            [\\\"text\\\"] = [\\\"Write something first.\\\"],\\n        };\\n        return Results.ValidationProblem(errors);\\n    }\\n    var note = new Note(nextId++, input.Text);\\n    notes[note.Id] = note;\\n    return Results.Created($\\\"/api/notes/{note.Id}\\\", note);\\n});\\n\\napp.MapDelete(\\\"/api/notes/{id:int}\\\", (int id) =>\\n    notes.Remove(id) ? Results.NoContent() : Results.NotFound());\\n\\napp.Run();\\n\\n// The client sends only the text; the server picks the id.\\nrecord NewNote(string Text);\\nrecord Note(int Id, string Text);\\n\", \"web/App.jsx\": \"import { useEffect, useState } from \\\"react\\\";\\n\\nexport default function App() {\\n  const [notes, setNotes] = useState([]);\\n\\n  function load() {\\n    fetch(\\\"/api/notes\\\")\\n      .then((response) => response.json())\\n      .then((data) => setNotes(data));\\n  }\\n\\n  useEffect(() => {\\n    load();\\n  }, []);\\n\\n  return (\\n    <main>\\n      <h1>Notes</h1>\\n      <button onClick={load}>Refresh</button>\\n      <ul>\\n        {notes.map((n) => <li key={n.id}>{n.text}</li>)}\\n      </ul>\\n    </main>\\n  );\\n}\\n\", \"web/main.jsx\": \"import { createRoot } from \\\"react-dom/client\\\";\\nimport App from \\\"./App.jsx\\\";\\n\\ncreateRoot(document.getElementById(\\\"root\\\")).render(<App />);\\n\", \"web/index.html\": \"<!DOCTYPE html>\\n<html lang=\\\"en\\\">\\n  <head>\\n    <title>Notes</title>\\n  </head>\\n  <body>\\n    <div id=\\\"root\\\"></div>\\n    <script type=\\\"module\\\" src=\\\"main.jsx\\\"></script>\\n  </body>\\n</html>\\n\"}",
+      "challenge": {
+        "kind": "FullStack",
+        "xpReward": 25,
+        "continuesFrom": "league-page",
+        "carryFiles": [
+          "web/App.jsx",
+          "web/StandingsTable.jsx"
+        ],
+        "instructionsMarkdown": "**Let the league record results.** Your standings page from last time is here. This milestone is all API, in `api/Program.cs`. `NewMatch` is ready in `Models.cs`.\n\n1. **`POST /api/matches`** binds a whole `Match`. Bind a **`NewMatch`** instead, and check it before saving. Answer `Results.ValidationProblem` with these messages:\n   - `homeTeamId` / `awayTeamId`: *There's no team 9.* (with the real number)\n   - `awayTeamId`: *A team can't play itself.*\n   - `homeGoals` / `awayGoals`: *Goals can't be below 0.*\n\n   If the input is fine, answer **201** with the new match and `Location: /api/matches/{id}`.\n2. **`GET /api/matches/{id}`**: **200** with the match, or **404**.\n3. **`DELETE /api/matches/{id}`**: **204**, or **404** if there's no such match.\n\nTry it with **Network → Send a request**: POST `{\"homeTeamId\": 5, \"awayTeamId\": 1, \"homeGoals\": 2, \"awayGoals\": 0}` to `/api/matches`, then click **south** on your page.",
+        "starterFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    setError(null);\n    fetch(`/api/standings${query}`)\n      .then(async (response) => {\n        const data = await response.json();\n        if (response.ok) {\n          setRows(data);\n        } else {\n          setError(data.title);\n          setRows([]);\n        }\n      });\n  }, [division]);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n    </main>\n  );\n}\n",
+          "web/StandingsTable.jsx": "export default function StandingsTable({ rows }) {\n  return (\n    <table id=\"standings\">\n      <thead>\n        <tr>\n          <th>Team</th>\n          <th>Played</th>\n          <th>Points</th>\n        </tr>\n      </thead>\n      <tbody>\n        {rows.map((row) => (\n          <tr key={row.team}>\n            <td>{row.team}</td>\n            <td>{row.played}</td>\n            <td>{row.points}</td>\n          </tr>\n        ))}\n      </tbody>\n    </table>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\n// TODO 1: this binds a whole Match, so a client\n// can send its own \"id\" (try it!). Bind a\n// NewMatch instead, and check it first.\napp.MapPost(\"/api/matches\", (Match match, LeagueDb db) =>\n{\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\n// TODO 2: GET /api/matches/{id}: 200 or 404.\n// TODO 3: DELETE /api/matches/{id}: 204 or 404.\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+        },
+        "solutionFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    setError(null);\n    fetch(`/api/standings${query}`)\n      .then(async (response) => {\n        const data = await response.json();\n        if (response.ok) {\n          setRows(data);\n        } else {\n          setError(data.title);\n          setRows([]);\n        }\n      });\n  }, [division]);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n    </main>\n  );\n}\n",
+          "web/StandingsTable.jsx": "export default function StandingsTable({ rows }) {\n  return (\n    <table id=\"standings\">\n      <thead>\n        <tr>\n          <th>Team</th>\n          <th>Played</th>\n          <th>Points</th>\n        </tr>\n      </thead>\n      <tbody>\n        {rows.map((row) => (\n          <tr key={row.team}>\n            <td>{row.team}</td>\n            <td>{row.played}</td>\n            <td>{row.points}</td>\n          </tr>\n        ))}\n      </tbody>\n    </table>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.MapPost(\"/api/matches\", (NewMatch input, LeagueDb db) =>\n{\n    var errors = new Dictionary<string, string[]>();\n    if (db.Teams.Find(input.HomeTeamId) is null)\n        errors[\"homeTeamId\"] = [$\"There's no team {input.HomeTeamId}.\"];\n    if (db.Teams.Find(input.AwayTeamId) is null)\n        errors[\"awayTeamId\"] = [$\"There's no team {input.AwayTeamId}.\"];\n    else if (input.AwayTeamId == input.HomeTeamId)\n        errors[\"awayTeamId\"] = [\"A team can't play itself.\"];\n    if (input.HomeGoals < 0)\n        errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\n    if (input.AwayGoals < 0)\n        errors[\"awayGoals\"] = [\"Goals can't be below 0.\"];\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\n\n    var match = new Match\n    {\n        HomeTeamId = input.HomeTeamId,\n        AwayTeamId = input.AwayTeamId,\n        HomeGoals = input.HomeGoals,\n        AwayGoals = input.AwayGoals,\n    };\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\napp.MapGet(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n    db.Matches.Find(id) is { } match\n        ? Results.Ok(match)\n        : Results.NotFound());\n\napp.MapDelete(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n{\n    if (db.Matches.Find(id) is not { } match) return Results.NotFound();\n    db.Matches.Remove(match);\n    db.SaveChanges();\n    return Results.NoContent();\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+        },
+        "tests": [
+          {
+            "label": "1. A result is recorded: 201 with a Location",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/matches",
+              "body": {
+                "homeTeamId": 5,
+                "awayTeamId": 1,
+                "homeGoals": 2,
+                "awayGoals": 0
+              },
+              "expectStatus": 201,
+              "expectJson": {
+                "id": 7,
+                "homeTeamId": 5,
+                "awayTeamId": 1,
+                "homeGoals": 2,
+                "awayGoals": 0
+              },
+              "expectHeader": {
+                "Location": "/api/matches/7"
+              }
+            },
+            "failMessage": "POST /api/matches with a good result should answer 201 Created with the new match (id 7) and Location /api/matches/7."
+          },
+          {
+            "label": "1. It counts in the standings",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/matches",
+                  "body": {
+                    "homeTeamId": 5,
+                    "awayTeamId": 1,
+                    "homeGoals": 2,
+                    "awayGoals": 0
+                  }
+                }
+              ],
+              "path": "/api/standings?division=south",
+              "expectJson": [
+                {
+                  "team": "Canyon Comets",
+                  "played": 1,
+                  "points": 3
+                },
+                {
+                  "team": "Lakeside Lynx",
+                  "played": 3,
+                  "points": 2
+                },
+                {
+                  "team": "Meadow Mice",
+                  "played": 3,
+                  "points": 2
+                }
+              ]
+            },
+            "failMessage": "After Canyon Comets beat Riverton Otters 2-0, the south standings should show the Comets on 3 points. Save the match with SaveChanges."
+          },
+          {
+            "label": "1. A client can't choose the id",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/matches",
+              "body": {
+                "id": 1,
+                "homeTeamId": 5,
+                "awayTeamId": 1,
+                "homeGoals": 2,
+                "awayGoals": 0
+              },
+              "expectStatus": 201,
+              "expectJson": {
+                "id": 7
+              }
+            },
+            "failMessage": "A body with \"id\": 1 should still get a new id. Bind NewMatch, not Match, and copy its fields into a new Match."
+          },
+          {
+            "label": "1. A team can't play itself",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/matches",
+              "body": {
+                "homeTeamId": 2,
+                "awayTeamId": 2,
+                "homeGoals": 2,
+                "awayGoals": 0
+              },
+              "expectStatus": 400,
+              "expectJson": {
+                "errors": {
+                  "awayTeamId": [
+                    "A team can't play itself."
+                  ]
+                }
+              }
+            },
+            "failMessage": "Home and away the same team should answer Results.ValidationProblem with awayTeamId: \"A team can't play itself.\"."
+          },
+          {
+            "label": "1. Unknown teams are refused",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/matches",
+              "body": {
+                "homeTeamId": 9,
+                "awayTeamId": 1,
+                "homeGoals": 2,
+                "awayGoals": 0
+              },
+              "expectStatus": 400,
+              "expectJson": {
+                "errors": {
+                  "homeTeamId": [
+                    "There's no team 9."
+                  ]
+                }
+              }
+            },
+            "failMessage": "A homeTeamId of 9 should answer a validation problem with homeTeamId: \"There's no team 9.\". Use db.Teams.Find."
+          },
+          {
+            "label": "1. Goals can't be negative",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "POST",
+              "path": "/api/matches",
+              "body": {
+                "homeTeamId": 5,
+                "awayTeamId": 1,
+                "homeGoals": -1,
+                "awayGoals": 0
+              },
+              "expectStatus": 400,
+              "expectJson": {
+                "errors": {
+                  "homeGoals": [
+                    "Goals can't be below 0."
+                  ]
+                }
+              }
+            },
+            "failMessage": "homeGoals of -1 should answer a validation problem with homeGoals: \"Goals can't be below 0.\"."
+          },
+          {
+            "label": "1. A refused result isn't saved",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/matches",
+                  "body": {
+                    "homeTeamId": 5,
+                    "awayTeamId": 1,
+                    "homeGoals": -1,
+                    "awayGoals": 0
+                  }
+                }
+              ],
+              "path": "/api/matches/7",
+              "expectStatus": 404
+            },
+            "failMessage": "A refused result shouldn't be saved: return the validation problem before adding anything."
+          },
+          {
+            "label": "2. A match can be looked up",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/matches/3",
+              "expectStatus": 200,
+              "expectJson": {
+                "id": 3,
+                "homeTeamId": 2,
+                "awayTeamId": 3,
+                "homeGoals": 3,
+                "awayGoals": 0
+              }
+            },
+            "failMessage": "GET /api/matches/3 should answer 200 with match 3 (Hilltop Hawks 3, Lakeside Lynx 0)."
+          },
+          {
+            "label": "2. An unknown match is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/matches/99",
+              "expectStatus": 404
+            },
+            "failMessage": "GET /api/matches/99 should answer 404 Not Found."
+          },
+          {
+            "label": "3. A match can be deleted",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "DELETE",
+              "path": "/api/matches/1",
+              "expectStatus": 204
+            },
+            "failMessage": "DELETE /api/matches/1 should answer 204 No Content."
+          },
+          {
+            "label": "3. A deleted match is gone",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "DELETE",
+                  "path": "/api/matches/1"
+                }
+              ],
+              "path": "/api/matches/1",
+              "expectStatus": 404
+            },
+            "failMessage": "After DELETE /api/matches/1, GET /api/matches/1 should answer 404. Remove it and save."
+          },
+          {
+            "label": "3. Deleting an unknown match is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "method": "DELETE",
+              "path": "/api/matches/99",
+              "expectStatus": 404
+            },
+            "failMessage": "DELETE /api/matches/99 should answer 404 Not Found."
+          },
+          {
+            "label": "Your standings page still works",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('#standings tbody tr')].map((r) => [...r.cells].map((c) => c.textContent.trim()))",
+              "equals": [
+                [
+                  "Hilltop Hawks",
+                  "3",
+                  "7"
+                ],
+                [
+                  "Riverton Otters",
+                  "3",
+                  "4"
+                ],
+                [
+                  "Lakeside Lynx",
+                  "3",
+                  "2"
+                ],
+                [
+                  "Meadow Mice",
+                  "3",
+                  "2"
+                ],
+                [
+                  "Canyon Comets",
+                  "0",
+                  "0"
+                ]
+              ]
+            },
+            "failMessage": "Your standings page should still show the table. Did something change in web/?"
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Use **Send a request** to POST a result with `\"id\": 1` in the body. What does the server answer, and which part of the endpoint let the client pick the id?",
+            "speechText": "Use send a request to post a result with an id of one in the body. What does the server answer, and which part of the endpoint let the client pick the id?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Make the endpoint take `(NewMatch input, LeagueDb db)`. Build a `Dictionary<string, string[]>` of errors (use `db.Teams.Find` for the teams), return `Results.ValidationProblem(errors)` if it has any, then copy the four fields into a `new Match { … }`. GET and DELETE use `db.Matches.Find(id)`, with `{id:int}` in the route.",
+            "speechText": "Make the endpoint take a new match. Collect the errors in a dictionary, using find for the teams, and return a validation problem if there are any, then copy the four fields into a new match. The get and delete endpoints use find on the matches too.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "The checks, then the copy:\n\n```csharp\nvar errors = new Dictionary<string, string[]>();\nif (db.Teams.Find(input.HomeTeamId) is null)\n    errors[\"homeTeamId\"] =\n        [$\"There's no team {input.HomeTeamId}.\"];\n// … the same for awayTeamId, then:\nelse if (input.AwayTeamId == input.HomeTeamId)\n    errors[\"awayTeamId\"] = [\"A team can't play itself.\"];\nif (input.HomeGoals < 0)\n    errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\nif (errors.Count > 0) return Results.ValidationProblem(errors);\n```\n\nDELETE:\n\n```csharp\nif (db.Matches.Find(id) is not { } match)\n    return Results.NotFound();\ndb.Matches.Remove(match);\ndb.SaveChanges();\nreturn Results.NoContent();\n```",
+            "speechText": "Check each team with find, then whether the teams are the same, then the goals, and return a validation problem if anything went wrong. For delete, find the match, answer not found if it's missing, otherwise remove it, save, and answer no content.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "An endpoint binds the Match entity. A client sends \"id\": 1 for a new match. What's the name for this problem?",
+            "explanation": "Binding an entity lets the client set properties it shouldn't, like Id. That's overposting; bind a DTO instead.",
+            "options": [
+              {
+                "text": "Overposting",
+                "correct": true
+              },
+              {
+                "text": "A captive dependency",
+                "correct": false
+              },
+              {
+                "text": "A race condition",
+                "correct": false
+              },
+              {
+                "text": "Fan-out",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does Results.ValidationProblem(errors) answer?",
+            "explanation": "A 400 with problem details and an errors object keyed by field name.",
+            "options": [
+              {
+                "text": "400 with problem details and an errors object per field",
+                "correct": true
+              },
+              {
+                "text": "500 with the exception message",
+                "correct": false
+              },
+              {
+                "text": "200 with the errors as a list",
+                "correct": false
+              },
+              {
+                "text": "404 Not Found",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which answer fits a successful POST that created a match?",
+            "explanation": "201 Created, with a Location header saying where the new match lives.",
+            "options": [
+              {
+                "text": "201 Created with a Location header",
+                "correct": true
+              },
+              {
+                "text": "200 OK with no body",
+                "correct": false
+              },
+              {
+                "text": "204 No Content",
+                "correct": false
+              },
+              {
+                "text": "302 Found",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A DELETE removes the match. What status code fits?",
+            "explanation": "204 No Content: it worked, and there's nothing to send back.",
+            "options": [
+              {
+                "text": "204 No Content",
+                "correct": true
+              },
+              {
+                "text": "201 Created",
+                "correct": false
+              },
+              {
+                "text": "404 Not Found",
+                "correct": false
+              },
+              {
+                "text": "410 Gone",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "clubhub-yours-explorer",

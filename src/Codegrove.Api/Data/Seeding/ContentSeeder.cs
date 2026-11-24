@@ -50,9 +50,16 @@ public sealed record LessonFile(
     string? LearnMarkdown, string? ExampleMarkdown, string? ExampleCode, string? VideoUrl, string? CaptionsUrl,
     ChallengeFile? Challenge, QuizFile? Quiz);
 
+/// <summary>
+/// <paramref name="ContinuesFrom"/> (capstone milestones): the slug of an earlier lesson in the same course and band.
+/// The learner starts from their own passing code for that challenge, for the files in <paramref name="CarryFiles"/>.
+/// Each carried file in <paramref name="StarterFiles"/> must equal that lesson's solution: that's the reference
+/// a learner without passing code starts from.
+/// </summary>
 public sealed record ChallengeFile(
     ChallengeKind Kind, string InstructionsMarkdown, Dictionary<string, string> StarterFiles,
-    Dictionary<string, string> SolutionFiles, int XpReward, List<TestFile> Tests, List<HintFile> Hints, BlocksFile? Blocks = null);
+    Dictionary<string, string> SolutionFiles, int XpReward, List<TestFile> Tests, List<HintFile> Hints, BlocksFile? Blocks = null,
+    string? ContinuesFrom = null, List<string>? CarryFiles = null);
 
 /// <summary>
 /// Blocks mode for a JavaScript challenge. Toolbox entries are category keys the web app knows
@@ -298,6 +305,8 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
         c.BlocksJson = f.Blocks is { } bf
             ? JsonSerializer.Serialize(new { toolbox = bf.Toolbox, starter = bf.Starter }, Json)
             : null;
+        c.ContinuesFromLessonSlug = f.ContinuesFrom;
+        c.CarryFilesJson = f.CarryFiles is { Count: > 0 } carry ? JsonSerializer.Serialize(carry) : null;
 
         db.TestCases.RemoveRange(c.TestCases);
         c.TestCases = f.Tests.Select((t, i) => new TestCase
@@ -433,6 +442,30 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
             void Fail(string msg) => throw new InvalidDataException($"{Path.GetFileName(path)} → lesson '{l.Slug}': {msg}");
 
             if (string.IsNullOrWhiteSpace(l.LearnMarkdown)) Fail("published lessons need learn content.");
+
+            // Capstone milestones carry the learner's own files forward. The reference they get instead (no
+            // passing code yet) is this starter, so each carried file must be the previous milestone's solution.
+            if (l.Challenge is { ContinuesFrom: { } fromSlug } carrying)
+            {
+                var from = f.Lessons.FirstOrDefault(x => x.Slug == fromSlug);
+                if (from?.Challenge is null) Fail($"continuesFrom '{fromSlug}' isn't a lesson with a challenge in this course.");
+                else
+                {
+                    if (from.AgeBand != l.AgeBand) Fail($"continuesFrom '{fromSlug}' is for {from.AgeBand}, not {l.AgeBand}.");
+                    if (from.SortOrder >= l.SortOrder) Fail($"continuesFrom '{fromSlug}' must come earlier in the course.");
+                    if (carrying.CarryFiles is not { Count: > 0 } carry) Fail("continuesFrom needs carryFiles.");
+                    else
+                    {
+                        foreach (var name in carry)
+                        {
+                            if (!carrying.StarterFiles.TryGetValue(name, out var starter)) Fail($"carried file '{name}' isn't in the starter.");
+                            else if (!from.Challenge.SolutionFiles.TryGetValue(name, out var previous)) Fail($"carried file '{name}' isn't in {fromSlug}'s solution.");
+                            else if (starter != previous) Fail($"carried file '{name}' must start as {fromSlug}'s solution.");
+                        }
+                    }
+                }
+            }
+            else if (l.Challenge?.CarryFiles is { Count: > 0 }) Fail("carryFiles needs continuesFrom.");
             if (l.VideoUrl is not null && l.CaptionsUrl is null) Fail("videos must have a captions file (WCAG).");
             if (l.Challenge is { } c)
             {

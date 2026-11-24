@@ -32,6 +32,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "clubhub-signup-explorer": {
+      "intro": [
+        {
+          "displayText": "Kids in the Grove want to start their own clubs! Your mission: add a form that sends each new club to your server.",
+          "speechText": "Kids in the Grove want to start their own clubs! Your mission is to add a form that sends each new club to your server.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your page can show clubs and start new ones. Your new word is POST: a request that sends something new for the server to keep.",
+          "speechText": "Your page can show clubs and start new ones. Your new word is post, which is a request that sends something new for the server to keep.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "league-api-writes": {
+      "intro": [
+        {
+          "displayText": "Accepting writes is where APIs get risky: the server has to decide what a client may change, and explain clearly when a request is wrong. The league's API can read results, but it can't record them yet. You'll add the endpoints, guard them with a DTO and validation, and watch your standings page pick up the changes.",
+          "speechText": "Accepting writes is where A P Is get risky, because the server has to decide what a client may change, and explain clearly when a request is wrong. The league's A P I can read results, but it can't record them yet. You'll add the endpoints, guard them with a D T O and validation, and watch your standings page pick up the changes.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your API records, finds and deletes results, and refuses bad input with messages a form can show. The gotcha to remember: never bind an entity straight from a request. Bind a DTO, so the client can't set the id or anything else it shouldn't.",
+          "speechText": "Your A P I records, finds and deletes results, and refuses bad input with messages a form can show. The gotcha to remember is never to bind an entity straight from a request. Bind a D T O, so the client can't set the id or anything else it shouldn't.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }

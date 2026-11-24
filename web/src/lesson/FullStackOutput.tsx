@@ -135,8 +135,17 @@ export const FullStackOutput = forwardRef<LivePreviewHandle, {
         </p>
       )}
 
-      <div id={`${ids}-preview`} role="tabpanel" aria-labelledby={`${ids}-preview-tab`} hidden={tab !== 'preview'} className="min-h-0 flex-1">
+      <div id={`${ids}-preview`} role="tabpanel" aria-labelledby={`${ids}-preview-tab`} hidden={tab !== 'preview'} className="relative min-h-0 flex-1">
         <LivePreview ref={preview} title="Your app's page" liveApi={live.handle} showHeader={false} />
+        {/* Until the API is up there's no page to show: say so instead of a blank white box. */}
+        {running && startedApi === null && (
+          <div className="absolute inset-0 flex items-center justify-center gap-3 bg-surface text-muted">
+            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-line border-t-ink" aria-hidden="true" />
+            <span>
+              {status === 'loading' ? 'Getting C# ready…' : 'Starting your server…'}
+            </span>
+          </div>
+        )}
       </div>
 
       <div id={`${ids}-server`} role="tabpanel" aria-labelledby={`${ids}-server-tab`} hidden={tab !== 'server'} className="min-h-0 flex-1 overflow-auto bg-[#1b2128] p-3 font-mono text-sm leading-relaxed text-[#e8edf2]">

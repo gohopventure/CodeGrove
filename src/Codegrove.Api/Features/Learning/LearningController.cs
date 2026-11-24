@@ -15,10 +15,17 @@ public sealed record TestSpecDto(int Id, string Label, string Kind, JsonElement 
 
 public sealed record RevealedHintDto(int Level, string Markdown, string SpeechText, TutorMood Mood);
 
+/// <summary>
+/// <paramref name="StartingFiles"/>/<paramref name="CarriedFrom"/> (capstone milestones): the files this learner
+/// starts from, which are the starter with their own passing code from the lesson titled <paramref name="CarriedFrom"/>
+/// swapped in. Both are null when the challenge starts fresh, or when they have no passing code there yet (then
+/// <paramref name="StarterFiles"/>, the reference, is the start).
+/// </summary>
 public sealed record ChallengeDto(
     int Id, ChallengeKind Kind, string InstructionsMarkdown, IReadOnlyDictionary<string, string> StarterFiles,
     IReadOnlyList<TestSpecDto> Tests, IReadOnlyList<int> HintLevels, IReadOnlyList<RevealedHintDto> RevealedHints,
-    IReadOnlyDictionary<string, string>? SolutionFiles, int XpReward, JsonElement? Blocks);
+    IReadOnlyDictionary<string, string>? SolutionFiles, int XpReward, JsonElement? Blocks,
+    IReadOnlyDictionary<string, string>? StartingFiles = null, string? CarriedFrom = null);
 
 public sealed record QuizOptionDto(int Id, string Text);
 public sealed record QuizQuestionDto(int Id, string Prompt, IReadOnlyList<QuizOptionDto> Options);
@@ -104,6 +111,7 @@ public sealed class LearningController(AppDbContext db, ProgressService progress
             var solutionUnlocked = state?.ChallengePassedAt != null
                 || await db.SolutionReveals.AnyAsync(r => r.UserId == userId && r.ChallengeId == c.Id, ct);
 
+            var (startingFiles, carriedFrom) = await CarriedFiles(lesson, c, userId, ct);
             challenge = new ChallengeDto(c.Id, c.Kind, c.InstructionsMarkdown, Files(c.StarterFilesJson),
                 c.TestCases.OrderBy(t => t.SortOrder)
                     .Select(t => new TestSpecDto(t.Id, t.Label, t.Kind, JsonDocument.Parse(t.SpecJson).RootElement, t.FailMessage))
@@ -112,7 +120,8 @@ public sealed class LearningController(AppDbContext db, ProgressService progress
                 revealed.Select(h => new RevealedHintDto(h.Level, h.Markdown, h.SpeechText, h.Mood)).ToList(),
                 solutionUnlocked ? Files(c.SolutionFilesJson) : null,
                 c.XpReward,
-                c.BlocksJson is null ? null : JsonDocument.Parse(c.BlocksJson).RootElement);
+                c.BlocksJson is null ? null : JsonDocument.Parse(c.BlocksJson).RootElement,
+                startingFiles, carriedFrom);
         }
 
         QuizDto? quiz = lesson.Quiz is { } q
@@ -136,6 +145,42 @@ public sealed class LearningController(AppDbContext db, ProgressService progress
             index > 0 ? siblings[index - 1] : null,
             index >= 0 && index < siblings.Count - 1 ? siblings[index + 1] : null,
             await TutorFor(lesson, band, ct));
+    }
+
+    /// <summary>
+    /// A capstone milestone's starting files for this learner: the starter, with each carried file replaced by
+    /// their latest passing submission of the milestone it continues from. (null, null) if the challenge doesn't
+    /// carry anything over, or they haven't passed that milestone's challenge: they start from the reference.
+    /// </summary>
+    private async Task<(Dictionary<string, string>? Files, string? From)> CarriedFiles(
+        Lesson lesson, Challenge challenge, Guid userId, CancellationToken ct)
+    {
+        if (challenge.ContinuesFromLessonSlug is not { } fromSlug || challenge.CarryFilesJson is null) return (null, null);
+        var from = await db.Lessons.AsNoTracking()
+            .Where(l => l.CourseId == lesson.CourseId && l.Slug == fromSlug && l.Challenge != null)
+            .Select(l => new { l.Title, ChallengeId = l.Challenge!.Id })
+            .SingleOrDefaultAsync(ct);
+        if (from is null) return (null, null);
+
+        var passing = await db.Submissions.AsNoTracking()
+            .Where(s => s.UserId == userId && s.ChallengeId == from.ChallengeId && s.Passed)
+            .OrderByDescending(s => s.CreatedAt)
+            .Select(s => s.FilesJson)
+            .FirstOrDefaultAsync(ct);
+        if (passing is null) return (null, null);
+
+        var theirs = Files(passing);
+        var files = new Dictionary<string, string>(Files(challenge.StarterFilesJson));
+        var carried = false;
+        foreach (var name in JsonSerializer.Deserialize<List<string>>(challenge.CarryFilesJson) ?? [])
+        {
+            if (theirs.TryGetValue(name, out var code) && files.ContainsKey(name))
+            {
+                files[name] = code;
+                carried = true;
+            }
+        }
+        return carried ? (files, from.Title) : (null, null);
     }
 
     private async Task<TutorDto> TutorFor(Lesson lesson, AgeBand band, CancellationToken ct)
