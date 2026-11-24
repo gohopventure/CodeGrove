@@ -31,8 +31,14 @@ interface PendingRun {
  * and its CSP blocks all network access. Messages are accepted only from this exact frame's window
  * and only for the current runId.
  */
-export const LivePreview = forwardRef<LivePreviewHandle, { title: string; typeChecker?: TypeChecker; liveApi?: LiveApiHandler }>(function LivePreview(
-  { title, typeChecker, liveApi },
+export const LivePreview = forwardRef<LivePreviewHandle, {
+  title: string;
+  typeChecker?: TypeChecker;
+  liveApi?: LiveApiHandler;
+  /** False inside a panel that already says "Preview" (FullStack's tabs). */
+  showHeader?: boolean;
+}>(function LivePreview(
+  { title, typeChecker, liveApi, showHeader = true },
   ref,
 ) {
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -140,7 +146,7 @@ export const LivePreview = forwardRef<LivePreviewHandle, { title: string; typeCh
 
   return (
     <div className="flex h-full min-h-[320px] flex-col overflow-hidden rounded-card border border-line bg-surface">
-      <div className="border-b border-line bg-surface-2 px-3 py-1 text-sm font-bold">Preview</div>
+      {showHeader && <div className="border-b border-line bg-surface-2 px-3 py-1 text-sm font-bold">Preview</div>}
       <iframe
         key={frameKey}
         ref={frameRef}

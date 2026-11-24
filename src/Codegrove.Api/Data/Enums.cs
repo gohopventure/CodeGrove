@@ -41,7 +41,7 @@ public enum ConsentStatus { Pending = 0, Granted = 1, Revoked = 2, Expired = 3 }
 /// What a challenge's files are, so the app knows how to run them. Stored as a string, so adding a
 /// kind needs no migration. TypeScript: .ts files run with their types stripped and are type-checked.
 /// </summary>
-public enum ChallengeKind { Html = 0, Css = 1, Js = 2, Sql = 3, CSharp = 4, React = 5, TypeScript = 6, Angular = 7 }
+public enum ChallengeKind { Html = 0, Css = 1, Js = 2, Sql = 3, CSharp = 4, React = 5, TypeScript = 6, Angular = 7, FullStack = 8 }
 
 /// <summary>
 /// Which part of a lesson the tutor says a line in. Intro plays before the lesson, Recap after it.

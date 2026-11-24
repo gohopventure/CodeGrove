@@ -1,0 +1,496 @@
+{
+  "slug": "capstone-clubs",
+  "title": "Capstone: Clubs and Leagues",
+  "summary": "Build a whole app, start to finish: plan the data, build an ASP.NET Core API with Entity Framework Core, and a React frontend that talks to it. Explorers build the Grove Club Hub; Builders build the Junior League app.",
+  "ageBand": "Both",
+  "estimatedMinutes": 200,
+  "isPublished": true,
+  "objectives": [
+    "Plan an app's data as tables, and test it with SQL",
+    "Build an API that reads and writes that data with ASP.NET Core and Entity Framework Core",
+    "Build a React frontend that fetches from your own API and shows the results",
+    "Handle what can go wrong between the two: errors, validation and loading",
+    "Finish and share a full-stack project of your own"
+  ],
+  "lessons": [
+    {
+      "slug": "clubhub-data-explorer",
+      "title": "Plan your club data",
+      "sortOrder": 1,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 10,
+      "isPublished": false
+    },
+    {
+      "slug": "league-schema",
+      "title": "Design the league database",
+      "sortOrder": 1,
+      "ageBand": "Builder",
+      "estimatedMinutes": 25,
+      "isPublished": false
+    },
+    {
+      "slug": "clubhub-api-explorer",
+      "title": "Open your API",
+      "sortOrder": 2,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 10,
+      "isPublished": false
+    },
+    {
+      "slug": "league-api-reads",
+      "title": "API: read the league",
+      "sortOrder": 2,
+      "ageBand": "Builder",
+      "estimatedMinutes": 25,
+      "isPublished": false
+    },
+    {
+      "slug": "clubhub-page-explorer",
+      "title": "Show your clubs on the page",
+      "sortOrder": 3,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 10,
+      "isPublished": true,
+      "learnMarkdown": "## Your app, both halves\n\nThe **Grove Club Hub** has a server: a C# **API** (*Application Programming Interface*) that knows every club in the Grove. It also has a React page. Right now the page is empty, because nobody told it to ask the server anything.\n\nToday you join the two halves. That makes you a **full-stack** developer: you build the page *and* the server it talks to.\n\n```\nPage (React)  --- fetch(\"/api/clubs\") --->  Server (C#)\nPage (React)  <------- the clubs, as JSON ---  Server (C#)\n```\n\n### Asking your own server\n\nYou've used `fetch` before, with the practice API. To ask *your* server, start the address with a slash and leave out the website:\n\n```jsx\nfetch(\"/api/clubs\")\n```\n\nA path that starts with `/` means \"the server this page came from\". Your server runs right next to the page, so that's your C# API.\n\n### C# names and JSON names\n\nIn C#, the club's properties are `Name` and `Meets`. When the server turns a club into **JSON** (*JavaScript Object Notation*), it starts each name with a small letter:\n\n```json\n{ \"id\": 1, \"name\": \"Acorn Artists\", \"meets\": \"Friday\" }\n```\n\nSo in React you write `club.name` and `club.meets`. Write `club.Name` and you get nothing at all!\n\n### Ask once\n\nPut the `fetch` inside `useEffect`, with `[]` at the end. The `[]` means \"only when the page opens\", so the page asks one time.\n\n### The Network tab\n\nNext to **Preview** there's a **Network** tab. It lists every request your page sends to your server, and what came back. If your list stays empty, look there first.\n\n### New words\n\n- **Full-stack**: building both halves of an app, the page people see and the server behind it.\n- **API** (*Application Programming Interface*): the server's list of things you can ask it, like `GET /api/clubs`.\n- **JSON** (*JavaScript Object Notation*): the text format the server uses to send data to the page.\n",
+      "exampleMarkdown": "A snack list that gets its snacks from its own C# server. Open the **Network** tab to see the page ask `GET /api/snacks`. Then try adding `\"Dandelions\"` to the list in `api/Program.cs` and press **▶ Run**.",
+      "exampleCode": "{\"api/Program.cs\": \"var builder = WebApplication.CreateBuilder(args);\\nvar app = builder.Build();\\n\\nvar snacks = new[] { \\\"Acorns\\\", \\\"Berries\\\", \\\"Clover\\\" };\\napp.MapGet(\\\"/api/snacks\\\", () => snacks);\\n\\napp.Run();\\n\", \"web/App.jsx\": \"import { useEffect, useState } from \\\"react\\\";\\n\\nexport default function App() {\\n  const [snacks, setSnacks] = useState([]);\\n\\n  useEffect(() => {\\n    fetch(\\\"/api/snacks\\\")\\n      .then((response) => response.json())\\n      .then((data) => setSnacks(data));\\n  }, []);\\n\\n  return (\\n    <main>\\n      <h1>Grove snacks</h1>\\n      <ul>\\n        {snacks.map((snack) => <li key={snack}>{snack}</li>)}\\n      </ul>\\n    </main>\\n  );\\n}\\n\", \"web/main.jsx\": \"import { createRoot } from \\\"react-dom/client\\\";\\nimport App from \\\"./App.jsx\\\";\\n\\ncreateRoot(document.getElementById(\\\"root\\\")).render(<App />);\\n\", \"web/index.html\": \"<!DOCTYPE html>\\n<html lang=\\\"en\\\">\\n  <head>\\n    <title>Grove snacks</title>\\n  </head>\\n  <body>\\n    <div id=\\\"root\\\"></div>\\n    <script type=\\\"module\\\" src=\\\"main.jsx\\\"></script>\\n  </body>\\n</html>\\n\"}",
+      "challenge": {
+        "kind": "FullStack",
+        "xpReward": 20,
+        "instructionsMarkdown": "**Make the Club Hub show its clubs!** The server in `api/` is finished: `GET /api/clubs` answers every club, A to Z. Your job is the page, `web/App.jsx`:\n\n1. When the page opens, **fetch** `\"/api/clubs\"` and put the answer in `clubs`. Use `useEffect` with `[]`.\n2. Show **one `<li>` per club**, like *Acorn Artists meets on Friday*.\n\nCheck the **Network** tab: you should see one `GET /api/clubs` with the answer **200 OK**.",
+        "starterFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\n\nexport default function App() {\n  const [clubs, setClubs] = useState([]);\n\n  // TODO 1: when the page opens, fetch\n  // \"/api/clubs\" and put the answer in clubs.\n\n  return (\n    <main>\n      <h1>Grove Club Hub</h1>\n      <ul id=\"clubs\">\n        {/* TODO 2: one <li> per club, like\n            Owl Watchers meets on Monday */}\n      </ul>\n    </main>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\napp.Run();\n",
+          "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
+        },
+        "solutionFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\n\nexport default function App() {\n  const [clubs, setClubs] = useState([]);\n\n  useEffect(() => {\n    fetch(\"/api/clubs\")\n      .then((response) => response.json())\n      .then((data) => setClubs(data));\n  }, []);\n\n  return (\n    <main>\n      <h1>Grove Club Hub</h1>\n      <ul id=\"clubs\">\n        {clubs.map((club) => (\n          <li key={club.id}>\n            {club.name} meets on {club.meets}\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\napp.Run();\n",
+          "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The page asks your API for the clubs, once",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "window.__cgLiveLog.filter((r) => r === 'GET /api/clubs').length",
+              "equals": 1
+            },
+            "failMessage": "Fetch \"/api/clubs\" inside useEffect, with [] at the end, so the page asks one time."
+          },
+          {
+            "label": "Every club gets a list item",
+            "kind": "elementCount",
+            "spec": {
+              "selector": "#clubs li",
+              "min": 3,
+              "max": 3
+            },
+            "failMessage": "Show one <li> for each of the 3 clubs: use clubs.map."
+          },
+          {
+            "label": "Each club says its name and day",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#clubs li",
+              "equals": "Acorn Artists meets on Friday"
+            },
+            "failMessage": "The first club should read \"Acorn Artists meets on Friday\". Use club.name and club.meets (small letters)."
+          },
+          {
+            "label": "The page runs without errors",
+            "kind": "noErrors",
+            "spec": {
+              "side": "web"
+            },
+            "failMessage": "Your page has an error. Look at the Console under the preview."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "What should the page do as soon as it opens, and which React hook runs code at that moment?",
+            "speechText": "What should the page do as soon as it opens, and which React hook runs code at that moment?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Inside `useEffect`, call `fetch(\"/api/clubs\")`, turn the answer into data with `.json()`, then `setClubs`. In the list, use `club.name` and `club.meets` with small letters.",
+            "speechText": "Inside use effect, fetch the clubs, turn the answer into data with dot json, then call set clubs. In the list, use club dot name and club dot meets, with small letters.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "Copy the example's effect and change `snacks` to `clubs`:\n\n```jsx\nuseEffect(() => {\n  fetch(\"/api/clubs\")\n    .then((response) => response.json())\n    .then((data) => setClubs(data));\n}, []);\n```\n\nThen map each club to `<li key={club.id}>{club.name} meets on {club.meets}</li>`.",
+            "speechText": "Copy the effect from the example and change snacks to clubs. Then map each club to a list item with its name, the words meets on, and its day.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Your page calls fetch(\"/api/clubs\"). Who answers?",
+            "explanation": "A path that starts with a slash goes to the server the page came from: your own C# API.",
+            "options": [
+              {
+                "text": "Your own C# server",
+                "correct": true
+              },
+              {
+                "text": "The practice API",
+                "correct": false
+              },
+              {
+                "text": "Nobody, because there's no website in the address",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "The C# class has a property called Meets. What is it called in the JSON?",
+            "explanation": "The server starts each name with a small letter, so React reads club.meets.",
+            "options": [
+              {
+                "text": "meets",
+                "correct": true
+              },
+              {
+                "text": "Meets",
+                "correct": false
+              },
+              {
+                "text": "MEETS",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does the [] at the end of useEffect mean?",
+            "explanation": "With [], the effect runs once, when the page opens.",
+            "options": [
+              {
+                "text": "Run it only once, when the page opens",
+                "correct": true
+              },
+              {
+                "text": "Run it every time anything changes",
+                "correct": false
+              },
+              {
+                "text": "Never run it",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "league-page",
+      "title": "The standings page",
+      "sortOrder": 3,
+      "ageBand": "Builder",
+      "estimatedMinutes": 25,
+      "isPublished": true,
+      "learnMarkdown": "## Connecting the frontend to your API\n\nEvery web app you use is two programs. The **frontend** runs in the browser; the **backend** runs on a server and owns the data. The work in between is the same in almost every job: the frontend sends HTTP requests, reads JSON, and shows something sensible whether the answer is good, bad or slow. In this milestone the Junior League's React page starts talking to the ASP.NET Core API you know from the Web API course.\n\n### Same-origin requests\n\n```jsx\nfetch(\"/api/standings?division=north\")\n```\n\nA path with no scheme or host goes to the page's own **origin** (scheme, host and port). In Codegrove your API answers those requests right next to the page. In a real project the React dev server (Vite, on port 5173) and the API (on port 5080) are different origins, so you add a **proxy** to the dev server that forwards `/api`:\n\n```js\n// vite.config.js\nexport default {\n  server: {\n    proxy: { \"/api\": \"http://localhost:5080\" },\n  },\n};\n```\n\nThe browser only ever talks to 5173, so the code above works unchanged. (Without a proxy, the API would need **CORS** (*Cross-Origin Resource Sharing*) rules saying which other origins may call it.)\n\n### fetch doesn't fail on 400\n\n`fetch` only rejects when there's no answer at all: the server is down, or the network is. A 400 or a 500 is still an answer, so the promise resolves, and `response.ok` (true for 200–299) is how you tell:\n\n```jsx\nconst response = await fetch(url);\nconst data = await response.json();\nif (!response.ok) {\n  // data is problem details, not your rows\n}\n```\n\nASP.NET Core sends errors as **problem details**: JSON with a `title`, a `status` and sometimes more. `Results.Problem(title: \"…\", statusCode: 400)` makes one. Show the `title`; don't try to `map` over it.\n\n### Effects and their dependencies\n\n`useEffect(fn, deps)` runs `fn` after a render whenever something in `deps` changed:\n\n| deps | runs |\n|---|---|\n| `[]` | once, after the first render |\n| `[division]` | first render, then whenever `division` changes |\n| left out | after **every** render |\n\nLeave the array out of an effect that fetches and sets state, and you get a loop: every answer causes a render, every render fetches again. The **Network** tab shows it as a wall of identical requests.\n\n### The Network tab\n\nThe **Network** tab is Codegrove's version of the browser's developer tools: method, path, status, time, the body you sent and the one that came back, and anything the endpoint printed. When the page looks wrong, find out which side is wrong first: did the right request go out, and did the right answer come back?\n\n### New words\n\n- **Frontend / backend**: the program in the browser, and the program on the server that owns the data.\n- **Origin**: a scheme, host and port, like `http://localhost:5173`. Requests to the same origin need no extra permission.\n- **Proxy**: a server in the middle that forwards requests, like Vite sending `/api` on to the API.\n- **CORS** (*Cross-Origin Resource Sharing*): rules a server sends to say which other origins may call it.\n- **Problem details**: ASP.NET Core's standard JSON for errors, with a `title` and a `status`.\n- **Dependency array**: the second argument of `useEffect`; the effect runs again when one of its values changes.\n",
+      "exampleMarkdown": "A dice roller with its own API. `GET /api/roll?sides=6` answers a roll; anything outside 2 to 100 gets **400** with problem details. Click **d20**, then **d1000**, and watch the **Network** tab: the effect runs again whenever `sides` changes, and the page shows the problem's `title`. Try removing `[sides]` from the effect and press **▶ Run** to see what a missing dependency array does.",
+      "exampleCode": "{\"api/Program.cs\": \"var builder = WebApplication.CreateBuilder(args);\\nvar app = builder.Build();\\n\\napp.MapGet(\\\"/api/roll\\\", (int sides) =>\\n    sides is < 2 or > 100\\n        ? Results.Problem(\\n            title: $\\\"A {sides}-sided die? Try 2 to 100.\\\",\\n            statusCode: 400)\\n        : Results.Ok(new\\n        {\\n            sides,\\n            value = Random.Shared.Next(1, sides + 1),\\n        }));\\n\\napp.Run();\\n\", \"web/App.jsx\": \"import { useEffect, useState } from \\\"react\\\";\\n\\nexport default function App() {\\n  const [sides, setSides] = useState(6);\\n  const [roll, setRoll] = useState(null);\\n  const [error, setError] = useState(null);\\n\\n  useEffect(() => {\\n    setError(null);\\n    fetch(`/api/roll?sides=${sides}`)\\n      .then(async (response) => {\\n        const data = await response.json();\\n        if (response.ok) setRoll(data.value);\\n        else setError(data.title);\\n      });\\n  }, [sides]);\\n\\n  return (\\n    <main>\\n      {[6, 20, 1000].map((n) => (\\n        <button key={n} onClick={() => setSides(n)}>\\n          d{n}\\n        </button>\\n      ))}\\n      {error ? <p role=\\\"alert\\\">{error}</p> : <p>You rolled {roll}</p>}\\n    </main>\\n  );\\n}\\n\", \"web/main.jsx\": \"import { createRoot } from \\\"react-dom/client\\\";\\nimport App from \\\"./App.jsx\\\";\\n\\ncreateRoot(document.getElementById(\\\"root\\\")).render(<App />);\\n\", \"web/index.html\": \"<!DOCTYPE html>\\n<html lang=\\\"en\\\">\\n  <head>\\n    <title>Dice</title>\\n  </head>\\n  <body>\\n    <div id=\\\"root\\\"></div>\\n    <script type=\\\"module\\\" src=\\\"main.jsx\\\"></script>\\n  </body>\\n</html>\\n\"}",
+      "challenge": {
+        "kind": "FullStack",
+        "xpReward": 25,
+        "instructionsMarkdown": "**Build the Junior League's standings page.** The API in `api/` is finished: `GET /api/standings` answers rows like `{ \"team\": \"Hilltop Hawks\", \"played\": 3, \"points\": 7 }`, already sorted, and `?division=north` or `?division=south` filters them. Anything else gets **400 Bad Request** with problem details.\n\n1. In `web/StandingsTable.jsx`, render **one `<tr>` per row**: team, played, points.\n2. In `web/App.jsx`, the effect only ever runs once, so the division buttons do nothing. Make it **fetch again when `division` changes**, once per change.\n3. Click **moon**: the API answers 400, and the page crashes trying to show a problem as rows. Check **`response.ok`**, and show the problem's **`title`** in `<p id=\"error\" role=\"alert\">`.\n\nUse the **Network** tab to see what your page asks for.",
+        "starterFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n\n  // TODO 2: this runs only once. Clicking north\n  // should fetch again. Then handle a 400.\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    fetch(`/api/standings${query}`)\n      .then((response) => response.json())\n      .then((data) => setRows(data));\n  }, []);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {/* TODO 3: show the error message in a\n          <p id=\"error\" role=\"alert\"> */}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n    </main>\n  );\n}\n",
+          "web/StandingsTable.jsx": "export default function StandingsTable({ rows }) {\n  return (\n    <table id=\"standings\">\n      <thead>\n        <tr>\n          <th>Team</th>\n          <th>Played</th>\n          <th>Points</th>\n        </tr>\n      </thead>\n      <tbody>\n        {/* TODO 1: one <tr> per row, with the\n            team, played and points */}\n      </tbody>\n    </table>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+        },
+        "solutionFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    setError(null);\n    fetch(`/api/standings${query}`)\n      .then(async (response) => {\n        const data = await response.json();\n        if (response.ok) {\n          setRows(data);\n        } else {\n          setError(data.title);\n          setRows([]);\n        }\n      });\n  }, [division]);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n    </main>\n  );\n}\n",
+          "web/StandingsTable.jsx": "export default function StandingsTable({ rows }) {\n  return (\n    <table id=\"standings\">\n      <thead>\n        <tr>\n          <th>Team</th>\n          <th>Played</th>\n          <th>Points</th>\n        </tr>\n      </thead>\n      <tbody>\n        {rows.map((row) => (\n          <tr key={row.team}>\n            <td>{row.team}</td>\n            <td>{row.played}</td>\n            <td>{row.points}</td>\n          </tr>\n        ))}\n      </tbody>\n    </table>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+        },
+        "tests": [
+          {
+            "label": "The table shows every team's played and points, in the API's order",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('#standings tbody tr')].map((r) => [...r.cells].map((c) => c.textContent.trim()))",
+              "equals": [
+                [
+                  "Hilltop Hawks",
+                  "3",
+                  "7"
+                ],
+                [
+                  "Riverton Otters",
+                  "3",
+                  "4"
+                ],
+                [
+                  "Lakeside Lynx",
+                  "3",
+                  "2"
+                ],
+                [
+                  "Meadow Mice",
+                  "3",
+                  "2"
+                ],
+                [
+                  "Canyon Comets",
+                  "0",
+                  "0"
+                ]
+              ]
+            },
+            "failMessage": "Render one <tr> per row, with three <td>s: row.team, row.played, row.points."
+          },
+          {
+            "label": "Click north",
+            "kind": "interact",
+            "spec": {
+              "selector": "#show-north",
+              "click": true
+            },
+            "failMessage": "There should be a north button (id show-north)."
+          },
+          {
+            "label": "North shows only the north division",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('#standings tbody tr')].map((r) => [...r.cells].map((c) => c.textContent.trim()))",
+              "equals": [
+                [
+                  "Hilltop Hawks",
+                  "3",
+                  "7"
+                ],
+                [
+                  "Riverton Otters",
+                  "3",
+                  "4"
+                ]
+              ]
+            },
+            "failMessage": "After clicking north, the table should show the north teams only. Does your effect run again when division changes?"
+          },
+          {
+            "label": "North was fetched once",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "window.__cgLiveLog.filter((r) => r === 'GET /api/standings?division=north').length",
+              "equals": 1
+            },
+            "failMessage": "Clicking north should send one GET /api/standings?division=north. Put division in the dependency array, and don't leave the array out."
+          },
+          {
+            "label": "Click moon",
+            "kind": "interact",
+            "spec": {
+              "selector": "#show-moon",
+              "click": true
+            },
+            "failMessage": "There should be a moon button (id show-moon)."
+          },
+          {
+            "label": "The API's problem shows on the page",
+            "kind": "elementText",
+            "spec": {
+              "selector": "#error",
+              "equals": "There's no moon division."
+            },
+            "failMessage": "When response.ok is false, show the problem's title in <p id=\"error\" role=\"alert\">."
+          },
+          {
+            "label": "No errors in the console",
+            "kind": "noErrors",
+            "spec": {
+              "side": "web"
+            },
+            "failMessage": "Your page logged an error. A 400 answer isn't rows: check response.ok before showing data as a table."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Click **north**, then open the **Network** tab. Did the page send a new request? Which part of `useEffect` decides when it runs again?",
+            "speechText": "Click north, then open the network tab. Did the page send a new request? Which part of use effect decides when it runs again?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "The effect needs `[division]` instead of `[]`. `fetch` only rejects when there's no answer, so read the JSON, then check `response.ok`: if it's false, `setError(data.title)` and `setRows([])`. Clear the error at the start of the effect.",
+            "speechText": "The effect needs division in its dependency array. Fetch only rejects when there's no answer, so read the JSON, then check response dot ok, and if it's false, set the error to the problem's title and set the rows to an empty list. Clear the error at the start of the effect.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "The effect, like the dice example's:\n\n```jsx\nuseEffect(() => {\n  const query =\n    division === \"all\" ? \"\" : `?division=${division}`;\n  setError(null);\n  fetch(`/api/standings${query}`)\n    .then(async (response) => {\n      const data = await response.json();\n      if (response.ok) {\n        setRows(data);\n      } else {\n        setError(data.title);\n        setRows([]);\n      }\n    });\n}, [division]);\n```\n\nThe table row: `<tr key={row.team}>` with `<td>{row.team}</td>`, then `played` and `points`.",
+            "speechText": "Copy the dice example's effect, with the standings address and division in the dependency array, and set the error to the problem's title when the answer isn't ok. In the table, map each row to a table row keyed by team, with cells for team, played and points.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "The API answers 400 Bad Request. What does fetch do?",
+            "explanation": "fetch resolves for any answer, including 400 and 500; it only rejects when there's no answer at all. Check response.ok.",
+            "options": [
+              {
+                "text": "Resolves normally, with response.ok set to false",
+                "correct": true
+              },
+              {
+                "text": "Rejects, so the .catch runs",
+                "correct": false
+              },
+              {
+                "text": "Retries the request until it gets a 200",
+                "correct": false
+              },
+              {
+                "text": "Throws an error the browser shows in a dialog",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "An effect fetches standings for the division in state, with [] as its dependencies. What happens when the user picks another division?",
+            "explanation": "With [], the effect ran once after the first render and never again, so the old rows stay.",
+            "options": [
+              {
+                "text": "Nothing is fetched; the old rows stay",
+                "correct": true
+              },
+              {
+                "text": "It fetches the new division",
+                "correct": false
+              },
+              {
+                "text": "It fetches every division at once",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "An effect fetches and then calls setRows, with no dependency array at all. What happens?",
+            "explanation": "With no array the effect runs after every render, and every setRows causes a render: a request loop.",
+            "options": [
+              {
+                "text": "It fetches again and again, in a loop",
+                "correct": true
+              },
+              {
+                "text": "It fetches once",
+                "correct": false
+              },
+              {
+                "text": "It never runs",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In development, React runs on port 5173 and the API on 5080. What lets fetch(\"/api/standings\") reach the API unchanged?",
+            "explanation": "A dev-server proxy forwards /api to the API, so the browser only talks to one origin.",
+            "options": [
+              {
+                "text": "A proxy in the dev server that forwards /api to the API",
+                "correct": true
+              },
+              {
+                "text": "Writing the full address of the API in every fetch",
+                "correct": false
+              },
+              {
+                "text": "Running both on the same port",
+                "correct": false
+              },
+              {
+                "text": "Turning off the browser's security checks",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does an ASP.NET Core problem details body contain?",
+            "explanation": "Problem details is a standard JSON shape for errors: a title, a status, and sometimes a detail or errors.",
+            "options": [
+              {
+                "text": "A title and status describing what went wrong",
+                "correct": true
+              },
+              {
+                "text": "The rows you asked for, with an error flag",
+                "correct": false
+              },
+              {
+                "text": "An HTML error page",
+                "correct": false
+              },
+              {
+                "text": "Nothing: errors have empty bodies",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "clubhub-signup-explorer",
+      "title": "Sign-ups with a form",
+      "sortOrder": 4,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 10,
+      "isPublished": false
+    },
+    {
+      "slug": "league-api-writes",
+      "title": "API: record results",
+      "sortOrder": 4,
+      "ageBand": "Builder",
+      "estimatedMinutes": 25,
+      "isPublished": false
+    },
+    {
+      "slug": "clubhub-yours-explorer",
+      "title": "Make it yours",
+      "sortOrder": 5,
+      "ageBand": "Explorer",
+      "estimatedMinutes": 10,
+      "isPublished": false
+    },
+    {
+      "slug": "league-forms",
+      "title": "Forms that talk back",
+      "sortOrder": 5,
+      "ageBand": "Builder",
+      "estimatedMinutes": 25,
+      "isPublished": false
+    },
+    {
+      "slug": "league-ship",
+      "title": "Ship it",
+      "sortOrder": 6,
+      "ageBand": "Builder",
+      "estimatedMinutes": 25,
+      "isPublished": false
+    }
+  ]
+}

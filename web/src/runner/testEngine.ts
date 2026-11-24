@@ -348,14 +348,18 @@ export function harnessMain(cfg: HarnessConfig, evaluate: typeof evaluateTest): 
     }
   };
 
-  /** Calls `then` once no practice-API request is in flight and the framework is idle (capped at 2 s), plus `pauseMs`. */
+  /**
+   * Calls `then` once no practice-API request is in flight and the framework is idle (capped at 2 s), plus
+   * `pauseMs`. With a pause, it also pauses first: a click's fetch often starts a moment later, in the
+   * effect React runs after re-rendering (capstone pages), and it has to be seen as in flight.
+   */
   const afterIdle = (pauseMs: number, then: () => void) => {
-    const started = Date.now();
-    const poll = () => {
-      if ((pendingRequests() > 0 || frameworkBusy()) && Date.now() - started < 2000) setTimeout(poll, 20);
+    const poll = (started: number) => {
+      if ((pendingRequests() > 0 || frameworkBusy()) && Date.now() - started < 2000) setTimeout(() => poll(started), 20);
       else setTimeout(then, pauseMs);
     };
-    poll();
+    if (pauseMs > 0) setTimeout(() => poll(Date.now()), pauseMs);
+    else poll(Date.now());
   };
 
   const runTests = () => {

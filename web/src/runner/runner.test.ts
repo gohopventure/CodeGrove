@@ -355,6 +355,7 @@ describe('live API bridge (capstone)', () => {
       [
         { ...spec('elementText', { selector: '#list li', text: 'Owl Watchers' }), id: 1 },
         { ...spec('jsExpression', { expression: 'window.out', equals: [201, '/api/clubs/1', 200] }), id: 2 },
+        { ...spec('jsExpression', { expression: 'window.__cgLiveLog', equals: ['POST /api/clubs', 'GET /api/clubs?sort=name'] }), id: 3 },
       ],
       async (r): Promise<{ status: number; statusText: string; headers: Record<string, string>; body: string }> => {
         seen.push(`${r.method} ${r.path} ${r.headers['content-type'] ?? ''} ${r.body ?? ''}`.trim());
@@ -363,7 +364,7 @@ describe('live API bridge (capstone)', () => {
           : { status: 200, statusText: 'OK', headers: { 'Content-Type': 'application/json' }, body: '[{"id":1,"name":"Owl Watchers"}]' };
       },
     );
-    expect(results.map((r) => r.passed)).toEqual([true, true]);
+    expect(results.map((r) => r.passed)).toEqual([true, true, true]);
     expect(seen).toEqual(['POST /api/clubs application/json {"name":"Owl Watchers"}', 'GET /api/clubs?sort=name']);
   });
 

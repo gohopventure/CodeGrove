@@ -98,6 +98,7 @@ export function installMockApi(win: Window, delayMs = 40, live?: LiveApiConfig |
   const waiting = new Map<string, (reply: LiveFetchReply) => void>();
   let nextId = 0;
   if (live) {
+    (w as Window & { __cgLiveLog?: string[] }).__cgLiveLog = [];
     win.addEventListener('message', (event: MessageEvent) => {
       // Only the app (our parent) answers. (In tests the page is its own parent.)
       if (win.parent !== win && event.source !== win.parent) return;
@@ -162,6 +163,10 @@ export function installMockApi(win: Window, delayMs = 40, live?: LiveApiConfig |
     const body = init?.body === undefined || init?.body === null ? null : String(init.body);
     if (body !== null && !headers['content-type']) headers['content-type'] = 'text/plain;charset=UTF-8';
     const id = `live-${++nextId}`;
+    // Every request the page sent to its API, for checks: window.__cgLiveLog lists "GET /api/clubs"-style
+    // entries, so a check can count them (an effect without its dependency array fetches again and again).
+    const log = ((w as Window & { __cgLiveLog?: string[] }).__cgLiveLog ??= []);
+    if (log.length < 1000) log.push(`${method} ${url.pathname + url.search}`);
     const message: LiveFetchMessage = { type: 'cg:fetch', runId: live!.runId, id, method, path: url.pathname + url.search, headers, body };
 
     w.__cgMockPending = (w.__cgMockPending ?? 0) + 1;

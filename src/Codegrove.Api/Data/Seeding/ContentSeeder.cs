@@ -412,6 +412,16 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
     public static readonly IReadOnlySet<string> SqlTestKinds =
         new HashSet<string> { "noErrors", "sourceMatches", "sqlResultEquals", "sqlRowCount", "sqlCheckQuery", "sqlError" };
 
+    /// <summary>
+    /// Page test kinds a FullStack challenge can run in its preview (web/src/runner/testEngine.ts), against
+    /// the learner's live API. The C# kinds run against the api/ files instead (web/src/runner/fullStack.ts).
+    /// </summary>
+    public static readonly IReadOnlySet<string> FullStackWebTestKinds =
+        new HashSet<string> { "elementExists", "elementCount", "elementText", "attribute", "cssProperty", "cssRule", "jsExpression", "interact", "consoleIncludes", "noErrors" };
+
+    /// <summary>Kinds both halves of a FullStack challenge have: their spec says which with "side": "api" or "web".</summary>
+    public static readonly IReadOnlySet<string> FullStackSharedTestKinds = new HashSet<string> { "noErrors", "consoleIncludes" };
+
     /// <summary>The hidden starter file that builds a SQL challenge's database (sqlEngine.ts, SETUP_FILE).</summary>
     public const string SqlSetupFile = ".setup.sql";
 
@@ -444,15 +454,51 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
                 }
                 else if (c.Tests.Any(t => t.Kind is "typeCheck" or "typeError"))
                     Fail("typeCheck and typeError tests only work in TypeScript and Angular challenges.");
+                // FullStack (capstone): an ASP.NET Core API in api/ and a React page in web/ that calls it. Each
+                // test runs on one side, decided by its kind (see web/src/runner/fullStack.ts, splitTests).
+                if (c.Kind == ChallengeKind.FullStack)
+                {
+                    foreach (var (name, files) in new[] { ("starter", c.StarterFiles), ("solution", c.SolutionFiles) })
+                    {
+                        if (files.Keys.FirstOrDefault(k => !k.StartsWith("api/") && !k.StartsWith("web/")) is { } stray)
+                            Fail($"FullStack {name} file '{stray}' must be in api/ or web/.");
+                        if (!files.Any(f => f.Key.StartsWith("api/") && f.Key.EndsWith(".cs") && f.Value.Contains("WebApplication")))
+                            Fail($"FullStack {name} files need an api/*.cs file that builds a WebApplication.");
+                        if (!files.ContainsKey("web/index.html")) Fail($"FullStack {name} files need web/index.html.");
+                    }
+                    foreach (var t in c.Tests)
+                    {
+                        var side = t.Spec.ValueKind == JsonValueKind.Object && t.Spec.TryGetProperty("side", out var sv) ? sv.GetString() : null;
+                        if (FullStackSharedTestKinds.Contains(t.Kind))
+                        {
+                            if (side is not ("api" or "web")) Fail($"test '{t.Label}' ({t.Kind}) needs \"side\": \"api\" or \"web\".");
+                        }
+                        else if (side is not null) Fail($"test '{t.Label}': only noErrors and consoleIncludes take a side.");
+                        else if (t.Kind == "sourceMatches")
+                        {
+                            if (!(t.Spec.TryGetProperty("file", out var file) && file.GetString() is { } fn && fn.StartsWith("api/")))
+                                Fail($"test '{t.Label}': in FullStack challenges, sourceMatches needs a \"file\" in api/.");
+                        }
+                        else if (!CSharpTestKinds.Contains(t.Kind) && !FullStackWebTestKinds.Contains(t.Kind))
+                            Fail($"test '{t.Label}' has kind '{t.Kind}', which FullStack challenges can't use.");
+                    }
+                    if (l.ExampleCode is { Length: > 0 } example)
+                    {
+                        Dictionary<string, string>? exampleFiles = null;
+                        try { exampleFiles = JsonSerializer.Deserialize<Dictionary<string, string>>(example); } catch (JsonException) { }
+                        if (exampleFiles is null || !exampleFiles.ContainsKey("web/index.html") || !exampleFiles.Keys.Any(k => k.StartsWith("api/")))
+                            Fail("a FullStack lesson's exampleCode must be a JSON object of files with api/ files and web/index.html.");
+                    }
+                }
                 // C# runs in the in-browser C# runner (src/Codegrove.CSharpRunner), which has its own test kinds.
-                if (c.Kind == ChallengeKind.CSharp)
+                else if (c.Kind == ChallengeKind.CSharp)
                 {
                     static bool HasCs(Dictionary<string, string> files) => files.Keys.Any(k => !k.StartsWith('.') && k.EndsWith(".cs"));
                     if (!HasCs(c.StarterFiles) || !HasCs(c.SolutionFiles)) Fail("C# challenges need at least one .cs file.");
                     if (c.Tests.FirstOrDefault(t => !CSharpTestKinds.Contains(t.Kind)) is { } bad)
                         Fail($"test '{bad.Label}' has kind '{bad.Kind}', which C# challenges can't use. Known: {string.Join(", ", CSharpTestKinds)}.");
                 }
-                else if (c.Tests.FirstOrDefault(t => t.Kind is "consoleEquals" or "compileError" or "compileWarning" or "noWarnings" or "csharpExpression" or "httpRequest") is { } csOnly)
+                else if (c.Kind != ChallengeKind.FullStack && c.Tests.FirstOrDefault(t => t.Kind is "consoleEquals" or "compileError" or "compileWarning" or "noWarnings" or "csharpExpression" or "httpRequest") is { } csOnly)
                     Fail($"test '{csOnly.Label}' has kind '{csOnly.Kind}', which only works in C# challenges.");
                 // SQL runs in the in-browser SQL runner (web/src/runner/sqlEngine.ts): SQLite, starting every run
                 // from the hidden .setup.sql in the starter files, which the learner can't see or edit.
@@ -467,7 +513,7 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
                 }
                 else if (c.Tests.FirstOrDefault(t => t.Kind.StartsWith("sql")) is { } sqlOnly)
                     Fail($"test '{sqlOnly.Label}' has kind '{sqlOnly.Kind}', which only works in SQL challenges.");
-                if (c.Kind is not (ChallengeKind.CSharp or ChallengeKind.Sql) && c.Tests.FirstOrDefault(t => t.Kind == "sourceMatches") is { } src)
+                if (c.Kind is not (ChallengeKind.CSharp or ChallengeKind.Sql or ChallengeKind.FullStack) && c.Tests.FirstOrDefault(t => t.Kind == "sourceMatches") is { } src)
                     Fail($"test '{src.Label}' has kind 'sourceMatches', which only works in C# and SQL challenges.");
                 if (c.Hints.Select(h => h.Level).Order().SequenceEqual([1, 2, 3]) is false) Fail("a challenge needs hints at levels 1, 2 and 3.");
                 foreach (var h in c.Hints)

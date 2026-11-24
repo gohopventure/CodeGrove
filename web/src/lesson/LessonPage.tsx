@@ -8,6 +8,8 @@ import { Markdown } from '../components/Markdown';
 import { ErrorNote, Spinner } from '../components/ui';
 import { CodeEditor } from './CodeEditor';
 import { CSharpOutput } from './CSharpOutput';
+import { FullStackOutput } from './FullStackOutput';
+import { parseExampleFiles } from '../runner/fullStack';
 import { SqlOutput } from './SqlOutput';
 import { LivePreview, type LivePreviewHandle } from './LivePreview';
 import { preloadCSharp } from '../runner/csharp';
@@ -84,7 +86,8 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
 
   // C# runs on .NET in the browser, a few MB the first time: start fetching it while the learner reads.
   // SQL is much smaller (~0.7 MB) but the same idea.
-  const isCSharp = lesson.challenge?.kind === 'CSharp';
+  // FullStack (capstone) lessons run their API on the same C# runner.
+  const isCSharp = lesson.challenge?.kind === 'CSharp' || lesson.challenge?.kind === 'FullStack';
   const isSql = lesson.challenge?.kind === 'Sql';
   useEffect(() => {
     if (isCSharp) preloadCSharp();
@@ -229,7 +232,64 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
  * The editor keys its text by file name, so the example uses its own names (example.html, Example.cs,
  * example.sql) and never shares an editor model with the challenge's index.html or Program.cs.
  */
-function ExampleStep({ lesson, dark, headingRef, onNext }: {
+function ExampleStep(props: {
+  lesson: Lesson;
+  dark: boolean;
+  headingRef: React.RefObject<HTMLHeadingElement | null>;
+  onNext: () => void;
+}) {
+  // FullStack examples are a small app: several files (api/ and web/), stored as JSON in exampleCode.
+  const fullStackExample = props.lesson.challenge?.kind === 'FullStack' ? parseExampleFiles(props.lesson.exampleCode) : null;
+  return fullStackExample
+    ? <FullStackExampleStep {...props} original={fullStackExample} />
+    : <SingleFileExampleStep {...props} />;
+}
+
+/**
+ * A FullStack lesson's worked example: the whole little app, editable, running for real. Its files are
+ * named like the challenge's (api/Program.cs…) but this editor shows its own copy, and the app runs on its
+ * own live server, so nothing the learner tries here touches the challenge.
+ */
+function FullStackExampleStep({ lesson, original, dark, headingRef, onNext }: {
+  lesson: Lesson;
+  original: Files;
+  dark: boolean;
+  headingRef: React.RefObject<HTMLHeadingElement | null>;
+  onNext: () => void;
+}) {
+  // The editor gets its own Monaco models (modelPrefix), so the example never shares text or error
+  // underlines with the challenge's files of the same name.
+  const [files, setFiles] = useState<Files>(original);
+  useEffect(() => setFiles(original), [original]);
+  const changed = JSON.stringify(files) !== JSON.stringify(original);
+  return (
+    <section className="card space-y-4">
+      <h2 ref={headingRef} tabIndex={-1} className="text-2xl font-bold">Example</h2>
+      <Markdown>{lesson.exampleMarkdown}</Markdown>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="flex min-w-0 flex-col">
+          <div className="mb-1 flex items-center gap-2">
+            <p className="text-sm font-bold">The code <span className="font-normal text-muted">(you can change it)</span></p>
+            {changed && (
+              <button type="button" className="btn-secondary ml-auto px-3 py-0.5 text-sm" onClick={() => setFiles(original)}>
+                Reset example
+              </button>
+            )}
+          </div>
+          <div className="h-[32rem]">
+            <CodeEditor files={files} onChange={setFiles} dark={dark} label="Example code" modelPrefix="example/" />
+          </div>
+        </div>
+        <div className="h-[32rem] lg:mt-7">
+          <FullStackOutput files={files} title="The example app" modelPrefix="example/" />
+        </div>
+      </div>
+      <button type="button" className="btn-primary" onClick={onNext}>Try it yourself →</button>
+    </section>
+  );
+}
+
+function SingleFileExampleStep({ lesson, dark, headingRef, onNext }: {
   lesson: Lesson;
   dark: boolean;
   headingRef: React.RefObject<HTMLHeadingElement | null>;
@@ -239,6 +299,7 @@ function ExampleStep({ lesson, dark, headingRef, onNext }: {
   const isCSharp = lesson.challenge?.kind === 'CSharp';
   // SQL examples run against the challenge's starting database, so the example and the challenge share tables.
   const isSql = lesson.challenge?.kind === 'Sql';
+  // FullStack examples are a small app: several files (api/ and web/), stored as JSON in exampleCode.
   const original = lesson.exampleCode ?? '';
   const fileName = isSql ? 'example.sql' : isCSharp ? 'Example.cs' : 'example.html';
   const [code, setCode] = useState(original);
@@ -304,8 +365,9 @@ function ChallengeStep({
   const challenge = lesson.challenge!;
   const isCSharp = challenge.kind === 'CSharp';
   const isSql = challenge.kind === 'Sql';
-  /** C# and SQL run when the learner presses Run, not on every keystroke. */
-  const runsOnDemand = isCSharp || isSql;
+  const isFullStack = challenge.kind === 'FullStack';
+  /** C# and SQL run when the learner presses Run, not on every keystroke. FullStack re-renders its own page. */
+  const runsOnDemand = isCSharp || isSql || isFullStack;
   const draftKey = `cg:draft:${challenge.id}`;
   const preview = useRef<LivePreviewHandle>(null);
   const [files, setFiles] = useState<Files>(() => readDraft(draftKey) ?? challenge.starterFiles);
@@ -505,7 +567,9 @@ function ChallengeStep({
           </div>
         )}
         <div className={blocks ? 'h-[38rem]' : 'h-[28rem]'}>
-          {isCSharp
+          {isFullStack
+            ? <FullStackOutput ref={preview} files={files} />
+            : isCSharp
             ? <CSharpOutput ref={preview} files={files} />
             : isSql
               // The starting database always comes from the challenge, never from the draft.

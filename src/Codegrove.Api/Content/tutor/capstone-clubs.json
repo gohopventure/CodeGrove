@@ -1,0 +1,37 @@
+{
+  "course": "capstone-clubs",
+  "lessons": {
+    "clubhub-page-explorer": {
+      "intro": [
+        {
+          "displayText": "The Club Hub's server knows every club in the Grove, but the page is empty. Your mission: get the page to ask the server, and show the clubs!",
+          "speechText": "The Club Hub's server knows every club in the Grove, but the page is empty. Your mission is to get the page to ask the server, and show the clubs!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your page and your server are talking. Your new word is full-stack: building the page and the server behind it.",
+          "speechText": "Your page and your server are talking. Your new word is full stack, which means building the page and the server behind it.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "league-page": {
+      "intro": [
+        {
+          "displayText": "Almost every app is a frontend asking a backend for data, and handling whatever comes back. The Junior League's API is ready; its page isn't. You'll build the standings table, make the division filter fetch again, and show the API's error instead of crashing on it.",
+          "speechText": "Almost every app is a frontend asking a backend for data, and handling whatever comes back. The Junior League's A P I is ready, but its page isn't. You'll build the standings table, make the division filter fetch again, and show the A P I's error instead of crashing on it.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your frontend and your API are working together, and the page copes when the answer is no. The gotcha to remember: fetch only fails when there's no answer at all. A 400 still resolves, so always check response.ok before you use the data.",
+          "speechText": "Your frontend and your A P I are working together, and the page copes when the answer is no. The gotcha to remember is that fetch only fails when there's no answer at all. A four hundred still resolves, so always check response dot ok before you use the data.",
+          "mood": "Celebrating"
+        }
+      ]
+    }
+  }
+}

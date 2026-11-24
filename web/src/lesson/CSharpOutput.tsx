@@ -134,9 +134,9 @@ function formatMs(ms: number) {
 }
 
 /** Underlines compile errors and warnings in the editor (models are keyed by file name, see CodeEditor). */
-function showMarkers(files: Files, diagnostics: CSharpDiagnostic[]) {
+export function showMarkers(files: Files, diagnostics: CSharpDiagnostic[], modelPrefix = '') {
   for (const name of Object.keys(files).filter((f) => f.endsWith('.cs'))) {
-    const model = monaco.editor.getModel(monaco.Uri.parse(name));
+    const model = monaco.editor.getModel(monaco.Uri.parse(modelPrefix + name));
     if (!model) continue;
     monaco.editor.setModelMarkers(
       model,

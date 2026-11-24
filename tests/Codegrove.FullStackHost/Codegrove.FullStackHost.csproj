@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Test helper for web/src/runner/fullStackContent.test.ts: runs learner APIs on the C# runner (as the
+    browser does) and answers over stdin/stdout, so Vitest can check FullStack challenges end to end.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Codegrove.CSharpRunner\Codegrove.CSharpRunner.csproj" />
+  </ItemGroup>
+
+</Project>

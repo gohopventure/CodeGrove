@@ -98,6 +98,19 @@
       "isPublished": true,
       "courses": ["csharp-web-api"],
       "prerequisites": ["csharp", "databases"]
+    },
+    {
+      // The capstone: a full-stack app built over several milestones. The API runs as a live server in the
+      // C# runner and the React page calls it (FullStack challenges, see web/src/runner/fullStack.ts). Each
+      // course is one theme; later themes become more courses here (see the project's capstone plan).
+      "slug": "capstone",
+      "title": "Capstone: Build a Full-Stack App",
+      "description": "Put it all together: plan the data, build an ASP.NET Core API with Entity Framework Core, and a React frontend that talks to it, one milestone at a time.",
+      "ageBand": "Both",
+      "sortOrder": 9,
+      "isPublished": true,
+      "courses": ["capstone-clubs"],
+      "prerequisites": ["frontend-frameworks", "web-apis"]
     }
   ],
   "badges": [
@@ -217,6 +230,14 @@
       "iconUrl": "/badges/route-ranger.svg",
       "ruleType": "CourseCompleted",
       "ruleCourseSlug": "csharp-web-api"
+    },
+    {
+      "code": "full-stack-finisher",
+      "name": "Full-Stack Finisher",
+      "description": "You finished the capstone and built a whole app: data, API and page.",
+      "iconUrl": "/badges/full-stack-finisher.svg",
+      "ruleType": "CourseCompleted",
+      "ruleCourseSlug": "capstone-clubs"
     },
     {
       "code": "app-architect",

@@ -7,6 +7,8 @@ import { syncTypeScriptModels } from './typeCheckMonaco';
 const LANGUAGE: Record<string, string> = {
   html: 'html', css: 'css', js: 'javascript', jsx: 'javascript', ts: 'typescript', tsx: 'typescript', json: 'json', cs: 'csharp', sql: 'sql',
 };
+/** What a folder is called above its tabs (FullStack challenges keep the API in api/ and the page in web/). */
+const FOLDER_LABELS: Record<string, string> = { api: 'API', web: 'Page', db: 'Database' };
 const languageFor = (file: string) => LANGUAGE[file.split('.').pop() ?? ''] ?? 'plaintext';
 
 /**
@@ -19,12 +21,15 @@ export function CodeEditor({
   dark,
   readOnly = false,
   label = 'Code editor',
+  modelPrefix = '',
 }: {
   files: Files;
   onChange?: (files: Files) => void;
   dark: boolean;
   readOnly?: boolean;
   label?: string;
+  /** Prepended to each file's Monaco model name, so a second editor with the same file names (a FullStack example) keeps its own text and markers. */
+  modelPrefix?: string;
 }) {
   const names = Object.keys(files).filter((name) => !name.startsWith('.')); // dotfiles are app data, not learner code
   const [active, setActive] = useState(names[0] ?? 'index.html');
@@ -41,19 +46,34 @@ export function CodeEditor({
   return (
     <div className="flex h-full min-h-[320px] flex-col overflow-hidden rounded-card border border-line bg-surface">
       <div className="flex items-center gap-1 border-b border-line bg-surface-2 px-2 py-1">
-        <div role="tablist" aria-label="Files" className="flex gap-1">
-          {names.map((name) => (
-            <button
-              key={name}
-              role="tab"
-              type="button"
-              aria-selected={name === active}
-              onClick={() => setActive(name)}
-              className={`rounded px-3 py-1 font-mono text-sm ${name === active ? 'bg-surface font-bold text-ink' : 'text-muted'}`}
-            >
-              {name}
-            </button>
-          ))}
+        <div role="tablist" aria-label="Files" className="flex flex-wrap items-center gap-1">
+          {names.map((name, i) => {
+            // Files in folders (FullStack: api/…, web/…) show a short name, with the folder's label before
+            // the first file of each folder.
+            const slash = name.indexOf('/');
+            const folder = slash > 0 ? name.slice(0, slash) : null;
+            const firstInFolder = folder !== null && (i === 0 || !names[i - 1]!.startsWith(`${folder}/`));
+            return (
+              <span key={name} className="contents">
+                {firstInFolder && (
+                  <span aria-hidden="true" className={`px-1 text-xs font-bold uppercase tracking-wide text-muted ${i > 0 ? 'ml-2 border-l border-line pl-3' : ''}`}>
+                    {FOLDER_LABELS[folder] ?? folder}
+                  </span>
+                )}
+                <button
+                  role="tab"
+                  type="button"
+                  aria-selected={name === active}
+                  aria-label={folder ? `${name.slice(slash + 1)} (${FOLDER_LABELS[folder] ?? folder})` : undefined}
+                  title={folder ? name : undefined}
+                  onClick={() => setActive(name)}
+                  className={`rounded px-3 py-1 font-mono text-sm ${name === active ? 'bg-surface font-bold text-ink' : 'text-muted'}`}
+                >
+                  {folder ? name.slice(slash + 1) : name}
+                </button>
+              </span>
+            );
+          })}
         </div>
         <div className="ml-auto flex items-center gap-1 text-sm">
           <span className="text-muted" aria-hidden="true">Text size</span>
@@ -64,7 +84,7 @@ export function CodeEditor({
 
       <div className="min-h-0 flex-1">
         <Editor
-          path={active}
+          path={modelPrefix + active}
           language={languageFor(active)}
           value={files[active] ?? ''}
           theme={dark ? 'vs-dark' : 'vs'}

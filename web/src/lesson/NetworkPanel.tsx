@@ -9,7 +9,11 @@ import { useNetworkLog, type LiveApi, type NetworkEntry } from '../runner/liveAp
  * Accessibility: a real table with a caption; each row's method and path is a button that opens its
  * details below the table. New rows are announced politely, by count, not one by one.
  */
-export function NetworkPanel({ api }: { api: LiveApi }) {
+export function NetworkPanel({ api, showTitle = true }: {
+  api: LiveApi;
+  /** False inside a tab already called "Network" (the title stays for screen readers). */
+  showTitle?: boolean;
+}) {
   const entries = useNetworkLog(api);
   const [openId, setOpenId] = useState<number | null>(null);
   const ids = useId();
@@ -17,8 +21,8 @@ export function NetworkPanel({ api }: { api: LiveApi }) {
 
   return (
     <section aria-labelledby={`${ids}-title`} className="flex min-h-0 flex-col text-sm">
-      <div className="flex items-center justify-between border-b border-line bg-surface-2 px-3 py-1">
-        <h3 id={`${ids}-title`} className="font-bold">
+      <div className={`flex items-center justify-between px-3 py-1 ${showTitle ? 'border-b border-line bg-surface-2' : ''}`}>
+        <h3 id={`${ids}-title`} className={showTitle ? 'font-bold' : 'sr-only'}>
           Network
         </h3>
         {entries.length > 0 && (
