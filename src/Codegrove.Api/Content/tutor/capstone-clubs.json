@@ -96,6 +96,22 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "league-ship": {
+      "intro": [
+        {
+          "displayText": "Shipping is mostly small things done properly: tidy code, data that reads right every time, a way to undo mistakes, and an app that runs outside your editor. This is the last stretch of the Junior League. You'll move an endpoint into its own file, fix a join that names the wrong team, add delete buttons, and download the whole project.",
+          "speechText": "Shipping is mostly small things done properly: tidy code, data that reads right every time, a way to undo mistakes, and an app that runs outside your editor. This is the last stretch of the Junior League. You'll move an endpoint into its own file, fix a join that names the wrong team, add delete buttons, and download the whole project.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You built and shipped a full-stack app: a database, an API, and a React page that uses it well. The gotcha to remember: when a table plays two roles in one row, like home and away, join it once per role. Now take it home and run it with the real tools.",
+          "speechText": "You built and shipped a full stack app, with a database, an A P I, and a React page that uses it well. The gotcha to remember is that when a table plays two roles in one row, like home and away, you join it once per role. Now take it home and run it with the real tools.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }

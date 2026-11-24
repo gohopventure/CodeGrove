@@ -2,6 +2,7 @@ import { forwardRef, useCallback, useEffect, useId, useImperativeHandle, useMemo
 import type { Files } from '../api/types';
 import { failAll, useCSharpStatus, type CSharpRunResult } from '../runner/csharp';
 import { apiFiles, mergeResults, splitTests, webFiles } from '../runner/fullStack';
+import { downloadProject } from '../runner/exportProject';
 import { LiveApi } from '../runner/liveApi';
 import type { ConsoleLine, TestSpec } from '../runner/types';
 import { showMarkers } from './CSharpOutput';
@@ -29,7 +30,9 @@ export const FullStackOutput = forwardRef<LivePreviewHandle, {
   title?: string;
   /** The editor's modelPrefix, so compile errors are underlined in the right editor. */
   modelPrefix?: string;
-}>(function FullStackOutput({ files, autoRun = true, title = 'Your app', modelPrefix = '' }, ref) {
+  /** Names the downloaded project if the page has no <title> (the folder and README use the <title> first). */
+  projectName?: string;
+}>(function FullStackOutput({ files, autoRun = true, title = 'Your app', modelPrefix = '', projectName = 'My app' }, ref) {
   const ids = useId();
   const { status, detail } = useCSharpStatus();
   const live = useMemo(() => new LiveApi(apiFiles), []);
@@ -122,6 +125,14 @@ export const FullStackOutput = forwardRef<LivePreviewHandle, {
         <button
           type="button"
           className="btn-secondary ml-auto px-3 py-0.5 text-sm"
+          title="A .zip with your API and your page, ready to run with dotnet run and npm run dev"
+          onClick={() => downloadProject(files, appName(files) ?? projectName)}
+        >
+          <span aria-hidden="true">⤓ </span>Download project
+        </button>
+        <button
+          type="button"
+          className="btn-secondary px-3 py-0.5 text-sm"
           onClick={() => void execute(files)}
           disabled={running}
         >
@@ -161,6 +172,12 @@ export const FullStackOutput = forwardRef<LivePreviewHandle, {
     </div>
   );
 });
+
+/** The app's own name, from the page's <title> ("Junior League"), for the downloaded project's folder. */
+function appName(files: Files): string | null {
+  const title = /<title>([^<]*)<\/title>/i.exec(files['web/index.html'] ?? '')?.[1]?.trim();
+  return title ? title : null;
+}
 
 function ServerLog({ lines, running, status, detail }: { lines: ConsoleLine[]; running: boolean; status: string; detail?: string }) {
   const empty = lines.length === 0;

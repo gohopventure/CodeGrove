@@ -281,7 +281,7 @@ function FullStackExampleStep({ lesson, original, dark, headingRef, onNext }: {
           </div>
         </div>
         <div className="h-[32rem] lg:mt-7">
-          <FullStackOutput files={files} title="The example app" modelPrefix="example/" />
+          <FullStackOutput files={files} title="The example app" modelPrefix="example/" projectName={`${lesson.title} example`} />
         </div>
       </div>
       <button type="button" className="btn-primary" onClick={onNext}>Try it yourself →</button>
@@ -581,7 +581,7 @@ function ChallengeStep({
         )}
         <div className={blocks ? 'h-[38rem]' : 'h-[28rem]'}>
           {isFullStack
-            ? <FullStackOutput ref={preview} files={files} />
+            ? <FullStackOutput ref={preview} files={files} projectName={lesson.title} />
             : isCSharp
             ? <CSharpOutput ref={preview} files={files} />
             : isSql

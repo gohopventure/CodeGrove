@@ -1654,8 +1654,412 @@
       "title": "Ship it",
       "sortOrder": 6,
       "ageBand": "Builder",
-      "estimatedMinutes": 25,
-      "isPublished": false
+      "estimatedMinutes": 30,
+      "isPublished": true,
+      "learnMarkdown": "## Finishing like a team would\n\nShipping is mostly small, unglamorous things done properly: code split so the next person can find it, data that reads right in every case, a way to undo mistakes, and an app that runs somewhere other than your editor. In this last milestone the Junior League gets a recent-results list with delete buttons, and the endpoint behind it lives in its own file. Then you download the whole project and can run it with the real tools.\n\n### Endpoints in their own file\n\n`Program.cs` grows fast. A common fix is an **extension method** on `WebApplication`, in its own file:\n\n```csharp\npublic static class RecentEndpoints\n{\n    public static void MapRecentResults(\n        this WebApplication app)\n    {\n        app.MapGet(\"/api/matches/recent\", ...);\n    }\n}\n```\n\n`Program.cs` then reads like a table of contents: `app.MapRecentResults();`. (Bigger apps also use `app.MapGroup(\"/api/matches\")`, or controllers.)\n\n### One table, two roles\n\nA match has a **home** team and an **away** team, and both are rows in `Teams`. Join `Teams` once and every result gets the same name twice. Join it **once per role**, with its own alias:\n\n```csharp\nfrom m in db.Matches\njoin h in db.Teams on m.HomeTeamId equals h.Id\njoin a in db.Teams on m.AwayTeamId equals a.Id\nselect new RecentResult(m.Id, h.Name, a.Name,\n    m.HomeGoals, m.AwayGoals)\n```\n\nThis is LINQ's version of the two-`JOIN` query from the SQL relationships course. With EF Core navigation properties (`m.HomeTeam.Name`) the same idea is spelled differently, but it's still two relationships to one table.\n\n### Query parameters with defaults\n\n`int? count` is optional: `null` when the URL has no `?count=`. Give it a default (`count ?? 5`), check the range, and answer a validation problem keyed `count` when it's out of range. Never let a client ask for a million rows.\n\n### Delete, then refresh everything that's affected\n\nDeleting a result changes the recent list *and* the standings. Both components already depend on `version`, so the delete button only has to call `onChanged()`, and everything that shows the data loads again.\n\n### Running it for real\n\nPress **⤓ Download project** above the preview. You get a `.zip` with:\n\n- your `api/` files in a real ASP.NET Core project (`dotnet run`, port 5080);\n- your `web/` files in a real Vite + React project, with a proxy that sends `/api` to the API (`npm install`, then `npm run dev`);\n- a README with the steps.\n\nYour code goes in unchanged: everything you wrote in Codegrove was real ASP.NET Core and real React. To publish it, the usual next step is to `npm run build` the page and let ASP.NET Core serve the files from `wwwroot` (`app.UseStaticFiles()` plus `app.MapFallbackToFile(\"index.html\")`), so one server hosts both.\n\n### New words\n\n- **Extension method**: a static method whose first parameter has `this`, so it reads like a method of that type: `app.MapRecentResults()`.\n- **Role**: what a row means in one relationship, like a team being the home or the away side of a match.\n- **Default value**: what a missing optional parameter becomes, like `count ?? 5`.\n- **Deploy**: put an app on a server where other people can use it.\n",
+      "exampleMarkdown": "Letters between critters. Each letter has a sender and a receiver, both from the same `critters` list, so `api/LetterEndpoints.cs` joins `critters` **twice**, once per role. That endpoint lives in its own file, and `Program.cs` just calls `app.MapLetterEndpoints(...)`. Try deleting the second `join` and using `f.Name` for both, then press **▶ Run**. Press **⤓ Download project** to see what you'd get.",
+      "exampleCode": "{\"api/Program.cs\": \"var builder = WebApplication.CreateBuilder(args);\\nvar app = builder.Build();\\n\\nvar critters = new List<Critter> { new(1, \\\"Pip\\\"), new(2, \\\"Mossy\\\") };\\nvar letters = new List<Letter>\\n{\\n    new(1, FromId: 1, ToId: 2, \\\"Want to race snails?\\\"),\\n    new(2, FromId: 2, ToId: 1, \\\"Yes! Saturday?\\\"),\\n};\\n\\napp.MapLetterEndpoints(critters, letters);\\n\\napp.Run();\\n\\nrecord Critter(int Id, string Name);\\nrecord Letter(int Id, int FromId, int ToId, string Text);\\n\", \"api/LetterEndpoints.cs\": \"static class LetterEndpoints\\n{\\n    // Endpoints can live in their own file: an\\n    // extension method that Program.cs calls.\\n    public static void MapLetterEndpoints(this WebApplication app,\\n        List<Critter> critters, List<Letter> letters)\\n    {\\n        // A letter has two critters: who sent it, and who\\n        // gets it. So join critters twice, once per role.\\n        app.MapGet(\\\"/api/letters\\\", () =>\\n            from l in letters\\n            join f in critters on l.FromId equals f.Id\\n            join t in critters on l.ToId equals t.Id\\n            orderby l.Id descending\\n            select new { l.Id, From = f.Name, To = t.Name, l.Text });\\n    }\\n}\\n\", \"web/App.jsx\": \"import { useEffect, useState } from \\\"react\\\";\\n\\nexport default function App() {\\n  const [letters, setLetters] = useState([]);\\n\\n  useEffect(() => {\\n    fetch(\\\"/api/letters\\\")\\n      .then((response) => response.json())\\n      .then((data) => setLetters(data));\\n  }, []);\\n\\n  return (\\n    <ul>\\n      {letters.map((l) => (\\n        <li key={l.id}>\\n          {l.from} to {l.to}: {l.text}\\n        </li>\\n      ))}\\n    </ul>\\n  );\\n}\\n\", \"web/main.jsx\": \"import { createRoot } from \\\"react-dom/client\\\";\\nimport App from \\\"./App.jsx\\\";\\n\\ncreateRoot(document.getElementById(\\\"root\\\")).render(<App />);\\n\", \"web/index.html\": \"<!DOCTYPE html>\\n<html lang=\\\"en\\\">\\n  <head>\\n    <title>Letters</title>\\n  </head>\\n  <body>\\n    <div id=\\\"root\\\"></div>\\n    <script type=\\\"module\\\" src=\\\"main.jsx\\\"></script>\\n  </body>\\n</html>\\n\"}",
+      "challenge": {
+        "kind": "FullStack",
+        "xpReward": 25,
+        "continuesFrom": "league-forms",
+        "carryFiles": [
+          "web/App.jsx",
+          "web/StandingsTable.jsx",
+          "web/ResultForm.jsx",
+          "api/Program.cs"
+        ],
+        "instructionsMarkdown": "**Ship the Junior League.** Your page, your form and your API from last time are here. Two new files: `api/Recent.cs` (an endpoint, with bugs) and `web/RecentResults.jsx` (a list, unfinished). `RecentResult` is ready in `Models.cs`.\n\n1. **Wire it up:** in `Program.cs`, call **`app.MapRecentResults();`** before `app.Run()`. In `App.jsx`, show `<RecentResults version={version} onChanged={...} />` under the form.\n2. **Fix the names:** `GET /api/matches/recent` shows the home team's name twice. Join `Teams` **once per role**.\n3. **Check `count`:** no `?count=` means 5. Outside **1 to 20**? Answer a validation problem with `count`: *Ask for 1 to 20 results.*\n4. **The list:** load the recent results, and load them again when `version` changes. **Delete** sends `DELETE /api/matches/{id}`, then calls `onChanged()`, so the standings update too.\n\nWhen it all passes, press **⤓ Download project** to take your app home.",
+        "starterFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\nimport ResultForm from \"./ResultForm.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n  // Bumped after a result is recorded, so the\n  // effect fetches the standings again.\n  const [version, setVersion] = useState(0);\n\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    setError(null);\n    fetch(`/api/standings${query}`)\n      .then(async (response) => {\n        const data = await response.json();\n        if (response.ok) {\n          setRows(data);\n        } else {\n          setError(data.title);\n          setRows([]);\n        }\n      });\n  }, [division, version]);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n      <ResultForm onRecorded={() => setVersion((v) => v + 1)} />\n    </main>\n  );\n}\n",
+          "web/StandingsTable.jsx": "export default function StandingsTable({ rows }) {\n  return (\n    <table id=\"standings\">\n      <thead>\n        <tr>\n          <th>Team</th>\n          <th>Played</th>\n          <th>Points</th>\n        </tr>\n      </thead>\n      <tbody>\n        {rows.map((row) => (\n          <tr key={row.team}>\n            <td>{row.team}</td>\n            <td>{row.played}</td>\n            <td>{row.points}</td>\n          </tr>\n        ))}\n      </tbody>\n    </table>\n  );\n}\n",
+          "web/ResultForm.jsx": "import { useEffect, useState } from \"react\";\n\nconst EMPTY = {\n  homeTeamId: \"\",\n  awayTeamId: \"\",\n  homeGoals: \"\",\n  awayGoals: \"\",\n};\n\nexport default function ResultForm({ onRecorded }) {\n  const [teams, setTeams] = useState([]);\n  const [form, setForm] = useState(EMPTY);\n  const [errors, setErrors] = useState({});\n\n  useEffect(() => {\n    fetch(\"/api/teams\")\n      .then((response) => response.json())\n      .then((data) => setTeams(data));\n  }, []);\n\n  function update(field, value) {\n    setForm({ ...form, [field]: value });\n  }\n\n  async function handleSubmit(event) {\n    event.preventDefault();\n    const response = await fetch(\"/api/matches\", {\n      method: \"POST\",\n      headers: { \"Content-Type\": \"application/json\" },\n      body: JSON.stringify({\n        homeTeamId: Number(form.homeTeamId),\n        awayTeamId: Number(form.awayTeamId),\n        homeGoals: Number(form.homeGoals),\n        awayGoals: Number(form.awayGoals),\n      }),\n    });\n    if (response.ok) {\n      setForm(EMPTY);\n      setErrors({});\n      onRecorded();\n    } else {\n      const problem = await response.json();\n      setErrors(problem.errors ?? {});\n    }\n  }\n\n  const teamOptions = [\n    <option key=\"\" value=\"\">\n      Choose a team\n    </option>,\n    ...teams.map((t) => (\n      <option key={t.id} value={t.id}>\n        {t.name}\n      </option>\n    )),\n  ];\n\n  return (\n    <form id=\"result-form\" onSubmit={handleSubmit} noValidate>\n      <h2>Record a result</h2>\n      <Field id=\"home-team\" label=\"Home team\"\n        error={errors.homeTeamId?.[0]}>\n        {(props) => (\n          <select {...props} value={form.homeTeamId}\n            onChange={(e) => update(\"homeTeamId\", e.target.value)}>\n            {teamOptions}\n          </select>\n        )}\n      </Field>\n      <Field id=\"away-team\" label=\"Away team\"\n        error={errors.awayTeamId?.[0]}>\n        {(props) => (\n          <select {...props} value={form.awayTeamId}\n            onChange={(e) => update(\"awayTeamId\", e.target.value)}>\n            {teamOptions}\n          </select>\n        )}\n      </Field>\n      <Field id=\"home-goals\" label=\"Home goals\"\n        error={errors.homeGoals?.[0]}>\n        {(props) => (\n          <input {...props} type=\"number\" value={form.homeGoals}\n            onChange={(e) => update(\"homeGoals\", e.target.value)} />\n        )}\n      </Field>\n      <Field id=\"away-goals\" label=\"Away goals\"\n        error={errors.awayGoals?.[0]}>\n        {(props) => (\n          <input {...props} type=\"number\" value={form.awayGoals}\n            onChange={(e) => update(\"awayGoals\", e.target.value)} />\n        )}\n      </Field>\n      <button type=\"submit\">Record result</button>\n    </form>\n  );\n}\n\n// A label, its control, and the API's message.\n// The control gets aria-invalid and\n// aria-describedby, so a screen reader reads\n// the message with it.\nfunction Field({ id, label, error, children }) {\n  const errorId = `${id}-error`;\n  return (\n    <div className=\"field\">\n      <label htmlFor={id}>{label}</label>\n      {children({\n        id,\n        \"aria-invalid\": error ? \"true\" : undefined,\n        \"aria-describedby\": error ? errorId : undefined,\n      })}\n      {error && (\n        <p id={errorId} className=\"field-error\">\n          {error}\n        </p>\n      )}\n    </div>\n  );\n}\n",
+          "web/RecentResults.jsx": "import { useEffect, useState } from \"react\";\n\nexport default function RecentResults({ version, onChanged }) {\n  const [results, setResults] = useState([]);\n\n  // TODO 4: load GET /api/matches/recent into\n  // results, and again whenever version changes.\n\n  async function remove(id) {\n    // TODO 4: DELETE /api/matches/{id}, then\n    // call onChanged() so everything reloads.\n  }\n\n  return (\n    <section aria-labelledby=\"recent-title\">\n      <h2 id=\"recent-title\">Recent results</h2>\n      <ul id=\"recent\">\n        {results.map((r) => (\n          <li key={r.id}>\n            {r.home} {r.homeGoals}-{r.awayGoals} {r.away}\n            <button\n              onClick={() => remove(r.id)}\n              aria-label={`Delete ${r.home} against ${r.away}`}\n            >\n              Delete\n            </button>\n          </li>\n        ))}\n      </ul>\n    </section>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.MapGet(\"/api/teams\", (LeagueDb db) =>\n    db.Teams.OrderBy(t => t.Name).ToList());\n\napp.MapPost(\"/api/matches\", (NewMatch input, LeagueDb db) =>\n{\n    var errors = new Dictionary<string, string[]>();\n    if (db.Teams.Find(input.HomeTeamId) is null)\n        errors[\"homeTeamId\"] = [$\"There's no team {input.HomeTeamId}.\"];\n    if (db.Teams.Find(input.AwayTeamId) is null)\n        errors[\"awayTeamId\"] = [$\"There's no team {input.AwayTeamId}.\"];\n    else if (input.AwayTeamId == input.HomeTeamId)\n        errors[\"awayTeamId\"] = [\"A team can't play itself.\"];\n    if (input.HomeGoals < 0)\n        errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\n    if (input.AwayGoals < 0)\n        errors[\"awayGoals\"] = [\"Goals can't be below 0.\"];\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\n\n    var match = new Match\n    {\n        HomeTeamId = input.HomeTeamId,\n        AwayTeamId = input.AwayTeamId,\n        HomeGoals = input.HomeGoals,\n        AwayGoals = input.AwayGoals,\n    };\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\napp.MapGet(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n    db.Matches.Find(id) is { } match\n        ? Results.Ok(match)\n        : Results.NotFound());\n\napp.MapDelete(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n{\n    if (db.Matches.Find(id) is not { } match) return Results.NotFound();\n    db.Matches.Remove(match);\n    db.SaveChanges();\n    return Results.NoContent();\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
+          "api/Recent.cs": "using Microsoft.EntityFrameworkCore;\n\npublic static class RecentEndpoints\n{\n    // GET /api/matches/recent?count=5: the\n    // newest results first, with both names.\n    public static void MapRecentResults(\n        this WebApplication app)\n    {\n        app.MapGet(\"/api/matches/recent\",\n            (int? count, LeagueDb db) =>\n        {\n            // TODO 3: count must be 1 to 20.\n            // No count? Then 5.\n            var take = count ?? 5;\n\n            // TODO 2: both names are the same!\n            var recent =\n                from m in db.Matches\n                join t in db.Teams on m.HomeTeamId equals t.Id\n                orderby m.Id descending\n                select new RecentResult(m.Id, t.Name, t.Name,\n                    m.HomeGoals, m.AwayGoals);\n            return Results.Ok(recent.Take(take).ToList());\n        });\n    }\n}\n",
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// One line of the recent results list.\npublic record RecentResult(\n    int Id, string Home, string Away,\n    int HomeGoals, int AwayGoals);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+        },
+        "solutionFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\nimport ResultForm from \"./ResultForm.jsx\";\nimport RecentResults from \"./RecentResults.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n  // Bumped after a result is recorded, so the\n  // effect fetches the standings again.\n  const [version, setVersion] = useState(0);\n\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    setError(null);\n    fetch(`/api/standings${query}`)\n      .then(async (response) => {\n        const data = await response.json();\n        if (response.ok) {\n          setRows(data);\n        } else {\n          setError(data.title);\n          setRows([]);\n        }\n      });\n  }, [division, version]);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n      <ResultForm onRecorded={() => setVersion((v) => v + 1)} />\n      <RecentResults\n        version={version}\n        onChanged={() => setVersion((v) => v + 1)}\n      />\n    </main>\n  );\n}\n",
+          "web/StandingsTable.jsx": "export default function StandingsTable({ rows }) {\n  return (\n    <table id=\"standings\">\n      <thead>\n        <tr>\n          <th>Team</th>\n          <th>Played</th>\n          <th>Points</th>\n        </tr>\n      </thead>\n      <tbody>\n        {rows.map((row) => (\n          <tr key={row.team}>\n            <td>{row.team}</td>\n            <td>{row.played}</td>\n            <td>{row.points}</td>\n          </tr>\n        ))}\n      </tbody>\n    </table>\n  );\n}\n",
+          "web/ResultForm.jsx": "import { useEffect, useState } from \"react\";\n\nconst EMPTY = {\n  homeTeamId: \"\",\n  awayTeamId: \"\",\n  homeGoals: \"\",\n  awayGoals: \"\",\n};\n\nexport default function ResultForm({ onRecorded }) {\n  const [teams, setTeams] = useState([]);\n  const [form, setForm] = useState(EMPTY);\n  const [errors, setErrors] = useState({});\n\n  useEffect(() => {\n    fetch(\"/api/teams\")\n      .then((response) => response.json())\n      .then((data) => setTeams(data));\n  }, []);\n\n  function update(field, value) {\n    setForm({ ...form, [field]: value });\n  }\n\n  async function handleSubmit(event) {\n    event.preventDefault();\n    const response = await fetch(\"/api/matches\", {\n      method: \"POST\",\n      headers: { \"Content-Type\": \"application/json\" },\n      body: JSON.stringify({\n        homeTeamId: Number(form.homeTeamId),\n        awayTeamId: Number(form.awayTeamId),\n        homeGoals: Number(form.homeGoals),\n        awayGoals: Number(form.awayGoals),\n      }),\n    });\n    if (response.ok) {\n      setForm(EMPTY);\n      setErrors({});\n      onRecorded();\n    } else {\n      const problem = await response.json();\n      setErrors(problem.errors ?? {});\n    }\n  }\n\n  const teamOptions = [\n    <option key=\"\" value=\"\">\n      Choose a team\n    </option>,\n    ...teams.map((t) => (\n      <option key={t.id} value={t.id}>\n        {t.name}\n      </option>\n    )),\n  ];\n\n  return (\n    <form id=\"result-form\" onSubmit={handleSubmit} noValidate>\n      <h2>Record a result</h2>\n      <Field id=\"home-team\" label=\"Home team\"\n        error={errors.homeTeamId?.[0]}>\n        {(props) => (\n          <select {...props} value={form.homeTeamId}\n            onChange={(e) => update(\"homeTeamId\", e.target.value)}>\n            {teamOptions}\n          </select>\n        )}\n      </Field>\n      <Field id=\"away-team\" label=\"Away team\"\n        error={errors.awayTeamId?.[0]}>\n        {(props) => (\n          <select {...props} value={form.awayTeamId}\n            onChange={(e) => update(\"awayTeamId\", e.target.value)}>\n            {teamOptions}\n          </select>\n        )}\n      </Field>\n      <Field id=\"home-goals\" label=\"Home goals\"\n        error={errors.homeGoals?.[0]}>\n        {(props) => (\n          <input {...props} type=\"number\" value={form.homeGoals}\n            onChange={(e) => update(\"homeGoals\", e.target.value)} />\n        )}\n      </Field>\n      <Field id=\"away-goals\" label=\"Away goals\"\n        error={errors.awayGoals?.[0]}>\n        {(props) => (\n          <input {...props} type=\"number\" value={form.awayGoals}\n            onChange={(e) => update(\"awayGoals\", e.target.value)} />\n        )}\n      </Field>\n      <button type=\"submit\">Record result</button>\n    </form>\n  );\n}\n\n// A label, its control, and the API's message.\n// The control gets aria-invalid and\n// aria-describedby, so a screen reader reads\n// the message with it.\nfunction Field({ id, label, error, children }) {\n  const errorId = `${id}-error`;\n  return (\n    <div className=\"field\">\n      <label htmlFor={id}>{label}</label>\n      {children({\n        id,\n        \"aria-invalid\": error ? \"true\" : undefined,\n        \"aria-describedby\": error ? errorId : undefined,\n      })}\n      {error && (\n        <p id={errorId} className=\"field-error\">\n          {error}\n        </p>\n      )}\n    </div>\n  );\n}\n",
+          "web/RecentResults.jsx": "import { useEffect, useState } from \"react\";\n\nexport default function RecentResults({ version, onChanged }) {\n  const [results, setResults] = useState([]);\n\n  useEffect(() => {\n    fetch(\"/api/matches/recent\")\n      .then((response) => response.json())\n      .then((data) => setResults(data));\n  }, [version]);\n\n  async function remove(id) {\n    await fetch(`/api/matches/${id}`, { method: \"DELETE\" });\n    onChanged();\n  }\n\n  return (\n    <section aria-labelledby=\"recent-title\">\n      <h2 id=\"recent-title\">Recent results</h2>\n      <ul id=\"recent\">\n        {results.map((r) => (\n          <li key={r.id}>\n            {r.home} {r.homeGoals}-{r.awayGoals} {r.away}\n            <button\n              onClick={() => remove(r.id)}\n              aria-label={`Delete ${r.home} against ${r.away}`}\n            >\n              Delete\n            </button>\n          </li>\n        ))}\n      </ul>\n    </section>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.MapGet(\"/api/teams\", (LeagueDb db) =>\n    db.Teams.OrderBy(t => t.Name).ToList());\n\napp.MapPost(\"/api/matches\", (NewMatch input, LeagueDb db) =>\n{\n    var errors = new Dictionary<string, string[]>();\n    if (db.Teams.Find(input.HomeTeamId) is null)\n        errors[\"homeTeamId\"] = [$\"There's no team {input.HomeTeamId}.\"];\n    if (db.Teams.Find(input.AwayTeamId) is null)\n        errors[\"awayTeamId\"] = [$\"There's no team {input.AwayTeamId}.\"];\n    else if (input.AwayTeamId == input.HomeTeamId)\n        errors[\"awayTeamId\"] = [\"A team can't play itself.\"];\n    if (input.HomeGoals < 0)\n        errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\n    if (input.AwayGoals < 0)\n        errors[\"awayGoals\"] = [\"Goals can't be below 0.\"];\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\n\n    var match = new Match\n    {\n        HomeTeamId = input.HomeTeamId,\n        AwayTeamId = input.AwayTeamId,\n        HomeGoals = input.HomeGoals,\n        AwayGoals = input.AwayGoals,\n    };\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\napp.MapGet(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n    db.Matches.Find(id) is { } match\n        ? Results.Ok(match)\n        : Results.NotFound());\n\napp.MapDelete(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n{\n    if (db.Matches.Find(id) is not { } match) return Results.NotFound();\n    db.Matches.Remove(match);\n    db.SaveChanges();\n    return Results.NoContent();\n});\n\napp.MapRecentResults();\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
+          "api/Recent.cs": "using Microsoft.EntityFrameworkCore;\n\npublic static class RecentEndpoints\n{\n    // GET /api/matches/recent?count=5: the\n    // newest results first, with both names.\n    public static void MapRecentResults(\n        this WebApplication app)\n    {\n        app.MapGet(\"/api/matches/recent\",\n            (int? count, LeagueDb db) =>\n        {\n            var take = count ?? 5;\n            if (take is < 1 or > 20)\n            {\n                var errors = new Dictionary<string, string[]>\n                {\n                    [\"count\"] = [\"Ask for 1 to 20 results.\"],\n                };\n                return Results.ValidationProblem(errors);\n            }\n\n            var recent =\n                from m in db.Matches\n                join h in db.Teams on m.HomeTeamId equals h.Id\n                join a in db.Teams on m.AwayTeamId equals a.Id\n                orderby m.Id descending\n                select new RecentResult(m.Id, h.Name, a.Name,\n                    m.HomeGoals, m.AwayGoals);\n            return Results.Ok(recent.Take(take).ToList());\n        });\n    }\n}\n",
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// One line of the recent results list.\npublic record RecentResult(\n    int Id, string Home, string Away,\n    int HomeGoals, int AwayGoals);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+        },
+        "tests": [
+          {
+            "label": "1. GET /api/matches/recent is mapped",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/matches/recent",
+              "expectStatus": 200
+            },
+            "failMessage": "GET /api/matches/recent answered 404. Call app.MapRecentResults(); in Program.cs, before app.Run()."
+          },
+          {
+            "label": "2. Each result has the right teams, newest first",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/matches/recent",
+              "expectJson": [
+                {
+                  "id": 6,
+                  "home": "Hilltop Hawks",
+                  "away": "Meadow Mice",
+                  "homeGoals": 1,
+                  "awayGoals": 1
+                },
+                {
+                  "id": 5,
+                  "home": "Riverton Otters",
+                  "away": "Lakeside Lynx",
+                  "homeGoals": 2,
+                  "awayGoals": 2
+                },
+                {
+                  "id": 4,
+                  "home": "Meadow Mice",
+                  "away": "Riverton Otters",
+                  "homeGoals": 0,
+                  "awayGoals": 1
+                },
+                {
+                  "id": 3,
+                  "home": "Hilltop Hawks",
+                  "away": "Lakeside Lynx",
+                  "homeGoals": 3,
+                  "awayGoals": 0
+                },
+                {
+                  "id": 2,
+                  "home": "Lakeside Lynx",
+                  "away": "Meadow Mice",
+                  "homeGoals": 2,
+                  "awayGoals": 2
+                }
+              ]
+            },
+            "failMessage": "The newest 5 results should each name their own home and away team. Join Teams twice: once on HomeTeamId, once on AwayTeamId."
+          },
+          {
+            "label": "3. count picks how many",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/matches/recent?count=2",
+              "expectJson": [
+                {
+                  "id": 6,
+                  "home": "Hilltop Hawks",
+                  "away": "Meadow Mice",
+                  "homeGoals": 1,
+                  "awayGoals": 1
+                },
+                {
+                  "id": 5,
+                  "home": "Riverton Otters",
+                  "away": "Lakeside Lynx",
+                  "homeGoals": 2,
+                  "awayGoals": 2
+                }
+              ]
+            },
+            "failMessage": "?count=2 should answer the newest 2 results."
+          },
+          {
+            "label": "3. count can't be 0",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/matches/recent?count=0",
+              "expectStatus": 400,
+              "expectJson": {
+                "errors": {
+                  "count": [
+                    "Ask for 1 to 20 results."
+                  ]
+                }
+              }
+            },
+            "failMessage": "?count=0 should answer a validation problem with count: \"Ask for 1 to 20 results.\"."
+          },
+          {
+            "label": "3. count can't be over 20",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/matches/recent?count=21",
+              "expectStatus": 400,
+              "expectJson": {
+                "errors": {
+                  "count": [
+                    "Ask for 1 to 20 results."
+                  ]
+                }
+              }
+            },
+            "failMessage": "?count=21 should answer the same validation problem."
+          },
+          {
+            "label": "2. A new result shows up first",
+            "kind": "httpRequest",
+            "spec": {
+              "before": [
+                {
+                  "method": "POST",
+                  "path": "/api/matches",
+                  "body": {
+                    "homeTeamId": 5,
+                    "awayTeamId": 1,
+                    "homeGoals": 2,
+                    "awayGoals": 0
+                  }
+                }
+              ],
+              "path": "/api/matches/recent?count=1",
+              "expectJson": [
+                {
+                  "id": 7,
+                  "home": "Canyon Comets",
+                  "away": "Riverton Otters",
+                  "homeGoals": 2,
+                  "awayGoals": 0
+                }
+              ]
+            },
+            "failMessage": "After POST /api/matches, the new result should be first in the recent list."
+          },
+          {
+            "label": "4. The page lists the recent results",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('#recent li')].map((li) => li.textContent.replace('Delete', '').trim())",
+              "equals": [
+                "Hilltop Hawks 1-1 Meadow Mice",
+                "Riverton Otters 2-2 Lakeside Lynx",
+                "Meadow Mice 0-1 Riverton Otters",
+                "Hilltop Hawks 3-0 Lakeside Lynx",
+                "Lakeside Lynx 2-2 Meadow Mice"
+              ]
+            },
+            "failMessage": "Show <RecentResults version={version} onChanged={...} /> in App.jsx, and load GET /api/matches/recent into results."
+          },
+          {
+            "label": "Delete the newest result",
+            "kind": "interact",
+            "spec": {
+              "selector": "#recent li button",
+              "click": true
+            },
+            "failMessage": "Each recent result needs its Delete button."
+          },
+          {
+            "label": "4. Delete sends DELETE /api/matches/{id}",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "window.__cgLiveLog.filter((r) => r === 'DELETE /api/matches/6').length",
+              "equals": 1
+            },
+            "failMessage": "Deleting the newest result should send DELETE /api/matches/6 once."
+          },
+          {
+            "label": "4. The recent list updates",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('#recent li')].map((li) => li.textContent.replace('Delete', '').trim())",
+              "equals": [
+                "Riverton Otters 2-2 Lakeside Lynx",
+                "Meadow Mice 0-1 Riverton Otters",
+                "Hilltop Hawks 3-0 Lakeside Lynx",
+                "Lakeside Lynx 2-2 Meadow Mice",
+                "Riverton Otters 1-2 Hilltop Hawks"
+              ]
+            },
+            "failMessage": "After a delete, call onChanged(), and make the list's effect depend on version."
+          },
+          {
+            "label": "4. The standings update too",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('#standings tbody tr')].map((r) => [...r.cells].map((c) => c.textContent.trim()))",
+              "equals": [
+                [
+                  "Hilltop Hawks",
+                  "2",
+                  "6"
+                ],
+                [
+                  "Riverton Otters",
+                  "3",
+                  "4"
+                ],
+                [
+                  "Lakeside Lynx",
+                  "3",
+                  "2"
+                ],
+                [
+                  "Meadow Mice",
+                  "2",
+                  "1"
+                ],
+                [
+                  "Canyon Comets",
+                  "0",
+                  "0"
+                ]
+              ]
+            },
+            "failMessage": "After a delete, the standings should load again too. onChanged() should bump the same version the standings use."
+          },
+          {
+            "label": "No errors in the console",
+            "kind": "noErrors",
+            "spec": {
+              "side": "web"
+            },
+            "failMessage": "Your page logged an error. Look at the Console under the preview."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Look at the query in `Recent.cs`. Which team does `t` stand for, and where does the away team's name come from?",
+            "speechText": "Look at the query in the recent file. Which team does t stand for, and where does the away team's name come from?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Join `Teams` twice with different names, `h` on `HomeTeamId` and `a` on `AwayTeamId`, and select `h.Name, a.Name`. Return `Results.ValidationProblem` when `take` is below 1 or above 20. On the page, use `[version]` as the effect's dependencies, and call `onChanged()` after the DELETE.",
+            "speechText": "Join the teams twice with different names, one on the home team id and one on the away team id, and select both names. Return a validation problem when take is below one or above twenty. On the page, make the effect depend on version, and call on changed after the delete.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "The query:\n\n```csharp\nfrom m in db.Matches\njoin h in db.Teams on m.HomeTeamId equals h.Id\njoin a in db.Teams on m.AwayTeamId equals a.Id\norderby m.Id descending\nselect new RecentResult(m.Id, h.Name, a.Name,\n    m.HomeGoals, m.AwayGoals)\n```\n\nThe delete:\n\n```jsx\nasync function remove(id) {\n  await fetch(`/api/matches/${id}`, { method: \"DELETE\" });\n  onChanged();\n}\n```",
+            "speechText": "Join the teams once for the home side and once for the away side, and select both names. For delete, send the delete request with the match id, then call on changed.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A match has a home team and an away team, both in Teams. The query joins Teams once, on HomeTeamId. What goes wrong?",
+            "explanation": "With one join, only the home team is looked up, so selecting its name twice shows the home team as both sides. Join once per role.",
+            "options": [
+              {
+                "text": "Both names come out as the home team",
+                "correct": true
+              },
+              {
+                "text": "The query fails to compile",
+                "correct": false
+              },
+              {
+                "text": "Every match appears twice",
+                "correct": false
+              },
+              {
+                "text": "Nothing: one join covers both",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What makes `public static void MapRecentResults(this WebApplication app)` callable as app.MapRecentResults()?",
+            "explanation": "The this on the first parameter makes it an extension method of WebApplication.",
+            "options": [
+              {
+                "text": "The this on its first parameter (an extension method)",
+                "correct": true
+              },
+              {
+                "text": "Being public",
+                "correct": false
+              },
+              {
+                "text": "Being in a file called Recent.cs",
+                "correct": false
+              },
+              {
+                "text": "The Map at the start of its name",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "An endpoint takes int? count. The URL has no ?count=. What is count?",
+            "explanation": "A missing optional parameter binds as null; count ?? 5 gives it a default.",
+            "options": [
+              {
+                "text": "null",
+                "correct": true
+              },
+              {
+                "text": "0",
+                "correct": false
+              },
+              {
+                "text": "5",
+                "correct": false
+              },
+              {
+                "text": "The request fails with 400",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Deleting a result should update the recent list and the standings. What makes both reload?",
+            "explanation": "Both effects depend on the same version, and onChanged() bumps it.",
+            "options": [
+              {
+                "text": "Both effects depend on version, and onChanged() bumps it",
+                "correct": true
+              },
+              {
+                "text": "The DELETE request reloads the page",
+                "correct": false
+              },
+              {
+                "text": "React reloads every fetch after any click",
+                "correct": false
+              },
+              {
+                "text": "The API pushes the change to the page",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "One common way to host the finished app on a single server?",
+            "explanation": "Build the React page and let ASP.NET Core serve it from wwwroot, with a fallback to index.html.",
+            "options": [
+              {
+                "text": "Build the page with npm run build and let ASP.NET Core serve it from wwwroot",
+                "correct": true
+              },
+              {
+                "text": "Run npm run dev on the server",
+                "correct": false
+              },
+              {
+                "text": "Copy the C# files into the React project",
+                "correct": false
+              },
+              {
+                "text": "Use the in-memory database in the browser",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
