@@ -33,6 +33,70 @@
         }
       ]
     },
+    "clubhub-data-explorer": {
+      "intro": [
+        {
+          "displayText": "Welcome to your capstone! Your mission today: plan the data for the Grove Club Hub, the app you're about to build.",
+          "speechText": "Welcome to your capstone! Your mission today is to plan the data for the Grove Club Hub, the app you're about to build.",
+          "mood": "Celebrating"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your app has a plan for its data. Your new word is data model: the plan for what an app remembers.",
+          "speechText": "Your app has a plan for its data. Your new word is data model, which means the plan for what an app remembers.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "league-schema": {
+      "intro": [
+        {
+          "displayText": "Welcome to the capstone: one app, built the way a real team would build it. It starts with the schema, because the entities, the endpoints and the page all depend on it. You'll finish the matches table with its keys and rules, fix a report that names the wrong team, and write one that counts every team.",
+          "speechText": "Welcome to the capstone, one app, built the way a real team would build it. It starts with the schema, because the entities, the endpoints and the page all depend on it. You'll finish the matches table with its keys and rules, fix a report that names the wrong team, and write one that counts every team.",
+          "mood": "Celebrating"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The league's data has a home, with its rules enforced by the database itself. The gotcha to remember: when one table plays two roles, join it once per role, each with its own alias. You'll meet the same trap in LINQ before the league ships.",
+          "speechText": "The league's data has a home, with its rules enforced by the database itself. The gotcha to remember is that when one table plays two roles, you join it once per role, each with its own alias. You'll meet the same trap in link before the league ships.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "clubhub-api-explorer": {
+      "intro": [
+        {
+          "displayText": "The Club Hub needs a server that knows the clubs. Your mission: write the two endpoints that answer questions about them!",
+          "speechText": "The Club Hub needs a server that knows the clubs. Your mission is to write the two endpoints that answer questions about them!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your server can list the clubs and find any one of them. Your new word is endpoint: one thing a server can answer.",
+          "speechText": "Your server can list the clubs and find any one of them. Your new word is endpoint, which is one thing a server can answer.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "league-api-reads": {
+      "intro": [
+        {
+          "displayText": "Clients don't want raw match rows; they want the standings, and they want every client to agree on them. That makes computing them the API's job. You'll build the standings endpoint with a proper tiebreaker, a division filter, and a clear 400 for divisions that don't exist.",
+          "speechText": "Clients don't want raw match rows, they want the standings, and they want every client to agree on them. That makes computing them the A P I's job. You'll build the standings endpoint with a proper tiebreaker, a division filter, and a clear four hundred for divisions that don't exist.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The league's API answers the question its clients actually ask. The gotcha to remember: when ties are possible, always sort by a tiebreaker too. Without one, the same data can come back in a different order.",
+          "speechText": "The league's A P I answers the question its clients actually ask. The gotcha to remember is that when ties are possible, you always sort by a tiebreaker too. Without one, the same data can come back in a different order.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
     "clubhub-signup-explorer": {
       "intro": [
         {

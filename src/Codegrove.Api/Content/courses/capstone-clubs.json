@@ -19,7 +19,171 @@
       "sortOrder": 1,
       "ageBand": "Explorer",
       "estimatedMinutes": 10,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Welcome to your capstone!\n\nA **capstone** is a big final project. Over the next five missions you'll build the **Grove Club Hub**: a web app where kids in the Grove find clubs, start new ones and join them. You'll build *all* of it: the data, the server and the page.\n\nEvery app starts with its **data**. What does the app need to remember? For the Club Hub, that's the clubs: each one has a **name** and a **day** it meets.\n\n### A table for the clubs\n\nYou know tables from the SQL course. A table for clubs could look like this:\n\n| id | name | meets |\n|---|---|---|\n| 1 | Owl Watchers | Monday |\n| 2 | Frog Choir | Wednesday |\n\nEach club is a **row**. Each thing we know about a club is a **column**. The `id` gives each club its own number, so we can tell them apart.\n\n### Plan first, build next\n\nIn SQL, you make the table with `CREATE TABLE`, fill it with `INSERT INTO`, and ask questions with `SELECT`. The app's server will ask the same question you'll ask today: *which clubs are there, A to Z?*\n\nNext mission, your server keeps this same data. Then a page shows it!\n\n### New words\n\n- **Capstone**: a big final project that puts everything you've learned together.\n- **Data model**: the plan for what an app remembers, like a clubs table with an id, a name and a day.\n",
+      "exampleMarkdown": "A tiny table for the Grove's pets: make it, fill it, ask it a question. Press **▶ Run** and open the **Tables** tab to see the rows. Try adding a third pet!",
+      "exampleCode": "-- A table for the Grove's pets.\nCREATE TABLE pets (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  kind TEXT NOT NULL\n);\n\nINSERT INTO pets (name, kind) VALUES\n  ('Pip', 'mouse'),\n  ('Mossy', 'frog');\n\nSELECT name, kind\nFROM pets\nORDER BY name;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 15,
+        "instructionsMarkdown": "**Plan the Club Hub's data.** Three missions in `query.sql`:\n\n1. Finish the `clubs` table: add a **`meets`** column for the day each club meets (text, and every club needs one).\n2. Add the three clubs: **Owl Watchers** (Monday), **Frog Choir** (Wednesday) and **Acorn Artists** (Friday).\n3. Show each club's **name** and **meets**, **A to Z** by name.\n\nPress **▶ Run** and look at the **Tables** tab to check your table.",
+        "starterFiles": {
+          ".setup.sql": "-- This milestone starts with an empty database.\n",
+          "query.sql": "-- Mission 1: finish the clubs table. Each\n-- club has an id, a name, and the day it\n-- meets (a text column called meets).\nCREATE TABLE clubs (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL\n);\n\n-- Mission 2: add the three clubs:\n-- Owl Watchers (Monday), Frog Choir\n-- (Wednesday) and Acorn Artists (Friday).\n\n-- Mission 3: show each club's name and the\n-- day it meets, A to Z by name.\n"
+        },
+        "solutionFiles": {
+          ".setup.sql": "-- This milestone starts with an empty database.\n",
+          "query.sql": "-- Mission 1: finish the clubs table. Each\n-- club has an id, a name, and the day it\n-- meets (a text column called meets).\nCREATE TABLE clubs (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  meets TEXT NOT NULL\n);\n\n-- Mission 2: add the three clubs:\n-- Owl Watchers (Monday), Frog Choir\n-- (Wednesday) and Acorn Artists (Friday).\nINSERT INTO clubs (name, meets) VALUES\n  ('Owl Watchers', 'Monday'),\n  ('Frog Choir', 'Wednesday'),\n  ('Acorn Artists', 'Friday');\n\n-- Mission 3: show each club's name and the\n-- day it meets, A to Z by name.\nSELECT name, meets\nFROM clubs\nORDER BY name;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "Mission 1: clubs has id, name and meets",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT group_concat(name || ' ' || lower(type), ', ') FROM pragma_table_info('clubs')",
+              "equals": "id integer, name text, meets text",
+              "missing": "There's no clubs table yet."
+            },
+            "failMessage": "The clubs table needs three columns: id INTEGER PRIMARY KEY, name TEXT NOT NULL, meets TEXT NOT NULL."
+          },
+          {
+            "label": "Mission 2: the three clubs are in the table",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT name, meets FROM clubs ORDER BY id",
+              "equals": [
+                [
+                  "Owl Watchers",
+                  "Monday"
+                ],
+                [
+                  "Frog Choir",
+                  "Wednesday"
+                ],
+                [
+                  "Acorn Artists",
+                  "Friday"
+                ]
+              ]
+            },
+            "failMessage": "Add Owl Watchers (Monday), Frog Choir (Wednesday) and Acorn Artists (Friday), in that order."
+          },
+          {
+            "label": "Mission 3: every club's name and day, A to Z",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": -1,
+              "columns": [
+                "name",
+                "meets"
+              ],
+              "rows": [
+                [
+                  "Acorn Artists",
+                  "Friday"
+                ],
+                [
+                  "Frog Choir",
+                  "Wednesday"
+                ],
+                [
+                  "Owl Watchers",
+                  "Monday"
+                ]
+              ],
+              "sortedBy": [
+                "name"
+              ]
+            },
+            "failMessage": "Show name and meets from clubs, with ORDER BY name."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Which column is missing from the table, and where does it go in `CREATE TABLE`?",
+            "speechText": "Which column is missing from the table, and where does it go in create table?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Add `meets TEXT NOT NULL` after `name` (with a comma). Then `INSERT INTO clubs (name, meets) VALUES …` with three rows, and `SELECT name, meets FROM clubs ORDER BY name;`.",
+            "speechText": "Add a meets column after name, with a comma before it. Then insert the three clubs, and select name and meets, ordered by name.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "```sql\nINSERT INTO clubs (name, meets) VALUES\n  ('Owl Watchers', 'Monday'),\n  ('Frog Choir', 'Wednesday'),\n  ('Acorn Artists', 'Friday');\n\nSELECT name, meets\nFROM clubs\nORDER BY name;\n```",
+            "speechText": "Insert the three clubs, each with its name and day in single quotes. Then select name and meets from clubs, ordered by name.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is a capstone?",
+            "explanation": "A capstone is a big final project that puts together everything you've learned.",
+            "options": [
+              {
+                "text": "A big final project that uses everything you've learned",
+                "correct": true
+              },
+              {
+                "text": "A kind of database",
+                "correct": false
+              },
+              {
+                "text": "The first lesson of a course",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "In the clubs table, what is one row?",
+            "explanation": "Each row is one club, with its id, name and day.",
+            "options": [
+              {
+                "text": "One club",
+                "correct": true
+              },
+              {
+                "text": "Every club's name",
+                "correct": false
+              },
+              {
+                "text": "The day the clubs meet",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does each club have an id?",
+            "explanation": "The id gives each club its own number, so two clubs can always be told apart.",
+            "options": [
+              {
+                "text": "So every club has its own number to tell it apart",
+                "correct": true
+              },
+              {
+                "text": "So the clubs are sorted A to Z",
+                "correct": false
+              },
+              {
+                "text": "Because SQL needs numbers in every table",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "league-schema",
@@ -27,7 +191,265 @@
       "sortOrder": 1,
       "ageBand": "Builder",
       "estimatedMinutes": 25,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Start with the data\n\nThis capstone is one app built in six milestones: the **Junior League**, with standings, results and a page to record them. Real projects usually start where you'll start: with the **schema**, because everything else (the API's entities, its endpoints, the page) is shaped by it, and it's the hardest part to change later.\n\n### Two tables, two relationships\n\nA league has **teams** and **matches**. Every match has a home team *and* an away team, so `matches` points to `teams` twice. That's two foreign keys to the same table, one per **role**:\n\n```sql\nhome_team_id INTEGER NOT NULL REFERENCES teams (id),\naway_team_id INTEGER NOT NULL REFERENCES teams (id),\n```\n\n### Rules belong in the database\n\nA team can't play itself, and goals can't be negative. Put those rules in the table, so no buggy client (including your own API) can break them:\n\n```sql\nCHECK (home_team_id <> away_team_id)\n```\n\nA `CHECK` that compares two columns is a **table-level constraint**: it goes after the columns, not on one of them.\n\n### Joining one table twice\n\nTo print a result with both names, join `teams` once per role, each with its own alias:\n\n```sql\nJOIN teams AS h ON h.id = m.home_team_id\nJOIN teams AS a ON a.id = m.away_team_id\n```\n\nUse one alias for both and every result reads *Hawks 3, Hawks 0*. You'll meet this bug again in LINQ before the league ships.\n\n### Counting with LEFT JOIN\n\nTo count matches per team, *every* team included, start from `teams` and `LEFT JOIN` `matches`. Then count `m.id`, not `*`: a team with no matches still gets one row full of NULLs, and `COUNT(*)` would count it as 1.\n\n### Where this goes next\n\nNext milestone, EF Core entities describe these same tables, and your API answers questions about them. In Codegrove the API uses EF Core's in-memory database; in the downloaded project, you can point it at SQLite or SQL Server with the same entities.\n\n### New words\n\n- **Schema**: the design of a database: its tables, columns, keys and rules.\n- **Role**: what a row means in one relationship, like a team being the home or the away side.\n- **Table-level constraint**: a rule about several columns of a row, written after the columns.\n",
+      "exampleMarkdown": "Library loans: a lender and a borrower, both from `members`. Two foreign keys to one table, a table-level `CHECK`, and a report that joins `members` once per role. Try changing the second join to use `f` and see both names turn into Pip.",
+      "exampleCode": "-- Grove library loans: who lends a book to\n-- whom. Both roles are members, so loans has\n-- two foreign keys to the same table.\nCREATE TABLE members (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL\n);\nINSERT INTO members VALUES (1, 'Pip'), (2, 'Mossy');\n\nCREATE TABLE loans (\n  id INTEGER PRIMARY KEY,\n  lender_id INTEGER NOT NULL REFERENCES members (id),\n  borrower_id INTEGER NOT NULL REFERENCES members (id),\n  title TEXT NOT NULL,\n  CHECK (lender_id <> borrower_id)\n);\nINSERT INTO loans VALUES (1, 1, 2, 'Pond Tales');\n\n-- One join per role, each with its own alias.\nSELECT l.title, f.name AS lender, t.name AS borrower\nFROM loans AS l\nJOIN members AS f ON f.id = l.lender_id\nJOIN members AS t ON t.id = l.borrower_id;\n",
+      "challenge": {
+        "kind": "Sql",
+        "xpReward": 20,
+        "instructionsMarkdown": "**Design the Junior League's database.** `teams` is done. In `query.sql`:\n\n1. Finish **`matches`**: `home_team_id` and `away_team_id` are **foreign keys** to `teams`. Goals can't be **below 0**, and a team **can't play itself**.\n2. Report 3, every result newest first, shows the home team's name twice. **Fix it**, so each side gets its own team.\n3. Write report 4: **every team** and how many matches it has **played** (`team`, `played`), most first, then A to Z. Canyon Comets haven't played yet: they should show **0**.",
+        "starterFiles": {
+          ".setup.sql": "-- This milestone starts with an empty database.\n",
+          "query.sql": "-- 1. Teams: done.\nCREATE TABLE teams (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  division TEXT NOT NULL\n    CHECK (division IN ('north', 'south'))\n);\nINSERT INTO teams (id, name, division) VALUES\n  (1, 'Riverton Otters', 'north'),\n  (2, 'Hilltop Hawks', 'north'),\n  (3, 'Meadow Mice', 'south'),\n  (4, 'Lakeside Lynx', 'south'),\n  (5, 'Canyon Comets', 'south');\n\n-- 2. Matches: make home_team_id and\n-- away_team_id foreign keys to teams, and add\n-- CHECKs: goals can't be below 0, and a team\n-- can't play itself.\nCREATE TABLE matches (\n  id INTEGER PRIMARY KEY,\n  home_team_id INTEGER NOT NULL,\n  away_team_id INTEGER NOT NULL,\n  home_goals INTEGER NOT NULL,\n  away_goals INTEGER NOT NULL\n);\nINSERT INTO matches VALUES\n  (1, 1, 2, 1, 2),\n  (2, 3, 4, 2, 2),\n  (3, 2, 3, 3, 0),\n  (4, 4, 1, 0, 1),\n  (5, 1, 3, 2, 2),\n  (6, 2, 4, 1, 1);\n\n-- 3. Report: every result, newest first, as\n-- home, home_goals, away_goals, away.\n-- (Something's wrong with the away names.)\nSELECT h.name AS home, m.home_goals,\n  m.away_goals, h.name AS away\nFROM matches AS m\nJOIN teams AS h ON h.id = m.home_team_id\nORDER BY m.id DESC;\n\n-- 4. Report: how many matches each team has\n-- played (team, played), every team, most\n-- first, then A to Z.\n"
+        },
+        "solutionFiles": {
+          ".setup.sql": "-- This milestone starts with an empty database.\n",
+          "query.sql": "-- 1. Teams: done.\nCREATE TABLE teams (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  division TEXT NOT NULL\n    CHECK (division IN ('north', 'south'))\n);\nINSERT INTO teams (id, name, division) VALUES\n  (1, 'Riverton Otters', 'north'),\n  (2, 'Hilltop Hawks', 'north'),\n  (3, 'Meadow Mice', 'south'),\n  (4, 'Lakeside Lynx', 'south'),\n  (5, 'Canyon Comets', 'south');\n\n-- 2. Matches: make home_team_id and\n-- away_team_id foreign keys to teams, and add\n-- CHECKs: goals can't be below 0, and a team\n-- can't play itself.\nCREATE TABLE matches (\n  id INTEGER PRIMARY KEY,\n  home_team_id INTEGER NOT NULL REFERENCES teams (id),\n  away_team_id INTEGER NOT NULL REFERENCES teams (id),\n  home_goals INTEGER NOT NULL CHECK (home_goals >= 0),\n  away_goals INTEGER NOT NULL CHECK (away_goals >= 0),\n  CHECK (home_team_id <> away_team_id)\n);\nINSERT INTO matches VALUES\n  (1, 1, 2, 1, 2),\n  (2, 3, 4, 2, 2),\n  (3, 2, 3, 3, 0),\n  (4, 4, 1, 0, 1),\n  (5, 1, 3, 2, 2),\n  (6, 2, 4, 1, 1);\n\n-- 3. Report: every result, newest first, as\n-- home, home_goals, away_goals, away.\n-- (Something's wrong with the away names.)\nSELECT h.name AS home, m.home_goals,\n  m.away_goals, a.name AS away\nFROM matches AS m\nJOIN teams AS h ON h.id = m.home_team_id\nJOIN teams AS a ON a.id = m.away_team_id\nORDER BY m.id DESC;\n\n-- 4. Report: how many matches each team has\n-- played (team, played), every team, most\n-- first, then A to Z.\nSELECT t.name AS team, COUNT(m.id) AS played\nFROM teams AS t\nLEFT JOIN matches AS m\n  ON m.home_team_id = t.id OR m.away_team_id = t.id\nGROUP BY t.id\nORDER BY played DESC, team;\n"
+        },
+        "tests": [
+          {
+            "label": "Your SQL runs",
+            "kind": "noErrors",
+            "spec": {},
+            "failMessage": "Your SQL stopped at an error. Read the red message in the Results tab: it names the line to look at."
+          },
+          {
+            "label": "1. matches has a foreign key per role",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT group_concat(\"from\" || ' > ' || \"table\", ', ') FROM (SELECT \"from\", \"table\" FROM pragma_foreign_key_list('matches') ORDER BY \"from\")",
+              "equals": "away_team_id > teams, home_team_id > teams",
+              "caseSensitive": false,
+              "missing": "There's no matches table yet, or it has no foreign keys."
+            },
+            "failMessage": "home_team_id and away_team_id should each be REFERENCES teams (id)."
+          },
+          {
+            "label": "1. Bad matches are refused",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "INSERT OR IGNORE INTO matches (id, home_team_id, away_team_id, home_goals, away_goals) VALUES (91, 1, 1, 0, 0), (92, 1, 2, -1, 0), (93, 1, 2, 0, -2); SELECT COUNT(*) FROM matches WHERE id > 90",
+              "equals": 0,
+              "report": "{value} of the 3 bad matches got in."
+            },
+            "failMessage": "Add CHECKs: home_goals >= 0, away_goals >= 0, and a table-level CHECK (home_team_id <> away_team_id)."
+          },
+          {
+            "label": "1. The six matches are in",
+            "kind": "sqlCheckQuery",
+            "spec": {
+              "query": "SELECT COUNT(*) FROM matches",
+              "equals": 6
+            },
+            "failMessage": "Keep the INSERT INTO matches from the starter."
+          },
+          {
+            "label": "2. Each result names both teams",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 0,
+              "columns": [
+                "home",
+                "home_goals",
+                "away_goals",
+                "away"
+              ],
+              "rows": [
+                [
+                  "Hilltop Hawks",
+                  1,
+                  1,
+                  "Lakeside Lynx"
+                ],
+                [
+                  "Riverton Otters",
+                  2,
+                  2,
+                  "Meadow Mice"
+                ],
+                [
+                  "Lakeside Lynx",
+                  0,
+                  1,
+                  "Riverton Otters"
+                ],
+                [
+                  "Hilltop Hawks",
+                  3,
+                  0,
+                  "Meadow Mice"
+                ],
+                [
+                  "Meadow Mice",
+                  2,
+                  2,
+                  "Lakeside Lynx"
+                ],
+                [
+                  "Riverton Otters",
+                  1,
+                  2,
+                  "Hilltop Hawks"
+                ]
+              ],
+              "ordered": true
+            },
+            "failMessage": "Join teams once per role: JOIN teams AS a ON a.id = m.away_team_id, and use a.name AS away."
+          },
+          {
+            "label": "3. Every team's matches played",
+            "kind": "sqlResultEquals",
+            "spec": {
+              "result": 1,
+              "columns": [
+                "team",
+                "played"
+              ],
+              "rows": [
+                [
+                  "Hilltop Hawks",
+                  3
+                ],
+                [
+                  "Lakeside Lynx",
+                  3
+                ],
+                [
+                  "Meadow Mice",
+                  3
+                ],
+                [
+                  "Riverton Otters",
+                  3
+                ],
+                [
+                  "Canyon Comets",
+                  0
+                ]
+              ],
+              "sortedBy": [
+                "played desc",
+                "team"
+              ]
+            },
+            "failMessage": "Start FROM teams, LEFT JOIN matches on either team id, GROUP BY the team, and COUNT(m.id) so Canyon Comets get 0."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "In report 3, which alias does `away` use, and which team does that alias stand for?",
+            "speechText": "In report three, which alias does away use, and which team does that alias stand for?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Add `REFERENCES teams (id)` to both team columns, `CHECK (… >= 0)` to both goal columns, and `CHECK (home_team_id <> away_team_id)` after the columns. In report 3, add a second join with its own alias for the away team. For report 4, `LEFT JOIN` from `teams` and `COUNT(m.id)`.",
+            "speechText": "Make both team columns reference teams, add checks to the goal columns, and a table level check that the teams differ. In report three, join teams a second time for the away side. For report four, left join from teams and count the match ids.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "Report 4:\n\n```sql\nSELECT t.name AS team, COUNT(m.id) AS played\nFROM teams AS t\nLEFT JOIN matches AS m\n  ON m.home_team_id = t.id\n  OR m.away_team_id = t.id\nGROUP BY t.id\nORDER BY played DESC, team;\n```",
+            "speechText": "Select the team's name and a count of match ids, from teams, left joined to matches where the team is home or away. Group by the team, and order by played, most first, then by name.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "A match has a home team and an away team, both rows in teams. How many foreign keys does matches need to teams?",
+            "explanation": "One per role: home_team_id and away_team_id each reference teams.",
+            "options": [
+              {
+                "text": "Two, one per role",
+                "correct": true
+              },
+              {
+                "text": "One, shared by both teams",
+                "correct": false
+              },
+              {
+                "text": "None: store the team names instead",
+                "correct": false
+              },
+              {
+                "text": "Three, one per column",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Where does CHECK (home_team_id <> away_team_id) go?",
+            "explanation": "It compares two columns, so it's a table-level constraint, after the column list.",
+            "options": [
+              {
+                "text": "After the columns, as a table-level constraint",
+                "correct": true
+              },
+              {
+                "text": "On the home_team_id column only",
+                "correct": false
+              },
+              {
+                "text": "In the SELECT that reads the matches",
+                "correct": false
+              },
+              {
+                "text": "In a separate table",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Report 3 joins teams once, as h, and prints h.name for both sides. What do you see?",
+            "explanation": "Both sides print the home team's name: one alias stands for one row.",
+            "options": [
+              {
+                "text": "The home team's name on both sides",
+                "correct": true
+              },
+              {
+                "text": "An error about an ambiguous column",
+                "correct": false
+              },
+              {
+                "text": "The right names, by luck",
+                "correct": false
+              },
+              {
+                "text": "No rows at all",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Counting matches per team with LEFT JOIN, why COUNT(m.id) and not COUNT(*)?",
+            "explanation": "A team with no matches still gets one row, full of NULLs. COUNT(*) counts that row; COUNT(m.id) skips the NULL.",
+            "options": [
+              {
+                "text": "COUNT(*) would count a team with no matches as 1",
+                "correct": true
+              },
+              {
+                "text": "COUNT(*) doesn't work with GROUP BY",
+                "correct": false
+              },
+              {
+                "text": "COUNT(m.id) is faster, but gives the same answer",
+                "correct": false
+              },
+              {
+                "text": "COUNT(*) counts the teams table twice",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "clubhub-api-explorer",
@@ -35,7 +457,159 @@
       "sortOrder": 2,
       "ageBand": "Explorer",
       "estimatedMinutes": 10,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## Your server learns about clubs\n\nLast time you planned the clubs table. Now your **server** keeps those same clubs, and answers questions about them. Any page (or app, or game) can ask!\n\n### The same data, in C#\n\nOn the server, each club is a C# class. It has the same things as a row in your table:\n\n```csharp\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n}\n```\n\n`ClubDb` is the database the server keeps them in. `api/Club.cs` has both, ready to go. `Program.cs` already adds the three clubs.\n\n### Two questions to answer\n\nYour job is two **endpoints**:\n\n- `GET /api/clubs`: every club, A to Z by name. Use `OrderBy(c => c.Name)`.\n- `GET /api/clubs/{id}`: one club. Use `db.Clubs.Find(id)`. No club with that id? Answer **404 Not Found**.\n\n### Try your API\n\nThere's no page yet: that's next time! To try your API, open the **Network** tab, choose **Send a request**, and send `GET /api/clubs`. You'll see the clubs come back as JSON.\n\n### New words\n\n- **Endpoint**: one thing a server can answer, like `GET /api/clubs`.\n- **404 Not Found**: the answer when there's nothing at that address, like a club that doesn't exist.\n",
+      "exampleMarkdown": "A snack server with two endpoints: every snack A to Z, and one snack by its id. Open **Network**, choose **Send a request**, and try `GET /api/snacks/2`, then `GET /api/snacks/9`.",
+      "exampleCode": "{\"api/Program.cs\": \"var builder = WebApplication.CreateBuilder(args);\\nvar app = builder.Build();\\n\\nvar snacks = new List<Snack>\\n{\\n    new(1, \\\"Acorns\\\"),\\n    new(2, \\\"Berries\\\"),\\n    new(3, \\\"Clover\\\"),\\n};\\n\\n// Every snack, A to Z.\\napp.MapGet(\\\"/api/snacks\\\", () =>\\n    snacks.OrderBy(s => s.Name).ToList());\\n\\n// One snack, or 404 if there's no such id.\\napp.MapGet(\\\"/api/snacks/{id:int}\\\", (int id) =>\\n    snacks.Find(s => s.Id == id) is { } snack\\n        ? Results.Ok(snack)\\n        : Results.NotFound());\\n\\napp.Run();\\n\\nrecord Snack(int Id, string Name);\\n\", \"web/App.jsx\": \"export default function App() {\\n  return (\\n    <main>\\n      <h1>Grove snacks</h1>\\n      <p>Your page comes next milestone!</p>\\n      <p>\\n        For now, try your API: open the Network tab,\\n        choose Send a request, and send GET /api/snacks/2.\\n      </p>\\n    </main>\\n  );\\n}\\n\", \"web/main.jsx\": \"import { createRoot } from \\\"react-dom/client\\\";\\nimport App from \\\"./App.jsx\\\";\\n\\ncreateRoot(document.getElementById(\\\"root\\\")).render(<App />);\\n\", \"web/index.html\": \"<!DOCTYPE html>\\n<html lang=\\\"en\\\">\\n  <head>\\n    <title>Grove snacks</title>\\n  </head>\\n  <body>\\n    <div id=\\\"root\\\"></div>\\n    <script type=\\\"module\\\" src=\\\"main.jsx\\\"></script>\\n  </body>\\n</html>\\n\"}",
+      "challenge": {
+        "kind": "FullStack",
+        "xpReward": 20,
+        "instructionsMarkdown": "**Open the Club Hub's API!** The clubs are in the database already. In `api/Program.cs`:\n\n1. **`GET /api/clubs`**: answer every club, **A to Z** by name.\n2. **`GET /api/clubs/{id}`**: answer the club with that id, or **404 Not Found** if there isn't one.\n\nTry them with **Network → Send a request**.",
+        "starterFiles": {
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// TODO 1: GET /api/clubs answers every club,\n// A to Z by name.\n\n// TODO 2: GET /api/clubs/{id} answers one\n// club, or 404 Not Found if there isn't one.\n\napp.Run();\n",
+          "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n",
+          "web/App.jsx": "export default function App() {\n  return (\n    <main>\n      <h1>Grove Club Hub</h1>\n      <p>Your page comes next milestone!</p>\n      <p>\n        For now, try your API: open the Network tab,\n        choose Send a request, and send GET /api/clubs.\n      </p>\n    </main>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// One club, by its id.\napp.MapGet(\"/api/clubs/{id:int}\", (int id, ClubDb db) =>\n    db.Clubs.Find(id) is { } club\n        ? Results.Ok(club)\n        : Results.NotFound());\n\napp.Run();\n",
+          "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n",
+          "web/App.jsx": "export default function App() {\n  return (\n    <main>\n      <h1>Grove Club Hub</h1>\n      <p>Your page comes next milestone!</p>\n      <p>\n        For now, try your API: open the Network tab,\n        choose Send a request, and send GET /api/clubs.\n      </p>\n    </main>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "1. GET /api/clubs answers every club, A to Z",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/clubs",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "id": 3,
+                  "name": "Acorn Artists",
+                  "meets": "Friday"
+                },
+                {
+                  "id": 2,
+                  "name": "Frog Choir",
+                  "meets": "Wednesday"
+                },
+                {
+                  "id": 1,
+                  "name": "Owl Watchers",
+                  "meets": "Monday"
+                }
+              ]
+            },
+            "failMessage": "Map GET /api/clubs to db.Clubs.OrderBy(c => c.Name).ToList()."
+          },
+          {
+            "label": "2. GET /api/clubs/2 answers Frog Choir",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/clubs/2",
+              "expectStatus": 200,
+              "expectJson": {
+                "id": 2,
+                "name": "Frog Choir",
+                "meets": "Wednesday"
+              }
+            },
+            "failMessage": "Map GET /api/clubs/{id:int}: find the club with db.Clubs.Find(id) and answer Results.Ok(club)."
+          },
+          {
+            "label": "2. A club that isn't there is 404",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/clubs/99",
+              "expectStatus": 404
+            },
+            "failMessage": "When Find gives null, answer Results.NotFound()."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The example's snack server answers the same two questions. Which parts change for clubs?",
+            "speechText": "The example's snack server answers the same two questions. Which parts change for clubs?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Use `app.MapGet(\"/api/clubs\", (ClubDb db) => …)` with `OrderBy(c => c.Name)`. For one club, use `\"/api/clubs/{id:int}\"` and `db.Clubs.Find(id)`.",
+            "speechText": "Map get for the clubs path, taking the club database, and order the clubs by name. For one club, add the id to the path and use find.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "```csharp\napp.MapGet(\"/api/clubs/{id:int}\", (int id, ClubDb db) =>\n    db.Clubs.Find(id) is { } club\n        ? Results.Ok(club)\n        : Results.NotFound());\n```",
+            "speechText": "Find the club by its id. If there is one, answer ok with the club, and if not, answer not found.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "What is an endpoint?",
+            "explanation": "An endpoint is one thing a server can answer, like GET /api/clubs.",
+            "options": [
+              {
+                "text": "One thing a server can answer, like GET /api/clubs",
+                "correct": true
+              },
+              {
+                "text": "The last line of Program.cs",
+                "correct": false
+              },
+              {
+                "text": "A button on the page",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Someone asks for GET /api/clubs/99, and there's no club 99. What should the server answer?",
+            "explanation": "404 Not Found: there's nothing at that address.",
+            "options": [
+              {
+                "text": "404 Not Found",
+                "correct": true
+              },
+              {
+                "text": "200 OK with every club",
+                "correct": false
+              },
+              {
+                "text": "Nothing at all",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Which line sorts the clubs A to Z by name?",
+            "explanation": "OrderBy(c => c.Name) sorts by the Name property, A to Z.",
+            "options": [
+              {
+                "text": "OrderBy(c => c.Name)",
+                "correct": true
+              },
+              {
+                "text": "Find(c => c.Name)",
+                "correct": false
+              },
+              {
+                "text": "Count(c => c.Name)",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "league-api-reads",
@@ -43,7 +617,238 @@
       "sortOrder": 2,
       "ageBand": "Builder",
       "estimatedMinutes": 25,
-      "isPublished": false
+      "isPublished": true,
+      "learnMarkdown": "## From tables to endpoints\n\nThe schema from last milestone now lives in EF Core: `api/Models.cs` has `Team` and `Match` entities mapped to the same tables, and `HasData` seeds the same rows. An API's job is to turn that data into answers its clients actually need. A client doesn't want raw matches; it wants the **standings**. Computing them on the server keeps every client consistent, and keeps the rules (3 points for a win, 1 for a draw) in one place.\n\n### Shaping the answer with LINQ\n\n```csharp\nvar table = teams\n    .Select(t => new Standing(\n        t.Name,\n        matches.Count(m => Plays(m, t.Id)),\n        matches.Sum(m => Points(m, t.Id))))\n    .OrderByDescending(s => s.Points)\n    .ThenBy(s => s.Team)\n    .ToList();\n```\n\n`Standing` is a **response DTO**: a record shaped like the answer, not like a table. The server owns the shape; the page just shows it.\n\n### Ties need a tiebreaker\n\nLakeside Lynx and Meadow Mice both have 2 points. Order by points only, and their order is whatever comes out first, which can change between runs or databases. **Always add a tiebreaker** (`ThenBy`) when ties are possible, so the same data always gives the same answer.\n\n### Optional query parameters\n\n`?division=north` filters. With nullable reference types off (as in Codegrove), a `string division` parameter is optional and `null` when it's missing. An unknown division is a client mistake, so answer **400** with problem details that say what's wrong:\n\n```csharp\nreturn Results.Problem(\n    title: $\"There's no {division} division.\",\n    statusCode: 400);\n```\n\n### Where it runs\n\n`ToList()` on `db.Teams` runs the query, and the rest happens in memory. For five teams that's fine. For thousands of rows you'd push the work into the database (a GROUP BY, like last milestone's report), but correctness first.\n\n### New words\n\n- **Response DTO**: a type shaped like an API's answer, like `Standing`, kept apart from the database entities.\n- **Tiebreaker**: a second sort key that decides the order when the first one is equal.\n- **Query parameter**: a named value after `?` in a URL, like `division=north`.\n",
+      "exampleMarkdown": "A leaderboard with `?area=` filtering, a tiebreaker (Pip and Mossy both have 12) and a 400 problem for an unknown area. Try `GET /api/leaderboard`, `?area=pond` and `?area=moon` with **Network → Send a request**. Then remove `.ThenBy(…)` and think about what's no longer guaranteed.",
+      "exampleCode": "{\"api/Program.cs\": \"var builder = WebApplication.CreateBuilder(args);\\nvar app = builder.Build();\\n\\nvar scores = new List<Score>\\n{\\n    new(\\\"Pip\\\", \\\"pond\\\", 12),\\n    new(\\\"Mossy\\\", \\\"pond\\\", 12),\\n    new(\\\"Fern\\\", \\\"meadow\\\", 9),\\n};\\n\\n// ?area= filters; anything but pond or meadow is a 400.\\napp.MapGet(\\\"/api/leaderboard\\\", (string area) =>\\n{\\n    if (area is not null && area is not (\\\"pond\\\" or \\\"meadow\\\"))\\n        return Results.Problem(\\n            title: $\\\"There's no {area} area.\\\",\\n            statusCode: 400);\\n    var board = scores\\n        .Where(s => area == null || s.Area == area)\\n        .OrderByDescending(s => s.Points)\\n        .ThenBy(s => s.Name)\\n        .ToList();\\n    return Results.Ok(board);\\n});\\n\\napp.Run();\\n\\nrecord Score(string Name, string Area, int Points);\\n\", \"web/App.jsx\": \"export default function App() {\\n  return (\\n    <main>\\n      <h1>Leaderboard</h1>\\n      <p>Your page comes next milestone!</p>\\n      <p>\\n        For now, try your API: open the Network tab,\\n        choose Send a request, and send GET /api/leaderboard.\\n      </p>\\n    </main>\\n  );\\n}\\n\", \"web/main.jsx\": \"import { createRoot } from \\\"react-dom/client\\\";\\nimport App from \\\"./App.jsx\\\";\\n\\ncreateRoot(document.getElementById(\\\"root\\\")).render(<App />);\\n\", \"web/index.html\": \"<!DOCTYPE html>\\n<html lang=\\\"en\\\">\\n  <head>\\n    <title>Leaderboard</title>\\n  </head>\\n  <body>\\n    <div id=\\\"root\\\"></div>\\n    <script type=\\\"module\\\" src=\\\"main.jsx\\\"></script>\\n  </body>\\n</html>\\n\"}",
+      "challenge": {
+        "kind": "FullStack",
+        "xpReward": 25,
+        "instructionsMarkdown": "**Give the league its standings endpoint.** `Models.cs` has the entities, the seed data and the `Standing` record. In `api/Program.cs`, finish **`GET /api/standings`**:\n\n1. One `Standing` per team: its **name**, matches **played**, and **points** (3 for a win, 1 for a draw). `Plays` and `Points` are ready at the bottom of the file.\n2. Most points first, and **ties A to Z** by team.\n3. **`?division=north`** or **`south`** shows only that division's teams. Any other division gets **400** with problem details: *There's no moon division.* (with the division asked for).\n\nTry it with **Network → Send a request**: `GET /api/standings`, then `?division=north`.",
+        "starterFiles": {
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// TODO: GET /api/standings (see the\n// instructions). Plays and Points, below,\n// are ready to use.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    return Results.Ok(new List<Standing>());\n});\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Meadow Mice\", \"south\"),\n            T(4, \"Lakeside Lynx\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n",
+          "web/App.jsx": "export default function App() {\n  return (\n    <main>\n      <h1>Junior League</h1>\n      <p>Your page comes next milestone!</p>\n      <p>\n        For now, try your API: open the Network tab,\n        choose Send a request, and send GET /api/standings.\n      </p>\n    </main>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "solutionFiles": {
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Meadow Mice\", \"south\"),\n            T(4, \"Lakeside Lynx\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n",
+          "web/App.jsx": "export default function App() {\n  return (\n    <main>\n      <h1>Junior League</h1>\n      <p>Your page comes next milestone!</p>\n      <p>\n        For now, try your API: open the Network tab,\n        choose Send a request, and send GET /api/standings.\n      </p>\n    </main>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n"
+        },
+        "tests": [
+          {
+            "label": "1–2. Every team's standing, most points first, ties A to Z",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/standings",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "team": "Hilltop Hawks",
+                  "played": 3,
+                  "points": 7
+                },
+                {
+                  "team": "Riverton Otters",
+                  "played": 3,
+                  "points": 4
+                },
+                {
+                  "team": "Lakeside Lynx",
+                  "played": 3,
+                  "points": 2
+                },
+                {
+                  "team": "Meadow Mice",
+                  "played": 3,
+                  "points": 2
+                },
+                {
+                  "team": "Canyon Comets",
+                  "played": 0,
+                  "points": 0
+                }
+              ]
+            },
+            "failMessage": "Answer one Standing per team (name, played, points), ordered by points descending, then by team name."
+          },
+          {
+            "label": "3. ?division=north shows the north teams",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/standings?division=north",
+              "expectJson": [
+                {
+                  "team": "Hilltop Hawks",
+                  "played": 3,
+                  "points": 7
+                },
+                {
+                  "team": "Riverton Otters",
+                  "played": 3,
+                  "points": 4
+                }
+              ]
+            },
+            "failMessage": "When division is given, keep only the teams in that division (Where before ToList)."
+          },
+          {
+            "label": "3. ?division=south shows the south teams",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/standings?division=south",
+              "expectJson": [
+                {
+                  "team": "Lakeside Lynx",
+                  "played": 3,
+                  "points": 2
+                },
+                {
+                  "team": "Meadow Mice",
+                  "played": 3,
+                  "points": 2
+                },
+                {
+                  "team": "Canyon Comets",
+                  "played": 0,
+                  "points": 0
+                }
+              ]
+            },
+            "failMessage": "When division is given, keep only the teams in that division."
+          },
+          {
+            "label": "3. An unknown division is a 400 problem",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/standings?division=moon",
+              "expectStatus": 400,
+              "expectJson": {
+                "title": "There's no moon division.",
+                "status": 400
+              }
+            },
+            "failMessage": "For a division that isn't north or south, return Results.Problem(title: $\"There's no {division} division.\", statusCode: 400)."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Lakeside Lynx and Meadow Mice both have 2 points. What decides which comes first in your answer?",
+            "speechText": "Lakeside Lynx and Meadow Mice both have two points. What decides which comes first in your answer?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Load `db.Teams` (filtered by division) and `db.Matches` with `ToList()`, then `Select` a `new Standing(t.Name, matches.Count(m => Plays(m, t.Id)), matches.Sum(m => Points(m, t.Id)))`, `OrderByDescending(s => s.Points)` and `ThenBy(s => s.Team)`. Check the division first.",
+            "speechText": "Load the teams, filtered by division, and the matches. Select a standing for each team using plays and points, order by points descending, then by team name. Check the division before anything else.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "```csharp\nif (division is not null && division is not (\"north\" or \"south\"))\n    return Results.Problem(\n        title: $\"There's no {division} division.\",\n        statusCode: 400);\n\nvar teams = db.Teams\n    .Where(t => division == null || t.Division == division)\n    .ToList();\nvar matches = db.Matches.ToList();\n```\n\nThen the `Select`, `OrderByDescending`, `ThenBy` and `Results.Ok(table)`.",
+            "speechText": "Refuse unknown divisions with a problem, then load the teams for the division and all the matches. After that, build the standings, sort them with a tiebreaker, and answer ok.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "Why compute the standings in the API instead of in each page?",
+            "explanation": "One place for the rules means every client shows the same standings.",
+            "options": [
+              {
+                "text": "The rules live in one place, so every client agrees",
+                "correct": true
+              },
+              {
+                "text": "Pages can't do arithmetic",
+                "correct": false
+              },
+              {
+                "text": "It's the only way to use JSON",
+                "correct": false
+              },
+              {
+                "text": "So the API can skip the database",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Two teams have the same points and you only sort by points. What's true?",
+            "explanation": "Their order isn't guaranteed: it can change between runs or databases. Add a tiebreaker.",
+            "options": [
+              {
+                "text": "Their order isn't guaranteed",
+                "correct": true
+              },
+              {
+                "text": "They're always alphabetical",
+                "correct": false
+              },
+              {
+                "text": "The API throws an error",
+                "correct": false
+              },
+              {
+                "text": "The later team is dropped",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A client asks for ?division=moon. Which answer fits best?",
+            "explanation": "It's a client mistake, so 400 with problem details that explain it.",
+            "options": [
+              {
+                "text": "400 with problem details saying there's no moon division",
+                "correct": true
+              },
+              {
+                "text": "200 with an empty list",
+                "correct": false
+              },
+              {
+                "text": "404 Not Found with no body",
+                "correct": false
+              },
+              {
+                "text": "500 Internal Server Error",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What is Standing in this API?",
+            "explanation": "A response DTO: shaped like the answer clients need, not like a database table.",
+            "options": [
+              {
+                "text": "A response DTO shaped like the answer",
+                "correct": true
+              },
+              {
+                "text": "A table in the database",
+                "correct": false
+              },
+              {
+                "text": "An EF Core entity with a key",
+                "correct": false
+              },
+              {
+                "text": "A React component",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "clubhub-page-explorer",
@@ -58,19 +863,23 @@
       "challenge": {
         "kind": "FullStack",
         "xpReward": 20,
+        "continuesFrom": "clubhub-api-explorer",
+        "carryFiles": [
+          "api/Program.cs"
+        ],
         "instructionsMarkdown": "**Make the Club Hub show its clubs!** The server in `api/` is finished: `GET /api/clubs` answers every club, A to Z. Your job is the page, `web/App.jsx`:\n\n1. When the page opens, **fetch** `\"/api/clubs\"` and put the answer in `clubs`. Use `useEffect` with `[]`.\n2. Show **one `<li>` per club**, like *Acorn Artists meets on Friday*.\n\nCheck the **Network** tab: you should see one `GET /api/clubs` with the answer **200 OK**.",
         "starterFiles": {
           "web/App.jsx": "import { useEffect, useState } from \"react\";\n\nexport default function App() {\n  const [clubs, setClubs] = useState([]);\n\n  // TODO 1: when the page opens, fetch\n  // \"/api/clubs\" and put the answer in clubs.\n\n  return (\n    <main>\n      <h1>Grove Club Hub</h1>\n      <ul id=\"clubs\">\n        {/* TODO 2: one <li> per club, like\n            Owl Watchers meets on Monday */}\n      </ul>\n    </main>\n  );\n}\n",
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
-          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\napp.Run();\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// One club, by its id.\napp.MapGet(\"/api/clubs/{id:int}\", (int id, ClubDb db) =>\n    db.Clubs.Find(id) is { } club\n        ? Results.Ok(club)\n        : Results.NotFound());\n\napp.Run();\n",
           "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
         },
         "solutionFiles": {
           "web/App.jsx": "import { useEffect, useState } from \"react\";\n\nexport default function App() {\n  const [clubs, setClubs] = useState([]);\n\n  useEffect(() => {\n    fetch(\"/api/clubs\")\n      .then((response) => response.json())\n      .then((data) => setClubs(data));\n  }, []);\n\n  return (\n    <main>\n      <h1>Grove Club Hub</h1>\n      <ul id=\"clubs\">\n        {clubs.map((club) => (\n          <li key={club.id}>\n            {club.name} meets on {club.meets}\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
-          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\napp.Run();\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// One club, by its id.\napp.MapGet(\"/api/clubs/{id:int}\", (int id, ClubDb db) =>\n    db.Clubs.Find(id) is { } club\n        ? Results.Ok(club)\n        : Results.NotFound());\n\napp.Run();\n",
           "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
         },
         "tests": [
@@ -205,6 +1014,10 @@
       "challenge": {
         "kind": "FullStack",
         "xpReward": 25,
+        "continuesFrom": "league-api-reads",
+        "carryFiles": [
+          "api/Program.cs"
+        ],
         "instructionsMarkdown": "**Build the Junior League's standings page.** The API in `api/` is finished: `GET /api/standings` answers rows like `{ \"team\": \"Hilltop Hawks\", \"played\": 3, \"points\": 7 }`, already sorted, and `?division=north` or `?division=south` filters them. Anything else gets **400 Bad Request** with problem details.\n\n1. In `web/StandingsTable.jsx`, render **one `<tr>` per row**: team, played, points.\n2. In `web/App.jsx`, the effect only ever runs once, so the division buttons do nothing. Make it **fetch again when `division` changes**, once per change.\n3. Click **moon**: the API answers 400, and the page crashes trying to show a problem as rows. Check **`response.ok`**, and show the problem's **`title`** in `<p id=\"error\" role=\"alert\">`.\n\nUse the **Network** tab to see what your page asks for.",
         "starterFiles": {
           "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n\n  // TODO 2: this runs only once. Clicking north\n  // should fetch again. Then handle a 400.\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    fetch(`/api/standings${query}`)\n      .then((response) => response.json())\n      .then((data) => setRows(data));\n  }, []);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {/* TODO 3: show the error message in a\n          <p id=\"error\" role=\"alert\"> */}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n    </main>\n  );\n}\n",
@@ -212,7 +1025,7 @@
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
           "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
-          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Meadow Mice\", \"south\"),\n            T(4, \"Lakeside Lynx\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
         },
         "solutionFiles": {
           "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    setError(null);\n    fetch(`/api/standings${query}`)\n      .then(async (response) => {\n        const data = await response.json();\n        if (response.ok) {\n          setRows(data);\n        } else {\n          setError(data.title);\n          setRows([]);\n        }\n      });\n  }, [division]);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n    </main>\n  );\n}\n",
@@ -220,7 +1033,7 @@
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
           "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
-          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Meadow Mice\", \"south\"),\n            T(4, \"Lakeside Lynx\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
         },
         "tests": [
           {
@@ -475,7 +1288,7 @@
           "web/NewClubForm.jsx": "import { useState } from \"react\";\n\nconst DAYS = [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"];\n\nexport default function NewClubForm({ onAdded }) {\n  const [name, setName] = useState(\"\");\n  const [meets, setMeets] = useState(\"Monday\");\n  const [error, setError] = useState(\"\");\n\n  async function handleSubmit(event) {\n    event.preventDefault();\n    // TODO 2: POST { name, meets } to\n    // \"/api/clubs\". Worked (response.ok)? Clear\n    // the name and the error, call onAdded().\n    // Didn't? Put the server's message in error.\n  }\n\n  return (\n    <form id=\"new-club\" onSubmit={handleSubmit}>\n      <h2>Start a new club</h2>\n      <label htmlFor=\"club-name\">Club name</label>\n      <input\n        id=\"club-name\"\n        value={name}\n        onChange={(e) => setName(e.target.value)}\n      />\n      <label htmlFor=\"club-day\">Meets on</label>\n      <select\n        id=\"club-day\"\n        value={meets}\n        onChange={(e) => setMeets(e.target.value)}\n      >\n        {DAYS.map((day) => (\n          <option key={day}>{day}</option>\n        ))}\n      </select>\n      <button type=\"submit\">Start club</button>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n    </form>\n  );\n}\n",
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
-          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\napp.Run();\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// One club, by its id.\napp.MapGet(\"/api/clubs/{id:int}\", (int id, ClubDb db) =>\n    db.Clubs.Find(id) is { } club\n        ? Results.Ok(club)\n        : Results.NotFound());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\napp.Run();\n",
           "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
         },
         "solutionFiles": {
@@ -483,7 +1296,7 @@
           "web/NewClubForm.jsx": "import { useState } from \"react\";\n\nconst DAYS = [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"];\n\nexport default function NewClubForm({ onAdded }) {\n  const [name, setName] = useState(\"\");\n  const [meets, setMeets] = useState(\"Monday\");\n  const [error, setError] = useState(\"\");\n\n  async function handleSubmit(event) {\n    event.preventDefault();\n    const response = await fetch(\"/api/clubs\", {\n      method: \"POST\",\n      headers: { \"Content-Type\": \"application/json\" },\n      body: JSON.stringify({ name, meets }),\n    });\n    if (response.ok) {\n      setName(\"\");\n      setError(\"\");\n      onAdded();\n    } else {\n      setError(await response.json());\n    }\n  }\n\n  return (\n    <form id=\"new-club\" onSubmit={handleSubmit}>\n      <h2>Start a new club</h2>\n      <label htmlFor=\"club-name\">Club name</label>\n      <input\n        id=\"club-name\"\n        value={name}\n        onChange={(e) => setName(e.target.value)}\n      />\n      <label htmlFor=\"club-day\">Meets on</label>\n      <select\n        id=\"club-day\"\n        value={meets}\n        onChange={(e) => setMeets(e.target.value)}\n      >\n        {DAYS.map((day) => (\n          <option key={day}>{day}</option>\n        ))}\n      </select>\n      <button type=\"submit\">Start club</button>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n    </form>\n  );\n}\n",
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
-          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\napp.Run();\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\" },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\" },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\" });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// One club, by its id.\napp.MapGet(\"/api/clubs/{id:int}\", (int id, ClubDb db) =>\n    db.Clubs.Find(id) is { } club\n        ? Results.Ok(club)\n        : Results.NotFound());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\napp.Run();\n",
           "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
         },
         "tests": [
@@ -670,7 +1483,7 @@
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
           "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\n// TODO 1: this binds a whole Match, so a client\n// can send its own \"id\" (try it!). Bind a\n// NewMatch instead, and check it first.\napp.MapPost(\"/api/matches\", (Match match, LeagueDb db) =>\n{\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\n// TODO 2: GET /api/matches/{id}: 200 or 404.\n// TODO 3: DELETE /api/matches/{id}: 204 or 404.\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
-          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Meadow Mice\", \"south\"),\n            T(4, \"Lakeside Lynx\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
         },
         "solutionFiles": {
           "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    setError(null);\n    fetch(`/api/standings${query}`)\n      .then(async (response) => {\n        const data = await response.json();\n        if (response.ok) {\n          setRows(data);\n        } else {\n          setError(data.title);\n          setRows([]);\n        }\n      });\n  }, [division]);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n    </main>\n  );\n}\n",
@@ -678,7 +1491,7 @@
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
           "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.MapPost(\"/api/matches\", (NewMatch input, LeagueDb db) =>\n{\n    var errors = new Dictionary<string, string[]>();\n    if (db.Teams.Find(input.HomeTeamId) is null)\n        errors[\"homeTeamId\"] = [$\"There's no team {input.HomeTeamId}.\"];\n    if (db.Teams.Find(input.AwayTeamId) is null)\n        errors[\"awayTeamId\"] = [$\"There's no team {input.AwayTeamId}.\"];\n    else if (input.AwayTeamId == input.HomeTeamId)\n        errors[\"awayTeamId\"] = [\"A team can't play itself.\"];\n    if (input.HomeGoals < 0)\n        errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\n    if (input.AwayGoals < 0)\n        errors[\"awayGoals\"] = [\"Goals can't be below 0.\"];\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\n\n    var match = new Match\n    {\n        HomeTeamId = input.HomeTeamId,\n        AwayTeamId = input.AwayTeamId,\n        HomeGoals = input.HomeGoals,\n        AwayGoals = input.AwayGoals,\n    };\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\napp.MapGet(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n    db.Matches.Find(id) is { } match\n        ? Results.Ok(match)\n        : Results.NotFound());\n\napp.MapDelete(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n{\n    if (db.Matches.Find(id) is not { } match) return Results.NotFound();\n    db.Matches.Remove(match);\n    db.SaveChanges();\n    return Results.NoContent();\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
-          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Meadow Mice\", \"south\"),\n            T(4, \"Lakeside Lynx\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
         },
         "tests": [
           {
@@ -868,7 +1681,7 @@
                 "awayGoals": 0
               }
             },
-            "failMessage": "GET /api/matches/3 should answer 200 with match 3 (Hilltop Hawks 3, Lakeside Lynx 0)."
+            "failMessage": "GET /api/matches/3 should answer 200 with match 3 (Hilltop Hawks 3, Meadow Mice 0)."
           },
           {
             "label": "2. An unknown match is 404",
@@ -1090,7 +1903,7 @@
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\nimport \"./styles.css\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/styles.css": "/* Make the Club Hub look like yours!\n   Change these colors, or add your own rules. */\nbody {\n  font-family: sans-serif;\n  background: #f0fdf4;\n  color: #14532d;\n}\n\nh1 {\n  color: #15803d;\n}\n\nbutton {\n  margin-left: 8px;\n}\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
-          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\", Members = 4 },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\", Members = 6 },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\", Members = 3 });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\n// Join a club: one more member.\napp.MapPost(\"/api/clubs/{id:int}/join\", (int id, ClubDb db) =>\n{\n    var club = db.Clubs.Find(id);\n    if (club is null) return Results.NotFound();\n    club.Members++;\n    db.SaveChanges();\n    return Results.Ok(club);\n});\n\napp.Run();\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\", Members = 4 },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\", Members = 6 },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\", Members = 3 });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// One club, by its id.\napp.MapGet(\"/api/clubs/{id:int}\", (int id, ClubDb db) =>\n    db.Clubs.Find(id) is { } club\n        ? Results.Ok(club)\n        : Results.NotFound());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\n// Join a club: one more member.\napp.MapPost(\"/api/clubs/{id:int}/join\", (int id, ClubDb db) =>\n{\n    var club = db.Clubs.Find(id);\n    if (club is null) return Results.NotFound();\n    club.Members++;\n    db.SaveChanges();\n    return Results.Ok(club);\n});\n\napp.Run();\n",
           "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n    public int Members { get; set; }\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
         },
         "solutionFiles": {
@@ -1099,7 +1912,7 @@
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\nimport \"./styles.css\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/styles.css": "/* Make the Club Hub look like yours!\n   Change these colors, or add your own rules. */\nbody {\n  font-family: sans-serif;\n  background: #f0fdf4;\n  color: #14532d;\n}\n\nh1 {\n  color: #15803d;\n}\n\nbutton {\n  margin-left: 8px;\n}\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
-          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\", Members = 4 },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\", Members = 6 },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\", Members = 3 });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\n// Join a club: one more member.\napp.MapPost(\"/api/clubs/{id:int}/join\", (int id, ClubDb db) =>\n{\n    var club = db.Clubs.Find(id);\n    if (club is null) return Results.NotFound();\n    club.Members++;\n    db.SaveChanges();\n    return Results.Ok(club);\n});\n\napp.Run();\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\", Members = 4 },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\", Members = 6 },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\", Members = 3 });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// One club, by its id.\napp.MapGet(\"/api/clubs/{id:int}\", (int id, ClubDb db) =>\n    db.Clubs.Find(id) is { } club\n        ? Results.Ok(club)\n        : Results.NotFound());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\n// Join a club: one more member.\napp.MapPost(\"/api/clubs/{id:int}/join\", (int id, ClubDb db) =>\n{\n    var club = db.Clubs.Find(id);\n    if (club is null) return Results.NotFound();\n    club.Members++;\n    db.SaveChanges();\n    return Results.Ok(club);\n});\n\napp.Run();\n",
           "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n    public int Members { get; set; }\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
         },
         "tests": [
@@ -1265,7 +2078,7 @@
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
           "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.MapPost(\"/api/matches\", (NewMatch input, LeagueDb db) =>\n{\n    var errors = new Dictionary<string, string[]>();\n    if (db.Teams.Find(input.HomeTeamId) is null)\n        errors[\"homeTeamId\"] = [$\"There's no team {input.HomeTeamId}.\"];\n    if (db.Teams.Find(input.AwayTeamId) is null)\n        errors[\"awayTeamId\"] = [$\"There's no team {input.AwayTeamId}.\"];\n    else if (input.AwayTeamId == input.HomeTeamId)\n        errors[\"awayTeamId\"] = [\"A team can't play itself.\"];\n    if (input.HomeGoals < 0)\n        errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\n    if (input.AwayGoals < 0)\n        errors[\"awayGoals\"] = [\"Goals can't be below 0.\"];\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\n\n    var match = new Match\n    {\n        HomeTeamId = input.HomeTeamId,\n        AwayTeamId = input.AwayTeamId,\n        HomeGoals = input.HomeGoals,\n        AwayGoals = input.AwayGoals,\n    };\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\napp.MapGet(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n    db.Matches.Find(id) is { } match\n        ? Results.Ok(match)\n        : Results.NotFound());\n\napp.MapDelete(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n{\n    if (db.Matches.Find(id) is not { } match) return Results.NotFound();\n    db.Matches.Remove(match);\n    db.SaveChanges();\n    return Results.NoContent();\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
-          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Meadow Mice\", \"south\"),\n            T(4, \"Lakeside Lynx\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
         },
         "solutionFiles": {
           "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\nimport ResultForm from \"./ResultForm.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n  // Bumped after a result is recorded, so the\n  // effect fetches the standings again.\n  const [version, setVersion] = useState(0);\n\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    setError(null);\n    fetch(`/api/standings${query}`)\n      .then(async (response) => {\n        const data = await response.json();\n        if (response.ok) {\n          setRows(data);\n        } else {\n          setError(data.title);\n          setRows([]);\n        }\n      });\n  }, [division, version]);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n      <ResultForm onRecorded={() => setVersion((v) => v + 1)} />\n    </main>\n  );\n}\n",
@@ -1274,7 +2087,7 @@
           "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
           "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.MapGet(\"/api/teams\", (LeagueDb db) =>\n    db.Teams.OrderBy(t => t.Name).ToList());\n\napp.MapPost(\"/api/matches\", (NewMatch input, LeagueDb db) =>\n{\n    var errors = new Dictionary<string, string[]>();\n    if (db.Teams.Find(input.HomeTeamId) is null)\n        errors[\"homeTeamId\"] = [$\"There's no team {input.HomeTeamId}.\"];\n    if (db.Teams.Find(input.AwayTeamId) is null)\n        errors[\"awayTeamId\"] = [$\"There's no team {input.AwayTeamId}.\"];\n    else if (input.AwayTeamId == input.HomeTeamId)\n        errors[\"awayTeamId\"] = [\"A team can't play itself.\"];\n    if (input.HomeGoals < 0)\n        errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\n    if (input.AwayGoals < 0)\n        errors[\"awayGoals\"] = [\"Goals can't be below 0.\"];\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\n\n    var match = new Match\n    {\n        HomeTeamId = input.HomeTeamId,\n        AwayTeamId = input.AwayTeamId,\n        HomeGoals = input.HomeGoals,\n        AwayGoals = input.AwayGoals,\n    };\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\napp.MapGet(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n    db.Matches.Find(id) is { } match\n        ? Results.Ok(match)\n        : Results.NotFound());\n\napp.MapDelete(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n{\n    if (db.Matches.Find(id) is not { } match) return Results.NotFound();\n    db.Matches.Remove(match);\n    db.SaveChanges();\n    return Results.NoContent();\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
-          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Meadow Mice\", \"south\"),\n            T(4, \"Lakeside Lynx\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
         },
         "tests": [
           {
@@ -1295,12 +2108,12 @@
                   "division": "north"
                 },
                 {
-                  "id": 3,
+                  "id": 4,
                   "name": "Lakeside Lynx",
                   "division": "south"
                 },
                 {
-                  "id": 4,
+                  "id": 3,
                   "name": "Meadow Mice",
                   "division": "south"
                 },
@@ -1679,7 +2492,7 @@
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
           "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.MapGet(\"/api/teams\", (LeagueDb db) =>\n    db.Teams.OrderBy(t => t.Name).ToList());\n\napp.MapPost(\"/api/matches\", (NewMatch input, LeagueDb db) =>\n{\n    var errors = new Dictionary<string, string[]>();\n    if (db.Teams.Find(input.HomeTeamId) is null)\n        errors[\"homeTeamId\"] = [$\"There's no team {input.HomeTeamId}.\"];\n    if (db.Teams.Find(input.AwayTeamId) is null)\n        errors[\"awayTeamId\"] = [$\"There's no team {input.AwayTeamId}.\"];\n    else if (input.AwayTeamId == input.HomeTeamId)\n        errors[\"awayTeamId\"] = [\"A team can't play itself.\"];\n    if (input.HomeGoals < 0)\n        errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\n    if (input.AwayGoals < 0)\n        errors[\"awayGoals\"] = [\"Goals can't be below 0.\"];\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\n\n    var match = new Match\n    {\n        HomeTeamId = input.HomeTeamId,\n        AwayTeamId = input.AwayTeamId,\n        HomeGoals = input.HomeGoals,\n        AwayGoals = input.AwayGoals,\n    };\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\napp.MapGet(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n    db.Matches.Find(id) is { } match\n        ? Results.Ok(match)\n        : Results.NotFound());\n\napp.MapDelete(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n{\n    if (db.Matches.Find(id) is not { } match) return Results.NotFound();\n    db.Matches.Remove(match);\n    db.SaveChanges();\n    return Results.NoContent();\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
           "api/Recent.cs": "using Microsoft.EntityFrameworkCore;\n\npublic static class RecentEndpoints\n{\n    // GET /api/matches/recent?count=5: the\n    // newest results first, with both names.\n    public static void MapRecentResults(\n        this WebApplication app)\n    {\n        app.MapGet(\"/api/matches/recent\",\n            (int? count, LeagueDb db) =>\n        {\n            // TODO 3: count must be 1 to 20.\n            // No count? Then 5.\n            var take = count ?? 5;\n\n            // TODO 2: both names are the same!\n            var recent =\n                from m in db.Matches\n                join t in db.Teams on m.HomeTeamId equals t.Id\n                orderby m.Id descending\n                select new RecentResult(m.Id, t.Name, t.Name,\n                    m.HomeGoals, m.AwayGoals);\n            return Results.Ok(recent.Take(take).ToList());\n        });\n    }\n}\n",
-          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// One line of the recent results list.\npublic record RecentResult(\n    int Id, string Home, string Away,\n    int HomeGoals, int AwayGoals);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// One line of the recent results list.\npublic record RecentResult(\n    int Id, string Home, string Away,\n    int HomeGoals, int AwayGoals);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Meadow Mice\", \"south\"),\n            T(4, \"Lakeside Lynx\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
         },
         "solutionFiles": {
           "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\nimport ResultForm from \"./ResultForm.jsx\";\nimport RecentResults from \"./RecentResults.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n  // Bumped after a result is recorded, so the\n  // effect fetches the standings again.\n  const [version, setVersion] = useState(0);\n\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    setError(null);\n    fetch(`/api/standings${query}`)\n      .then(async (response) => {\n        const data = await response.json();\n        if (response.ok) {\n          setRows(data);\n        } else {\n          setError(data.title);\n          setRows([]);\n        }\n      });\n  }, [division, version]);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n      <ResultForm onRecorded={() => setVersion((v) => v + 1)} />\n      <RecentResults\n        version={version}\n        onChanged={() => setVersion((v) => v + 1)}\n      />\n    </main>\n  );\n}\n",
@@ -1690,7 +2503,7 @@
           "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
           "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.MapGet(\"/api/teams\", (LeagueDb db) =>\n    db.Teams.OrderBy(t => t.Name).ToList());\n\napp.MapPost(\"/api/matches\", (NewMatch input, LeagueDb db) =>\n{\n    var errors = new Dictionary<string, string[]>();\n    if (db.Teams.Find(input.HomeTeamId) is null)\n        errors[\"homeTeamId\"] = [$\"There's no team {input.HomeTeamId}.\"];\n    if (db.Teams.Find(input.AwayTeamId) is null)\n        errors[\"awayTeamId\"] = [$\"There's no team {input.AwayTeamId}.\"];\n    else if (input.AwayTeamId == input.HomeTeamId)\n        errors[\"awayTeamId\"] = [\"A team can't play itself.\"];\n    if (input.HomeGoals < 0)\n        errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\n    if (input.AwayGoals < 0)\n        errors[\"awayGoals\"] = [\"Goals can't be below 0.\"];\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\n\n    var match = new Match\n    {\n        HomeTeamId = input.HomeTeamId,\n        AwayTeamId = input.AwayTeamId,\n        HomeGoals = input.HomeGoals,\n        AwayGoals = input.AwayGoals,\n    };\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\napp.MapGet(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n    db.Matches.Find(id) is { } match\n        ? Results.Ok(match)\n        : Results.NotFound());\n\napp.MapDelete(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n{\n    if (db.Matches.Find(id) is not { } match) return Results.NotFound();\n    db.Matches.Remove(match);\n    db.SaveChanges();\n    return Results.NoContent();\n});\n\napp.MapRecentResults();\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
           "api/Recent.cs": "using Microsoft.EntityFrameworkCore;\n\npublic static class RecentEndpoints\n{\n    // GET /api/matches/recent?count=5: the\n    // newest results first, with both names.\n    public static void MapRecentResults(\n        this WebApplication app)\n    {\n        app.MapGet(\"/api/matches/recent\",\n            (int? count, LeagueDb db) =>\n        {\n            var take = count ?? 5;\n            if (take is < 1 or > 20)\n            {\n                var errors = new Dictionary<string, string[]>\n                {\n                    [\"count\"] = [\"Ask for 1 to 20 results.\"],\n                };\n                return Results.ValidationProblem(errors);\n            }\n\n            var recent =\n                from m in db.Matches\n                join h in db.Teams on m.HomeTeamId equals h.Id\n                join a in db.Teams on m.AwayTeamId equals a.Id\n                orderby m.Id descending\n                select new RecentResult(m.Id, h.Name, a.Name,\n                    m.HomeGoals, m.AwayGoals);\n            return Results.Ok(recent.Take(take).ToList());\n        });\n    }\n}\n",
-          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// One line of the recent results list.\npublic record RecentResult(\n    int Id, string Home, string Away,\n    int HomeGoals, int AwayGoals);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// One line of the recent results list.\npublic record RecentResult(\n    int Id, string Home, string Away,\n    int HomeGoals, int AwayGoals);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Meadow Mice\", \"south\"),\n            T(4, \"Lakeside Lynx\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
         },
         "tests": [
           {
@@ -1711,20 +2524,20 @@
                 {
                   "id": 6,
                   "home": "Hilltop Hawks",
-                  "away": "Meadow Mice",
+                  "away": "Lakeside Lynx",
                   "homeGoals": 1,
                   "awayGoals": 1
                 },
                 {
                   "id": 5,
                   "home": "Riverton Otters",
-                  "away": "Lakeside Lynx",
+                  "away": "Meadow Mice",
                   "homeGoals": 2,
                   "awayGoals": 2
                 },
                 {
                   "id": 4,
-                  "home": "Meadow Mice",
+                  "home": "Lakeside Lynx",
                   "away": "Riverton Otters",
                   "homeGoals": 0,
                   "awayGoals": 1
@@ -1732,14 +2545,14 @@
                 {
                   "id": 3,
                   "home": "Hilltop Hawks",
-                  "away": "Lakeside Lynx",
+                  "away": "Meadow Mice",
                   "homeGoals": 3,
                   "awayGoals": 0
                 },
                 {
                   "id": 2,
-                  "home": "Lakeside Lynx",
-                  "away": "Meadow Mice",
+                  "home": "Meadow Mice",
+                  "away": "Lakeside Lynx",
                   "homeGoals": 2,
                   "awayGoals": 2
                 }
@@ -1756,14 +2569,14 @@
                 {
                   "id": 6,
                   "home": "Hilltop Hawks",
-                  "away": "Meadow Mice",
+                  "away": "Lakeside Lynx",
                   "homeGoals": 1,
                   "awayGoals": 1
                 },
                 {
                   "id": 5,
                   "home": "Riverton Otters",
-                  "away": "Lakeside Lynx",
+                  "away": "Meadow Mice",
                   "homeGoals": 2,
                   "awayGoals": 2
                 }
@@ -1838,11 +2651,11 @@
             "spec": {
               "expression": "[...document.querySelectorAll('#recent li')].map((li) => li.textContent.replace('Delete', '').trim())",
               "equals": [
-                "Hilltop Hawks 1-1 Meadow Mice",
-                "Riverton Otters 2-2 Lakeside Lynx",
-                "Meadow Mice 0-1 Riverton Otters",
-                "Hilltop Hawks 3-0 Lakeside Lynx",
-                "Lakeside Lynx 2-2 Meadow Mice"
+                "Hilltop Hawks 1-1 Lakeside Lynx",
+                "Riverton Otters 2-2 Meadow Mice",
+                "Lakeside Lynx 0-1 Riverton Otters",
+                "Hilltop Hawks 3-0 Meadow Mice",
+                "Meadow Mice 2-2 Lakeside Lynx"
               ]
             },
             "failMessage": "Show <RecentResults version={version} onChanged={...} /> in App.jsx, and load GET /api/matches/recent into results."
@@ -1871,10 +2684,10 @@
             "spec": {
               "expression": "[...document.querySelectorAll('#recent li')].map((li) => li.textContent.replace('Delete', '').trim())",
               "equals": [
-                "Riverton Otters 2-2 Lakeside Lynx",
-                "Meadow Mice 0-1 Riverton Otters",
-                "Hilltop Hawks 3-0 Lakeside Lynx",
-                "Lakeside Lynx 2-2 Meadow Mice",
+                "Riverton Otters 2-2 Meadow Mice",
+                "Lakeside Lynx 0-1 Riverton Otters",
+                "Hilltop Hawks 3-0 Meadow Mice",
+                "Meadow Mice 2-2 Lakeside Lynx",
                 "Riverton Otters 1-2 Hilltop Hawks"
               ]
             },
@@ -1897,12 +2710,12 @@
                   "4"
                 ],
                 [
-                  "Lakeside Lynx",
+                  "Meadow Mice",
                   "3",
                   "2"
                 ],
                 [
-                  "Meadow Mice",
+                  "Lakeside Lynx",
                   "2",
                   "1"
                 ],
