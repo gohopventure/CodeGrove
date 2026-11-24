@@ -59,6 +59,10 @@ async function start() {
 
 async function onRun(event) {
   const msg = event.data || {};
+  if (msg.type === 'serve' && exports) {
+    onServe(msg);
+    return;
+  }
   if (msg.type !== 'run' || !exports) return;
   try {
     const json = await exports.Run(JSON.stringify(msg.request));
@@ -70,6 +74,23 @@ async function onRun(event) {
       id: msg.id,
       result: {
         compiled: false, diagnostics: [], output: '', stopped: 'Exception', results: [], compileMs: 0, runMs: 0,
+        console: [{ level: 'error', text: "Codegrove's C# runner hit a problem (our bug, not yours): " + (error && error.message ? error.message : String(error)) }],
+      },
+    });
+  }
+}
+
+// One request for the live server a KeepServer run left running (the capstone's preview calling its API).
+async function onServe(msg) {
+  try {
+    const json = await exports.ServerRequest(JSON.stringify(msg.request));
+    postMessage({ type: 'served', id: msg.id, response: JSON.parse(json) });
+  } catch (error) {
+    postMessage({
+      type: 'served',
+      id: msg.id,
+      response: {
+        found: true, exchange: null,
         console: [{ level: 'error', text: "Codegrove's C# runner hit a problem (our bug, not yours): " + (error && error.message ? error.message : String(error)) }],
       },
     });

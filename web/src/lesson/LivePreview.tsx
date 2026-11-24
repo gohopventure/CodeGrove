@@ -4,7 +4,11 @@ import { buildRunDocument, composeFiles, REACT_RUN_OPTIONS, type Files } from '.
 import { hasTypeScript, loadToolkit, needsReact, needsReactRuntime } from '../runner/react';
 import type { TypeChecker, TypeDiagnostic } from '../runner/typeCheck';
 import { PREVIEW_ORIGIN } from '../runner/origin';
+import type { LiveFetchMessage, LiveFetchReply } from '../runner/mockApi';
 import type { ConsoleLine, RunnerMessage, TestResult, TestSpec } from '../runner/types';
+
+/** Answers the preview's fetch('/api/…') calls (capstone pages): see runner/liveApi.ts. */
+export type LiveApiHandler = (request: LiveFetchMessage) => Promise<Omit<LiveFetchReply, 'type' | 'id'>>;
 const RUN_TIMEOUT_MS = 4000;
 
 export interface LivePreviewHandle {
@@ -27,8 +31,8 @@ interface PendingRun {
  * and its CSP blocks all network access. Messages are accepted only from this exact frame's window
  * and only for the current runId.
  */
-export const LivePreview = forwardRef<LivePreviewHandle, { title: string; typeChecker?: TypeChecker }>(function LivePreview(
-  { title, typeChecker },
+export const LivePreview = forwardRef<LivePreviewHandle, { title: string; typeChecker?: TypeChecker; liveApi?: LiveApiHandler }>(function LivePreview(
+  { title, typeChecker, liveApi },
   ref,
 ) {
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -38,6 +42,9 @@ export const LivePreview = forwardRef<LivePreviewHandle, { title: string; typeCh
   const currentRunId = useRef<string | null>(null);
   const [frameKey, setFrameKey] = useState(0);
   const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([]);
+  // Read through a ref, so a new handler doesn't re-register the message listener mid-run.
+  const liveApiRef = useRef(liveApi);
+  liveApiRef.current = liveApi;
 
   const finish = useCallback((results: TestResult[] | null) => {
     const run = pending.current;
@@ -58,6 +65,18 @@ export const LivePreview = forwardRef<LivePreviewHandle, { title: string; typeCh
         frame.contentWindow?.postMessage({ type: 'cg:run', html: run.html }, '*');
       } else if (msg?.type === 'cg:console' && msg.runId === currentRunId.current) {
         setConsoleLines((lines) => [...lines.slice(-199), { level: msg.level, text: String(msg.text).slice(0, 2000) }]);
+      } else if (msg?.type === 'cg:fetch' && msg.runId === currentRunId.current) {
+        // The page called its API: forward to the learner's live server, answer the same frame.
+        const request = event.data as LiveFetchMessage;
+        const handler = liveApiRef.current;
+        const target = frame.contentWindow;
+        const reply = handler
+          ? handler(request).catch(() => ({ error: "Codegrove couldn't reach your API (our bug, not yours)." }))
+          : Promise.resolve({ error: 'This page has no API to call.' });
+        void reply.then((r) => {
+          // The frame has an opaque origin, so '*' is the only target that reaches it; it's the same window we got the request from.
+          if (frameRef.current?.contentWindow === target) target?.postMessage({ ...r, type: 'cg:fetch-reply', id: request.id }, '*');
+        });
       } else if (msg?.type === 'cg:done' && run && msg.runId === run.runId) {
         finish(Array.isArray(msg.results) ? msg.results : null);
       }
@@ -91,7 +110,11 @@ export const LivePreview = forwardRef<LivePreviewHandle, { title: string; typeCh
           }
         }
         if (currentRunId.current !== runId) return null; // a newer run started while we were checking
-        html = buildRunDocument(composeFiles(files, kit), runId, tests, { ...(react ? REACT_RUN_OPTIONS : angular ? ANGULAR_RUN_OPTIONS : {}), typeDiagnostics });
+        html = buildRunDocument(composeFiles(files, kit), runId, tests, {
+          ...(react ? REACT_RUN_OPTIONS : angular ? ANGULAR_RUN_OPTIONS : {}),
+          typeDiagnostics,
+          liveApi: liveApiRef.current !== undefined,
+        });
       } catch {
         if (currentRunId.current === runId) {
           setConsoleLines([{ level: 'error', text: "We couldn't load the tools this preview needs. Check your internet connection and try again." }]);

@@ -90,8 +90,16 @@ public static class CSharpCodeRunner
     public static Task WarmUpAsync() =>
         RunAsync(new RunRequest(new() { ["Program.cs"] = "Console.WriteLine(1 + 1);" }));
 
+    /// <summary>Sends one request to the server a <see cref="RunRequest.KeepServer"/> run left running.</summary>
+    public static Task<LiveResponse> SendToLiveServerAsync(LiveRequest request) => LiveServer.SendAsync(request);
+
+    /// <summary>Stops the live server, if one is running.</summary>
+    public static void StopLiveServer() => LiveServer.Stop();
+
     public static async Task<RunResult> RunAsync(RunRequest request)
     {
+        // A run resets EF Core's in-memory databases, so the previous live server can't outlive it.
+        LiveServer.Stop();
         var compileWatch = Stopwatch.StartNew();
         var sources = request.Files
             .Where(f => f.Key.EndsWith(".cs", StringComparison.OrdinalIgnoreCase) && !f.Key.StartsWith('.'))
@@ -160,6 +168,7 @@ public static class CSharpCodeRunner
 
         var runWatch = Stopwatch.StartNew();
         var context = RunContext.Create();
+        var kept = false;
         try
         {
             var program = context.LoadFromStream(new MemoryStream(pe));
@@ -178,13 +187,26 @@ public static class CSharpCodeRunner
             }
             var (server, responses) = await WebServer.AfterRunAsync(slot, outcome, program, request.Requests, console);
             var results = await TestEvaluator.EvaluateAllAsync(tests, request.Files, diagnostics, outcome, context);
+
+            string? liveSession = null;
+            if (request.KeepServer && outcome.Stopped == StopReason.None && slot.Running is { } running)
+            {
+                // httpRequest checks each started (and reset) their own copy of the server, emptying the
+                // in-memory database the first one was using, so the live server is a fresh start too.
+                var live = running;
+                if (tests.Any(t => t.Kind == WebChecks.Kind))
+                    live = (await WebServer.StartFreshAsync(program)).App ?? running;
+                ResetGuard(program);
+                liveSession = LiveServer.Keep(context, program, live);
+                kept = true;
+            }
             runWatch.Stop();
             return new RunResult(true, diagnostics, console, outcome.Output, outcome.Stopped, results,
-                compileWatch.ElapsedMilliseconds, runWatch.ElapsedMilliseconds, server, responses);
+                compileWatch.ElapsedMilliseconds, runWatch.ElapsedMilliseconds, server, responses, liveSession);
         }
         finally
         {
-            context.Dispose();
+            if (!kept) context.Dispose();
         }
     }
 

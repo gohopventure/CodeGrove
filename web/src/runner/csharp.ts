@@ -69,6 +69,8 @@ export interface CSharpRunResult {
   server?: CSharpServerInfo | null;
   /** Answers to the requests passed to runCSharp, in order. */
   responses?: CSharpHttpExchange[] | null;
+  /** Set when `keepServer` was asked for and the server started: pass it to sendToLiveServer. */
+  liveSession?: string | null;
   /** Set by this module when the run produced nothing: stopped after the time limit, or C# couldn't run. */
   notRun?: 'timedOut' | 'unavailable';
 }
@@ -84,10 +86,19 @@ interface Pending {
   timer: number;
 }
 
+/**
+ * The live server's answer (Contracts.cs → LiveResponse), or why there isn't one. `found: false` means
+ * that server isn't running any more (a newer run replaced it, or the runner restarted).
+ */
+export type LiveServerReply =
+  | { found: true; exchange: CSharpHttpExchange | null; console: ConsoleLine[] }
+  | { found: false; console: ConsoleLine[]; timedOut?: boolean };
+
 let frame: HTMLIFrameElement | null = null;
 let frameLoaded = false;
 let outbox: unknown[] = [];
 const pending = new Map<string, Pending>();
+const pendingServes = new Map<string, { resolve: (reply: LiveServerReply) => void; timer: number }>();
 
 let status: CSharpStatus = 'idle';
 let statusDetail: string | undefined;
@@ -113,8 +124,23 @@ function onMessage(event: MessageEvent) {
   if (!frame || event.source !== frame.contentWindow || event.origin !== new URL(PREVIEW_ORIGIN).origin) return;
   const msg = event.data as {
     type?: string; id?: string; status?: CSharpStatus; detail?: string;
-    result?: CSharpRunResult; timedOut?: boolean; failed?: string;
+    result?: CSharpRunResult; timedOut?: boolean; failed?: string; response?: LiveServerReply;
   };
+  if (msg?.type === 'cg:cs-served' && msg.id) {
+    const serve = pendingServes.get(msg.id);
+    if (!serve) return;
+    pendingServes.delete(msg.id);
+    window.clearTimeout(serve.timer);
+    if (msg.response) serve.resolve(msg.response);
+    else if (msg.timedOut) {
+      serve.resolve({
+        found: false,
+        timedOut: true,
+        console: [{ level: 'error', text: 'Your server took more than 15 seconds to answer, so Codegrove stopped it. Is there a loop in that endpoint that never ends?' }],
+      });
+    } else serve.resolve({ found: false, console: [{ level: 'error', text: msg.failed ?? "C# couldn't start. Reload the page and try again." }] });
+    return;
+  }
   if (msg?.type === 'cg:cs-status' && msg.status) {
     setStatus(msg.status, msg.detail ?? undefined);
   } else if (msg?.type === 'cg:cs-result' && msg.id) {
@@ -161,6 +187,7 @@ export function runCSharp(
   tests: TestSpec[] = [],
   input?: string,
   requests?: CSharpHttpRequest[],
+  options: { keepServer?: boolean } = {},
 ): Promise<CSharpRunResult> {
   preloadCSharp();
   const id = crypto.randomUUID();
@@ -172,7 +199,26 @@ export function runCSharp(
         resolve(problem('unavailable', "C# didn't answer. Check your internet connection, then reload the page."));
       }, NO_ANSWER_MS),
     });
-    send({ type: 'cg:cs-run', id, request: { files, tests, input, requests } });
+    send({ type: 'cg:cs-run', id, request: { files, tests, input, requests, keepServer: options.keepServer ?? false } });
+  });
+}
+
+/**
+ * Sends one request to the server a `keepServer` run left running (the capstone's preview calling its
+ * API). Never rejects. Requests wait in the same queue as runs, so they're answered in order.
+ */
+export function sendToLiveServer(session: string, request: CSharpHttpRequest): Promise<LiveServerReply> {
+  preloadCSharp();
+  const id = crypto.randomUUID();
+  return new Promise((resolve) => {
+    pendingServes.set(id, {
+      resolve,
+      timer: window.setTimeout(() => {
+        pendingServes.delete(id);
+        resolve({ found: false, console: [{ level: 'error', text: "C# didn't answer. Check your internet connection, then reload the page." }] });
+      }, NO_ANSWER_MS),
+    });
+    send({ type: 'cg:cs-serve', id, request: { session, request } });
   });
 }
 

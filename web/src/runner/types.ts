@@ -50,4 +50,6 @@ export interface ConsoleLine {
 export type RunnerMessage =
   | { type: 'cg:ready' }
   | { type: 'cg:console'; runId: string; level: ConsoleLine['level']; text: string }
-  | { type: 'cg:done'; runId: string; results: TestResult[] };
+  | { type: 'cg:done'; runId: string; results: TestResult[] }
+  /** A capstone page called its API (mockApi.ts LiveFetchMessage). */
+  | { type: 'cg:fetch'; runId: string };

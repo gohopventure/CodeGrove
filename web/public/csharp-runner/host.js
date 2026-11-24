@@ -55,8 +55,8 @@
     var waiting = (current ? [current] : []).concat(queue);
     current = null;
     queue = [];
-    waiting.forEach(function (run) {
-      post({ type: 'cg:cs-result', id: run.id, failed: detail });
+    waiting.forEach(function (job) {
+      post({ type: job.kind === 'serve' ? 'cg:cs-served' : 'cg:cs-result', id: job.id, failed: detail });
     });
   }
 
@@ -69,6 +69,12 @@
       next();
     } else if (msg.type === 'failed') {
       failWorker(msg.detail || 'C# could not start.');
+    } else if (msg.type === 'served' && current && current.kind === 'serve' && msg.id === current.id) {
+      // A live-server request: doesn't count towards recycling (recycling would stop the server).
+      clearTimeout(timer);
+      post({ type: 'cg:cs-served', id: current.id, response: msg.response });
+      current = null;
+      next();
     } else if (msg.type === 'result' && current && msg.id === current.id) {
       clearTimeout(timer);
       post({ type: 'cg:cs-result', id: current.id, result: msg.result });
@@ -86,13 +92,14 @@
   function next() {
     if (!ready || current || queue.length === 0) return;
     current = queue.shift();
-    worker.postMessage({ type: 'run', id: current.id, request: current.request });
+    worker.postMessage({ type: current.kind, id: current.id, request: current.request });
     timer = setTimeout(function () {
-      // Stuck (a loop the guard can't see, or a huge computation): replace the worker.
+      // Stuck (a loop the guard can't see, or a huge computation): replace the worker. That also ends
+      // any live server, so the app's next request for it is answered "not running" and it starts a new one.
       var stuck = current;
       current = null;
       stopWorker();
-      post({ type: 'cg:cs-result', id: stuck.id, timedOut: true });
+      post({ type: stuck.kind === 'serve' ? 'cg:cs-served' : 'cg:cs-result', id: stuck.id, timedOut: true });
       startWorker();
     }, RUN_TIMEOUT_MS);
   }
@@ -108,7 +115,11 @@
       post({ type: 'cg:cs-status', status: status });
     } else if (msg.type === 'cg:cs-run' && typeof msg.id === 'string' && msg.request && typeof msg.request === 'object') {
       if (!worker) startWorker(); // after a failure, try again
-      queue.push({ id: msg.id, request: msg.request });
+      queue.push({ kind: 'run', id: msg.id, request: msg.request });
+      next();
+    } else if (msg.type === 'cg:cs-serve' && typeof msg.id === 'string' && msg.request && typeof msg.request === 'object') {
+      if (!worker) startWorker();
+      queue.push({ kind: 'serve', id: msg.id, request: msg.request });
       next();
     } else if (msg.type === 'cg:cs-cancel' && typeof msg.id === 'string') {
       queue = queue.filter(function (run) { return run.id !== msg.id; });

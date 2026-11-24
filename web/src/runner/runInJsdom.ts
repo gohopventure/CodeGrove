@@ -8,6 +8,7 @@ import { ANGULAR_RUN_OPTIONS, needsAngular } from './angular';
 import { buildRunDocument, composeFiles, REACT_RUN_OPTIONS, type Files } from './compose';
 import { hasTypeScript, loadToolkit, needsReact, needsReactRuntime } from './react';
 import { nodeTypeChecker } from './typeCheckNode';
+import type { LiveFetchMessage, LiveFetchReply } from './mockApi';
 import type { ConsoleLine, TestResult, TestSpec } from './types';
 
 export interface JsdomRun {
@@ -15,8 +16,11 @@ export interface JsdomRun {
   console: ConsoleLine[];
 }
 
+/** Answers the page's fetch('/api/…') calls, standing in for the learner's live server (capstone pages). */
+export type LiveApiHandler = (request: LiveFetchMessage) => Promise<Omit<LiveFetchReply, 'type' | 'id'>>;
+
 /** Runs one page through the harness and resolves with its results (or throws if it never finishes). */
-export async function runInJsdom(files: Files, tests: TestSpec[]): Promise<JsdomRun> {
+export async function runInJsdom(files: Files, tests: TestSpec[], liveApi?: LiveApiHandler): Promise<JsdomRun> {
   const runId = 'content-check';
   const compiled = needsReact(files);
   const react = needsReactRuntime(files);
@@ -24,7 +28,7 @@ export async function runInJsdom(files: Files, tests: TestSpec[]): Promise<Jsdom
   const kit = compiled ? await loadToolkit({ react, angular }) : undefined;
   // TypeScript pages are type-checked first, like the app does (with the `typescript` package here).
   const typeDiagnostics = hasTypeScript(files) ? await nodeTypeChecker(files) : undefined;
-  const options = { ...(react ? REACT_RUN_OPTIONS : angular ? ANGULAR_RUN_OPTIONS : {}), typeDiagnostics };
+  const options = { ...(react ? REACT_RUN_OPTIONS : angular ? ANGULAR_RUN_OPTIONS : {}), typeDiagnostics, liveApi: liveApi !== undefined };
   const dom = new JSDOM(buildRunDocument(composeFiles(files, kit), runId, tests, options), {
     runScripts: 'dangerously',
     pretendToBeVisual: true,
@@ -39,6 +43,11 @@ export async function runInJsdom(files: Files, tests: TestSpec[]): Promise<Jsdom
     dom.window.addEventListener('message', (e: MessageEvent) => {
       const msg = e.data as { type?: string; runId?: string; results?: TestResult[]; level?: ConsoleLine['level']; text?: string };
       if (msg?.runId !== runId) return;
+      if (msg.type === 'cg:fetch' && liveApi) {
+        const request = e.data as LiveFetchMessage;
+        void liveApi(request).then((reply) => dom.window.postMessage({ ...reply, type: 'cg:fetch-reply', id: request.id }, '*'));
+        return;
+      }
       if (msg.type === 'cg:console') lines.push({ level: msg.level ?? 'log', text: String(msg.text) });
       if (msg.type !== 'cg:done') return;
       clearTimeout(timer);

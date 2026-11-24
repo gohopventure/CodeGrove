@@ -51,6 +51,8 @@ export interface RunOptions {
   stepDelayMs?: number;
   /** TypeScript pages: what the type checker found (an empty list means "checked, no errors"). */
   typeDiagnostics?: TypeDiagnostic[];
+  /** Capstone pages: send fetch('/api/…') to the learner's live server through the app (see mockApi.ts). */
+  liveApi?: boolean;
 }
 
 /** Timing for React pages: React renders asynchronously and re-renders after every click or keystroke. */
@@ -62,13 +64,13 @@ export const REACT_RUN_OPTIONS: RunOptions = { settleMs: 120, stepDelayMs: 30 };
  * The harness is serialized from real functions so the same code is unit-tested and shipped.
  */
 export function buildRunDocument(learnerHtml: string, runId: string, tests: TestSpec[], options: RunOptions = {}): string {
-  const { settleMs = 60, stepDelayMs = 0, typeDiagnostics } = options;
+  const { settleMs = 60, stepDelayMs = 0, typeDiagnostics, liveApi = false } = options;
   const typeErrors = typeDiagnostics?.map((diagnostic) => ({ text: describeTypeError(diagnostic), diagnostic }));
   const config = JSON.stringify({ runId, tests, settleMs, stepDelayMs, typeErrors }).replace(/</g, '\\u003c');
   const harness =
     `<meta http-equiv="Content-Security-Policy" content="${PREVIEW_CSP}">` +
     `<script>(${harnessMain.toString()})(${config}, (${evaluateTest.toString()}));` +
-    `(${installMockApi.toString()})(window);</script>`;
+    `(${installMockApi.toString()})(window, 40, ${liveApi ? JSON.stringify({ runId }).replace(/</g, '\\u003c') : 'null'});</script>`;
   return injectIntoHead(learnerHtml, harness);
 }
 

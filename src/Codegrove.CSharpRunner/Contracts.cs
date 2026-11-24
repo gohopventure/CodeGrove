@@ -12,7 +12,13 @@ public sealed record RunRequest(
     List<TestSpec>? Tests = null,
     string? Input = null,
     /// <summary>For a program that starts a web server: requests to send it, in order, after it starts (the Try it panel).</summary>
-    List<HttpRequestSpec>? Requests = null);
+    List<HttpRequestSpec>? Requests = null,
+    /// <summary>
+    /// Keep the server running after the run (the capstone's live API), so the preview page can send it
+    /// requests one at a time with <see cref="LiveRequest"/>. Its in-memory database keeps its rows between
+    /// requests, as a real running server's would. The next run stops it.
+    /// </summary>
+    bool KeepServer = false);
 
 /// <summary>One request for the learner's server. A body is sent as JSON unless a Content-Type header says otherwise.</summary>
 public sealed record HttpRequestSpec(string Method, string Path, string? Body = null, Dictionary<string, string>? Headers = null);
@@ -51,10 +57,24 @@ public sealed record RunResult(
     /// <summary>Set when the program built a web app (the Web API course).</summary>
     ServerInfo? Server = null,
     /// <summary>Answers to <see cref="RunRequest.Requests"/>, in the same order.</summary>
-    List<HttpExchange>? Responses = null);
+    List<HttpExchange>? Responses = null,
+    /// <summary>Set when <see cref="RunRequest.KeepServer"/> kept the server running: pass it to <see cref="LiveRequest"/>.</summary>
+    string? LiveSession = null);
+
+/// <summary>One request for the server a <see cref="RunRequest.KeepServer"/> run left running.</summary>
+public sealed record LiveRequest(string Session, HttpRequestSpec Request);
+
+/// <summary>
+/// The live server's answer. <paramref name="Found"/> is false when that server isn't running any more
+/// (a newer run replaced it, or the worker restarted): run the program again to start a new one.
+/// <paramref name="Console"/> holds what the endpoint printed and any crash explained in plain words.
+/// </summary>
+public sealed record LiveResponse(bool Found, HttpExchange? Exchange, List<ConsoleLine> Console);
 
 /// <summary>Source-generated JSON, so the WebAssembly build can be trimmed safely.</summary>
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(RunRequest))]
 [JsonSerializable(typeof(RunResult))]
+[JsonSerializable(typeof(LiveRequest))]
+[JsonSerializable(typeof(LiveResponse))]
 public sealed partial class RunnerJson : JsonSerializerContext;

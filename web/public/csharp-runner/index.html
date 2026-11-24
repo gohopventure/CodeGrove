@@ -14,6 +14,12 @@
     host → app   { type: 'cg:cs-status', status, detail? }  'loading' | 'ready' | 'failed'
     host → app   { type: 'cg:cs-result', id, result }       result: see Contracts.cs (RunResult)
     host → app   { type: 'cg:cs-result', id, timedOut: true }
+
+  The capstone's live API (a run with request.keepServer leaves the learner's server running):
+    app  → host  { type: 'cg:cs-serve', id, request }      request = { session, request: { method, path, body?, headers? } }
+    host → app   { type: 'cg:cs-served', id, response }    response: Contracts.cs (LiveResponse)
+    host → app   { type: 'cg:cs-served', id, timedOut: true } | { …, failed }
+  Requests share the run queue, so a request never runs while the program is being compiled.
 -->
 <html lang="en">
   <head>

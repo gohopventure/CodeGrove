@@ -19,6 +19,19 @@ public static partial class RunnerExports
         return JsonSerializer.Serialize(result, RunnerJson.Default.RunResult);
     }
 
+    /// <summary>One request for the live server a KeepServer run left running (the capstone's preview).</summary>
+    [JSExport]
+    public static async Task<string> ServerRequest(string requestJson)
+    {
+        var request = JsonSerializer.Deserialize(requestJson, RunnerJson.Default.LiveRequest)
+            ?? throw new ArgumentException("Empty server request.");
+        var response = await CSharpCodeRunner.SendToLiveServerAsync(request);
+        return JsonSerializer.Serialize(response, RunnerJson.Default.LiveResponse);
+    }
+
+    [JSExport]
+    public static void StopServer() => CSharpCodeRunner.StopLiveServer();
+
     [JSExport]
     public static Task WarmUp() => CSharpCodeRunner.WarmUpAsync();
 }

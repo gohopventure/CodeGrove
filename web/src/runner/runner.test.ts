@@ -330,3 +330,58 @@ describe('React pages', () => {
     expect(needsReact({ 'index.html': '', 'App.jsx': '' })).toBe(true);
   });
 });
+
+describe('live API bridge (capstone)', () => {
+  const page = (script: string) => ({
+    'index.html': '<!DOCTYPE html><html><head><title>t</title></head><body><ul id="list"></ul><script src="script.js"></script></body></html>',
+    'script.js': script,
+  });
+
+  it("sends relative and localhost URLs to the learner's server, with method, headers and body", async () => {
+    const seen: string[] = [];
+    const { results } = await runInJsdom(
+      page(`async function go() {
+          const made = await fetch('/api/clubs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: 'Owl Watchers' }),
+          });
+          const list = await (await fetch('http://localhost:5080/api/clubs?sort=name')).json();
+          for (const c of list) document.querySelector('#list').innerHTML += '<li>' + c.name + '</li>';
+          const planets = await fetch('https://api.codegrove.test/planets');
+          window.out = [made.status, made.headers.get('location'), planets.status];
+        }
+        go();`),
+      [
+        { ...spec('elementText', { selector: '#list li', text: 'Owl Watchers' }), id: 1 },
+        { ...spec('jsExpression', { expression: 'window.out', equals: [201, '/api/clubs/1', 200] }), id: 2 },
+      ],
+      async (r): Promise<{ status: number; statusText: string; headers: Record<string, string>; body: string }> => {
+        seen.push(`${r.method} ${r.path} ${r.headers['content-type'] ?? ''} ${r.body ?? ''}`.trim());
+        return r.method === 'POST'
+          ? { status: 201, statusText: 'Created', headers: { 'Content-Type': 'application/json', Location: '/api/clubs/1' }, body: '{"id":1,"name":"Owl Watchers"}' }
+          : { status: 200, statusText: 'OK', headers: { 'Content-Type': 'application/json' }, body: '[{"id":1,"name":"Owl Watchers"}]' };
+      },
+    );
+    expect(results.map((r) => r.passed)).toEqual([true, true]);
+    expect(seen).toEqual(['POST /api/clubs application/json {"name":"Owl Watchers"}', 'GET /api/clubs?sort=name']);
+  });
+
+  it("rejects like a real network failure, and logs why, when the server can't answer", async () => {
+    const { results, console: lines } = await runInJsdom(
+      page(`fetch('/api/clubs').then(() => { window.out = 'answered'; }, (e) => { window.out = e.message; });`),
+      [{ ...spec('jsExpression', { expression: 'window.out', equals: 'Failed to fetch' }), id: 1 }],
+      async () => ({ error: "Your API isn't running. Press Run to start it." }),
+    );
+    expect(results[0]?.passed).toBe(true);
+    expect(lines).toContainEqual({ level: 'error', text: "Your API isn't running. Press Run to start it." });
+  });
+
+  it('leaves relative URLs alone on pages without a live API', async () => {
+    const { results } = await runInJsdom(
+      page(`fetch('/api/clubs').then((r) => { window.out = r.status; });`),
+      [{ ...spec('jsExpression', { expression: 'window.out', equals: 404 }), id: 1 }],
+    );
+    expect(results[0]?.passed).toBe(true);
+  });
+});
