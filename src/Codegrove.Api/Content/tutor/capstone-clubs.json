@@ -64,6 +64,38 @@
           "mood": "Celebrating"
         }
       ]
+    },
+    "clubhub-yours-explorer": {
+      "intro": [
+        {
+          "displayText": "Your Club Hub works! Your mission: add a Join button for every club, then make the hub your very own.",
+          "speechText": "Your Club Hub works! Your mission is to add a join button for every club, then make the hub your very own.",
+          "mood": "Celebrating"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You built a whole app, the page and the server, and made it yours. Your new word is route parameter: the part of a path that says which one, like the 3 in a join path.",
+          "speechText": "You built a whole app, the page and the server, and made it yours. Your new word is route parameter, which is the part of a path that says which one, like the three in a join path.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "league-forms": {
+      "intro": [
+        {
+          "displayText": "Your API explains exactly what's wrong with a bad result; now the page has to listen. Real users mistype, and a form that hides the reason loses them. You'll build a results form that shows each message next to its field, tells screen readers about it, and refreshes the standings once a result is saved.",
+          "speechText": "Your A P I explains exactly what's wrong with a bad result, and now the page has to listen. Real users mistype, and a form that hides the reason loses them. You'll build a results form that shows each message next to its field, tells screen readers about it, and refreshes the standings once a result is saved.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The page and the API now talk in both directions, errors included. The gotcha to remember: after a write, data you already fetched is stale. Something has to tell the page to fetch it again, like a version number in the effect's dependencies.",
+          "speechText": "The page and the A P I now talk in both directions, errors included. The gotcha to remember is that after a write, data you already fetched is stale. Something has to tell the page to fetch it again, like a version number in the effect's dependencies.",
+          "mood": "Celebrating"
+        }
+      ]
     }
   }
 }

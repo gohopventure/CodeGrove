@@ -1070,16 +1070,584 @@
       "title": "Make it yours",
       "sortOrder": 5,
       "ageBand": "Explorer",
-      "estimatedMinutes": 10,
-      "isPublished": false
+      "estimatedMinutes": 15,
+      "isPublished": true,
+      "learnMarkdown": "## The last touches\n\nYour Club Hub shows clubs and starts new ones. Two things are left. Kids want to **join** clubs. And the hub should look like **yours**, not like everybody else's.\n\nYour `App.jsx` and `NewClubForm.jsx` come along from last time.\n\n### A button that asks the server\n\nThe server has a new job: `POST /api/clubs/3/join` adds one member to club 3. The number in the middle of the path says *which* club. You can build that path with backticks and `${…}`:\n\n```jsx\nasync function join(id) {\n  await fetch(`/api/clubs/${id}/join`, { method: \"POST\" });\n  loadClubs();\n}\n```\n\nThis `POST` has no body, because the path already says everything. After the server answers, `loadClubs()` gets the new member counts.\n\nGive each club its own button. Use an arrow function, so the button knows which club it belongs to:\n\n```jsx\n<button onClick={() => join(club.id)}>Join</button>\n```\n\n### Make it yours\n\n- Give your hub its own name in the `<h1>`.\n- Open `styles.css` and change the colors. `main.jsx` already brings it in with `import \"./styles.css\";`.\n\n### New words\n\n- **Route parameter**: a part of the path that changes, like the `3` in `/api/clubs/3/join`.\n- **Template literal**: a string in backticks, where `${…}` puts a value inside, like `` `/api/clubs/${id}/join` ``.\n",
+      "exampleMarkdown": "Critters with high-five buttons. Each button sends `POST /api/critters/1/high-five` (or 2), then loads the list again. Watch the path change in the **Network** tab. Try adding a third critter in `api/Program.cs` and press **▶ Run**.",
+      "exampleCode": "{\"api/Program.cs\": \"var builder = WebApplication.CreateBuilder(args);\\nvar app = builder.Build();\\n\\nvar critters = new List<Critter>\\n{\\n    new(1, \\\"Pip\\\", 0),\\n    new(2, \\\"Mossy\\\", 2),\\n};\\n\\napp.MapGet(\\\"/api/critters\\\", () => critters);\\n\\napp.MapPost(\\\"/api/critters/{id:int}/high-five\\\", (int id) =>\\n{\\n    var critter = critters.Find(c => c.Id == id);\\n    if (critter is null) return Results.NotFound();\\n    critter.HighFives++;\\n    return Results.Ok(critter);\\n});\\n\\napp.Run();\\n\\nclass Critter(int id, string name, int highFives)\\n{\\n    public int Id { get; } = id;\\n    public string Name { get; } = name;\\n    public int HighFives { get; set; } = highFives;\\n}\\n\", \"web/App.jsx\": \"import { useEffect, useState } from \\\"react\\\";\\n\\nexport default function App() {\\n  const [critters, setCritters] = useState([]);\\n\\n  function load() {\\n    fetch(\\\"/api/critters\\\")\\n      .then((response) => response.json())\\n      .then((data) => setCritters(data));\\n  }\\n\\n  useEffect(() => {\\n    load();\\n  }, []);\\n\\n  async function highFive(id) {\\n    await fetch(`/api/critters/${id}/high-five`, {\\n      method: \\\"POST\\\",\\n    });\\n    load();\\n  }\\n\\n  return (\\n    <ul>\\n      {critters.map((c) => (\\n        <li key={c.id}>\\n          {c.name}: {c.highFives} high fives\\n          <button onClick={() => highFive(c.id)}>High five!</button>\\n        </li>\\n      ))}\\n    </ul>\\n  );\\n}\\n\", \"web/main.jsx\": \"import { createRoot } from \\\"react-dom/client\\\";\\nimport App from \\\"./App.jsx\\\";\\n\\ncreateRoot(document.getElementById(\\\"root\\\")).render(<App />);\\n\", \"web/index.html\": \"<!DOCTYPE html>\\n<html lang=\\\"en\\\">\\n  <head>\\n    <title>High fives</title>\\n  </head>\\n  <body>\\n    <div id=\\\"root\\\"></div>\\n    <script type=\\\"module\\\" src=\\\"main.jsx\\\"></script>\\n  </body>\\n</html>\\n\"}",
+      "challenge": {
+        "kind": "FullStack",
+        "xpReward": 20,
+        "continuesFrom": "clubhub-signup-explorer",
+        "carryFiles": [
+          "web/App.jsx",
+          "web/NewClubForm.jsx"
+        ],
+        "instructionsMarkdown": "**Make the Club Hub yours!** The server now counts each club's members, and `POST /api/clubs/{id}/join` adds one. Your `App.jsx` and `NewClubForm.jsx` are here from last time.\n\n1. Show each club's members after its day, like *Acorn Artists meets on Friday: 3 members*.\n2. Give each club a **Join** button. It should POST to `/api/clubs/${id}/join`, then load the clubs again.\n3. Give your hub **its own name** in the `<h1>`. Then change the colors in `styles.css`, if you like!",
+        "starterFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport NewClubForm from \"./NewClubForm.jsx\";\n\nexport default function App() {\n  const [clubs, setClubs] = useState([]);\n\n  function loadClubs() {\n    fetch(\"/api/clubs\")\n      .then((response) => response.json())\n      .then((data) => setClubs(data));\n  }\n\n  useEffect(() => {\n    loadClubs();\n  }, []);\n\n  return (\n    <main>\n      <h1>Grove Club Hub</h1>\n      <ul id=\"clubs\">\n        {clubs.map((club) => (\n          <li key={club.id}>\n            {club.name} meets on {club.meets}\n          </li>\n        ))}\n      </ul>\n      <NewClubForm onAdded={loadClubs} />\n    </main>\n  );\n}\n",
+          "web/NewClubForm.jsx": "import { useState } from \"react\";\n\nconst DAYS = [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"];\n\nexport default function NewClubForm({ onAdded }) {\n  const [name, setName] = useState(\"\");\n  const [meets, setMeets] = useState(\"Monday\");\n  const [error, setError] = useState(\"\");\n\n  async function handleSubmit(event) {\n    event.preventDefault();\n    const response = await fetch(\"/api/clubs\", {\n      method: \"POST\",\n      headers: { \"Content-Type\": \"application/json\" },\n      body: JSON.stringify({ name, meets }),\n    });\n    if (response.ok) {\n      setName(\"\");\n      setError(\"\");\n      onAdded();\n    } else {\n      setError(await response.json());\n    }\n  }\n\n  return (\n    <form id=\"new-club\" onSubmit={handleSubmit}>\n      <h2>Start a new club</h2>\n      <label htmlFor=\"club-name\">Club name</label>\n      <input\n        id=\"club-name\"\n        value={name}\n        onChange={(e) => setName(e.target.value)}\n      />\n      <label htmlFor=\"club-day\">Meets on</label>\n      <select\n        id=\"club-day\"\n        value={meets}\n        onChange={(e) => setMeets(e.target.value)}\n      >\n        {DAYS.map((day) => (\n          <option key={day}>{day}</option>\n        ))}\n      </select>\n      <button type=\"submit\">Start club</button>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n    </form>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\nimport \"./styles.css\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/styles.css": "/* Make the Club Hub look like yours!\n   Change these colors, or add your own rules. */\nbody {\n  font-family: sans-serif;\n  background: #f0fdf4;\n  color: #14532d;\n}\n\nh1 {\n  color: #15803d;\n}\n\nbutton {\n  margin-left: 8px;\n}\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\", Members = 4 },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\", Members = 6 },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\", Members = 3 });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\n// Join a club: one more member.\napp.MapPost(\"/api/clubs/{id:int}/join\", (int id, ClubDb db) =>\n{\n    var club = db.Clubs.Find(id);\n    if (club is null) return Results.NotFound();\n    club.Members++;\n    db.SaveChanges();\n    return Results.Ok(club);\n});\n\napp.Run();\n",
+          "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n    public int Members { get; set; }\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
+        },
+        "solutionFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport NewClubForm from \"./NewClubForm.jsx\";\n\nexport default function App() {\n  const [clubs, setClubs] = useState([]);\n\n  function loadClubs() {\n    fetch(\"/api/clubs\")\n      .then((response) => response.json())\n      .then((data) => setClubs(data));\n  }\n\n  useEffect(() => {\n    loadClubs();\n  }, []);\n\n  async function join(id) {\n    await fetch(`/api/clubs/${id}/join`, { method: \"POST\" });\n    loadClubs();\n  }\n\n  return (\n    <main>\n      <h1>Pip's Club Corner</h1>\n      <ul id=\"clubs\">\n        {clubs.map((club) => (\n          <li key={club.id}>\n            {club.name} meets on {club.meets}: {club.members} members\n            <button onClick={() => join(club.id)}>Join</button>\n          </li>\n        ))}\n      </ul>\n      <NewClubForm onAdded={loadClubs} />\n    </main>\n  );\n}\n",
+          "web/NewClubForm.jsx": "import { useState } from \"react\";\n\nconst DAYS = [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"];\n\nexport default function NewClubForm({ onAdded }) {\n  const [name, setName] = useState(\"\");\n  const [meets, setMeets] = useState(\"Monday\");\n  const [error, setError] = useState(\"\");\n\n  async function handleSubmit(event) {\n    event.preventDefault();\n    const response = await fetch(\"/api/clubs\", {\n      method: \"POST\",\n      headers: { \"Content-Type\": \"application/json\" },\n      body: JSON.stringify({ name, meets }),\n    });\n    if (response.ok) {\n      setName(\"\");\n      setError(\"\");\n      onAdded();\n    } else {\n      setError(await response.json());\n    }\n  }\n\n  return (\n    <form id=\"new-club\" onSubmit={handleSubmit}>\n      <h2>Start a new club</h2>\n      <label htmlFor=\"club-name\">Club name</label>\n      <input\n        id=\"club-name\"\n        value={name}\n        onChange={(e) => setName(e.target.value)}\n      />\n      <label htmlFor=\"club-day\">Meets on</label>\n      <select\n        id=\"club-day\"\n        value={meets}\n        onChange={(e) => setMeets(e.target.value)}\n      >\n        {DAYS.map((day) => (\n          <option key={day}>{day}</option>\n        ))}\n      </select>\n      <button type=\"submit\">Start club</button>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n    </form>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\nimport \"./styles.css\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/styles.css": "/* Make the Club Hub look like yours!\n   Change these colors, or add your own rules. */\nbody {\n  font-family: sans-serif;\n  background: #f0fdf4;\n  color: #14532d;\n}\n\nh1 {\n  color: #15803d;\n}\n\nbutton {\n  margin-left: 8px;\n}\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Grove Club Hub</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<ClubDb>(\n    o => o.UseInMemoryDatabase(\"clubs\"));\nvar app = builder.Build();\n\n// The clubs the Grove starts with.\nusing (var scope = app.Services.CreateScope())\n{\n    var db = scope.ServiceProvider\n        .GetRequiredService<ClubDb>();\n    db.Clubs.AddRange(\n        new Club { Name = \"Owl Watchers\", Meets = \"Monday\", Members = 4 },\n        new Club { Name = \"Frog Choir\", Meets = \"Wednesday\", Members = 6 },\n        new Club { Name = \"Acorn Artists\", Meets = \"Friday\", Members = 3 });\n    db.SaveChanges();\n}\n\n// Every club, A to Z.\napp.MapGet(\"/api/clubs\", (ClubDb db) =>\n    db.Clubs.OrderBy(c => c.Name).ToList());\n\n// Start a new club. It needs a name.\napp.MapPost(\"/api/clubs\", (Club club, ClubDb db) =>\n{\n    if (string.IsNullOrWhiteSpace(club.Name))\n        return Results.BadRequest(\"A club needs a name.\");\n    db.Clubs.Add(club);\n    db.SaveChanges();\n    return Results.Created($\"/api/clubs/{club.Id}\", club);\n});\n\n// Join a club: one more member.\napp.MapPost(\"/api/clubs/{id:int}/join\", (int id, ClubDb db) =>\n{\n    var club = db.Clubs.Find(id);\n    if (club is null) return Results.NotFound();\n    club.Members++;\n    db.SaveChanges();\n    return Results.Ok(club);\n});\n\napp.Run();\n",
+          "api/Club.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Club\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Meets { get; set; } = \"\";\n    public int Members { get; set; }\n}\n\npublic class ClubDb(DbContextOptions<ClubDb> options)\n    : DbContext(options)\n{\n    public DbSet<Club> Clubs => Set<Club>();\n}\n"
+        },
+        "tests": [
+          {
+            "label": "Each club shows its members",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "document.querySelector('#clubs li').textContent.includes('3 members')",
+              "equals": true
+            },
+            "failMessage": "Show club.members after the day, like: Acorn Artists meets on Friday: 3 members."
+          },
+          {
+            "label": "Join Acorn Artists",
+            "kind": "interact",
+            "spec": {
+              "selector": "#clubs li button",
+              "click": true
+            },
+            "failMessage": "Each club needs a Join button inside its <li>."
+          },
+          {
+            "label": "The button asks the server",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "window.__cgLiveLog.filter((r) => r === 'POST /api/clubs/3/join').length",
+              "equals": 1
+            },
+            "failMessage": "Clicking Join should send POST /api/clubs/3/join once. Use fetch(`/api/clubs/${id}/join`, { method: \"POST\" })."
+          },
+          {
+            "label": "One more member",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "document.querySelector('#clubs li').textContent.includes('4 members')",
+              "equals": true
+            },
+            "failMessage": "After joining, the list should show 4 members. Call loadClubs() after the server answers."
+          },
+          {
+            "label": "Your hub has its own name",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "(document.querySelector('h1')?.textContent ?? 'Grove Club Hub').trim() !== 'Grove Club Hub' && document.querySelector('h1').textContent.trim().length > 0",
+              "equals": true
+            },
+            "failMessage": "Change the <h1> to your hub's own name."
+          },
+          {
+            "label": "The page runs without errors",
+            "kind": "noErrors",
+            "spec": {
+              "side": "web"
+            },
+            "failMessage": "Your page has an error. Look at the Console under the preview."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "The path needs the club's id in the middle. How can you put a value inside a string?",
+            "speechText": "The path needs the club's id in the middle. How can you put a value inside a string?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Write a `join(id)` function that fetches `` `/api/clubs/${id}/join` `` with `method: \"POST\"`, then calls `loadClubs()`. In the list, add `<button onClick={() => join(club.id)}>Join</button>`.",
+            "speechText": "Write a join function that posts to the club's join path, using backticks to put the id inside, and then loads the clubs again. Give each list item a button that calls join with that club's id.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "```jsx\nasync function join(id) {\n  await fetch(`/api/clubs/${id}/join`, { method: \"POST\" });\n  loadClubs();\n}\n```\n\nIn the `<li>`: `{club.name} meets on {club.meets}: {club.members} members` and the Join button.",
+            "speechText": "Copy the high five function from the example, with the join path, and show the members after the day. Then put the button in each list item.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "In /api/clubs/3/join, what does the 3 say?",
+            "explanation": "It's a route parameter: which club to join.",
+            "options": [
+              {
+                "text": "Which club to join",
+                "correct": true
+              },
+              {
+                "text": "How many members to add",
+                "correct": false
+              },
+              {
+                "text": "The day the club meets",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "The id is 7. What does `/api/clubs/${id}/join` become?",
+            "explanation": "In a template literal, ${id} is replaced by the value: /api/clubs/7/join.",
+            "options": [
+              {
+                "text": "/api/clubs/7/join",
+                "correct": true
+              },
+              {
+                "text": "/api/clubs/${id}/join",
+                "correct": false
+              },
+              {
+                "text": "/api/clubs/id/join",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why does join call loadClubs() after the server answers?",
+            "explanation": "The server changed the count; loading again shows the new number on the page.",
+            "options": [
+              {
+                "text": "To show the new member count",
+                "correct": true
+              },
+              {
+                "text": "To send the join again",
+                "correct": false
+              },
+              {
+                "text": "Because the button needs it to work",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "league-forms",
       "title": "Forms that talk back",
       "sortOrder": 5,
       "ageBand": "Builder",
-      "estimatedMinutes": 25,
-      "isPublished": false
+      "estimatedMinutes": 30,
+      "isPublished": true,
+      "learnMarkdown": "## Closing the loop\n\nLast milestone your API learned to refuse bad results with a message for each field. A form that throws those messages away, or shows one vague *Something went wrong*, wastes that work. Good forms put each message next to the field it's about, announce it to screen readers, and update the rest of the page once a change is saved. That last part is where many real apps go stale. In this milestone your page and your API from last time come along, and the league gets a results form.\n\n### Controlled inputs give you strings\n\n```jsx\n<input type=\"number\" value={form.homeGoals}\n  onChange={(e) => update(\"homeGoals\", e.target.value)} />\n```\n\n`e.target.value` is always a string, even for `type=\"number\"`, and a `<select>` gives you the option's `value` as a string too. Convert when you build the request: `Number(form.homeGoals)`. (ASP.NET Core happens to read `\"2\"` into an `int`, but many APIs refuse it, and your API's contract says numbers.) Keep the form state as strings, so an empty box stays empty instead of turning into `0` while someone types.\n\n### From problem details to fields\n\nA validation problem looks like this:\n\n```json\n{\n  \"title\": \"One or more validation errors occurred.\",\n  \"status\": 400,\n  \"errors\": {\n    \"awayTeamId\": [\"A team can't play itself.\"],\n    \"homeGoals\": [\"Goals can't be below 0.\"]\n  }\n}\n```\n\nKeep `errors` in state as it came, and give each field `errors.homeGoals?.[0]`. Because the keys are the API's field names, the page needs no message table of its own. Clear `errors` once a submission works.\n\n### Accessible errors\n\nRed text under a field means nothing to someone using a screen reader. Two attributes connect it:\n\n- `aria-invalid=\"true\"` on the control says *this field has a problem*.\n- `aria-describedby=\"home-goals-error\"` points to the message, so it's read out with the field.\n\n`ResultForm.jsx` has a small `Field` component that does both. It passes the attributes to its control through a render function, so the form can't forget them.\n\n### Refresh after a write\n\nYour standings come from an effect that depends on `[division]`. Record a result and nothing about `division` changes, so the table stays stale. One simple fix is a counter that's bumped after every successful write:\n\n```jsx\nconst [version, setVersion] = useState(0);\nuseEffect(() => { /* fetch standings */ }, [division, version]);\n<ResultForm onRecorded={() => setVersion((v) => v + 1)} />\n```\n\n(Libraries like TanStack Query call this *invalidating* a query. The idea is the same.)\n\n### New words\n\n- **Controlled input**: an input whose value comes from React state and goes back through `onChange`.\n- **Render prop**: a component that takes a function as its child and calls it, like `Field` passing attributes to its control.\n- **aria-invalid / aria-describedby**: attributes that tell assistive technology a field has a problem, and where the message is.\n- **Stale data**: what a page shows after the server's data has changed underneath it.\n",
+      "exampleMarkdown": "A sign-up form. `POST /api/signups` answers a validation problem keyed by `username` and `age`, and the page shows each message under its own field, with `aria-invalid` and `aria-describedby`. Send it empty, then with age 9, then with good values. Compare the bodies in the **Network** tab.",
+      "exampleCode": "{\"api/Program.cs\": \"var builder = WebApplication.CreateBuilder(args);\\nvar app = builder.Build();\\n\\napp.MapPost(\\\"/api/signups\\\", (Signup input) =>\\n{\\n    var errors = new Dictionary<string, string[]>();\\n    if (string.IsNullOrWhiteSpace(input.Username))\\n        errors[\\\"username\\\"] = [\\\"Pick a username.\\\"];\\n    if (input.Age is < 10 or > 17)\\n        errors[\\\"age\\\"] = [\\\"Ages 10 to 17 only.\\\"];\\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\\n    return Results.Ok(new { welcome = input.Username });\\n});\\n\\napp.Run();\\n\\nrecord Signup(string Username, int Age);\\n\", \"web/App.jsx\": \"import { useState } from \\\"react\\\";\\n\\nexport default function App() {\\n  const [form, setForm] = useState({ username: \\\"\\\", age: \\\"\\\" });\\n  const [errors, setErrors] = useState({});\\n  const [done, setDone] = useState(\\\"\\\");\\n\\n  async function send(event) {\\n    event.preventDefault();\\n    const response = await fetch(\\\"/api/signups\\\", {\\n      method: \\\"POST\\\",\\n      headers: { \\\"Content-Type\\\": \\\"application/json\\\" },\\n      body: JSON.stringify({\\n        username: form.username,\\n        age: Number(form.age),\\n      }),\\n    });\\n    const data = await response.json();\\n    if (response.ok) {\\n      setErrors({});\\n      setDone(`Welcome, ${data.welcome}!`);\\n    } else {\\n      setErrors(data.errors ?? {});\\n    }\\n  }\\n\\n  return (\\n    <form onSubmit={send} noValidate>\\n      <label htmlFor=\\\"username\\\">Username</label>\\n      <input\\n        id=\\\"username\\\"\\n        value={form.username}\\n        aria-invalid={errors.username ? \\\"true\\\" : undefined}\\n        aria-describedby=\\\"username-error\\\"\\n        onChange={(e) =>\\n          setForm({ ...form, username: e.target.value })}\\n      />\\n      <p id=\\\"username-error\\\">{errors.username?.[0]}</p>\\n      <label htmlFor=\\\"age\\\">Age</label>\\n      <input\\n        id=\\\"age\\\"\\n        type=\\\"number\\\"\\n        value={form.age}\\n        aria-invalid={errors.age ? \\\"true\\\" : undefined}\\n        aria-describedby=\\\"age-error\\\"\\n        onChange={(e) => setForm({ ...form, age: e.target.value })}\\n      />\\n      <p id=\\\"age-error\\\">{errors.age?.[0]}</p>\\n      <button type=\\\"submit\\\">Sign up</button>\\n      <p role=\\\"status\\\">{done}</p>\\n    </form>\\n  );\\n}\\n\", \"web/main.jsx\": \"import { createRoot } from \\\"react-dom/client\\\";\\nimport App from \\\"./App.jsx\\\";\\n\\ncreateRoot(document.getElementById(\\\"root\\\")).render(<App />);\\n\", \"web/index.html\": \"<!DOCTYPE html>\\n<html lang=\\\"en\\\">\\n  <head>\\n    <title>Sign up</title>\\n  </head>\\n  <body>\\n    <div id=\\\"root\\\"></div>\\n    <script type=\\\"module\\\" src=\\\"main.jsx\\\"></script>\\n  </body>\\n</html>\\n\"}",
+      "challenge": {
+        "kind": "FullStack",
+        "xpReward": 25,
+        "continuesFrom": "league-api-writes",
+        "carryFiles": [
+          "web/App.jsx",
+          "web/StandingsTable.jsx",
+          "api/Program.cs"
+        ],
+        "instructionsMarkdown": "**Give the league a results form.** Your page and your API from last time are here. `web/ResultForm.jsx` is new: its fields, the `Field` component and the error spots are done.\n\n1. **API:** add **`GET /api/teams`**, every team sorted by name, so the form can list them.\n2. **Form:** load the teams when the form first shows. On submit, **POST** the result to `/api/matches` with **numbers**, not strings. **201?** Clear the form and the errors, then call `onRecorded()`. **400?** Put the problem's `errors` in state: each field shows its own message.\n3. **Page:** show `<ResultForm />` under the standings, and make the standings **load again** after a result is recorded. Right now they'd stay stale.\n\nTry it: record Canyon Comets 2, Riverton Otters 0. Then try Canyon Comets against itself, with -1 home goals.",
+        "starterFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    setError(null);\n    fetch(`/api/standings${query}`)\n      .then(async (response) => {\n        const data = await response.json();\n        if (response.ok) {\n          setRows(data);\n        } else {\n          setError(data.title);\n          setRows([]);\n        }\n      });\n  }, [division]);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n    </main>\n  );\n}\n",
+          "web/StandingsTable.jsx": "export default function StandingsTable({ rows }) {\n  return (\n    <table id=\"standings\">\n      <thead>\n        <tr>\n          <th>Team</th>\n          <th>Played</th>\n          <th>Points</th>\n        </tr>\n      </thead>\n      <tbody>\n        {rows.map((row) => (\n          <tr key={row.team}>\n            <td>{row.team}</td>\n            <td>{row.played}</td>\n            <td>{row.points}</td>\n          </tr>\n        ))}\n      </tbody>\n    </table>\n  );\n}\n",
+          "web/ResultForm.jsx": "import { useEffect, useState } from \"react\";\n\nconst EMPTY = {\n  homeTeamId: \"\",\n  awayTeamId: \"\",\n  homeGoals: \"\",\n  awayGoals: \"\",\n};\n\nexport default function ResultForm({ onRecorded }) {\n  const [teams, setTeams] = useState([]);\n  const [form, setForm] = useState(EMPTY);\n  const [errors, setErrors] = useState({});\n\n  // TODO 2: load GET /api/teams into teams\n  // when the form first shows.\n\n  function update(field, value) {\n    setForm({ ...form, [field]: value });\n  }\n\n  async function handleSubmit(event) {\n    event.preventDefault();\n    // TODO 3: POST the result to /api/matches\n    // as numbers. 201? Clear the form and the\n    // errors, then call onRecorded(). 400? Put\n    // the problem's errors in errors.\n  }\n\n  const teamOptions = [\n    <option key=\"\" value=\"\">\n      Choose a team\n    </option>,\n    ...teams.map((t) => (\n      <option key={t.id} value={t.id}>\n        {t.name}\n      </option>\n    )),\n  ];\n\n  return (\n    <form id=\"result-form\" onSubmit={handleSubmit} noValidate>\n      <h2>Record a result</h2>\n      <Field id=\"home-team\" label=\"Home team\"\n        error={errors.homeTeamId?.[0]}>\n        {(props) => (\n          <select {...props} value={form.homeTeamId}\n            onChange={(e) => update(\"homeTeamId\", e.target.value)}>\n            {teamOptions}\n          </select>\n        )}\n      </Field>\n      <Field id=\"away-team\" label=\"Away team\"\n        error={errors.awayTeamId?.[0]}>\n        {(props) => (\n          <select {...props} value={form.awayTeamId}\n            onChange={(e) => update(\"awayTeamId\", e.target.value)}>\n            {teamOptions}\n          </select>\n        )}\n      </Field>\n      <Field id=\"home-goals\" label=\"Home goals\"\n        error={errors.homeGoals?.[0]}>\n        {(props) => (\n          <input {...props} type=\"number\" value={form.homeGoals}\n            onChange={(e) => update(\"homeGoals\", e.target.value)} />\n        )}\n      </Field>\n      <Field id=\"away-goals\" label=\"Away goals\"\n        error={errors.awayGoals?.[0]}>\n        {(props) => (\n          <input {...props} type=\"number\" value={form.awayGoals}\n            onChange={(e) => update(\"awayGoals\", e.target.value)} />\n        )}\n      </Field>\n      <button type=\"submit\">Record result</button>\n    </form>\n  );\n}\n\n// A label, its control, and the API's message.\n// The control gets aria-invalid and\n// aria-describedby, so a screen reader reads\n// the message with it.\nfunction Field({ id, label, error, children }) {\n  const errorId = `${id}-error`;\n  return (\n    <div className=\"field\">\n      <label htmlFor={id}>{label}</label>\n      {children({\n        id,\n        \"aria-invalid\": error ? \"true\" : undefined,\n        \"aria-describedby\": error ? errorId : undefined,\n      })}\n      {error && (\n        <p id={errorId} className=\"field-error\">\n          {error}\n        </p>\n      )}\n    </div>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.MapPost(\"/api/matches\", (NewMatch input, LeagueDb db) =>\n{\n    var errors = new Dictionary<string, string[]>();\n    if (db.Teams.Find(input.HomeTeamId) is null)\n        errors[\"homeTeamId\"] = [$\"There's no team {input.HomeTeamId}.\"];\n    if (db.Teams.Find(input.AwayTeamId) is null)\n        errors[\"awayTeamId\"] = [$\"There's no team {input.AwayTeamId}.\"];\n    else if (input.AwayTeamId == input.HomeTeamId)\n        errors[\"awayTeamId\"] = [\"A team can't play itself.\"];\n    if (input.HomeGoals < 0)\n        errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\n    if (input.AwayGoals < 0)\n        errors[\"awayGoals\"] = [\"Goals can't be below 0.\"];\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\n\n    var match = new Match\n    {\n        HomeTeamId = input.HomeTeamId,\n        AwayTeamId = input.AwayTeamId,\n        HomeGoals = input.HomeGoals,\n        AwayGoals = input.AwayGoals,\n    };\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\napp.MapGet(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n    db.Matches.Find(id) is { } match\n        ? Results.Ok(match)\n        : Results.NotFound());\n\napp.MapDelete(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n{\n    if (db.Matches.Find(id) is not { } match) return Results.NotFound();\n    db.Matches.Remove(match);\n    db.SaveChanges();\n    return Results.NoContent();\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+        },
+        "solutionFiles": {
+          "web/App.jsx": "import { useEffect, useState } from \"react\";\nimport StandingsTable from \"./StandingsTable.jsx\";\nimport ResultForm from \"./ResultForm.jsx\";\n\n// \"moon\" isn't a real division: it's there to\n// see what the page does when the API says no.\nconst DIVISIONS = [\"all\", \"north\", \"south\", \"moon\"];\n\nexport default function App() {\n  const [division, setDivision] = useState(\"all\");\n  const [rows, setRows] = useState(null);\n  const [error, setError] = useState(null);\n  // Bumped after a result is recorded, so the\n  // effect fetches the standings again.\n  const [version, setVersion] = useState(0);\n\n  useEffect(() => {\n    const query =\n      division === \"all\" ? \"\" : `?division=${division}`;\n    setError(null);\n    fetch(`/api/standings${query}`)\n      .then(async (response) => {\n        const data = await response.json();\n        if (response.ok) {\n          setRows(data);\n        } else {\n          setError(data.title);\n          setRows([]);\n        }\n      });\n  }, [division, version]);\n\n  return (\n    <main>\n      <h1>Junior League standings</h1>\n      <nav aria-label=\"Divisions\">\n        {DIVISIONS.map((d) => (\n          <button\n            key={d}\n            id={`show-${d}`}\n            aria-pressed={d === division}\n            onClick={() => setDivision(d)}\n          >\n            {d}\n          </button>\n        ))}\n      </nav>\n      {error && (\n        <p id=\"error\" role=\"alert\">\n          {error}\n        </p>\n      )}\n      {rows === null ? (\n        <p>Loading standings…</p>\n      ) : (\n        <StandingsTable rows={rows} />\n      )}\n      <ResultForm onRecorded={() => setVersion((v) => v + 1)} />\n    </main>\n  );\n}\n",
+          "web/StandingsTable.jsx": "export default function StandingsTable({ rows }) {\n  return (\n    <table id=\"standings\">\n      <thead>\n        <tr>\n          <th>Team</th>\n          <th>Played</th>\n          <th>Points</th>\n        </tr>\n      </thead>\n      <tbody>\n        {rows.map((row) => (\n          <tr key={row.team}>\n            <td>{row.team}</td>\n            <td>{row.played}</td>\n            <td>{row.points}</td>\n          </tr>\n        ))}\n      </tbody>\n    </table>\n  );\n}\n",
+          "web/ResultForm.jsx": "import { useEffect, useState } from \"react\";\n\nconst EMPTY = {\n  homeTeamId: \"\",\n  awayTeamId: \"\",\n  homeGoals: \"\",\n  awayGoals: \"\",\n};\n\nexport default function ResultForm({ onRecorded }) {\n  const [teams, setTeams] = useState([]);\n  const [form, setForm] = useState(EMPTY);\n  const [errors, setErrors] = useState({});\n\n  useEffect(() => {\n    fetch(\"/api/teams\")\n      .then((response) => response.json())\n      .then((data) => setTeams(data));\n  }, []);\n\n  function update(field, value) {\n    setForm({ ...form, [field]: value });\n  }\n\n  async function handleSubmit(event) {\n    event.preventDefault();\n    const response = await fetch(\"/api/matches\", {\n      method: \"POST\",\n      headers: { \"Content-Type\": \"application/json\" },\n      body: JSON.stringify({\n        homeTeamId: Number(form.homeTeamId),\n        awayTeamId: Number(form.awayTeamId),\n        homeGoals: Number(form.homeGoals),\n        awayGoals: Number(form.awayGoals),\n      }),\n    });\n    if (response.ok) {\n      setForm(EMPTY);\n      setErrors({});\n      onRecorded();\n    } else {\n      const problem = await response.json();\n      setErrors(problem.errors ?? {});\n    }\n  }\n\n  const teamOptions = [\n    <option key=\"\" value=\"\">\n      Choose a team\n    </option>,\n    ...teams.map((t) => (\n      <option key={t.id} value={t.id}>\n        {t.name}\n      </option>\n    )),\n  ];\n\n  return (\n    <form id=\"result-form\" onSubmit={handleSubmit} noValidate>\n      <h2>Record a result</h2>\n      <Field id=\"home-team\" label=\"Home team\"\n        error={errors.homeTeamId?.[0]}>\n        {(props) => (\n          <select {...props} value={form.homeTeamId}\n            onChange={(e) => update(\"homeTeamId\", e.target.value)}>\n            {teamOptions}\n          </select>\n        )}\n      </Field>\n      <Field id=\"away-team\" label=\"Away team\"\n        error={errors.awayTeamId?.[0]}>\n        {(props) => (\n          <select {...props} value={form.awayTeamId}\n            onChange={(e) => update(\"awayTeamId\", e.target.value)}>\n            {teamOptions}\n          </select>\n        )}\n      </Field>\n      <Field id=\"home-goals\" label=\"Home goals\"\n        error={errors.homeGoals?.[0]}>\n        {(props) => (\n          <input {...props} type=\"number\" value={form.homeGoals}\n            onChange={(e) => update(\"homeGoals\", e.target.value)} />\n        )}\n      </Field>\n      <Field id=\"away-goals\" label=\"Away goals\"\n        error={errors.awayGoals?.[0]}>\n        {(props) => (\n          <input {...props} type=\"number\" value={form.awayGoals}\n            onChange={(e) => update(\"awayGoals\", e.target.value)} />\n        )}\n      </Field>\n      <button type=\"submit\">Record result</button>\n    </form>\n  );\n}\n\n// A label, its control, and the API's message.\n// The control gets aria-invalid and\n// aria-describedby, so a screen reader reads\n// the message with it.\nfunction Field({ id, label, error, children }) {\n  const errorId = `${id}-error`;\n  return (\n    <div className=\"field\">\n      <label htmlFor={id}>{label}</label>\n      {children({\n        id,\n        \"aria-invalid\": error ? \"true\" : undefined,\n        \"aria-describedby\": error ? errorId : undefined,\n      })}\n      {error && (\n        <p id={errorId} className=\"field-error\">\n          {error}\n        </p>\n      )}\n    </div>\n  );\n}\n",
+          "web/main.jsx": "import { createRoot } from \"react-dom/client\";\nimport App from \"./App.jsx\";\n\ncreateRoot(document.getElementById(\"root\")).render(<App />);\n",
+          "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>Junior League</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"main.jsx\"></script>\n  </body>\n</html>\n",
+          "api/Program.cs": "using Microsoft.EntityFrameworkCore;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddDbContext<LeagueDb>(\n    o => o.UseInMemoryDatabase(\"league\"));\nvar app = builder.Build();\n\n// Creates the database with its seed rows.\nusing (var scope = app.Services.CreateScope())\n{\n    scope.ServiceProvider.GetRequiredService<LeagueDb>()\n        .Database.EnsureCreated();\n}\n\n// GET /api/standings?division=north (or south).\n// Other divisions: 400, with problem details.\napp.MapGet(\"/api/standings\", (string division, LeagueDb db) =>\n{\n    if (division is not null && division is not (\"north\" or \"south\"))\n        return Results.Problem(\n            title: $\"There's no {division} division.\",\n            statusCode: 400);\n\n    var teams = db.Teams\n        .Where(t => division == null || t.Division == division)\n        .ToList();\n    var matches = db.Matches.ToList();\n    var table = teams\n        .Select(t => new Standing(\n            t.Name,\n            matches.Count(m => Plays(m, t.Id)),\n            matches.Sum(m => Points(m, t.Id))))\n        .OrderByDescending(s => s.Points)\n        .ThenBy(s => s.Team)\n        .ToList();\n    return Results.Ok(table);\n});\n\napp.MapGet(\"/api/teams\", (LeagueDb db) =>\n    db.Teams.OrderBy(t => t.Name).ToList());\n\napp.MapPost(\"/api/matches\", (NewMatch input, LeagueDb db) =>\n{\n    var errors = new Dictionary<string, string[]>();\n    if (db.Teams.Find(input.HomeTeamId) is null)\n        errors[\"homeTeamId\"] = [$\"There's no team {input.HomeTeamId}.\"];\n    if (db.Teams.Find(input.AwayTeamId) is null)\n        errors[\"awayTeamId\"] = [$\"There's no team {input.AwayTeamId}.\"];\n    else if (input.AwayTeamId == input.HomeTeamId)\n        errors[\"awayTeamId\"] = [\"A team can't play itself.\"];\n    if (input.HomeGoals < 0)\n        errors[\"homeGoals\"] = [\"Goals can't be below 0.\"];\n    if (input.AwayGoals < 0)\n        errors[\"awayGoals\"] = [\"Goals can't be below 0.\"];\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\n\n    var match = new Match\n    {\n        HomeTeamId = input.HomeTeamId,\n        AwayTeamId = input.AwayTeamId,\n        HomeGoals = input.HomeGoals,\n        AwayGoals = input.AwayGoals,\n    };\n    db.Matches.Add(match);\n    db.SaveChanges();\n    return Results.Created($\"/api/matches/{match.Id}\", match);\n});\n\napp.MapGet(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n    db.Matches.Find(id) is { } match\n        ? Results.Ok(match)\n        : Results.NotFound());\n\napp.MapDelete(\"/api/matches/{id:int}\", (int id, LeagueDb db) =>\n{\n    if (db.Matches.Find(id) is not { } match) return Results.NotFound();\n    db.Matches.Remove(match);\n    db.SaveChanges();\n    return Results.NoContent();\n});\n\napp.Run();\n\nstatic bool Plays(Match m, int team) =>\n    m.HomeTeamId == team || m.AwayTeamId == team;\n\n// 3 points for a win, 1 for a draw.\nstatic int Points(Match m, int team)\n{\n    if (!Plays(m, team)) return 0;\n    var home = m.HomeTeamId == team;\n    var mine = home ? m.HomeGoals : m.AwayGoals;\n    var theirs = home ? m.AwayGoals : m.HomeGoals;\n    return mine > theirs ? 3 : mine == theirs ? 1 : 0;\n}\n",
+          "api/Models.cs": "using Microsoft.EntityFrameworkCore;\n\npublic class Team\n{\n    public int Id { get; set; }\n    public string Name { get; set; } = \"\";\n    public string Division { get; set; } = \"\";\n}\n\npublic class Match\n{\n    public int Id { get; set; }\n    public int HomeTeamId { get; set; }\n    public int AwayTeamId { get; set; }\n    public int HomeGoals { get; set; }\n    public int AwayGoals { get; set; }\n}\n\n// One row of the standings table.\npublic record Standing(string Team, int Played, int Points);\n\n// What a client sends to record a result.\npublic record NewMatch(\n    int HomeTeamId, int AwayTeamId,\n    int HomeGoals, int AwayGoals);\n\npublic class LeagueDb(DbContextOptions<LeagueDb> options)\n    : DbContext(options)\n{\n    public DbSet<Team> Teams => Set<Team>();\n    public DbSet<Match> Matches => Set<Match>();\n\n    protected override void OnModelCreating(ModelBuilder model)\n    {\n        model.Entity<Team>().HasData(\n            T(1, \"Riverton Otters\", \"north\"),\n            T(2, \"Hilltop Hawks\", \"north\"),\n            T(3, \"Lakeside Lynx\", \"south\"),\n            T(4, \"Meadow Mice\", \"south\"),\n            T(5, \"Canyon Comets\", \"south\"));\n        model.Entity<Match>().HasData(\n            M(1, 1, 2, 1, 2),\n            M(2, 3, 4, 2, 2),\n            M(3, 2, 3, 3, 0),\n            M(4, 4, 1, 0, 1),\n            M(5, 1, 3, 2, 2),\n            M(6, 2, 4, 1, 1));\n    }\n\n    static Team T(int id, string name, string division) =>\n        new() { Id = id, Name = name, Division = division };\n\n    static Match M(int id, int home, int away, int hg, int ag) =>\n        new()\n        {\n            Id = id, HomeTeamId = home, AwayTeamId = away,\n            HomeGoals = hg, AwayGoals = ag,\n        };\n}\n"
+        },
+        "tests": [
+          {
+            "label": "1. GET /api/teams lists every team by name",
+            "kind": "httpRequest",
+            "spec": {
+              "path": "/api/teams",
+              "expectStatus": 200,
+              "expectJson": [
+                {
+                  "id": 5,
+                  "name": "Canyon Comets",
+                  "division": "south"
+                },
+                {
+                  "id": 2,
+                  "name": "Hilltop Hawks",
+                  "division": "north"
+                },
+                {
+                  "id": 3,
+                  "name": "Lakeside Lynx",
+                  "division": "south"
+                },
+                {
+                  "id": 4,
+                  "name": "Meadow Mice",
+                  "division": "south"
+                },
+                {
+                  "id": 1,
+                  "name": "Riverton Otters",
+                  "division": "north"
+                }
+              ]
+            },
+            "failMessage": "GET /api/teams should answer every team, sorted by name: db.Teams.OrderBy(t => t.Name)."
+          },
+          {
+            "label": "2. The team menus list every team",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('#home-team option')].map((o) => o.textContent.trim()).slice(1)",
+              "equals": [
+                "Canyon Comets",
+                "Hilltop Hawks",
+                "Lakeside Lynx",
+                "Meadow Mice",
+                "Riverton Otters"
+              ]
+            },
+            "failMessage": "Show <ResultForm /> on the page, and load GET /api/teams into teams when the form first shows."
+          },
+          {
+            "label": "Choose Canyon Comets at home",
+            "kind": "interact",
+            "spec": {
+              "selector": "#home-team",
+              "type": "5"
+            },
+            "failMessage": "The form should have its home team menu (id home-team)."
+          },
+          {
+            "label": "Choose Riverton Otters away",
+            "kind": "interact",
+            "spec": {
+              "selector": "#away-team",
+              "type": "1"
+            },
+            "failMessage": "The form should have its away team menu (id away-team)."
+          },
+          {
+            "label": "Home goals: 2",
+            "kind": "interact",
+            "spec": {
+              "selector": "#home-goals",
+              "type": "2"
+            },
+            "failMessage": "The form should have its home goals box."
+          },
+          {
+            "label": "Away goals: 0",
+            "kind": "interact",
+            "spec": {
+              "selector": "#away-goals",
+              "type": "0"
+            },
+            "failMessage": "The form should have its away goals box."
+          },
+          {
+            "label": "Record it",
+            "kind": "interact",
+            "spec": {
+              "selector": "#result-form button[type=submit]",
+              "click": true
+            },
+            "failMessage": "The form should have its Record result button."
+          },
+          {
+            "label": "2. The form sends one POST /api/matches",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "window.__cgLiveLog.filter((r) => r === 'POST /api/matches').length",
+              "equals": 1
+            },
+            "failMessage": "Submitting should send POST /api/matches once."
+          },
+          {
+            "label": "3. The standings update",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "[...document.querySelectorAll('#standings tbody tr')].map((r) => [...r.cells].map((c) => c.textContent.trim()))",
+              "equals": [
+                [
+                  "Hilltop Hawks",
+                  "3",
+                  "7"
+                ],
+                [
+                  "Riverton Otters",
+                  "4",
+                  "4"
+                ],
+                [
+                  "Canyon Comets",
+                  "1",
+                  "3"
+                ],
+                [
+                  "Lakeside Lynx",
+                  "3",
+                  "2"
+                ],
+                [
+                  "Meadow Mice",
+                  "3",
+                  "2"
+                ]
+              ]
+            },
+            "failMessage": "After a result is recorded, the standings should load again (Canyon Comets on 3 points). Call onRecorded(), and make the effect depend on something it changes."
+          },
+          {
+            "label": "2. The form clears after a good result",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "document.getElementById('home-goals').value",
+              "equals": ""
+            },
+            "failMessage": "After a 201, set the form back to EMPTY."
+          },
+          {
+            "label": "Canyon Comets against itself",
+            "kind": "interact",
+            "spec": {
+              "selector": "#home-team",
+              "type": "5"
+            },
+            "failMessage": "The form should have its home team menu."
+          },
+          {
+            "label": "Away: Canyon Comets",
+            "kind": "interact",
+            "spec": {
+              "selector": "#away-team",
+              "type": "5"
+            },
+            "failMessage": "The form should have its away team menu."
+          },
+          {
+            "label": "Home goals: -1",
+            "kind": "interact",
+            "spec": {
+              "selector": "#home-goals",
+              "type": "-1"
+            },
+            "failMessage": "The form should have its home goals box."
+          },
+          {
+            "label": "Away goals: 0 again",
+            "kind": "interact",
+            "spec": {
+              "selector": "#away-goals",
+              "type": "0"
+            },
+            "failMessage": "The form should have its away goals box."
+          },
+          {
+            "label": "Record the bad result",
+            "kind": "interact",
+            "spec": {
+              "selector": "#result-form button[type=submit]",
+              "click": true
+            },
+            "failMessage": "The form should have its Record result button."
+          },
+          {
+            "label": "2. Each field shows the API's message",
+            "kind": "jsExpression",
+            "spec": {
+              "expression": "['away-team', 'home-goals'].map((id) => document.getElementById(id + '-error')?.textContent.trim() ?? null)",
+              "equals": [
+                "A team can't play itself.",
+                "Goals can't be below 0."
+              ]
+            },
+            "failMessage": "On a 400, put the problem's errors in state: setErrors(problem.errors). Each field shows errors.<field>?.[0]."
+          },
+          {
+            "label": "2. The goals box is marked invalid for screen readers",
+            "kind": "attribute",
+            "spec": {
+              "selector": "#home-goals",
+              "name": "aria-invalid",
+              "equals": "true"
+            },
+            "failMessage": "A field with an error should have aria-invalid=\"true\" (the Field component does this when it gets an error)."
+          },
+          {
+            "label": "2. The message is linked to its box",
+            "kind": "attribute",
+            "spec": {
+              "selector": "#home-goals",
+              "name": "aria-describedby",
+              "equals": "home-goals-error"
+            },
+            "failMessage": "The goals box should point to its message with aria-describedby=\"home-goals-error\"."
+          },
+          {
+            "label": "No errors in the console",
+            "kind": "noErrors",
+            "spec": {
+              "side": "web"
+            },
+            "failMessage": "Your page logged an error. Look at the Console under the preview."
+          }
+        ],
+        "hints": [
+          {
+            "level": 1,
+            "markdown": "Record a result, then look at the **Network** tab. Did the page ask for the standings again? What would make the standings effect run once more?",
+            "speechText": "Record a result, then look at the network tab. Did the page ask for the standings again? What would make the standings effect run once more?",
+            "mood": "Thinking"
+          },
+          {
+            "level": 2,
+            "markdown": "Add `const [version, setVersion] = useState(0)`, put `version` in the effect's dependency array, and pass `onRecorded={() => setVersion((v) => v + 1)}`. In the form, send `Number(...)` for each field, and on a 400 call `setErrors(problem.errors ?? {})`. Don't forget `GET /api/teams` in `Program.cs`.",
+            "speechText": "Keep a version number in state, put it in the standings effect's dependency array, and bump it when a result is recorded. In the form, convert each field to a number, and on a four hundred, put the problem's errors in state. Don't forget the teams endpoint in the A P I.",
+            "mood": "Encouraging"
+          },
+          {
+            "level": 3,
+            "markdown": "The submit:\n\n```jsx\nconst response = await fetch(\"/api/matches\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({\n    homeTeamId: Number(form.homeTeamId),\n    awayTeamId: Number(form.awayTeamId),\n    homeGoals: Number(form.homeGoals),\n    awayGoals: Number(form.awayGoals),\n  }),\n});\nif (response.ok) {\n  setForm(EMPTY);\n  setErrors({});\n  onRecorded();\n} else {\n  setErrors((await response.json()).errors ?? {});\n}\n```\n\nThe API: `app.MapGet(\"/api/teams\", (LeagueDb db) => db.Teams.OrderBy(t => t.Name).ToList());`",
+            "speechText": "Post the four fields as numbers. If the answer is ok, reset the form and the errors and call on recorded, otherwise put the problem's errors in state. In the A P I, map get teams to the teams ordered by name.",
+            "mood": "Encouraging"
+          }
+        ]
+      },
+      "quiz": {
+        "passPercent": 60,
+        "questions": [
+          {
+            "prompt": "An <input type=\"number\"> shows 2. What is e.target.value?",
+            "explanation": "Input values are always strings, even for type=\"number\". Convert with Number() when you send them.",
+            "options": [
+              {
+                "text": "The string \"2\"",
+                "correct": true
+              },
+              {
+                "text": "The number 2",
+                "correct": false
+              },
+              {
+                "text": "null until the form is submitted",
+                "correct": false
+              },
+              {
+                "text": "An array with 2 in it",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "A validation problem's errors has awayTeamId: [\"A team can't play itself.\"]. Where should the message go?",
+            "explanation": "Next to the away team field, linked to it with aria-describedby.",
+            "options": [
+              {
+                "text": "Next to the away team field, linked with aria-describedby",
+                "correct": true
+              },
+              {
+                "text": "In a browser alert dialog",
+                "correct": false
+              },
+              {
+                "text": "At the top of the page, for every error at once only",
+                "correct": false
+              },
+              {
+                "text": "In the console",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "What does aria-invalid=\"true\" do?",
+            "explanation": "It tells assistive technology, like a screen reader, that the field has a problem.",
+            "options": [
+              {
+                "text": "Tells screen readers the field has a problem",
+                "correct": true
+              },
+              {
+                "text": "Stops the form from being submitted",
+                "correct": false
+              },
+              {
+                "text": "Turns the field red",
+                "correct": false
+              },
+              {
+                "text": "Clears the field",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "After a result is saved, the standings table still shows the old numbers. Why?",
+            "explanation": "The standings effect only runs when its dependencies change; nothing told it the data changed. That's stale data.",
+            "options": [
+              {
+                "text": "The effect's dependencies didn't change, so it never fetched again",
+                "correct": true
+              },
+              {
+                "text": "The API didn't save the match",
+                "correct": false
+              },
+              {
+                "text": "fetch caches every GET forever",
+                "correct": false
+              },
+              {
+                "text": "React can't show numbers that change",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "prompt": "Why keep the form's values as strings until you send them?",
+            "explanation": "So an empty box stays empty while someone types; converting early would turn it into 0.",
+            "options": [
+              {
+                "text": "So an empty box stays empty instead of becoming 0",
+                "correct": true
+              },
+              {
+                "text": "Because JSON can't hold numbers",
+                "correct": false
+              },
+              {
+                "text": "Because the API only accepts strings",
+                "correct": false
+              },
+              {
+                "text": "So the form submits faster",
+                "correct": false
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "slug": "league-ship",
