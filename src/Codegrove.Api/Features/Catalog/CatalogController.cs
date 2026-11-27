@@ -14,7 +14,8 @@ public sealed record CourseSummaryDto(
 
 public sealed record TrackDetailDto(
     string Slug, string Title, string Description, AgeBand AgeBand,
-    IReadOnlyList<TrackSummaryDto> Prerequisites, IReadOnlyList<CourseSummaryDto> Courses, string? CertificateCode);
+    IReadOnlyList<TrackSummaryDto> Prerequisites, IReadOnlyList<CourseSummaryDto> Courses, string? CertificateCode,
+    TrackCompletionRule CompletionRule);
 
 public sealed record LessonSummaryDto(
     int Id, string Slug, string Title, int EstimatedMinutes, bool IsPublished, bool Completed);
@@ -50,7 +51,7 @@ public sealed class CatalogController(AppDbContext db) : ControllerBase
             .Where(t => t.Slug == slug && t.IsPublished)
             .Select(t => new
             {
-                t.Id, t.Slug, t.Title, t.Description, t.AgeBand,
+                t.Id, t.Slug, t.Title, t.Description, t.AgeBand, t.CompletionRule,
                 Prereqs = t.Prerequisites.Select(p => new TrackSummaryDto(p.RequiresTrack.Slug, p.RequiresTrack.Title,
                     p.RequiresTrack.Description, p.RequiresTrack.AgeBand, p.RequiresTrack.Courses.Count, new List<string>())).ToList(),
                 Courses = t.Courses.OrderBy(c => c.SortOrder).Select(c => c.Course).ToList(),
@@ -72,7 +73,7 @@ public sealed class CatalogController(AppDbContext db) : ControllerBase
             .Where(x => x.UserId == userId && x.TrackId == track.Id)
             .Select(x => x.VerificationCode).SingleOrDefaultAsync(ct);
 
-        return new TrackDetailDto(track.Slug, track.Title, track.Description, track.AgeBand, track.Prereqs, courses, cert);
+        return new TrackDetailDto(track.Slug, track.Title, track.Description, track.AgeBand, track.Prereqs, courses, cert, track.CompletionRule);
     }
 
     [HttpGet("courses/{slug}")]

@@ -12,6 +12,7 @@ public class Track
     public AgeBand AgeBand { get; set; } = AgeBand.Both;
     public int SortOrder { get; set; }
     public bool IsPublished { get; set; }
+    public TrackCompletionRule CompletionRule { get; set; } = TrackCompletionRule.AllCourses;
 
     public List<TrackCourse> Courses { get; set; } = [];
     public List<TrackPrerequisite> Prerequisites { get; set; } = [];

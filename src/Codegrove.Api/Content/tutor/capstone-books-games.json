@@ -1,0 +1,181 @@
+{
+  "course": "capstone-books-games",
+  "lessons": {
+    "library-data-explorer": {
+      "intro": [
+        {
+          "displayText": "Welcome to your capstone! Your mission today: plan the data for the Grove Library, the app you're about to build.",
+          "speechText": "Welcome to your capstone! Your mission today is to plan the data for the Grove Library, the app you're about to build.",
+          "mood": "Celebrating"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your library has a plan for its data. Your new word is data model: the plan for what an app remembers.",
+          "speechText": "Your library has a plan for its data. Your new word is data model, which means the plan for what an app remembers.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "library-api-explorer": {
+      "intro": [
+        {
+          "displayText": "The Grove Library needs a server that knows its books. Your mission: write the two endpoints that answer questions about them!",
+          "speechText": "The Grove Library needs a server that knows its books. Your mission is to write the two endpoints that answer questions about them!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your server can list the books and find any one of them. Your new word is endpoint: one thing a server can answer.",
+          "speechText": "Your server can list the books and find any one of them. Your new word is endpoint, which is one thing a server can answer.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "library-page-explorer": {
+      "intro": [
+        {
+          "displayText": "The library's server knows every book, but the page is empty. Your mission: get the page to ask your server, and show the books!",
+          "speechText": "The library's server knows every book, but the page is empty. Your mission is to get the page to ask your server, and show the books!",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your page and your server are talking. Your new word is full-stack: building the page and the server behind it.",
+          "speechText": "Your page and your server are talking. Your new word is full stack, which means building the page and the server behind it.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "library-add-explorer": {
+      "intro": [
+        {
+          "displayText": "Kids in the Grove have written books of their own! Your mission: add a form that sends each new book to your server.",
+          "speechText": "Kids in the Grove have written books of their own! Your mission is to add a form that sends each new book to your server.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your page can show books and add new ones. Your new word is POST: a request that sends something new for the server to keep.",
+          "speechText": "Your page can show books and add new ones. Your new word is post, which is a request that sends something new for the server to keep.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "library-yours-explorer": {
+      "intro": [
+        {
+          "displayText": "Your library works! Your mission: add a Borrow button for every book, then make the library your very own.",
+          "speechText": "Your library works! Your mission is to add a borrow button for every book, then make the library your very own.",
+          "mood": "Celebrating"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You built a whole app, the page and the server, and made it yours. Your new word is route parameter: the part of a path that says which one, like the 3 in a borrow path.",
+          "speechText": "You built a whole app, the page and the server, and made it yours. Your new word is route parameter, which is the part of a path that says which one, like the three in a borrow path.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "pier-schema": {
+      "intro": [
+        {
+          "displayText": "Welcome to the capstone: one app, built the way a real team would build it. It starts with the schema, because the entities, the endpoints and the page all depend on it. You'll finish the reviews table with its keys and rules, fix a report whose ratings lose their decimals, and write one that counts every game.",
+          "speechText": "Welcome to the capstone, one app, built the way a real team would build it. It starts with the schema, because the entities, the endpoints and the page all depend on it. You'll finish the reviews table with its keys and rules, fix a report whose ratings lose their decimals, and write one that counts every game.",
+          "mood": "Celebrating"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Pixel Pier's data has a home, with its rules enforced by the database itself. The gotcha to remember: an integer divided by an integer is an integer, so nine halves is four. Use AVG when you want an average.",
+          "speechText": "Pixel Pier's data has a home, with its rules enforced by the database itself. The gotcha to remember is that an integer divided by an integer is an integer, so nine divided by two is four. Use average when you want an average.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "pier-api-reads": {
+      "intro": [
+        {
+          "displayText": "Clients don't want raw review rows; they want the catalog, and they want every client to agree on it. That makes computing it the API's job. You'll build the catalog endpoint with a proper tiebreaker, a platform filter, and a clear 400 for platforms that don't exist.",
+          "speechText": "Clients don't want raw review rows, they want the catalog, and they want every client to agree on it. That makes computing it the A P I's job. You'll build the catalog endpoint with a proper tiebreaker, a platform filter, and a clear four hundred for platforms that don't exist.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Pixel Pier's API answers the question its clients actually ask. The gotcha to remember: when ties are possible, always sort by a tiebreaker too. Without one, the same data can come back in a different order.",
+          "speechText": "Pixel Pier's A P I answers the question its clients actually ask. The gotcha to remember is that when ties are possible, you always sort by a tiebreaker too. Without one, the same data can come back in a different order.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "pier-page": {
+      "intro": [
+        {
+          "displayText": "Almost every app is a frontend asking a backend for data, and handling whatever comes back. Pixel Pier's API is ready; its page isn't. You'll build the catalog table, make the platform filter fetch again, and show the API's error instead of crashing on it.",
+          "speechText": "Almost every app is a frontend asking a backend for data, and handling whatever comes back. Pixel Pier's A P I is ready, but its page isn't. You'll build the catalog table, make the platform filter fetch again, and show the A P I's error instead of crashing on it.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your frontend and your API are working together, and the page copes when the answer is no. The gotcha to remember: fetch only fails when there's no answer at all. A 400 still resolves, so always check response.ok before you use the data.",
+          "speechText": "Your frontend and your A P I are working together, and the page copes when the answer is no. The gotcha to remember is that fetch only fails when there's no answer at all. A four hundred still resolves, so always check response dot ok before you use the data.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "pier-api-writes": {
+      "intro": [
+        {
+          "displayText": "Accepting writes is where APIs get risky: the server has to decide what a client may change, and explain clearly when a request is wrong. Pixel Pier's API can show ratings, but it can't take reviews yet. You'll add the endpoints, guard them with a DTO and validation, and watch your catalog page pick up the changes.",
+          "speechText": "Accepting writes is where A P Is get risky, because the server has to decide what a client may change, and explain clearly when a request is wrong. Pixel Pier's A P I can show ratings, but it can't take reviews yet. You'll add the endpoints, guard them with a D T O and validation, and watch your catalog page pick up the changes.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "Your API posts, finds and deletes reviews, and refuses bad input with messages a form can show. The gotcha to remember: never bind an entity straight from a request. Bind a DTO, so the client can't set the id or anything else it shouldn't.",
+          "speechText": "Your A P I posts, finds and deletes reviews, and refuses bad input with messages a form can show. The gotcha to remember is never to bind an entity straight from a request. Bind a D T O, so the client can't set the id or anything else it shouldn't.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "pier-forms": {
+      "intro": [
+        {
+          "displayText": "Your API explains exactly what's wrong with a bad review; now the page has to listen. Real users mistype, and a form that hides the reason loses them. You'll build a review form that shows each message next to its field, tells screen readers about it, and refreshes the catalog once a review is saved.",
+          "speechText": "Your A P I explains exactly what's wrong with a bad review, and now the page has to listen. Real users mistype, and a form that hides the reason loses them. You'll build a review form that shows each message next to its field, tells screen readers about it, and refreshes the catalog once a review is saved.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "The page and the API now talk in both directions, errors included. The gotcha to remember: after a write, data you already fetched is stale. Something has to tell the page to fetch it again, like a version number in the effect's dependencies.",
+          "speechText": "The page and the A P I now talk in both directions, errors included. The gotcha to remember is that after a write, data you already fetched is stale. Something has to tell the page to fetch it again, like a version number in the effect's dependencies.",
+          "mood": "Celebrating"
+        }
+      ]
+    },
+    "pier-ship": {
+      "intro": [
+        {
+          "displayText": "Shipping is mostly small things done properly: tidy code, data that only its owner sees, no duplicates, and an app that runs outside your editor. This is the last stretch of Pixel Pier. You'll move the wishlist endpoints into their own file, fix a query that shows everyone's wishes, refuse duplicates, and download the whole project.",
+          "speechText": "Shipping is mostly small things done properly: tidy code, data that only its owner sees, no duplicates, and an app that runs outside your editor. This is the last stretch of Pixel Pier. You'll move the wishlist endpoints into their own file, fix a query that shows everyone's wishes, refuse duplicates, and download the whole project.",
+          "mood": "Encouraging"
+        }
+      ],
+      "recap": [
+        {
+          "displayText": "You built and shipped a full-stack app: a database, an API, and a React page that uses it well. The gotcha to remember: a query that forgets to filter by its owner still works, and shows everyone's data to everyone. Now take it home and run it with the real tools.",
+          "speechText": "You built and shipped a full stack app, with a database, an A P I, and a React page that uses it well. The gotcha to remember is that a query that forgets to filter by its owner still works, and shows everyone's data to everyone. Now take it home and run it with the real tools.",
+          "mood": "Celebrating"
+        }
+      ]
+    }
+  }
+}

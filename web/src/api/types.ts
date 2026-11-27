@@ -45,6 +45,8 @@ export interface TrackDetail {
   prerequisites: TrackSummary[];
   courses: CourseSummary[];
   certificateCode: string | null;
+  /** AnyCourse: the courses are alternatives (capstone themes); finishing one finishes the track. */
+  completionRule: 'AllCourses' | 'AnyCourse';
 }
 
 export interface LessonSummary {

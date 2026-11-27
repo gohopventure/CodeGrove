@@ -51,6 +51,9 @@ export function TrackPage() {
   if (isLoading) return <Spinner />;
   if (error || !track) return <ErrorNote error={error} />;
 
+  const pickOne = track.completionRule === 'AnyCourse';
+  const CourseList = pickOne ? 'ul' : 'ol';
+
   return (
     <div className="space-y-6">
       <div>
@@ -73,10 +76,20 @@ export function TrackPage() {
         </p>
       )}
 
-      <ol className="space-y-4">
+      {pickOne && (
+        <p className="card">
+          Pick the one you like best. Each course builds the same kind of app with different data, and
+          finishing any one of them finishes this track.
+        </p>
+      )}
+
+      {/* An ordered list when the courses are a sequence; a plain list when they're a choice. */}
+      <CourseList className="space-y-4">
         {track.courses.map((c, i) => (
           <li key={c.slug} className="card flex flex-wrap items-center gap-4">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-2 text-lg font-bold" aria-hidden="true">{i + 1}</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-2 text-lg font-bold" aria-hidden="true">
+              {pickOne ? '★' : i + 1}
+            </span>
             <div className="min-w-0 flex-1 space-y-1">
               <h2 className="text-xl font-bold">
                 <Link to={`/courses/${c.slug}`} className="hover:underline">{c.title}</Link>
@@ -90,7 +103,7 @@ export function TrackPage() {
             </div>
           </li>
         ))}
-      </ol>
+      </CourseList>
     </div>
   );
 }

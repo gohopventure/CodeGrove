@@ -103,13 +103,16 @@
       // The capstone: a full-stack app built over several milestones. The API runs as a live server in the
       // C# runner and the React page calls it (FullStack challenges, see web/src/runner/fullStack.ts). Each
       // course is one theme; later themes become more courses here (see the project's capstone plan).
+      // The themes are alternatives: finishing any one course finishes the track and earns its
+      // certificate and the full-stack-finisher badge.
       "slug": "capstone",
       "title": "Capstone: Build a Full-Stack App",
       "description": "Put it all together: plan the data, build an ASP.NET Core API with Entity Framework Core, and a React frontend that talks to it, one milestone at a time.",
       "ageBand": "Both",
       "sortOrder": 9,
       "isPublished": true,
-      "courses": ["capstone-clubs"],
+      "completionRule": "AnyCourse",
+      "courses": ["capstone-clubs", "capstone-books-games"],
       "prerequisites": ["frontend-frameworks", "web-apis"]
     }
   ],
@@ -236,8 +239,10 @@
       "name": "Full-Stack Finisher",
       "description": "You finished the capstone and built a whole app: data, API and page.",
       "iconUrl": "/badges/full-stack-finisher.svg",
-      "ruleType": "CourseCompleted",
-      "ruleCourseSlug": "capstone-clubs"
+      // One badge for the whole track: the capstone's courses are alternative themes, so finishing
+      // any one of them finishes the track (completionRule AnyCourse) and earns this badge.
+      "ruleType": "TrackCompleted",
+      "ruleTrackSlug": "capstone"
     },
     {
       "code": "app-architect",

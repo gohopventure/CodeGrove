@@ -391,6 +391,79 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         Assert.Contains("full-stack-finisher", codes);
     }
 
+    [Fact]
+    public async Task Finishing_any_one_capstone_theme_finishes_the_track_and_earns_its_badge_once()
+    {
+        var (_, child, _) = await FamilyWithConsentedExplorer("ThemeOwl11");
+
+        var track = await child.GetJson("/api/tracks/capstone");
+        Assert.Equal("AnyCourse", track.GetProperty("completionRule").GetString());
+        Assert.True(track.GetProperty("courses").GetArrayLength() >= 2);
+        Assert.Equal(JsonValueKind.Null, track.GetProperty("certificateCode").ValueKind);
+
+        // The first theme finishes the track: certificate and badge.
+        var first = await CompleteCourse(child, "capstone-books-games");
+        Assert.True(first.CourseCompleted);
+        Assert.NotNull(first.CertificateCode);
+        Assert.Contains("full-stack-finisher", first.Badges);
+        track = await child.GetJson("/api/tracks/capstone");
+        Assert.Equal(first.CertificateCode, track.GetProperty("certificateCode").GetString());
+
+        // A second theme is its own finished course, but adds no second certificate or badge.
+        var second = await CompleteCourse(child, "capstone-clubs");
+        Assert.True(second.CourseCompleted);
+        Assert.Null(second.CertificateCode);
+        Assert.DoesNotContain("full-stack-finisher", second.Badges);
+        track = await child.GetJson("/api/tracks/capstone");
+        Assert.Equal(first.CertificateCode, track.GetProperty("certificateCode").GetString());
+
+        // Other tracks still need every course: one SQL course doesn't finish Databases and SQL.
+        Assert.Equal("AllCourses", (await child.GetJson("/api/tracks/databases")).GetProperty("completionRule").GetString());
+    }
+
+    private sealed record CourseRun(bool CourseCompleted, string? CertificateCode, List<string> Badges);
+
+    /// <summary>
+    /// Completes every lesson of a course in the learner's band through the API, the way the web app does:
+    /// view, a passing submission, a passing quiz. Returns what the outcomes reported along the way.
+    /// </summary>
+    private static async Task<CourseRun> CompleteCourse(HttpClient child, string courseSlug)
+    {
+        var course = await child.GetJson($"/api/courses/{courseSlug}");
+        var completed = false;
+        string? certificate = null;
+        var badges = new List<string>();
+
+        void Note(JsonElement outcome)
+        {
+            completed |= outcome.GetProperty("courseCompleted").GetBoolean();
+            if (outcome.GetProperty("certificateCode").GetString() is string code) certificate = code;
+            badges.AddRange(outcome.GetProperty("newBadges").EnumerateArray().Select(b => b.GetProperty("code").GetString()!));
+        }
+
+        foreach (var summary in course.GetProperty("lessons").EnumerateArray())
+        {
+            Assert.True(summary.GetProperty("isPublished").GetBoolean(), $"{summary.GetProperty("slug")} isn't published.");
+            var id = summary.GetProperty("id").GetInt32();
+            await child.PostJson($"/api/lessons/{id}/viewed");
+            var lesson = await child.GetJson($"/api/lessons/{id}");
+
+            var challenge = lesson.GetProperty("challenge");
+            var results = challenge.GetProperty("tests").EnumerateArray()
+                .Select(t => new { testId = t.GetProperty("id").GetInt32(), passed = true, message = (string?)null });
+            var submission = await (await child.PostJson($"/api/challenges/{challenge.GetProperty("id").GetInt32()}/submissions",
+                new { files = challenge.GetProperty("starterFiles"), results })).Json();
+            Note(submission.GetProperty("outcome"));
+
+            var quiz = lesson.GetProperty("quiz");
+            var attempt = await (await child.PostJson($"/api/quizzes/{quiz.GetProperty("id").GetInt32()}/attempts",
+                new { answers = CorrectAnswers(quiz, courseSlug) })).Json();
+            Assert.True(attempt.GetProperty("passed").GetBoolean());
+            Note(attempt.GetProperty("outcome"));
+        }
+        return new CourseRun(completed, certificate, badges);
+    }
+
     /// <summary>Maps each quiz question to its correct option by matching prompts against the seed file.</summary>
     [Fact]
     public async Task A_capstone_milestone_starts_from_the_learners_own_passing_code()
@@ -531,9 +604,9 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.NotFound, (await parent.GetAsync($"/api/parent/children/{childId}/portfolio")).StatusCode);
     }
 
-    private static Dictionary<string, int> CorrectAnswers(JsonElement quiz)
+    private static Dictionary<string, int> CorrectAnswers(JsonElement quiz, string courseSlug = "html-basics")
     {
-        var seedPath = Path.Combine(AppContext.BaseDirectory, "Content", "courses", "html-basics.json");
+        var seedPath = Path.Combine(AppContext.BaseDirectory, "Content", "courses", $"{courseSlug}.json");
         using var seed = JsonDocument.Parse(File.ReadAllText(seedPath));
         var seedQuestions = seed.RootElement.GetProperty("lessons").EnumerateArray()
             .Where(l => l.TryGetProperty("quiz", out _))

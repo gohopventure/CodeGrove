@@ -243,7 +243,11 @@ public sealed class ProgressService(AppDbContext db, TimeProvider clock, IConten
         acc.CertificateCode = await IssueTrackCertificatesAsync(userId, band, lesson.CourseId, now, ct);
     }
 
-    /// <summary>Issues a certificate for every published track this course belongs to that is now complete.</summary>
+    /// <summary>
+    /// Issues a certificate for every published track this course belongs to that is now complete,
+    /// by the track's <see cref="TrackCompletionRule"/>. The certificate doubles as the track-completed
+    /// record that <see cref="BadgeRuleType.TrackCompleted"/> badges read.
+    /// </summary>
     private async Task<string?> IssueTrackCertificatesAsync(Guid userId, AgeBand band, int courseId, DateTime now, CancellationToken ct)
     {
         var tracks = await db.Tracks
@@ -251,6 +255,7 @@ public sealed class ProgressService(AppDbContext db, TimeProvider clock, IConten
             .Select(t => new
             {
                 t.Id,
+                t.CompletionRule,
                 Courses = t.Courses.Select(c => new { c.CourseId, c.Course.IsPublished }).ToList(),
             })
             .ToListAsync(ct);
@@ -260,15 +265,26 @@ public sealed class ProgressService(AppDbContext db, TimeProvider clock, IConten
 
         foreach (var track in tracks)
         {
-            if (track.Courses.Any(c => !c.IsPublished)) continue;
             if (await db.Certificates.AnyAsync(c => c.UserId == userId && c.TrackId == track.Id, ct)) continue;
 
-            var allDone = true;
-            foreach (var c in track.Courses)
+            bool done;
+            if (track.CompletionRule == TrackCompletionRule.AnyCourse)
             {
-                if (!await IsCourseCompleteAsync(userId, band, c.CourseId, ct)) { allDone = false; break; }
+                // The course just completed is in this track, so it is the one that finishes it.
+                // A second course in the same track later finds the certificate and adds nothing.
+                done = track.Courses.Any(c => c.CourseId == courseId && c.IsPublished);
             }
-            if (!allDone) continue;
+            else
+            {
+                // Every course must be published and complete: a half-built track can't certify.
+                if (track.Courses.Any(c => !c.IsPublished)) continue;
+                done = true;
+                foreach (var c in track.Courses)
+                {
+                    if (!await IsCourseCompleteAsync(userId, band, c.CourseId, ct)) { done = false; break; }
+                }
+            }
+            if (!done) continue;
 
             lastCode = NewVerificationCode();
             db.Certificates.Add(new Certificate
@@ -310,6 +326,12 @@ public sealed class ProgressService(AppDbContext db, TimeProvider clock, IConten
             .Select(x => x.SourceId)
             .ToListAsync(ct)).ToHashSet();
 
+        // A certificate is issued exactly once, when a track is finished, so it is the track-completed record.
+        var completedTrackIds = (await db.Certificates
+            .Where(c => c.UserId == userId)
+            .Select(c => c.TrackId)
+            .ToListAsync(ct)).ToHashSet();
+
         // Per-learner submission history is small, so this is computed in memory for provider portability.
         var history = await db.Submissions
             .Where(s => s.UserId == userId)
@@ -339,6 +361,7 @@ public sealed class ProgressService(AppDbContext db, TimeProvider clock, IConten
             {
                 BadgeRuleType.LessonsCompleted => lessonsCompleted >= badge.RuleValue,
                 BadgeRuleType.CourseCompleted => completedCourseIds.Contains(badge.RuleValue),
+                BadgeRuleType.TrackCompleted => completedTrackIds.Contains(badge.RuleValue),
                 BadgeRuleType.FirstTryPass => firstTryPasses >= badge.RuleValue,
                 BadgeRuleType.WeeklyGoalStreak => streakWeeks >= badge.RuleValue,
                 _ => false,

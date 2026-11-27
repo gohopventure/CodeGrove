@@ -135,6 +135,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.Slug).HasMaxLength(80);
             e.Property(x => x.Title).HasMaxLength(120);
             e.Property(x => x.AgeBand).HasConversion<string>().HasMaxLength(16);
+            e.Property(x => x.CompletionRule).HasConversion<string>().HasMaxLength(16);
         });
 
         b.Entity<TrackPrerequisite>(e =>

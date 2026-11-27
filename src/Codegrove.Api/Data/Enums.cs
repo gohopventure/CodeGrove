@@ -79,4 +79,20 @@ public enum BadgeRuleType
     CourseCompleted = 1,
     FirstTryPass = 2,
     WeeklyGoalStreak = 3,
+
+    /// <summary>The learner finished a track (its certificate was issued). RuleValue is the track id.</summary>
+    TrackCompleted = 4,
+}
+
+/// <summary>When a track counts as finished.</summary>
+public enum TrackCompletionRule
+{
+    /// <summary>Every course in the track is complete (most tracks: courses build on each other).</summary>
+    AllCourses = 0,
+
+    /// <summary>
+    /// Any one published course is complete. For tracks whose courses are alternatives, like the
+    /// capstone's themes: the learner picks one, and doing a second theme adds nothing new.
+    /// </summary>
+    AnyCourse = 1,
 }

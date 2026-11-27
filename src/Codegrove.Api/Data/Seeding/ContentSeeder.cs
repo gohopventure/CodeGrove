@@ -13,7 +13,7 @@ public sealed record CatalogFile(List<TrackFile> Tracks, List<BadgeFile> Badges)
 
 public sealed record TrackFile(
     string Slug, string Title, string Description, AgeBand AgeBand, int SortOrder, bool IsPublished,
-    List<string> Courses, List<string>? Prerequisites);
+    List<string> Courses, List<string>? Prerequisites, TrackCompletionRule? CompletionRule = null);
 
 /// <summary>
 /// Content/tutor/&lt;course&gt;.json: the tutor's intro and recap for each lesson of one course, keyed by
@@ -39,7 +39,8 @@ public sealed record TutorCharacterFile(
     Dictionary<string, List<SpokenLineFile>> Lines);
 
 public sealed record BadgeFile(
-    string Code, string Name, string Description, string IconUrl, BadgeRuleType RuleType, int? RuleValue, string? RuleCourseSlug);
+    string Code, string Name, string Description, string IconUrl, BadgeRuleType RuleType, int? RuleValue, string? RuleCourseSlug,
+    string? RuleTrackSlug = null);
 
 public sealed record CourseFile(
     string Slug, string Title, string Summary, AgeBand AgeBand, int EstimatedMinutes, bool IsPublished,
@@ -365,6 +366,7 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
             track.AgeBand = f.AgeBand;
             track.SortOrder = f.SortOrder;
             track.IsPublished = f.IsPublished;
+            track.CompletionRule = f.CompletionRule ?? TrackCompletionRule.AllCourses;
 
             db.TrackCourses.RemoveRange(track.Courses);
             track.Courses = f.Courses.Select((slug, i) => new TrackCourse
@@ -403,9 +405,20 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
             badge.Description = f.Description;
             badge.IconUrl = f.IconUrl;
             badge.RuleType = f.RuleType;
-            badge.RuleValue = f.RuleCourseSlug is not null
-                ? await db.Courses.Where(c => c.Slug == f.RuleCourseSlug).Select(c => c.Id).SingleAsync(ct)
-                : f.RuleValue ?? 1;
+            badge.RuleValue = (f.RuleType, f.RuleCourseSlug, f.RuleTrackSlug) switch
+            {
+                (BadgeRuleType.CourseCompleted, string course, null) =>
+                    await db.Courses.Where(c => c.Slug == course).Select(c => c.Id).SingleOrDefaultAsync(ct) is int id and > 0
+                        ? id : throw new InvalidDataException($"Badge '{f.Code}' references unknown course '{course}'."),
+                (BadgeRuleType.TrackCompleted, null, string track) =>
+                    await db.Tracks.Where(t => t.Slug == track).Select(t => t.Id).SingleOrDefaultAsync(ct) is int id and > 0
+                        ? id : throw new InvalidDataException($"Badge '{f.Code}' references unknown track '{track}'."),
+                (BadgeRuleType.CourseCompleted or BadgeRuleType.TrackCompleted, _, _) =>
+                    throw new InvalidDataException(
+                        $"Badge '{f.Code}': {f.RuleType} needs exactly one of ruleCourseSlug / ruleTrackSlug, matching the rule."),
+                (_, null, null) => f.RuleValue ?? 1,
+                _ => throw new InvalidDataException($"Badge '{f.Code}': {f.RuleType} doesn't take a course or track slug."),
+            };
         }
         await db.SaveChangesAsync(ct);
     }
