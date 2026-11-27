@@ -59,7 +59,7 @@ public sealed record LessonFile(
 public sealed record ChallengeFile(
     ChallengeKind Kind, string InstructionsMarkdown, Dictionary<string, string> StarterFiles,
     Dictionary<string, string> SolutionFiles, int XpReward, List<TestFile> Tests, List<HintFile> Hints, BlocksFile? Blocks = null,
-    string? ContinuesFrom = null, List<string>? CarryFiles = null);
+    string? ContinuesFrom = null, List<string>? CarryFiles = null, string? PortfolioTheme = null);
 
 /// <summary>
 /// Blocks mode for a JavaScript challenge. Toolbox entries are category keys the web app knows
@@ -307,6 +307,7 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
             : null;
         c.ContinuesFromLessonSlug = f.ContinuesFrom;
         c.CarryFilesJson = f.CarryFiles is { Count: > 0 } carry ? JsonSerializer.Serialize(carry) : null;
+        c.PortfolioTheme = f.PortfolioTheme;
 
         db.TestCases.RemoveRange(c.TestCases);
         c.TestCases = f.Tests.Select((t, i) => new TestCase
@@ -466,6 +467,11 @@ public sealed class ContentSeeder(AppDbContext db, ILogger<ContentSeeder> logger
                 }
             }
             else if (l.Challenge?.CarryFiles is { Count: > 0 }) Fail("carryFiles needs continuesFrom.");
+            if (l.Challenge?.PortfolioTheme is { } theme)
+            {
+                if (l.Challenge.Kind != ChallengeKind.FullStack) Fail("portfolioTheme is only for FullStack challenges.");
+                if (string.IsNullOrWhiteSpace(theme) || theme.Length > 60) Fail("portfolioTheme needs a name of 1 to 60 characters.");
+            }
             if (l.VideoUrl is not null && l.CaptionsUrl is null) Fail("videos must have a captions file (WCAG).");
             if (l.Challenge is { } c)
             {

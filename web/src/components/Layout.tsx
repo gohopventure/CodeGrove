@@ -41,6 +41,7 @@ export function Layout() {
               <NavLink to="/learn" className={navClass}>Home</NavLink>
               <NavLink to="/tracks" className={navClass}>Tracks</NavLink>
               <NavLink to="/me/badges" className={navClass}>Badges</NavLink>
+              <NavLink to="/me/portfolio" className={navClass}>Portfolio</NavLink>
             </>
           )}
           {me?.roles.includes('Parent') && (

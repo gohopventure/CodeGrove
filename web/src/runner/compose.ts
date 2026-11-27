@@ -1,6 +1,7 @@
 import { protectLoops } from './loopProtect';
 import { installMockApi } from './mockApi';
 import { composeReact, insertBeforeFirstScript, needsReact, type ReactToolkit } from './react';
+import { installSnapshot } from './snapshot';
 import { evaluateTest, harnessMain } from './testEngine';
 import { describeTypeError, type TypeDiagnostic } from './typeCheck';
 import type { TestSpec } from './types';
@@ -70,7 +71,8 @@ export function buildRunDocument(learnerHtml: string, runId: string, tests: Test
   const harness =
     `<meta http-equiv="Content-Security-Policy" content="${PREVIEW_CSP}">` +
     `<script>(${harnessMain.toString()})(${config}, (${evaluateTest.toString()}));` +
-    `(${installMockApi.toString()})(window, 40, ${liveApi ? JSON.stringify({ runId }).replace(/</g, '\\u003c') : 'null'});</script>`;
+    `(${installMockApi.toString()})(window, 40, ${liveApi ? JSON.stringify({ runId }).replace(/</g, '\\u003c') : 'null'});` +
+    `(${installSnapshot.toString()})(window, ${JSON.stringify(runId).replace(/</g, '\\u003c')});</script>`;
   return injectIntoHead(learnerHtml, harness);
 }
 

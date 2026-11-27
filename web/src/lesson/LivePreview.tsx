@@ -10,10 +10,16 @@ import type { ConsoleLine, RunnerMessage, TestResult, TestSpec } from '../runner
 /** Answers the preview's fetch('/api/…') calls (capstone pages): see runner/liveApi.ts. */
 export type LiveApiHandler = (request: LiveFetchMessage) => Promise<Omit<LiveFetchReply, 'type' | 'id'>>;
 const RUN_TIMEOUT_MS = 4000;
+const SNAPSHOT_TIMEOUT_MS = 8000;
 
 export interface LivePreviewHandle {
   /** Renders the files and runs the tests. Resolves with results, or null if the page never finished. */
   run(files: Files, tests: TestSpec[]): Promise<TestResult[] | null>;
+  /**
+   * A PNG data URL of the page on screen (for the portfolio; see runner/snapshot.ts), or null if this browser
+   * couldn't draw it. Only the web preview and FullStackOutput have one.
+   */
+  snapshot?(): Promise<string | null>;
 }
 
 interface PendingRun {
@@ -51,6 +57,8 @@ export const LivePreview = forwardRef<LivePreviewHandle, {
   // Read through a ref, so a new handler doesn't re-register the message listener mid-run.
   const liveApiRef = useRef(liveApi);
   liveApiRef.current = liveApi;
+  // Picture requests waiting for the frame's answer, by request id.
+  const snapshots = useRef(new Map<string, (dataUrl: string | null) => void>());
 
   const finish = useCallback((results: TestResult[] | null) => {
     const run = pending.current;
@@ -83,6 +91,11 @@ export const LivePreview = forwardRef<LivePreviewHandle, {
           // The frame has an opaque origin, so '*' is the only target that reaches it; it's the same window we got the request from.
           if (frameRef.current?.contentWindow === target) target?.postMessage({ ...r, type: 'cg:fetch-reply', id: request.id }, '*');
         });
+      } else if (msg?.type === 'cg:snapshot-result' && msg.runId === currentRunId.current) {
+        const answer = snapshots.current.get(msg.id);
+        snapshots.current.delete(msg.id);
+        const ok = typeof msg.dataUrl === 'string' && msg.dataUrl.startsWith('data:image/png;base64,');
+        answer?.(ok ? msg.dataUrl! : null);
       } else if (msg?.type === 'cg:done' && run && msg.runId === run.runId) {
         finish(Array.isArray(msg.results) ? msg.results : null);
       }
@@ -140,6 +153,25 @@ export const LivePreview = forwardRef<LivePreviewHandle, {
           }, RUN_TIMEOUT_MS),
         };
         setFrameKey((k) => k + 1); // a fresh frame per run: nothing leaks between runs
+      });
+    },
+
+    snapshot() {
+      const target = frameRef.current?.contentWindow;
+      const runId = currentRunId.current;
+      if (!target || !runId) return Promise.resolve(null);
+      const id = crypto.randomUUID();
+      return new Promise<string | null>((resolve) => {
+        const timer = window.setTimeout(() => {
+          snapshots.current.delete(id);
+          resolve(null);
+        }, SNAPSHOT_TIMEOUT_MS);
+        snapshots.current.set(id, (dataUrl) => {
+          window.clearTimeout(timer);
+          resolve(dataUrl);
+        });
+        // The frame has an opaque origin, so '*' is the only target that reaches it.
+        target.postMessage({ type: 'cg:snapshot', runId, id }, '*');
       });
     },
   }), [finish, typeChecker]);

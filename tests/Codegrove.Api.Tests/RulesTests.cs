@@ -191,3 +191,79 @@ public class TutorRulesTests
         Assert.Null(TutorRules.CheckHint(3, "Add `</p>` after the text on line 4.", "Add a closing p tag right after the text on line 4.", AgeBand.Explorer, Solution));
     }
 }
+
+public class PortfolioRulesTests
+{
+    private readonly ContentFilter _filter = new();
+
+    private static Dictionary<string, string> Page(string head) => new() { ["web/index.html"] = $"<html><head>{head}</head></html>" };
+
+    [Theory]
+    [InlineData("<title>Junior League</title>", "Junior League")]
+    [InlineData("<title>\n  Pip's   Clubs\n</title>", "Pip's Clubs")]
+    [InlineData("<title>Owl &amp; Frog</title>", "Owl & Frog")]
+    [InlineData("<title></title>", "Make it yours")]                       // empty: the lesson's name
+    [InlineData("", "Make it yours")]                                       // no title
+    [InlineData("<title>my name is Sam</title>", "Make it yours")]         // personal information never becomes the name
+    [InlineData("<title>Visit www.example.com</title>", "Make it yours")]
+    public void A_project_is_named_after_its_page_title_when_that_is_safe(string head, string expected) =>
+        Assert.Equal(expected, PortfolioNames.FromPage(Page(head), "Make it yours", _filter));
+
+    [Theory]
+    [InlineData("<h1>Pip&apos;s Club Corner</h1>", "Pip's Club Corner")]              // the name they gave it wins
+    [InlineData("<h1 className=\"big\">\n  Moon   League\n</h1>", "Moon League")]
+    [InlineData("<h1>{name}</h1>", "Grove Club Hub")]                                 // built from code: use the title
+    [InlineData("<h1>Club <em>Corner</em></h1>", "Grove Club Hub")]
+    [InlineData("<h1>call 555 123 4567</h1>", "Grove Club Hub")]                      // filtered
+    [InlineData("", "Grove Club Hub")]
+    public void The_apps_own_heading_names_it_before_the_page_title(string heading, string expected)
+    {
+        var files = new Dictionary<string, string>
+        {
+            ["web/index.html"] = "<title>Grove Club Hub</title><div id=\"root\"></div>",
+            ["web/NewClubForm.jsx"] = "<h2>Start a new club</h2>",
+            ["web/App.jsx"] = $"export default function App() {{ return <main>{heading}</main>; }}",
+            ["api/Program.cs"] = "// <h1>Not this</h1>",
+        };
+        Assert.Equal(expected, PortfolioNames.FromPage(files, "Make it yours", _filter));
+    }
+
+    [Fact]
+    public void Long_titles_are_cut_to_the_limit() =>
+        Assert.Equal(PortfolioEntry.MaxTitleLength, PortfolioNames.FromPage(Page($"<title>{new string('a', 90)}</title>"), "x", _filter).Length);
+
+    [Theory]
+    [InlineData("", "Your project needs a name.")]
+    [InlineData("   ", "Your project needs a name.")]
+    [InlineData("call 555 123 4567", null)]
+    public void Typed_names_are_checked(string typed, string? reasonStart)
+    {
+        var (name, problem) = PortfolioNames.Validate(typed, _filter);
+        Assert.Null(name);
+        if (reasonStart is not null) Assert.Equal(reasonStart, problem);
+        else Assert.NotNull(problem);
+    }
+
+    [Fact]
+    public void Pictures_must_be_real_pngs_of_a_sensible_size()
+    {
+        static string Url(byte[] b) => "data:image/png;base64," + Convert.ToBase64String(b);
+        var header = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 13, (byte)'I', (byte)'H', (byte)'D', (byte)'R' };
+        byte[] Png(uint w, uint h)
+        {
+            var b = new byte[40];
+            header.CopyTo(b, 0);
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(b.AsSpan(16), w);
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(b.AsSpan(20), h);
+            return b;
+        }
+
+        Assert.NotNull(PortfolioImages.Read(Url(Png(1200, 750))).Png);
+        Assert.Null(PortfolioImages.Read(Url(Png(5000, 750))).Png);                       // too wide
+        Assert.Null(PortfolioImages.Read(Url(Png(0, 750))).Png);
+        Assert.Null(PortfolioImages.Read("data:image/svg+xml;base64,PHN2Zz4=").Png);      // not a PNG URL
+        Assert.Null(PortfolioImages.Read(Url("<svg onload=alert(1)>"u8.ToArray())).Png);   // PNG URL, not PNG bytes
+        Assert.Null(PortfolioImages.Read("data:image/png;base64,***").Png);
+        Assert.Equal("The picture is too big.", PortfolioImages.Read(Url(new byte[PortfolioEntry.MaxScreenshotBytes + 10])).Problem);
+    }
+}

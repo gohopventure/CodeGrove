@@ -17,14 +17,15 @@ public sealed record ProgressOutcome(
     IReadOnlyList<AwardedBadge> NewBadges,
     bool LessonCompleted,
     bool CourseCompleted,
-    string? CertificateCode);
+    string? CertificateCode,
+    Guid? PortfolioEntryId = null);
 
 /// <summary>
 /// Owns every rule about progress: when a challenge counts as passed, when a lesson, course and
 /// track are complete, how much XP is awarded, and which badges and certificates are earned.
 /// Each public method runs in one transaction so a learner never sees half an award.
 /// </summary>
-public sealed class ProgressService(AppDbContext db, TimeProvider clock)
+public sealed class ProgressService(AppDbContext db, TimeProvider clock, IContentFilter filter)
 {
     public const int QuizXp = 5;
     public const int LessonXp = 5;
@@ -76,6 +77,7 @@ public sealed class ProgressService(AppDbContext db, TimeProvider clock)
             acc.Xp += await AwardXpAsync(userId, XpSourceType.Challenge, challenge.Id, challenge.XpReward, now, ct);
             await db.SaveChangesAsync(ct);
             await CompleteLessonIfDoneAsync(userId, band, challenge.LessonId, progress, acc, now, ct);
+            if (challenge.PortfolioTheme is not null) acc.PortfolioEntryId = await UpsertPortfolioEntryAsync(userId, challenge, submission, files, now, ct);
         }
 
         await db.SaveChangesAsync(ct);
@@ -180,6 +182,37 @@ public sealed class ProgressService(AppDbContext db, TimeProvider clock)
         public bool LessonCompleted;
         public bool CourseCompleted;
         public string? CertificateCode;
+        public Guid? PortfolioEntryId;
+    }
+
+    /// <summary>
+    /// Puts the learner's passing capstone app in their portfolio, or points the existing entry at this newer passing
+    /// code. The old picture is dropped then (it shows the old page); the client takes a new one straight after.
+    /// A name the learner chose is kept; otherwise the name follows the page's &lt;title&gt;.
+    /// </summary>
+    private async Task<Guid> UpsertPortfolioEntryAsync(
+        Guid userId, Challenge challenge, Submission submission, IReadOnlyDictionary<string, string> files,
+        DateTime now, CancellationToken ct)
+    {
+        var entry = await db.PortfolioEntries.SingleOrDefaultAsync(e => e.UserId == userId && e.ChallengeId == challenge.Id, ct);
+        if (entry is null)
+        {
+            entry = new PortfolioEntry { Id = Guid.NewGuid(), UserId = userId, ChallengeId = challenge.Id, CreatedAt = now };
+            db.PortfolioEntries.Add(entry);
+        }
+
+        entry.SubmissionId = submission.Id;
+        entry.Theme = challenge.PortfolioTheme!;
+        entry.UpdatedAt = now;
+        entry.ScreenshotPng = null;
+        entry.ScreenshotTakenAt = null;
+        if (!entry.TitleChosenByLearner)
+        {
+            var lessonTitle = await db.Lessons.Where(l => l.Id == challenge.LessonId).Select(l => l.Title).SingleAsync(ct);
+            entry.Title = PortfolioNames.FromPage(files, lessonTitle, filter);
+        }
+        await db.SaveChangesAsync(ct);
+        return entry.Id;
     }
 
     private async Task CompleteLessonIfDoneAsync(
@@ -259,7 +292,7 @@ public sealed class ProgressService(AppDbContext db, TimeProvider clock)
         var totalXp = await TotalXpAsync(userId, ct);
         return new ProgressOutcome(
             acc.Xp, totalXp, Levels.LevelFor(totalXp), newBadges,
-            acc.LessonCompleted, acc.CourseCompleted, acc.CertificateCode);
+            acc.LessonCompleted, acc.CourseCompleted, acc.CertificateCode, acc.PortfolioEntryId);
     }
 
     /// <summary>Checks every badge the learner doesn't have yet and awards the ones now earned.</summary>

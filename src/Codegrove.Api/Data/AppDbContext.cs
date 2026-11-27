@@ -49,6 +49,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Badge> Badges => Set<Badge>();
     public DbSet<UserBadge> UserBadges => Set<UserBadge>();
     public DbSet<Certificate> Certificates => Set<Certificate>();
+    public DbSet<PortfolioEntry> PortfolioEntries => Set<PortfolioEntry>();
 
     /// <summary>
     /// Every timestamp is stored in UTC. SQL Server and SQLite don't keep DateTime.Kind, so values read
@@ -172,6 +173,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasIndex(x => x.LessonId).IsUnique();
             e.HasOne(x => x.Lesson).WithOne(l => l.Challenge).HasForeignKey<Challenge>(x => x.LessonId);
             e.Property(x => x.Kind).HasConversion<string>().HasMaxLength(16);
+            e.Property(x => x.PortfolioTheme).HasMaxLength(60);
         });
 
         b.Entity<TestCase>(e =>
@@ -307,6 +309,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasIndex(x => x.VerificationCode).IsUnique();
             e.Property(x => x.VerificationCode).HasMaxLength(10);
             e.Property(x => x.UserNameAtIssue).HasMaxLength(64);
+        });
+
+        b.Entity<PortfolioEntry>(e =>
+        {
+            e.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Challenge).WithMany().HasForeignKey(x => x.ChallengeId);
+            // Submissions are deleted with the user, like the entry: NoAction avoids a second cascade path in SQL Server.
+            e.HasOne(x => x.Submission).WithMany().HasForeignKey(x => x.SubmissionId).OnDelete(DeleteBehavior.NoAction);
+            e.HasIndex(x => new { x.UserId, x.ChallengeId }).IsUnique();
+            e.Property(x => x.Title).HasMaxLength(PortfolioEntry.MaxTitleLength);
+            e.Property(x => x.Theme).HasMaxLength(60);
         });
     }
 }

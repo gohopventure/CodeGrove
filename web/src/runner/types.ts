@@ -52,4 +52,6 @@ export type RunnerMessage =
   | { type: 'cg:console'; runId: string; level: ConsoleLine['level']; text: string }
   | { type: 'cg:done'; runId: string; results: TestResult[] }
   /** A capstone page called its API (mockApi.ts LiveFetchMessage). */
-  | { type: 'cg:fetch'; runId: string };
+  | { type: 'cg:fetch'; runId: string }
+  /** A picture of the page for the portfolio (snapshot.ts SnapshotReply). */
+  | { type: 'cg:snapshot-result'; runId: string; id: string; dataUrl?: string; error?: string };

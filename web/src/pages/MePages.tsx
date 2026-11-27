@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useBadges, useDashboard } from '../api/queries';
+import { useBadges, useDashboard, usePortfolio } from '../api/queries';
+import { PortfolioCard } from '../components/PortfolioCard';
 import { ErrorNote, PageTitle, Spinner } from '../components/ui';
 
 export function BadgesPage() {
@@ -38,6 +39,34 @@ export function CertificatesPage() {
           <li key={c.code} className="card flex items-center justify-between">
             <span className="font-bold">{c.trackTitle}</span>
             <Link to={`/certificates/${c.code}`} className="btn-secondary">View and print</Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * The learner's finished projects. Private: only they and their parent can see it (no public profiles), so the
+ * page says so instead of offering a share link.
+ */
+export function PortfolioPage() {
+  const { data: entries, error, isLoading } = usePortfolio();
+  if (isLoading) return <Spinner />;
+  return (
+    <div>
+      <PageTitle sub="Apps you built from start to finish. Only you and your grown-up can see this page.">Portfolio</PageTitle>
+      <ErrorNote error={error} />
+      {entries?.length === 0 && (
+        <div className="card space-y-2">
+          <p>Nothing here yet. Finish the last milestone of a capstone and your app shows up here, ready to download.</p>
+          <Link to="/tracks/capstone" className="btn-secondary inline-block">See the capstone</Link>
+        </div>
+      )}
+      <ul className="grid gap-4 md:grid-cols-2">
+        {entries?.map((entry) => (
+          <li key={entry.id} className="flex">
+            <PortfolioCard entry={entry} editable />
           </li>
         ))}
       </ul>

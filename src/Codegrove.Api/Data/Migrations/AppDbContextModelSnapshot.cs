@@ -266,6 +266,10 @@ namespace Codegrove.Api.Data.Migrations
                     b.Property<int>("LessonId")
                         .HasColumnType("int");
 
+                    b.Property<string>("PortfolioTheme")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
                     b.Property<string>("SolutionFilesJson")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -633,6 +637,58 @@ namespace Codegrove.Api.Data.Migrations
                     b.HasIndex("ChildUserId", "Status");
 
                     b.ToTable("ParentalConsents");
+                });
+
+            modelBuilder.Entity("Codegrove.Api.Data.Entities.PortfolioEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ChallengeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("ScreenshotPng")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<DateTime?>("ScreenshotTakenAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("SubmissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Theme")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<bool>("TitleChosenByLearner")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChallengeId");
+
+                    b.HasIndex("SubmissionId");
+
+                    b.HasIndex("UserId", "ChallengeId")
+                        .IsUnique();
+
+                    b.ToTable("PortfolioEntries");
                 });
 
             modelBuilder.Entity("Codegrove.Api.Data.Entities.Quiz", b =>
@@ -1341,6 +1397,31 @@ namespace Codegrove.Api.Data.Migrations
                     b.Navigation("Child");
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Codegrove.Api.Data.Entities.PortfolioEntry", b =>
+                {
+                    b.HasOne("Codegrove.Api.Data.Entities.Challenge", "Challenge")
+                        .WithMany()
+                        .HasForeignKey("ChallengeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Codegrove.Api.Data.Entities.Submission", "Submission")
+                        .WithMany()
+                        .HasForeignKey("SubmissionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Codegrove.Api.Data.Entities.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Challenge");
+
+                    b.Navigation("Submission");
                 });
 
             modelBuilder.Entity("Codegrove.Api.Data.Entities.Quiz", b =>

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, localDate } from './client';
 import type {
   Certificate, ChildProgress, ChildSettings, ChildSummary, CourseDetail, CreateChildResponse, Dashboard,
-  Badge, Lesson, Me, TrackDetail, TrackSummary,
+  Badge, Lesson, Me, PortfolioEntry, TrackDetail, TrackSummary,
 } from './types';
 
 /** Query keys in one place so invalidation stays consistent. */
@@ -17,6 +17,8 @@ export const keys = {
   children: ['children'] as const,
   child: (id: string) => ['child', id] as const,
   certificate: (code: string) => ['certificate', code] as const,
+  portfolio: ['portfolio'] as const,
+  childPortfolio: (id: string) => ['portfolio', 'child', id] as const,
 };
 
 export function useMe() {
@@ -42,6 +44,24 @@ export const useLesson = (id: number) =>
 
 export const useDashboard = () =>
   useQuery({ queryKey: keys.dashboard, queryFn: () => api.get<Dashboard>(`/api/me/dashboard?localDate=${localDate()}`) });
+
+export const usePortfolio = () =>
+  useQuery({ queryKey: keys.portfolio, queryFn: () => api.get<PortfolioEntry[]>('/api/me/portfolio') });
+
+export const useChildPortfolio = (childId: string) =>
+  useQuery({
+    queryKey: keys.childPortfolio(childId),
+    queryFn: () => api.get<PortfolioEntry[]>(`/api/parent/children/${encodeURIComponent(childId)}/portfolio`),
+  });
+
+export function useRenamePortfolioEntry() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, title }: { id: string; title: string }) =>
+      api.put<PortfolioEntry>(`/api/me/portfolio/${encodeURIComponent(id)}/title`, { title }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.portfolio }),
+  });
+}
 
 export const useBadges = () => useQuery({ queryKey: keys.badges, queryFn: () => api.get<Badge[]>('/api/me/badges') });
 

@@ -162,6 +162,28 @@ export interface ProgressOutcome {
   lessonCompleted: boolean;
   courseCompleted: boolean;
   certificateCode: string | null;
+  /** Set when this pass put the app in the learner's portfolio (or updated it): the capstone's last milestone. */
+  portfolioEntryId?: string | null;
+}
+
+/** A finished project in the portfolio. Private: only the learner and their parent can see it. */
+export interface PortfolioEntry {
+  id: string;
+  title: string;
+  /** The capstone theme it was built in, e.g. "Grove Club Hub". */
+  theme: string;
+  courseTitle: string;
+  lessonId: number;
+  lessonTitle: string;
+  createdAt: string;
+  updatedAt: string;
+  /** Null until the learner's browser has sent a picture of the page. */
+  screenshotUrl: string | null;
+}
+
+export interface PortfolioFiles {
+  title: string;
+  files: Files;
 }
 
 export interface SubmissionResponse {

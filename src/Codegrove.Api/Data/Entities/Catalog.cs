@@ -181,6 +181,12 @@ public class Challenge
     /// <summary>JSON array of the file names carried over from <see cref="ContinuesFromLessonSlug"/>.</summary>
     public string? CarryFilesJson { get; set; }
 
+    /// <summary>
+    /// Capstone: passing this challenge puts the learner's app in their portfolio, under this theme name
+    /// ("Grove Club Hub"). Null for every other challenge. Only FullStack challenges can have one.
+    /// </summary>
+    public string? PortfolioTheme { get; set; }
+
     public List<TestCase> TestCases { get; set; } = [];
     public List<Hint> Hints { get; set; } = [];
 }

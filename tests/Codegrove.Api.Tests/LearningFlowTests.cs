@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Codegrove.Api.Data.Seeding;
@@ -428,6 +429,106 @@ public class LearningFlowTests : IClassFixture<ApiFactory>
         Assert.Equal(starter.GetProperty("web/NewClubForm.jsx").GetString(), starting.GetProperty("web/NewClubForm.jsx").GetString());
         Assert.Equal(starter.GetProperty("api/Program.cs").GetString(), starting.GetProperty("api/Program.cs").GetString());
         Assert.Equal("Show your clubs on the page", m4.GetProperty("carriedFrom").GetString());
+    }
+
+    /// <summary>A real 2×1 PNG (signature, IHDR, IDAT, IEND), as the browser would send it.</summary>
+    private const string TinyPng =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAEUlEQVR4nGP4z8Dwn6GB4T8AD3sDfpRcrCkAAAAASUVORK5CYII=";
+
+    [Fact]
+    public async Task Passing_the_capstone_finale_puts_the_app_in_a_portfolio_only_the_family_can_see()
+    {
+        var (parent, child, childId) = await FamilyWithConsentedExplorer("OwlBuilder11");
+        var course = await child.GetJson("/api/courses/capstone-clubs");
+        int Id(string slug) => course.GetProperty("lessons").EnumerateArray()
+            .First(l => l.GetProperty("slug").GetString() == slug).GetProperty("id").GetInt32();
+
+        async Task<JsonElement> Pass(string slug, Dictionary<string, string> files)
+        {
+            var challenge = (await child.GetJson($"/api/lessons/{Id(slug)}")).GetProperty("challenge");
+            var tests = challenge.GetProperty("tests").EnumerateArray().Select(t => t.GetProperty("id").GetInt32());
+            var r = await child.PostJson($"/api/challenges/{challenge.GetProperty("id").GetInt32()}/submissions",
+                new { files, results = tests.Select(id => new { testId = id, passed = true, message = (string?)null }) });
+            Assert.Equal(HttpStatusCode.OK, r.StatusCode);
+            return (await r.Json()).GetProperty("outcome");
+        }
+        static Dictionary<string, string> App(string title, string marker) => new()
+        {
+            ["api/Program.cs"] = $"// {marker}\nvar app = WebApplication.Create();\napp.Run();\n",
+            ["web/index.html"] = $"<!doctype html>\n<html><head><title>{title}</title></head><body><div id=\"root\"></div></body></html>",
+            ["web/App.jsx"] = $"// {marker}\nexport default function App() {{ return null; }}\n",
+        };
+
+        // An earlier milestone isn't a portfolio project.
+        var early = await Pass("clubhub-page-explorer", App("Not yet", "m3"));
+        Assert.Equal(JsonValueKind.Null, early.GetProperty("portfolioEntryId").ValueKind);
+        Assert.Equal(0, (await child.GetJson("/api/me/portfolio")).GetArrayLength());
+
+        // The finale is: named after the page's <title>, under the course's theme, no picture yet.
+        var outcome = await Pass("clubhub-yours-explorer", App("Owl &amp; Frog Club", "first"));
+        var entryId = outcome.GetProperty("portfolioEntryId").GetString()!;
+        var entry = Assert.Single((await child.GetJson("/api/me/portfolio")).EnumerateArray());
+        Assert.Equal(entryId, entry.GetProperty("id").GetString());
+        Assert.Equal("Owl & Frog Club", entry.GetProperty("title").GetString());
+        Assert.Equal("Grove Club Hub", entry.GetProperty("theme").GetString());
+        Assert.Equal("Make it yours", entry.GetProperty("lessonTitle").GetString());
+        Assert.Equal(JsonValueKind.Null, entry.GetProperty("screenshotUrl").ValueKind);
+
+        // The picture must be a real PNG.
+        var svg = await child.PutJson($"/api/me/portfolio/{entryId}/screenshot", new { dataUrl = "data:image/png;base64,PHN2Zz48L3N2Zz4=" });
+        Assert.Equal(HttpStatusCode.BadRequest, svg.StatusCode);
+        var shot = await child.PutJson($"/api/me/portfolio/{entryId}/screenshot", new { dataUrl = TinyPng });
+        Assert.Equal(HttpStatusCode.OK, shot.StatusCode);
+        var shotUrl = (await shot.Json()).GetProperty("screenshotUrl").GetString()!;
+        var image = await child.GetAsync(shotUrl);
+        Assert.Equal("image/png", image.Content.Headers.ContentType?.MediaType);
+        Assert.Equal("nosniff", image.Headers.GetValues("X-Content-Type-Options").Single());
+        Assert.Equal(Convert.FromBase64String(TinyPng.Split(',')[1]), await image.Content.ReadAsByteArrayAsync());
+
+        // Download project gets the passing code.
+        var files = await child.GetJson($"/api/portfolio/{entryId}/files");
+        Assert.Contains("// first", files.GetProperty("files").GetProperty("web/App.jsx").GetString());
+
+        // Renaming goes through the content filter.
+        var leak = await child.PutJson($"/api/me/portfolio/{entryId}/title", new { title = "email me at kid@example.com" });
+        Assert.Equal(HttpStatusCode.BadRequest, leak.StatusCode);
+        var renamed = await child.PutJson($"/api/me/portfolio/{entryId}/title", new { title = "  The   Grove Clubs " });
+        Assert.Equal("The Grove Clubs", (await renamed.Json()).GetProperty("title").GetString());
+
+        // Passing again updates the same entry: their name stays, the code is the new code, the old picture goes.
+        var again = await Pass("clubhub-yours-explorer", App("Something Else", "second"));
+        Assert.Equal(entryId, again.GetProperty("portfolioEntryId").GetString());
+        entry = Assert.Single((await child.GetJson("/api/me/portfolio")).EnumerateArray());
+        Assert.Equal("The Grove Clubs", entry.GetProperty("title").GetString());
+        Assert.Equal(JsonValueKind.Null, entry.GetProperty("screenshotUrl").ValueKind);
+        Assert.Equal(HttpStatusCode.NotFound, (await child.GetAsync(shotUrl)).StatusCode);
+        Assert.Contains("// second", (await child.GetJson($"/api/portfolio/{entryId}/files")).GetProperty("files").GetProperty("web/App.jsx").GetString());
+        shotUrl = (await (await child.PutJson($"/api/me/portfolio/{entryId}/screenshot", new { dataUrl = TinyPng })).Json())
+            .GetProperty("screenshotUrl").GetString()!;
+
+        // Their parent sees it too.
+        var parentView = Assert.Single((await parent.GetJson($"/api/parent/children/{childId}/portfolio")).EnumerateArray());
+        Assert.Equal("The Grove Clubs", parentView.GetProperty("title").GetString());
+        Assert.Equal(HttpStatusCode.OK, (await parent.GetAsync(shotUrl)).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await parent.GetAsync($"/api/portfolio/{entryId}/files")).StatusCode);
+
+        // Nobody else does, and the answer doesn't say the entry exists.
+        var stranger = _factory.NewClient();
+        await stranger.PostJson("/api/auth/register-parent", new { email = "portfolio-stranger@example.com", password = "stranger-pass", confirmAdult = true });
+        Assert.Equal(HttpStatusCode.NotFound, (await stranger.GetAsync($"/api/parent/children/{childId}/portfolio")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await stranger.GetAsync(shotUrl)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await stranger.GetAsync($"/api/portfolio/{entryId}/files")).StatusCode);
+        var (_, otherKid, _) = await FamilyWithConsentedExplorer("PondNewt12");
+        Assert.Equal(HttpStatusCode.NotFound, (await otherKid.GetAsync(shotUrl)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await otherKid.PutJson($"/api/me/portfolio/{entryId}/title", new { title = "Mine now" })).StatusCode);
+        Assert.Equal(0, (await otherKid.GetJson("/api/me/portfolio")).GetArrayLength());
+        Assert.Equal(HttpStatusCode.Unauthorized, (await _factory.NewClient().GetAsync(shotUrl)).StatusCode);
+
+        // Deleting the account takes the portfolio with it.
+        var delete = new HttpRequestMessage(HttpMethod.Delete, $"/api/parent/children/{childId}") { Content = JsonContent.Create(new { }) };
+        Assert.True((await parent.SendAsync(delete)).IsSuccessStatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await parent.GetAsync(shotUrl)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await parent.GetAsync($"/api/parent/children/{childId}/portfolio")).StatusCode);
     }
 
     private static Dictionary<string, int> CorrectAnswers(JsonElement quiz)

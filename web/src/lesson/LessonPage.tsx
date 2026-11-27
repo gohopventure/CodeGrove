@@ -378,6 +378,9 @@ function ChallengeStep({
   const [error, setError] = useState<unknown>(null);
   const [solution, setSolution] = useState<Files | null>(null);
   const checkingRef = useRef(false); // a live re-render must not cancel a check in progress
+  const queryClient = useQueryClient();
+  // The capstone's last milestone: after a pass the app goes in the portfolio, with a picture of its page.
+  const [portfolio, setPortfolio] = useState<'taking' | 'saved' | 'noPicture' | null>(null);
 
   // The tutor: event lines (first fail, stuck offer, pass) and the mood of the latest hint.
   const [quiet] = useQuietMode();
@@ -486,12 +489,33 @@ function ChallengeStep({
       onOutcome(submitted.outcome);
       tutor.checked(submitted.passed);
       if (submitted.passed) onPassed();
+      if (submitted.passed && submitted.outcome.portfolioEntryId) void addPicture(submitted.outcome.portfolioEntryId);
     } catch (e) {
       setError(e);
     } finally {
       checkingRef.current = false;
       setChecking(false);
     }
+  }
+
+  /**
+   * The entry already exists (the pass made it); this adds the picture. Without one (a browser that can't draw
+   * the page, or the upload failing) the entry still shows, with a "no picture yet" note: nothing is lost.
+   */
+  async function addPicture(entryId: string) {
+    setPortfolio('taking');
+    let saved = false;
+    try {
+      const dataUrl = await preview.current?.snapshot?.();
+      if (dataUrl) {
+        await api.put(`/api/me/portfolio/${encodeURIComponent(entryId)}/screenshot`, { dataUrl });
+        saved = true;
+      }
+    } catch {
+      saved = false;
+    }
+    setPortfolio(saved ? 'saved' : 'noPicture');
+    void queryClient.invalidateQueries({ queryKey: keys.portfolio });
   }
 
   const { dismiss, helped } = tutor;
@@ -616,6 +640,14 @@ function ChallengeStep({
       </div>
 
       <ErrorNote error={error} />
+      {portfolio && (
+        <p role="status" className="card border-ok">
+          {portfolio === 'taking' && 'Your app is going in your portfolio. Taking a picture of its page…'}
+          {portfolio === 'saved' && <>Your app is in your portfolio, with a picture of its page. </>}
+          {portfolio === 'noPicture' && <>Your app is in your portfolio. We couldn't take a picture of its page this time, so it shows without one. </>}
+          {portfolio !== 'taking' && <Link className="link font-bold" to="/me/portfolio">See your portfolio</Link>}
+        </p>
+      )}
       <TestResultList challenge={challenge} results={results} />
 
       <TutorPanel

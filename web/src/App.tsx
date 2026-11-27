@@ -9,7 +9,7 @@ import { CoursePage } from './pages/CoursePage';
 import { LandingPage } from './pages/LandingPage';
 import { LearnHomePage } from './pages/LearnHomePage';
 import { LoginPage } from './pages/LoginPage';
-import { BadgesPage, CertificatesPage } from './pages/MePages';
+import { BadgesPage, CertificatesPage, PortfolioPage } from './pages/MePages';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { ParentChildPage } from './pages/ParentChildPage';
 import { ParentHomePage } from './pages/ParentHomePage';
@@ -48,6 +48,7 @@ export function App() {
           />
           <Route path="me/badges" element={<BadgesPage />} />
           <Route path="me/certificates" element={<CertificatesPage />} />
+          <Route path="me/portfolio" element={<PortfolioPage />} />
         </Route>
 
         <Route element={<RequireRole role="Parent" />}>

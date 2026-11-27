@@ -2,7 +2,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/client';
-import { keys, useChildProgress, useChildSettings } from '../api/queries';
+import { keys, useChildPortfolio, useChildProgress, useChildSettings } from '../api/queries';
+import { PortfolioCard } from '../components/PortfolioCard';
 import type { ChildProgress, ChildSettings } from '../api/types';
 import { ErrorNote, Field, PageTitle, ProgressBar, Spinner } from '../components/ui';
 
@@ -60,9 +61,30 @@ export function ParentChildPage() {
         {data.badges.length > 0 && <p><strong>Badges:</strong> {data.badges.join(', ')}</p>}
       </section>
 
+      <ChildPortfolio childId={childId} />
+
       <SettingsForm childId={childId} initial={data.settings} />
       <AccountActions childId={childId} data={data} />
     </div>
+  );
+}
+
+/** Their finished projects, the same cards they see, read-only. Hidden until there's at least one. */
+function ChildPortfolio({ childId }: { childId: string }) {
+  const { data: entries, error } = useChildPortfolio(childId);
+  if (!error && !entries?.length) return null;
+  return (
+    <section aria-labelledby="portfolio-h" className="space-y-3">
+      <h2 id="portfolio-h" className="text-xl font-bold">Projects</h2>
+      <ErrorNote error={error} />
+      <ul className="grid gap-4 md:grid-cols-2">
+        {entries?.map((entry) => (
+          <li key={entry.id} className="flex">
+            <PortfolioCard entry={entry} editable={false} headingLevel={3} />
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

@@ -70,7 +70,18 @@ export const FullStackOutput = forwardRef<LivePreviewHandle, {
     return mergeResults(tests, api, web ?? null);
   }, [live, modelPrefix]);
 
-  useImperativeHandle(ref, () => ({ run: (code, tests) => execute(code, tests) }), [execute]);
+  useImperativeHandle(ref, () => ({
+    run: (code, tests) => execute(code, tests),
+    /**
+     * A picture for the portfolio. The checks leave the page wherever their clicks took it, so the app restarts
+     * first (fresh server, fresh data, no tests) and the picture shows what someone opening it would see.
+     */
+    async snapshot() {
+      setTab('preview');
+      await execute(files);
+      return (await preview.current?.snapshot?.()) ?? null;
+    },
+  }), [execute, files]);
 
   // Start once when the panel appears.
   const autoRan = useRef(false);
